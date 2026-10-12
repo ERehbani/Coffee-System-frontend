@@ -19,7 +19,8 @@ logged-in customer sees; the frontend needs it now, while the backend contract i
 - Client shell layout with bottom navigation (Loyalty, Catalog, Cart, Rewards).
 - Dashboard page: header, loyalty card, quick actions, active redemptions, nearby cafes,
   featured benefits.
-- Domain model, repository port, HTTP adapter (ready, not active), mock adapter (active), store.
+- Model, repository port, HTTP adapter (ready, not active), mock adapter (active), store, under
+  `src/features/profile/`; shared layout, bottom nav and icon under `src/shared/components/`.
 - Lazy-loaded feature route, client-side rendering for the authenticated route.
 
 Out of scope: login/auth, auth guard and interceptor, catalog/cart/rewards views, real actions
@@ -32,8 +33,15 @@ Out of scope: login/auth, auth guard and interceptor, catalog/cart/rewards views
   card uses a slate background; it is mapped to `primary-dark` → `text` to respect the palette.
 - Angular 22 conventions from the project GEMINI guide: standalone, signals, `input()`/`output()`,
   native control flow, no `ngClass`/`ngStyle`, `inject()`, `NgOptimizedImage`, WCAG AA / AXE.
-- Screaming architecture: feature folder `client-dashboard/` with `domain`, `application`,
-  `infrastructure`, `ui` (container-presentational).
+- Screaming architecture (user layout, since T4): feature folder `src/features/profile/` with
+  `profile.routes.ts`, `pages/` (container: `profile-page`), `components/` (presentational),
+  `services/` (store, repository port, mock and HTTP adapters), `types/` (model, DTO) and
+  `utils/` (loyalty progress, mapper, fixture). Cross-feature UI lives in `src/shared/components/`
+  (`icon`, `bottom-nav`, `client-layout`). Relative imports, no path aliases.
+  Historical (T1–T3): feature folder `src/app/client-dashboard/` with `domain`, `application`,
+  `infrastructure`, `ui`; layout in `src/app/layout/`, icon in `src/app/shared/ui/`.
+- No spec files (user requirement, since T4): `angular.json` schematics set `skipTests: true` for
+  component, class, directive, guard, interceptor, pipe, resolver and service.
 - Code identifiers and comments in English; UI copy in Spanish, mirroring the PDF.
 - Angular CLI 22 rejects system Node 24.13.0; run it with
   `fnm exec --using=22.23.3 node node_modules/@angular/cli/bin/ng.js <args>`.
@@ -55,17 +63,27 @@ interceptor attaches the session token; the HTTP adapter does not handle auth it
   functions, mapper and store. Route: delegated (writer trigger).
 - [x] **T3 — Dashboard UI**: presentational components + container page wired to the store,
   loading/error/empty states, accessibility, component tests. Route: delegated (writer trigger).
+- [x] **T4 — Restructure + remove tests**: remove every `*.spec.ts` and skip specs in schematics;
+  move the feature into the user's screaming layout (`src/features/profile`,
+  `src/shared/components`) with `git mv`, renaming `ClientDashboard*` identifiers to `Profile*`
+  (`ProfilePage`, `ProfileStore`, `ProfileRepository`, `MockProfileRepository`,
+  `HttpProfileRepository`, `ProfileDashboard`, `ProfileDashboardDto`, `toProfileDashboard`,
+  `buildProfileDashboardFixture`). No behavior change: route path `dashboard`, `RenderMode.Client`
+  and the API endpoint are unchanged. Route: delegated (writer trigger: 2+ non-trivial files).
 
 ## Acceptance criteria
 
 - `/dashboard` renders the PDF layout with mock data using only palette colors.
 - Switching `useMockApi` to `false` makes the page consume the HTTP adapter with no UI changes.
-- `ng build` and `ng test --watch=false` pass.
+- `ng build` passes. (Historical, T1–T3: `ng test --watch=false` also passed; tests were removed
+  in T4 at the user's request.)
 - Text/background pairs meet WCAG AA contrast; icon-only controls have accessible names.
 
 ## Checks
 
-- `ng test --watch=false` (Vitest) · `ng build` (includes SSR/prerender).
+- `ng build` (includes SSR/prerender) is the remaining check.
+- Tests were removed in T4 at the user's request (no `*.spec.ts` in `src/`). Historical, T1–T3:
+  `ng test --watch=false` (Vitest) was also run; that evidence is kept below for the record.
 
 ## Delivery
 
@@ -74,6 +92,9 @@ interceptor attaches the session token; the HTTP adapter does not handle auth it
 - RDD: off (global). Ordinary checks only.
 
 ## Progress / Evidence
+
+Historical note: T1–T3 test evidence and file paths (`src/app/client-dashboard/...`,
+`shared/ui/icon/...`) predate T4, which removed the specs and moved the files.
 
 - T1 (route: delegated) — `ng test --watch=false`: 5 files / 8 tests passed. `ng build`: success,
   no warnings, 1 static route prerendered, `/dashboard` client-rendered. Commit `a490c37`.
@@ -94,7 +115,19 @@ interceptor attaches the session token; the HTTP adapter does not handle auth it
   specs), above the 400-line heuristic because each section is its own small component.
   A11y: adjacent inline spans get `&ngsp;` separators (Angular drops whitespace-only text nodes,
   which made "4.9" + "8 reseñas" read as "4.98 reseñas"). Commit `cd85569`.
+- T4 (route: delegated, writer trigger: 2+ non-trivial files) — 14 spec files removed with
+  `git rm` (incl. `app.spec.ts`); `skipTests: true` added for the 8 schematics whose schema
+  supports it (all 8 do in `@schematics/angular` 22.1.8). `ng build` after removal: success, no
+  warnings. Commit `1cb7a2e`. Restructure: 31 files moved with `git mv` into
+  `src/features/profile` and `src/shared/components`; old `src/app/client-dashboard`,
+  `src/app/layout`, `src/app/shared` removed; no `ClientDashboard`/`client-dashboard`/`app/layout`/
+  `app/shared` references left in `src/`. `ng build`: success, no warnings, 1 static route
+  prerendered, lazy chunk now `profile-routes`. Commit `58d34f4`. Git pairs 27 moves as renames
+  at the default 50% similarity; the 4 small files with most identifiers renamed
+  (`profile.routes.ts` and the three repositories) pair at 30–40%, so trace them with
+  `git log --follow -M30%`.
 
 ## Next step
 
-Feature complete. Before opening any PR: ask the chain strategy (forecast > 400 lines).
+Feature complete and restructured (T4). Before opening any PR: ask the chain strategy
+(forecast > 400 lines).
