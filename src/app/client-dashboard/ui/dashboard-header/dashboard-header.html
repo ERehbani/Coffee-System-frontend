@@ -1,0 +1,37 @@
+<header class="flex items-center justify-between gap-3">
+  <div class="flex min-w-0 items-center gap-3">
+    <div class="relative shrink-0">
+      @if (avatarUrl(); as url) {
+        <img
+          [ngSrc]="url"
+          width="48"
+          height="48"
+          alt=""
+          priority
+          class="size-12 rounded-full object-cover ring-2 ring-surface"
+        />
+      } @else {
+        <span
+          aria-hidden="true"
+          class="flex size-12 items-center justify-center rounded-full bg-accent-light text-lg font-bold text-primary-dark"
+        >
+          {{ initials() }}
+        </span>
+      }
+      <span
+        aria-hidden="true"
+        class="absolute right-0 bottom-0 size-3.5 rounded-full border-2 border-bg bg-accent"
+      ></span>
+    </div>
+    <div class="min-w-0">
+      <p class="truncate text-xl leading-tight font-extrabold text-primary">Roast &amp; Rewards</p>
+      <h1 class="truncate text-sm font-medium text-muted">¡Hola, {{ firstName() }}!</h1>
+    </div>
+  </div>
+  <p
+    class="flex shrink-0 items-center gap-1.5 rounded-full bg-primary px-3.5 py-1.5 text-sm font-bold text-white"
+  >
+    <app-icon name="coffee" [size]="16" />
+    <span><span class="sr-only">Tienes </span>{{ availablePoints() | number }} pts</span>
+  </p>
+</header>

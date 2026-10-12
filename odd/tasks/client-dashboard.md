@@ -53,7 +53,7 @@ interceptor attaches the session token; the HTTP adapter does not handle auth it
 - [x] **T2 — Data layer**: domain model + pure loyalty/expiry functions, repository port, DTO,
   mapper, mock fixture + mock adapter, HTTP adapter, store (signals/resource). Test-first for pure
   functions, mapper and store. Route: delegated (writer trigger).
-- [ ] **T3 — Dashboard UI**: presentational components + container page wired to the store,
+- [x] **T3 — Dashboard UI**: presentational components + container page wired to the store,
   loading/error/empty states, accessibility, component tests. Route: delegated (writer trigger).
 
 ## Acceptance criteria
@@ -83,10 +83,18 @@ interceptor attaches the session token; the HTTP adapter does not handle auth it
   ("Not implemented"), `client-dashboard.mapper.spec` 7/7 failed ("Not implemented"),
   `client-dashboard.store.spec` 4/4 failed (assertions against a stub). GREEN: 11/11, 7/7, 4/4.
   Full `ng test --watch=false`: 10 files / 34 tests passed. `ng build`: success, no warnings.
-  Commit: T2 hash recorded in the T3 entry. Decisions: progress rounds down to one decimal (never
-  shows 100% early); expiry counts calendar days in local time; unknown tier codes and invalid
-  dates make the mapper throw, which surfaces as the store error state.
+  Commit `5ddc15a`. Decisions: progress rounds down to one decimal (never shows 100% early);
+  expiry counts calendar days in local time; unknown tier codes and invalid dates make the mapper
+  throw, which surfaces as the store error state.
+- T3 (route: delegated) — `ng test --watch=false`: 14 files / 53 tests passed, no console
+  warnings. `ng build`: success, no warnings (no budget or `NgOptimizedImage` warnings). Visual
+  check of the production build through Edge DevTools emulation: no horizontal overflow at 320,
+  375 and 820 px (`scrollWidth === innerWidth`); 375 px render matches the PDF layout. Size:
+  ~1,050 added lines (7 presentational components + container, each with template, and 6
+  specs), above the 400-line heuristic because each section is its own small component.
+  A11y: adjacent inline spans get `&ngsp;` separators (Angular drops whitespace-only text nodes,
+  which made "4.9" + "8 reseñas" read as "4.98 reseñas"). Commit: see the docs commit after it.
 
 ## Next step
 
-T3 — dashboard UI.
+Feature complete. Before opening any PR: ask the chain strategy (forecast > 400 lines).

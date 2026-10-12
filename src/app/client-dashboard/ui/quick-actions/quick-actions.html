@@ -1,0 +1,18 @@
+<ul aria-label="Acciones rápidas" class="grid grid-cols-4 gap-3">
+  @for (action of actions; track action.id) {
+    <li>
+      <button
+        type="button"
+        (click)="actionSelected.emit(action.id)"
+        class="flex h-full w-full flex-col items-center gap-2 rounded-2xl border border-border bg-surface px-1 py-3 text-center text-xs leading-tight font-semibold text-text shadow-sm transition-colors hover:border-accent-light hover:bg-accent-light/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+      >
+        <span
+          class="flex size-11 items-center justify-center rounded-xl bg-accent-light text-primary"
+        >
+          <app-icon [name]="action.icon" [size]="22" />
+        </span>
+        {{ action.label }}
+      </button>
+    </li>
+  }
+</ul>
