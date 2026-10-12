@@ -50,7 +50,7 @@ interceptor attaches the session token; the HTTP adapter does not handle auth it
   lazy routes, client layout + bottom nav, icon component, `index.html` (lang/title/font),
   SSR client render for the dashboard route, replace placeholder `app.html`, fix `app.spec.ts`.
   Route: delegated (writer trigger: 2+ non-trivial files).
-- [ ] **T2 — Data layer**: domain model + pure loyalty/expiry functions, repository port, DTO,
+- [x] **T2 — Data layer**: domain model + pure loyalty/expiry functions, repository port, DTO,
   mapper, mock fixture + mock adapter, HTTP adapter, store (signals/resource). Test-first for pure
   functions, mapper and store. Route: delegated (writer trigger).
 - [ ] **T3 — Dashboard UI**: presentational components + container page wired to the store,
@@ -76,10 +76,17 @@ interceptor attaches the session token; the HTTP adapter does not handle auth it
 ## Progress / Evidence
 
 - T1 (route: delegated) — `ng test --watch=false`: 5 files / 8 tests passed. `ng build`: success,
-  no warnings, 1 static route prerendered, `/dashboard` client-rendered. Commit: T1 hash recorded
-  in the T2 entry. Icons: 20 Lucide (ISC) icons normalized to path data in
-  `shared/ui/icon/icon-registry.ts` (pinned `lucide-static@0.460.0`).
+  no warnings, 1 static route prerendered, `/dashboard` client-rendered. Commit `a490c37`.
+  Icons: 20 Lucide (ISC) icons normalized to path data in `shared/ui/icon/icon-registry.ts`
+  (pinned `lucide-static@0.460.0`).
+- T2 (route: delegated) — test-first. RED observed: `loyalty-progress.spec` 11/11 failed
+  ("Not implemented"), `client-dashboard.mapper.spec` 7/7 failed ("Not implemented"),
+  `client-dashboard.store.spec` 4/4 failed (assertions against a stub). GREEN: 11/11, 7/7, 4/4.
+  Full `ng test --watch=false`: 10 files / 34 tests passed. `ng build`: success, no warnings.
+  Commit: T2 hash recorded in the T3 entry. Decisions: progress rounds down to one decimal (never
+  shows 100% early); expiry counts calendar days in local time; unknown tier codes and invalid
+  dates make the mapper throw, which surfaces as the store error state.
 
 ## Next step
 
-T2 — data layer.
+T3 — dashboard UI.
