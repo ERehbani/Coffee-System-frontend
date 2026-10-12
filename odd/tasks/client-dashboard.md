@@ -93,7 +93,7 @@ interceptor attaches the session token; the HTTP adapter does not handle auth it
   ~1,050 added lines (7 presentational components + container, each with template, and 6
   specs), above the 400-line heuristic because each section is its own small component.
   A11y: adjacent inline spans get `&ngsp;` separators (Angular drops whitespace-only text nodes,
-  which made "4.9" + "8 reseñas" read as "4.98 reseñas"). Commit: see the docs commit after it.
+  which made "4.9" + "8 reseñas" read as "4.98 reseñas"). Commit `cd85569`.
 
 ## Next step
 
