@@ -40,8 +40,12 @@ Out of scope: login/auth, auth guard and interceptor, catalog/cart/rewards views
   (`icon`, `bottom-nav`, `client-layout`). Relative imports, no path aliases.
   Historical (T1–T3): feature folder `src/app/client-dashboard/` with `domain`, `application`,
   `infrastructure`, `ui`; layout in `src/app/layout/`, icon in `src/app/shared/ui/`.
-- No spec files (user requirement, since T4): `angular.json` schematics set `skipTests: true` for
-  component, class, directive, guard, interceptor, pipe, resolver and service.
+- No new spec files (user requirement, since T4): `angular.json` schematics set `skipTests: true`
+  for component, class, directive, guard, interceptor, pipe, resolver and service. The
+  pre-existing `src/app/app.spec.ts` stays (user requirement, T5).
+- Number/currency formats follow `es-AR` (user requirement, T5): `LOCALE_ID` `es-AR`,
+  `DEFAULT_CURRENCY_CODE` `ARS`; format numbers through Angular pipes or `formatNumber` with the
+  injected `LOCALE_ID`, never `toFixed`/hardcoded separators.
 - Code identifiers and comments in English; UI copy in Spanish, mirroring the PDF.
 - Angular CLI 22 rejects system Node 24.13.0; run it with
   `fnm exec --using=22.23.3 node node_modules/@angular/cli/bin/ng.js <args>`.
@@ -70,6 +74,11 @@ interceptor attaches the session token; the HTTP adapter does not handle auth it
   `HttpProfileRepository`, `ProfileDashboard`, `ProfileDashboardDto`, `toProfileDashboard`,
   `buildProfileDashboardFixture`). No behavior change: route path `dashboard`, `RenderMode.Client`
   and the API endpoint are unchanged. Route: delegated (writer trigger: 2+ non-trivial files).
+- [x] **T5 — Restore app spec + es-AR formats**: restore the pre-existing `src/app/app.spec.ts`
+  (only the obsolete placeholder-title assertion adapted to the new shell); register `es-AR`
+  locale data, `LOCALE_ID` and `DEFAULT_CURRENCY_CODE`; percent via `PercentPipe`, distance and
+  review count via `formatNumber`; `<html lang="es-AR">`. Route: inline (mechanical, understood
+  edits).
 
 ## Acceptance criteria
 
@@ -81,9 +90,9 @@ interceptor attaches the session token; the HTTP adapter does not handle auth it
 
 ## Checks
 
-- `ng build` (includes SSR/prerender) is the remaining check.
-- Tests were removed in T4 at the user's request (no `*.spec.ts` in `src/`). Historical, T1–T3:
-  `ng test --watch=false` (Vitest) was also run; that evidence is kept below for the record.
+- `ng build` (includes SSR/prerender) and `ng test --watch=false` (only `src/app/app.spec.ts`).
+- Feature specs were removed in T4 at the user's request; the original app spec was restored in
+  T5. Historical, T1–T3: the full Vitest evidence is kept below for the record.
 
 ## Delivery
 
@@ -126,8 +135,10 @@ Historical note: T1–T3 test evidence and file paths (`src/app/client-dashboard
   at the default 50% similarity; the 4 small files with most identifiers renamed
   (`profile.routes.ts` and the three repositories) pair at 30–40%, so trace them with
   `git log --follow -M30%`.
+- T5 (route: inline) — `es-AR` output verified with `formatNumber`/`formatPercent`: `1.420`,
+  `3.000`, `4,9`, `47,3%`, `1,2`. Distance now reads `A 450 m` / `A 1,2 km`. `ng test
+  --watch=false`: 1 file / 2 tests passed. `ng build`: success, no warnings.
 
 ## Next step
 
-Feature complete and restructured (T4). Before opening any PR: ask the chain strategy
-(forecast > 400 lines).
+Feature complete (T5). Before opening any PR: ask the chain strategy (forecast > 400 lines).

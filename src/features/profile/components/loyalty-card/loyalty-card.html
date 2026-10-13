@@ -53,7 +53,7 @@
         ></div>
       </div>
       <div class="mt-3 flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-xs">
-        <p class="text-white/70">{{ progress().percent | number: '1.1-1' }}% completado</p>
+        <p class="text-white/70">{{ progressRatio() | percent: '1.1-1' }} completado</p>
         <p class="font-semibold text-gold">
           Faltan {{ progress().remainingPoints | number }} pts para {{ nextTierLabel() }}
         </p>

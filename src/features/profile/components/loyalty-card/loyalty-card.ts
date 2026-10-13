@@ -1,4 +1,4 @@
-import { DecimalPipe } from '@angular/common';
+import { DecimalPipe, PercentPipe } from '@angular/common';
 import { Component, computed, input, output } from '@angular/core';
 import { Icon } from '../../../../shared/components/icon/icon';
 import { LoyaltyStatus, LoyaltyTier } from '../../types/profile.model';
@@ -20,7 +20,7 @@ const TIER_TEXT_CLASSES: Record<LoyaltyTier, string> = {
 };
 
 @Component({
-  imports: [DecimalPipe, Icon],
+  imports: [DecimalPipe, PercentPipe, Icon],
   selector: 'app-loyalty-card',
   templateUrl: './loyalty-card.html',
   host: { class: 'block' },
@@ -31,6 +31,8 @@ export class LoyaltyCard {
   readonly scanQr = output<void>();
   readonly viewCard = output<void>();
 
+  // PercentPipe expects a ratio (0..1); progress is expressed as 0..100.
+  protected readonly progressRatio = computed(() => this.progress().percent / 100);
   protected readonly tierLabel = computed(() => TIER_LABELS[this.loyalty().tier]);
   protected readonly tierClass = computed(() => TIER_TEXT_CLASSES[this.loyalty().tier]);
   protected readonly nextTierLabel = computed(() => {
