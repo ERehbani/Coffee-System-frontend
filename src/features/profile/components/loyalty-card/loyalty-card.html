@@ -1,0 +1,82 @@
+<section
+  aria-label="Tarjeta R&amp;R Club"
+  class="rounded-3xl bg-linear-to-br from-primary-dark to-text p-5 text-white shadow-xl shadow-primary-dark/25 sm:p-6"
+>
+  <div class="flex items-start justify-between gap-3">
+    <p
+      class="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-bold tracking-wide uppercase"
+    >
+      <span class="inline-flex" [class]="tierClass()">
+        <app-icon name="shield" [size]="14" [filled]="true" />
+      </span>
+      Nivel {{ tierLabel() }}
+    </p>
+    <p class="pt-1 text-xs font-bold tracking-[0.2em] text-white/70">R&amp;R CLUB</p>
+  </div>
+
+  <p class="mt-6 flex items-baseline gap-2">
+    <span class="text-5xl font-extrabold tracking-tight">{{
+      loyalty().availablePoints | number
+    }}</span>
+    &ngsp;
+    <span class="text-lg font-semibold text-white/90">pts disponibles</span>
+  </p>
+  <p class="mt-1 flex items-center gap-1.5 text-sm text-white/70">
+    <app-icon name="history" [size]="14" />
+    {{ loyalty().lifetimePoints | number }} pts acumulados en total
+  </p>
+
+  <div class="mt-5 rounded-2xl bg-text/50 p-4">
+    @if (progress().isMaxTier) {
+      <p class="text-sm font-semibold">Nivel máximo alcanzado</p>
+    } @else {
+      <div class="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-sm">
+        <p class="font-medium text-white/90">
+          Próximo nivel:
+          <span class="font-bold" [class]="nextTierClass()">{{ nextTierLabel() }}</span>
+        </p>
+        <p class="font-semibold">
+          {{ loyalty().lifetimePoints | number }} / {{ loyalty().nextTierThreshold | number }} pts
+        </p>
+      </div>
+      <div
+        role="progressbar"
+        aria-valuemin="0"
+        aria-valuemax="100"
+        [attr.aria-valuenow]="progress().percent"
+        [attr.aria-label]="'Progreso hacia el nivel ' + nextTierLabel()"
+        class="mt-3 h-2 overflow-hidden rounded-full bg-white/15"
+      >
+        <div
+          class="h-full rounded-full bg-linear-to-r from-accent to-gold"
+          [style.width.%]="progress().percent"
+        ></div>
+      </div>
+      <div class="mt-3 flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-xs">
+        <p class="text-white/70">{{ progressRatio() | percent: '1.1-1' }} completado</p>
+        <p class="font-semibold text-gold">
+          Faltan {{ progress().remainingPoints | number }} pts para {{ nextTierLabel() }}
+        </p>
+      </div>
+    }
+  </div>
+
+  <div class="mt-5 grid grid-cols-2 gap-3">
+    <button
+      type="button"
+      (click)="scanQr.emit()"
+      class="flex items-center justify-center gap-2 rounded-xl bg-white px-3 py-3 text-sm font-bold text-primary-dark transition-colors hover:bg-accent-light focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+    >
+      <app-icon name="scan-qr-code" [size]="18" />
+      Escanear QR
+    </button>
+    <button
+      type="button"
+      (click)="viewCard.emit()"
+      class="flex items-center justify-center gap-2 rounded-xl border border-white/30 px-3 py-3 text-sm font-bold text-white transition-colors hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+    >
+      <app-icon name="id-card" [size]="18" />
+      Ver mi carnet
+    </button>
+  </div>
+</section>

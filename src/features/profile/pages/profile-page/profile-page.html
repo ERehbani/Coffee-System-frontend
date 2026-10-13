@@ -1,0 +1,121 @@
+@switch (store.status()) {
+  @case ('loading') {
+    <div aria-busy="true" class="space-y-6">
+      <p role="status" class="sr-only">Cargando tu panel…</p>
+      <div aria-hidden="true" class="space-y-6 motion-safe:animate-pulse">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="size-12 rounded-full bg-border"></div>
+            <div class="space-y-2">
+              <div class="h-5 w-40 rounded bg-border"></div>
+              <div class="h-3 w-24 rounded bg-border"></div>
+            </div>
+          </div>
+          <div class="h-8 w-24 rounded-full bg-border"></div>
+        </div>
+        <div class="h-80 rounded-3xl bg-border"></div>
+        <div class="grid grid-cols-4 gap-3">
+          @for (tile of [1, 2, 3, 4]; track tile) {
+            <div class="h-24 rounded-2xl bg-border"></div>
+          }
+        </div>
+        <div class="h-6 w-56 rounded bg-border"></div>
+        <div class="h-40 rounded-2xl bg-border"></div>
+      </div>
+    </div>
+  }
+  @case ('error') {
+    <section
+      role="alert"
+      class="flex flex-col items-center gap-3 rounded-2xl border border-border bg-surface p-6 text-center"
+    >
+      <h1 class="text-lg font-bold text-text">No pudimos cargar tu panel</h1>
+      <p class="text-sm text-muted">Revisa tu conexión e inténtalo de nuevo.</p>
+      <button
+        type="button"
+        (click)="store.reload()"
+        class="mt-2 inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+      >
+        <app-icon name="refresh-cw" [size]="16" />
+        Reintentar
+      </button>
+    </section>
+  }
+  @case ('ready') {
+    @if (store.dashboard(); as dashboard) {
+      <div class="space-y-7">
+        <app-dashboard-header
+          [firstName]="dashboard.profile.firstName"
+          [avatarUrl]="dashboard.profile.avatarUrl"
+          [availablePoints]="dashboard.loyalty.availablePoints"
+        />
+
+        @if (store.loyaltyProgress(); as progress) {
+          <app-loyalty-card
+            [loyalty]="dashboard.loyalty"
+            [progress]="progress"
+            (scanQr)="onScanQr()"
+            (viewCard)="onViewCard()"
+          />
+        }
+
+        <app-quick-actions (actionSelected)="onQuickAction($event)" />
+
+        <section aria-labelledby="active-redemptions-heading" class="space-y-3">
+          <app-section-header
+            headingId="active-redemptions-heading"
+            heading="Tus canjes activos y códigos"
+            [badge]="activeRedemptionsBadge()"
+          />
+          <ul class="space-y-3">
+            @for (redemption of store.activeRedemptions(); track redemption.id) {
+              <li>
+                <app-active-redemption-card [redemption]="redemption" (showQr)="onShowQr($event)" />
+              </li>
+            } @empty {
+              <li
+                class="rounded-2xl border border-dashed border-border bg-surface p-4 text-center text-sm text-muted"
+              >
+                No tienes canjes activos
+              </li>
+            }
+          </ul>
+        </section>
+
+        <section aria-labelledby="nearby-cafes-heading" class="space-y-3">
+          <app-section-header
+            headingId="nearby-cafes-heading"
+            heading="Cafeterías de la red cercanas"
+            actionLabel="Ver mapa"
+            (action)="onSeeMap()"
+          />
+          <ul class="space-y-3">
+            @for (cafe of dashboard.nearbyCafes; track cafe.id) {
+              <li><app-nearby-cafe-card [cafe]="cafe" /></li>
+            }
+          </ul>
+        </section>
+
+        <section aria-labelledby="featured-benefits-heading" class="space-y-3">
+          <app-section-header
+            headingId="featured-benefits-heading"
+            heading="Beneficios destacados"
+            actionLabel="Ver catálogo"
+            (action)="onSeeCatalog()"
+          />
+          <ul class="grid grid-cols-2 gap-3">
+            @for (benefit of dashboard.featuredBenefits; track benefit.id) {
+              <li>
+                <app-featured-benefit-card
+                  [benefit]="benefit"
+                  [availablePoints]="dashboard.loyalty.availablePoints"
+                  (redeem)="onRedeem($event)"
+                />
+              </li>
+            }
+          </ul>
+        </section>
+      </div>
+    }
+  }
+}
