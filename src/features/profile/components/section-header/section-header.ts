@@ -1,6 +1,5 @@
 import { Component, input, output } from '@angular/core';
 
-/** Section title (h2) with an optional status badge or text action on the right. */
 @Component({
   selector: 'app-section-header',
   template: `

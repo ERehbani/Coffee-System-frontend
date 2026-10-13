@@ -35,7 +35,6 @@ export class ProfilePage {
     return count === 1 ? '1 activo' : `${count} activos`;
   });
 
-  // The flows behind these actions (QR scanner, card, map, catalog, redemption) are not built yet.
   protected onScanQr(): void {}
   protected onViewCard(): void {}
   protected onQuickAction(_action: QuickActionId): void {}

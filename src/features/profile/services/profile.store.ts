@@ -14,7 +14,6 @@ export interface ActiveRedemptionView extends ActiveRedemption {
   readonly daysUntilExpiry: number;
 }
 
-/** Dashboard state for the current client. Provided at the feature route level. */
 @Service({ autoProvided: false })
 export class ProfileStore {
   private readonly repository = inject(ProfileRepository);

@@ -10,9 +10,7 @@ export interface LoyaltyStatus {
   readonly tier: LoyaltyTier;
   readonly availablePoints: number;
   readonly lifetimePoints: number;
-  /** `null` when the client already holds the highest tier. */
   readonly nextTier: LoyaltyTier | null;
-  /** Lifetime points required to reach `nextTier`; `null` at the highest tier. */
   readonly nextTierThreshold: number | null;
 }
 

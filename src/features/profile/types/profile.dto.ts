@@ -1,7 +1,3 @@
-/**
- * Response of `GET {apiBaseUrl}/clients/me/dashboard`.
- * Proposed contract, pending backend confirmation.
- */
 export interface ProfileDashboardDto {
   readonly client: ClientProfileDto;
   readonly loyalty: LoyaltyStatusDto;
@@ -10,7 +6,6 @@ export interface ProfileDashboardDto {
   readonly featuredBenefits: readonly FeaturedBenefitDto[];
 }
 
-/** Tier codes as sent by the API: `BRONZE`, `SILVER`, `GOLD` or `DIAMOND`. */
 export type LoyaltyTierCodeDto = string;
 
 export interface ClientProfileDto {
@@ -32,7 +27,6 @@ export interface ActiveRedemptionDto {
   readonly title: string;
   readonly description: string;
   readonly code: string;
-  /** ISO 8601 date-time. */
   readonly expiresAt: string;
 }
 
