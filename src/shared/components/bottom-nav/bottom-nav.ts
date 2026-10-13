@@ -16,7 +16,7 @@ interface NavItem {
 })
 export class BottomNav {
   protected readonly items: readonly NavItem[] = [
-    { label: 'Loyalty', path: '/dashboard', icon: 'coffee' },
+    { label: 'Loyalty', path: '/profile', icon: 'coffee' },
     { label: 'Catalog', path: '/catalog', icon: 'cup' },
     { label: 'Cart', path: '/cart', icon: 'shopping-bag' },
     { label: 'Rewards', path: '/rewards', icon: 'tag' },

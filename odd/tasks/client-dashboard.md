@@ -79,10 +79,14 @@ interceptor attaches the session token; the HTTP adapter does not handle auth it
   locale data, `LOCALE_ID` and `DEFAULT_CURRENCY_CODE`; percent via `PercentPipe`, distance and
   review count via `formatNumber`; `<html lang="es-AR">`. Route: inline (mechanical, understood
   edits).
+- [x] **T6 — Route `/profile`**: the client view moves from `/dashboard` to `/profile` (root and
+  unknown URLs redirect there; server `RenderMode.Client` and the bottom nav "Loyalty" link
+  follow). The API endpoint `/clients/me/dashboard` is unchanged. Route: inline (mechanical).
 
 ## Acceptance criteria
 
-- `/dashboard` renders the PDF layout with mock data using only palette colors.
+- `/profile` renders the PDF layout with mock data using only palette colors (was `/dashboard`
+  until T6).
 - Switching `useMockApi` to `false` makes the page consume the HTTP adapter with no UI changes.
 - `ng build` passes. (Historical, T1–T3: `ng test --watch=false` also passed; tests were removed
   in T4 at the user's request.)
@@ -138,7 +142,10 @@ Historical note: T1–T3 test evidence and file paths (`src/app/client-dashboard
 - T5 (route: inline) — `es-AR` output verified with `formatNumber`/`formatPercent`: `1.420`,
   `3.000`, `4,9`, `47,3%`, `1,2`. Distance now reads `A 450 m` / `A 1,2 km`. `ng test
   --watch=false`: 1 file / 2 tests passed. `ng build`: success, no warnings.
+- T6 (route: inline) — 5 replacements in `app.routes.ts`, `app.routes.server.ts`,
+  `bottom-nav.ts`. `ng test --watch=false`: 1 file / 2 tests passed. `ng build`: success, no
+  warnings.
 
 ## Next step
 
-Feature complete (T5). Before opening any PR: ask the chain strategy (forecast > 400 lines).
+Feature complete (T6). Before opening any PR: ask the chain strategy (forecast > 400 lines).

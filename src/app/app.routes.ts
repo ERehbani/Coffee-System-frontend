@@ -6,12 +6,12 @@ export const routes: Routes = [
     path: '',
     component: ClientLayout,
     children: [
-      { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
+      { path: '', pathMatch: 'full', redirectTo: 'profile' },
       {
-        path: 'dashboard',
+        path: 'profile',
         loadChildren: () => import('../features/profile/profile.routes'),
       },
     ],
   },
-  { path: '**', redirectTo: 'dashboard' },
+  { path: '**', redirectTo: 'profile' },
 ];
