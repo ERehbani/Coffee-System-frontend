@@ -3,6 +3,10 @@ import { ClientLayout } from '../shared/components/client-layout/client-layout';
 
 export const routes: Routes = [
   {
+    path: 'cafe/profile',
+    loadChildren: () => import('../features/cafe-profile/cafe-profile.routes'),
+  },
+  {
     path: '',
     component: ClientLayout,
     children: [

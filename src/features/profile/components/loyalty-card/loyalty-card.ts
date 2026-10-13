@@ -11,7 +11,6 @@ const TIER_LABELS: Record<LoyaltyTier, string> = {
   diamond: 'DIAMANTE',
 };
 
-// Every tier color passes 4.5:1 on the dark card except bronze (3:1), used for icons only.
 const TIER_TEXT_CLASSES: Record<LoyaltyTier, string> = {
   bronze: 'text-bronze',
   silver: 'text-silver',
@@ -31,7 +30,6 @@ export class LoyaltyCard {
   readonly scanQr = output<void>();
   readonly viewCard = output<void>();
 
-  // PercentPipe expects a ratio (0..1); progress is expressed as 0..100.
   protected readonly progressRatio = computed(() => this.progress().percent / 100);
   protected readonly tierLabel = computed(() => TIER_LABELS[this.loyalty().tier]);
   protected readonly tierClass = computed(() => TIER_TEXT_CLASSES[this.loyalty().tier]);

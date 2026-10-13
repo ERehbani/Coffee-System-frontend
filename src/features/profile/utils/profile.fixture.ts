@@ -3,10 +3,6 @@ import { ProfileDashboardDto } from '../types/profile.dto';
 const DAY_MS = 24 * 60 * 60 * 1000;
 const UNSPLASH = 'https://images.unsplash.com';
 
-/**
- * Mock API response mirroring the "Cliente - Dashboard & Fidelización" design.
- * Dates are relative to `now` so the data never goes stale.
- */
 export function buildProfileDashboardFixture(now: Date): ProfileDashboardDto {
   return {
     client: {

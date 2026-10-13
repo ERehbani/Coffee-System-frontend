@@ -11,7 +11,6 @@ export default [
     path: '',
     component: ProfilePage,
     providers: [
-      // Mock data until the backend is ready; login, auth guard and token interceptor come later.
       {
         provide: ProfileRepository,
         useClass: environment.useMockApi ? MockProfileRepository : HttpProfileRepository,

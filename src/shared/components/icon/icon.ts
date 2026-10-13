@@ -1,10 +1,6 @@
 import { Component, computed, input } from '@angular/core';
 import { ICONS, IconName } from './icon-registry';
 
-/**
- * Inline SVG icon. Decorative (aria-hidden) unless a `label` is given,
- * in which case it is exposed as an image with that accessible name.
- */
 @Component({
   selector: 'app-icon',
   template: `
