@@ -1,0 +1,70 @@
+<form 
+  [formGroup]="profileForm" 
+  (ngSubmit)="onSubmit()" 
+  class="flex flex-col gap-6 p-6 bg-surface rounded-xl shadow-sm border border-border max-w-md mx-auto font-sans"
+>
+  <!-- Encabezado opcional (puedes quitarlo si ya lo tienes en la página) -->
+  <div class="mb-2">
+    <h2 class="text-xl font-bold text-text">Editar Perfil</h2>
+    <p class="text-sm text-muted">Actualiza tu información personal.</p>
+  </div>
+  
+  <!-- Campo Nombre -->
+  <div class="flex flex-col gap-1.5">
+    <label for="name" class="text-sm font-semibold text-text">Nombre completo</label>
+    <input 
+      id="name" 
+      type="text" 
+      formControlName="name" 
+      placeholder="Ej: Juan Pérez"
+      class="w-full px-4 py-2.5 bg-bg border border-border rounded-lg text-text focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all"
+    >
+    
+    @if (profileForm.controls.name.invalid && profileForm.controls.name.touched) {
+      <small class="text-red-500 text-xs font-medium mt-1">
+        @if (profileForm.controls.name.hasError('required')) { El nombre es obligatorio. }
+        @if (profileForm.controls.name.hasError('minlength')) { Debe tener al menos 3 caracteres. }
+      </small>
+    }
+  </div>
+
+  <!-- Campo Teléfono -->
+  <div class="flex flex-col gap-1.5">
+    <label for="phone" class="text-sm font-semibold text-text">Teléfono</label>
+    <input 
+      id="phone" 
+      type="text" 
+      formControlName="phone" 
+      placeholder="Ej: 2234567890"
+      class="w-full px-4 py-2.5 bg-bg border border-border rounded-lg text-text focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all"
+    >
+    
+    @if (profileForm.controls.phone.invalid && profileForm.controls.phone.touched) {
+      <small class="text-red-500 text-xs font-medium mt-1">
+        @if (profileForm.controls.phone.hasError('required')) { El teléfono es obligatorio. }
+        @if (profileForm.controls.phone.hasError('pattern')) { Formato inválido. Ingresa solo números (mín. 10). }
+      </small>
+    }
+  </div>
+
+  <!-- Campo Avatar -->
+  <div class="flex flex-col gap-1.5">
+    <label for="avatarUrl" class="text-sm font-semibold text-text">URL del Avatar</label>
+    <input 
+      id="avatarUrl" 
+      type="text" 
+      formControlName="avatarUrl" 
+      placeholder="https://ejemplo.com/avatar.jpg"
+      class="w-full px-4 py-2.5 bg-bg border border-border rounded-lg text-text focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all"
+    >
+  </div>
+
+  <!-- Botón de guardado -->
+  <button 
+    type="submit" 
+    [disabled]="profileForm.invalid" 
+    class="w-full mt-4 py-3 font-semibold text-surface bg-primary rounded-lg hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:bg-muted disabled:opacity-60 disabled:cursor-not-allowed transition-all"
+  >
+    Guardar cambios
+  </button>
+</form>

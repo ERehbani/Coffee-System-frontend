@@ -5,6 +5,7 @@ import { HttpProfileRepository } from './services/http-profile.repository';
 import { MockProfileRepository } from './services/mock-profile.repository';
 import { ProfileStore } from './services/profile.store';
 import { ProfileRepository } from './services/profile.repository';
+import { EditProfileForm } from './components/edit-profile-form/edit-profile-form';
 
 export default [
   {
@@ -18,4 +19,8 @@ export default [
       ProfileStore,
     ],
   },
+  {
+    path: 'edit',
+    component: EditProfileForm
+  }
 ] satisfies Routes;
