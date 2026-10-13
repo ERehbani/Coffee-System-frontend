@@ -1,7 +1,7 @@
 # Feature: client-dashboard
 
 Locator: `odd/tasks/client-dashboard.md` · Engram mirror: `odd/client-dashboard/tasks`
-Branch: `feat/client-dashboard` (from `develop`)
+Branch: `feature/HU-CLI-02-vista-de-perfil` (from `develop`; was `feat/client-dashboard`)
 
 ## Objective
 
