@@ -10,12 +10,16 @@ export const routes: Routes = [
     path: '',
     component: ClientLayout,
     children: [
-      { path: '', pathMatch: 'full', redirectTo: 'profile' },
+      { path: '', pathMatch: 'full', redirectTo: 'home' },
+      {
+        path: 'home',
+        loadChildren: () => import('../features/home/home.routes'),
+      },
       {
         path: 'profile',
         loadChildren: () => import('../features/profile/profile.routes'),
       },
     ],
   },
-  { path: '**', redirectTo: 'profile' },
+  { path: '**', redirectTo: 'home' },
 ];
