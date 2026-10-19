@@ -1,4 +1,5 @@
 export const ICONS = {
+  'arrow-left': ['M19 12H5', 'M12 19l-7-7 7-7'],
   check: ['M20 6 9 17l-5-5'],
   clock: ['M2 12a10 10 0 1 0 20 0a10 10 0 1 0 -20 0', 'M12 6L12 12L16 14'],
   coffee: [
