@@ -14,21 +14,32 @@ import { CafeCard } from '../cafe-card/cafe-card';
 })
 export class Home implements OnInit {
   cafes = signal<Cafe[]>([]);
-  searchQuery = signal('');
-  selectedCafe = signal<Cafe | null>(null);
   isLoading = signal(true);
+  searchQuery = signal('');
+  filterState = signal<'all' | 'open'>('all');
 
   filteredCafes = computed(() => {
-    const query = this.searchQuery().toLowerCase().trim();
-    if (!query) {
-      return this.cafes();
+    let list = this.cafes();
+
+    if (this.filterState() === 'open') {
+      list = list.filter((c) => c.state);
     }
 
-    return this.cafes().filter(
+    const query = this.searchQuery().toLowerCase().trim();
+    if (!query) {
+      return list;
+    }
+
+    return list.filter(
       (cafe) =>
         cafe.name.toLowerCase().includes(query) ||
-        cafe.address.toLowerCase().includes(query)
+        cafe.address.toLowerCase().includes(query) ||
+        (cafe.description && cafe.description.toLowerCase().includes(query))
     );
+  });
+
+  openCafesCount = computed(() => {
+    return this.cafes().filter((c) => c.state).length;
   });
 
   constructor(private cafeService: CafeService) {}
@@ -37,20 +48,13 @@ export class Home implements OnInit {
     this.cafeService.getAll().subscribe({
       next: (data) => {
         this.cafes.set(data);
-        if (data.length > 0 && !this.selectedCafe()) {
-          this.selectedCafe.set(data[0]);
-        }
         this.isLoading.set(false);
       },
       error: (error) => {
-        console.error('error:', error);
+        console.error('error loading cafes:', error);
         this.isLoading.set(false);
       },
     });
-  }
-
-  onSelectCafe(cafe: Cafe): void {
-    this.selectedCafe.set(cafe);
   }
 
   onSearchChange(value: string): void {
@@ -59,5 +63,9 @@ export class Home implements OnInit {
 
   clearSearch(): void {
     this.searchQuery.set('');
+  }
+
+  setFilterState(state: 'all' | 'open'): void {
+    this.filterState.set(state);
   }
 }
