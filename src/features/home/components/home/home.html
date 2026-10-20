@@ -1,8 +1,11 @@
-<div class="space-y-6 pb-20">
+<div class="space-y-6 pb-12">
   <header class="space-y-2">
     <div class="flex items-center justify-between">
       <div>
-        <span class="text-xs font-semibold uppercase tracking-wider text-accent">Coffee System</span>
+        <span class="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-accent">
+          <app-icon name="coffee" [size]="14" />
+          Coffee System
+        </span>
         <h1 class="text-2xl font-bold tracking-tight text-text md:text-3xl">Explorar Cafeterías</h1>
       </div>
       <a
@@ -13,12 +16,12 @@
         <app-icon name="user" [size]="20" />
       </a>
     </div>
-    <p class="text-sm text-muted">
-      Buscá y elegí tu cafetería preferida para conocer sus especialidades y realizar tus pedidos.
+    <p class="text-sm text-muted max-w-2xl">
+      Descubrí las mejores cafeterías de especialidad, conocé sus horarios, ubicaciones y explorá sus catálogos de productos.
     </p>
   </header>
 
-  <section aria-label="Buscador de cafeterías" class="space-y-3">
+  <section aria-label="Búsqueda y filtros" class="space-y-3.5">
     <div class="relative">
       <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-muted">
         <app-icon name="search" [size]="18" />
@@ -28,7 +31,7 @@
         type="search"
         [value]="searchQuery()"
         (input)="onSearchChange($any($event.target).value)"
-        placeholder="Buscar por nombre o ubicación (ej: Palermo, Central...)"
+        placeholder="Buscar cafetería por nombre, dirección o especialidad..."
         class="w-full rounded-2xl border border-border bg-surface py-3 pr-10 pl-10 text-sm text-text placeholder:text-muted/70 shadow-xs transition-colors focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20"
       />
       @if (searchQuery()) {
@@ -36,140 +39,94 @@
           type="button"
           (click)="clearSearch()"
           aria-label="Limpiar búsqueda"
-          class="absolute inset-y-0 right-0 flex items-center pr-3.5 text-muted hover:text-text"
+          class="absolute inset-y-0 right-0 flex items-center pr-3.5 text-muted hover:text-text cursor-pointer"
         >
           <app-icon name="x" [size]="18" />
         </button>
       }
     </div>
 
-    <div class="flex items-center justify-between text-xs text-muted px-1">
-      <span>
-        Mostrando {{ filteredCafes().length }} de {{ cafes().length }} cafeterías
-      </span>
-      @if (searchQuery()) {
+    <div class="flex flex-wrap items-center justify-between gap-2 pt-1">
+      <div class="flex items-center gap-2">
         <button
           type="button"
-          (click)="clearSearch()"
-          class="font-medium text-primary hover:underline"
+          (click)="setFilterState('all')"
+          class="rounded-full px-3.5 py-1.5 text-xs font-semibold transition-all cursor-pointer"
+          [class.bg-primary]="filterState() === 'all'"
+          [class.text-white]="filterState() === 'all'"
+          [class.shadow-xs]="filterState() === 'all'"
+          [class.bg-surface]="filterState() !== 'all'"
+          [class.text-muted]="filterState() !== 'all'"
+          [class.border]="filterState() !== 'all'"
+          [class.border-border]="filterState() !== 'all'"
+          [class.hover:border-primary/50]="filterState() !== 'all'"
         >
-          Restablecer
+          Todas ({{ cafes().length }})
         </button>
-      }
+
+        <button
+          type="button"
+          (click)="setFilterState('open')"
+          class="inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold transition-all cursor-pointer"
+          [class.bg-primary]="filterState() === 'open'"
+          [class.text-white]="filterState() === 'open'"
+          [class.shadow-xs]="filterState() === 'open'"
+          [class.bg-surface]="filterState() !== 'open'"
+          [class.text-muted]="filterState() !== 'open'"
+          [class.border]="filterState() !== 'open'"
+          [class.border-border]="filterState() !== 'open'"
+          [class.hover:border-primary/50]="filterState() !== 'open'"
+        >
+          <span class="size-2 rounded-full bg-emerald-500"></span>
+          Abiertas ahora ({{ openCafesCount() }})
+        </button>
+      </div>
+
+      <div class="text-xs text-muted">
+        <span>Mostrando {{ filteredCafes().length }} de {{ cafes().length }} cafeterías</span>
+        @if (searchQuery() || filterState() !== 'all') {
+          <button
+            type="button"
+            (click)="clearSearch(); setFilterState('all')"
+            class="ml-2 font-medium text-primary hover:underline cursor-pointer"
+          >
+            Restablecer
+          </button>
+        }
+      </div>
     </div>
   </section>
 
-  <div class="grid grid-cols-1 gap-6 lg:grid-cols-12">
-    <section aria-label="Listado de cafeterías" class="space-y-3 lg:col-span-6 xl:col-span-5">
-      <div class="flex items-center justify-between">
-        <h2 class="text-base font-bold text-text">Cafeterías disponibles</h2>
-        <span class="text-xs text-muted">Tocá una para ver sus productos</span>
-      </div>
-
-      @if (isLoading()) {
-        <div class="space-y-3">
-          @for (item of [1, 2, 3]; track item) {
-            <div class="h-28 rounded-2xl bg-border/50 animate-pulse"></div>
-          }
-        </div>
-      } @else {
-        <div class="space-y-3">
-          @for (cafe of filteredCafes(); track cafe.externalId) {
-            <app-cafe-card
-              [cafe]="cafe"
-              [isSelected]="selectedCafe()?.externalId === cafe.externalId"
-              (select)="onSelectCafe($event)"
-            />
-          } @empty {
-            <div class="rounded-2xl border border-dashed border-border bg-surface p-8 text-center">
-              <div class="mx-auto flex size-12 items-center justify-center rounded-full bg-accent-light text-primary">
-                <app-icon name="store" [size]="24" />
-              </div>
-              <h3 class="mt-3 text-sm font-bold text-text">No encontramos cafeterías</h3>
-              <p class="mt-1 text-xs text-muted">
-                No hay coincidencias para "{{ searchQuery() }}". Probá con otro nombre o ubicación.
-              </p>
-              <button
-                type="button"
-                (click)="clearSearch()"
-                class="mt-4 rounded-xl bg-primary px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-primary-dark"
-              >
-                Ver todas las cafeterías
-              </button>
-            </div>
-          }
-        </div>
-      }
-    </section>
-
-    <section aria-label="Productos de la cafetería seleccionada" class="space-y-4 lg:col-span-6 xl:col-span-7">
-      <div class="flex items-center justify-between">
-        <h2 class="text-base font-bold text-text">Productos asociados</h2>
-        @if (selectedCafe(); as sel) {
-          <span class="rounded-full bg-accent-light px-2.5 py-0.5 text-xs font-semibold text-primary-dark">
-            {{ sel.name }}
-          </span>
+  <section aria-label="Listado de cafeterías" class="space-y-4">
+    @if (isLoading()) {
+      <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+        @for (item of [1, 2, 3, 4]; track item) {
+          <div class="h-96 rounded-2xl bg-border/40 animate-pulse"></div>
         }
       </div>
-
-      @if (selectedCafe(); as cafe) {
-        <div class="rounded-2xl border border-border bg-surface p-5 shadow-xs">
-          <div class="flex items-start justify-between gap-4 border-b border-border/80 pb-4">
-            <div>
-              <div class="flex items-center gap-2">
-                <h3 class="text-lg font-bold text-text">{{ cafe.name }}</h3>
-                @if (cafe.state) {
-                  <span class="rounded-full bg-success/10 px-2 py-0.5 text-xs font-semibold text-success">
-                    Abierto
-                  </span>
-                } @else {
-                  <span class="rounded-full bg-text/10 px-2 py-0.5 text-xs font-semibold text-muted">
-                    Cerrado
-                  </span>
-                }
-              </div>
-              <p class="mt-1 flex items-center gap-1.5 text-xs text-muted">
-                <app-icon name="map-pin" [size]="14" class="text-accent" />
-                {{ cafe.address }}
-              </p>
-              @if (cafe.schedule) {
-                <p class="mt-1 flex items-center gap-1.5 text-xs text-muted">
-                  <app-icon name="clock" [size]="14" class="text-muted" />
-                  {{ cafe.schedule }}
-                </p>
-              }
-              @if (cafe.phoneNumber) {
-                <p class="mt-1 flex items-center gap-1.5 text-xs text-muted">
-                  <app-icon name="phone" [size]="14" class="text-muted" />
-                  {{ cafe.phoneNumber }}
-                </p>
-              }
+    } @else {
+      <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+        @for (cafe of filteredCafes(); track cafe.externalId) {
+          <app-cafe-card [cafe]="cafe" />
+        } @empty {
+          <div class="col-span-full rounded-2xl border border-dashed border-border bg-surface p-12 text-center">
+            <div class="mx-auto flex size-14 items-center justify-center rounded-full bg-accent-light text-primary">
+              <app-icon name="store" [size]="28" />
             </div>
-
-            <div class="flex flex-col items-end gap-1">
-              <div class="flex items-center gap-1 text-sm font-bold text-text">
-                <app-icon name="star" [size]="15" class="text-gold" />
-                <span>{{ cafe.rating || 4.8 }}</span>
-              </div>
-              <span class="text-[11px] text-muted">{{ cafe.reviewCount || 100 }} opiniones</span>
-            </div>
+            <h3 class="mt-4 text-base font-bold text-text">No encontramos cafeterías</h3>
+            <p class="mt-1.5 text-xs text-muted max-w-sm mx-auto">
+              No hay coincidencias para los filtros aplicados. Probá buscando por otro término o restablecé los filtros.
+            </p>
+            <button
+              type="button"
+              (click)="clearSearch(); setFilterState('all')"
+              class="mt-4 rounded-xl bg-primary px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-primary-dark cursor-pointer"
+            >
+              Ver todas las cafeterías
+            </button>
           </div>
-
-          <div class="mt-4 rounded-xl border border-dashed border-accent/40 bg-accent-light/30 p-6 text-center">
-            <div class="mx-auto flex size-12 items-center justify-center rounded-full bg-surface text-primary shadow-xs">
-              <app-icon name="cup" [size]="22" />
-            </div>
-            <h4 class="mt-3 text-sm font-bold text-text">
-              Productos de {{ cafe.name }}
-            </h4>
-          </div>
-        </div>
-      } @else {
-        <div class="rounded-2xl border border-dashed border-border bg-surface p-8 text-center text-muted">
-          <app-icon name="coffee" [size]="28" class="mx-auto text-muted/60" />
-          <p class="mt-2 text-sm">Seleccioná una cafetería de la lista para ver sus productos asociados</p>
-        </div>
-      }
-    </section>
-  </div>
+        }
+      </div>
+    }
+  </section>
 </div>

@@ -2,7 +2,19 @@ import { RenderMode, ServerRoute } from '@angular/ssr';
 
 export const serverRoutes: ServerRoute[] = [
   {
+    path: 'admin/users',
+    renderMode: RenderMode.Client,
+  },
+  {
+    path: 'admin',
+    renderMode: RenderMode.Client,
+  },
+  {
     path: 'home',
+    renderMode: RenderMode.Client,
+  },
+  {
+    path: 'catalog',
     renderMode: RenderMode.Client,
   },
   {
