@@ -3,6 +3,15 @@ import { ClientLayout } from '../shared/components/client-layout/client-layout';
 
 export const routes: Routes = [
   {
+    path: 'admin/users',
+    loadChildren: () => import('../features/admin-users/admin-users.routes'),
+  },
+  {
+    path: 'admin',
+    pathMatch: 'full',
+    redirectTo: 'admin/users',
+  },
+  {
     path: 'cafe/profile',
     loadChildren: () => import('../features/cafe-profile/cafe-profile.routes'),
   },
@@ -22,6 +31,10 @@ export const routes: Routes = [
       {
         path: 'profile',
         loadChildren: () => import('../features/profile/profile.routes'),
+      },
+      {
+        path: 'orders',
+        loadChildren: () => import('../features/orders/orders.routes'),
       },
     ],
   },

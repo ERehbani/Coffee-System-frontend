@@ -1,25 +1,14 @@
-import { DecimalPipe, PercentPipe } from '@angular/common';
+import { DecimalPipe } from '@angular/common';
 import { Component, computed, input, output } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { Icon } from '../../../../shared/components/icon/icon';
-import { LoyaltyStatus, LoyaltyTier } from '../../types/profile.model';
+import { LoyaltyStatus } from '../../types/profile.model';
 import { LoyaltyProgress } from '../../utils/loyalty-progress';
-
-const TIER_LABELS: Record<LoyaltyTier, string> = {
-  bronze: 'BRONCE',
-  silver: 'PLATA',
-  gold: 'ORO',
-  diamond: 'DIAMANTE',
-};
-
-const TIER_TEXT_CLASSES: Record<LoyaltyTier, string> = {
-  bronze: 'text-bronze',
-  silver: 'text-silver',
-  gold: 'text-gold',
-  diamond: 'text-diamond',
-};
+import { TIER_LABELS, TIER_TEXT_CLASSES } from '../../utils/loyalty-tier';
+import { TierProgress } from '../tier-progress/tier-progress';
 
 @Component({
-  imports: [DecimalPipe, PercentPipe, Icon],
+  imports: [DecimalPipe, RouterLink, Icon, TierProgress],
   selector: 'app-loyalty-card',
   templateUrl: './loyalty-card.html',
   host: { class: 'block' },
@@ -30,15 +19,6 @@ export class LoyaltyCard {
   readonly scanQr = output<void>();
   readonly viewCard = output<void>();
 
-  protected readonly progressRatio = computed(() => this.progress().percent / 100);
   protected readonly tierLabel = computed(() => TIER_LABELS[this.loyalty().tier]);
   protected readonly tierClass = computed(() => TIER_TEXT_CLASSES[this.loyalty().tier]);
-  protected readonly nextTierLabel = computed(() => {
-    const nextTier = this.loyalty().nextTier;
-    return nextTier ? TIER_LABELS[nextTier] : '';
-  });
-  protected readonly nextTierClass = computed(() => {
-    const nextTier = this.loyalty().nextTier;
-    return nextTier ? TIER_TEXT_CLASSES[nextTier] : '';
-  });
 }

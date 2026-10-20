@@ -1,0 +1,106 @@
+<article
+  [attr.aria-labelledby]="'order-' + order().id + '-cafe'"
+  class="space-y-4 rounded-2xl border border-border bg-surface p-4 shadow-2xs"
+>
+  <header class="flex items-start gap-3">
+    @if (order().cafe.imageUrl; as imageUrl) {
+      <img
+        [src]="imageUrl"
+        width="48"
+        height="48"
+        alt=""
+        loading="lazy"
+        class="size-12 shrink-0 rounded-xl object-cover"
+      />
+    } @else {
+      <span
+        aria-hidden="true"
+        class="flex size-12 shrink-0 items-center justify-center rounded-xl bg-accent-light text-primary"
+      >
+        <app-icon name="coffee" [size]="22" />
+      </span>
+    }
+    <div class="min-w-0 flex-1">
+      <h3 [id]="'order-' + order().id + '-cafe'" class="truncate text-base font-extrabold text-text">
+        {{ order().cafe.name }}
+      </h3>
+      <p class="text-xs text-muted">
+        <time [attr.datetime]="order().placedAt.toISOString()">
+          {{ order().placedAt | date: 'd MMM y, HH:mm' }}
+        </time>
+      </p>
+    </div>
+    <span
+      class="shrink-0 rounded-full px-2.5 py-1 text-xs font-bold"
+      [class.bg-emerald-50]="order().status === 'completed'"
+      [class.text-success]="order().status === 'completed'"
+      [class.bg-bg]="order().status !== 'completed'"
+      [class.text-muted]="order().status !== 'completed'"
+    >
+      {{ statusLabel() }}
+    </span>
+  </header>
+
+  <div class="flex items-end justify-between gap-3 border-t border-border pt-3">
+    <ul class="min-w-0 space-y-0.5 text-sm text-text">
+      @for (item of order().items; track item.id) {
+        <li class="truncate">
+          <span class="font-semibold text-muted">{{ item.quantity }}×</span> {{ item.name }}
+        </li>
+      }
+    </ul>
+    <p class="shrink-0 text-base font-extrabold text-text">
+      <span class="sr-only">Total: </span>{{ order().total | currency }}
+    </p>
+  </div>
+
+  @if (order().review; as review) {
+    <div class="space-y-2 rounded-xl bg-bg p-3">
+      <div class="flex items-center justify-between gap-2">
+        <p class="text-xs font-bold tracking-wider text-muted uppercase">Tu reseña</p>
+        <p class="flex items-center gap-0.5 text-accent">
+          <span class="sr-only">{{ review.rating }} de 5 estrellas</span>
+          @for (star of stars; track star) {
+            <app-icon
+              name="star"
+              [size]="14"
+              [filled]="star <= review.rating"
+              [class.text-muted]="star > review.rating"
+            />
+          }
+        </p>
+      </div>
+      @if (review.comment) {
+        <p class="text-sm text-text">“{{ review.comment }}”</p>
+      }
+    </div>
+    <button
+      type="button"
+      disabled
+      class="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-border bg-bg px-4 py-2 text-sm font-bold text-muted"
+    >
+      <app-icon name="check" [size]="16" />
+      Reseña enviada
+    </button>
+  } @else if (canReview()) {
+    @if (isReviewing()) {
+      <app-review-form
+        [orderId]="order().id"
+        [cafeName]="order().cafe.name"
+        [isSubmitting]="isSubmitting()"
+        [errorMessage]="reviewError()"
+        (submitted)="reviewSubmitted.emit($event)"
+        (cancelled)="reviewCancelled.emit()"
+      />
+    } @else {
+      <button
+        type="button"
+        (click)="reviewRequested.emit()"
+        class="inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-primary px-4 py-2 text-sm font-bold text-primary transition hover:bg-accent-light/40 active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+      >
+        <app-icon name="star" [size]="16" />
+        Dejar reseña
+      </button>
+    }
+  }
+</article>

@@ -11,6 +11,17 @@ export type LoyaltyTierCodeDto = string;
 export interface ClientProfileDto {
   readonly id: string;
   readonly firstName: string;
+  readonly lastName?: string;
+  readonly email?: string;
+  readonly phoneNumber?: string;
+  readonly avatarUrl?: string | null;
+}
+
+export interface UpdateClientProfileDto {
+  readonly firstName: string;
+  readonly lastName: string;
+  readonly email: string;
+  readonly phoneNumber: string;
   readonly avatarUrl?: string | null;
 }
 
@@ -20,6 +31,25 @@ export interface LoyaltyStatusDto {
   readonly lifetimePoints: number;
   readonly nextTier: LoyaltyTierCodeDto | null;
   readonly nextTierThreshold: number | null;
+  readonly progressPercent: number;
+  readonly pointsToNextTier: number;
+}
+
+export interface TierDetailDto {
+  readonly tier: LoyaltyTierCodeDto;
+  readonly lifetimePoints: number;
+  readonly currentTierThreshold: number;
+  readonly nextTier: LoyaltyTierCodeDto | null;
+  readonly nextTierThreshold: number | null;
+  readonly progressPercent: number;
+  readonly pointsToNextTier: number;
+  readonly levels: readonly TierLevelDto[];
+}
+
+export interface TierLevelDto {
+  readonly tier: LoyaltyTierCodeDto;
+  readonly threshold: number;
+  readonly benefits: readonly string[];
 }
 
 export interface ActiveRedemptionDto {

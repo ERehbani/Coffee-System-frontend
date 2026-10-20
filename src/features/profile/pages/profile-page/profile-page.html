@@ -44,6 +44,28 @@
   @case ('ready') {
     @if (store.dashboard(); as dashboard) {
       <div class="space-y-7">
+        @if (store.successMessage(); as successMsg) {
+          <div
+            role="status"
+            class="flex items-center justify-between gap-3 rounded-2xl border border-emerald-300 bg-emerald-50 px-5 py-4 text-emerald-800 transition shadow-xs"
+          >
+            <div class="flex items-center gap-3">
+              <span class="inline-flex size-8 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-white">
+                <app-icon name="check" [size]="16" />
+              </span>
+              <p class="text-sm font-bold text-emerald-950">{{ successMsg }}</p>
+            </div>
+            <button
+              type="button"
+              (click)="store.dismissSuccess()"
+              class="cursor-pointer rounded-lg p-1 text-emerald-800 hover:bg-emerald-100 active:scale-95 transition-all select-none"
+              aria-label="Cerrar notificación"
+            >
+              <app-icon name="x" [size]="16" />
+            </button>
+          </div>
+        }
+
         <app-dashboard-header
           [firstName]="dashboard.profile.firstName"
           [avatarUrl]="dashboard.profile.avatarUrl"

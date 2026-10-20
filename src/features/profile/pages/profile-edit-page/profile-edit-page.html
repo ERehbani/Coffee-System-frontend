@@ -1,0 +1,114 @@
+<main class="space-y-6">
+  <!-- Header / Navigation -->
+  <div class="flex items-center justify-between pb-3 border-b border-border">
+    <div class="flex items-center gap-2">
+      <a
+        routerLink="/profile"
+        class="cursor-pointer inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface px-3 py-1.5 text-xs font-bold text-muted transition-all hover:bg-bg hover:text-text active:scale-95 select-none"
+        aria-label="Volver al perfil"
+      >
+        <app-icon name="arrow-left" [size]="16" />
+        <span>Volver al perfil</span>
+      </a>
+    </div>
+
+    <div class="flex items-center gap-1 text-xs font-semibold text-muted">
+      <span>Mi cuenta</span>
+      <span>/</span>
+      <span class="text-primary font-bold">Edición</span>
+    </div>
+  </div>
+
+  <!-- Success Notification -->
+  @if (store.successMessage(); as successMsg) {
+    <div
+      role="status"
+      class="flex items-center justify-between gap-3 rounded-2xl border border-emerald-300 bg-emerald-50 px-5 py-4 text-emerald-800 transition shadow-xs"
+    >
+      <div class="flex items-center gap-3">
+        <span class="inline-flex size-9 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-white">
+          <app-icon name="check" [size]="18" />
+        </span>
+        <div>
+          <p class="text-sm font-bold text-emerald-950">{{ successMsg }}</p>
+          <p class="text-xs text-emerald-800">Tus datos personales fueron actualizados satisfactoriamente.</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <a
+          routerLink="/profile"
+          class="cursor-pointer rounded-xl bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white transition hover:bg-emerald-700 active:scale-95"
+        >
+          Ver en perfil
+        </a>
+        <button
+          type="button"
+          (click)="onDismissSuccess()"
+          class="cursor-pointer rounded-lg p-1 text-emerald-800 hover:bg-emerald-100 active:scale-95 transition-all select-none"
+          aria-label="Cerrar notificación"
+        >
+          <app-icon name="x" [size]="16" />
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- Error Notification -->
+  @if (store.errorMessage(); as errorMsg) {
+    <div
+      role="alert"
+      class="flex items-center justify-between gap-3 rounded-2xl border border-rose-300 bg-rose-50 px-5 py-4 text-rose-800 transition shadow-xs"
+    >
+      <div class="flex items-center gap-3">
+        <span class="inline-flex size-9 shrink-0 items-center justify-center rounded-full bg-rose-600 text-white">
+          <app-icon name="x" [size]="18" />
+        </span>
+        <div>
+          <p class="text-sm font-bold text-rose-950">{{ errorMsg }}</p>
+          <p class="text-xs text-rose-800">Reintentá en unos momentos o revisá los datos ingresados.</p>
+        </div>
+      </div>
+      <button
+        type="button"
+        (click)="onDismissError()"
+        class="cursor-pointer rounded-lg p-1 text-rose-800 hover:bg-rose-100 active:scale-95 transition-all select-none"
+        aria-label="Cerrar alerta"
+      >
+        <app-icon name="x" [size]="16" />
+      </button>
+    </div>
+  }
+
+  <!-- Loading State -->
+  @if (store.status() === 'loading' && !store.profile()) {
+    <div aria-busy="true" class="space-y-6 motion-safe:animate-pulse">
+      <div class="h-64 rounded-3xl bg-border/60"></div>
+      <div class="h-32 rounded-2xl bg-border/60"></div>
+    </div>
+  } @else if (store.status() === 'error' && !store.profile()) {
+    <!-- Error State -->
+    <div class="flex flex-col items-center justify-center gap-3 rounded-3xl border border-border bg-surface p-10 text-center shadow-xs">
+      <div class="flex size-14 items-center justify-center rounded-2xl bg-rose-100 text-rose-600">
+        <app-icon name="user" [size]="28" />
+      </div>
+      <h2 class="text-xl font-bold text-text">No se pudieron cargar tus datos de perfil</h2>
+      <p class="text-sm text-muted">Hubo un problema al consultar tu información.</p>
+      <button
+        type="button"
+        (click)="onReload()"
+        class="mt-2 inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-bold text-white transition hover:bg-primary-dark"
+      >
+        <app-icon name="refresh-cw" [size]="16" />
+        Reintentar
+      </button>
+    </div>
+  } @else if (store.profile(); as profile) {
+    <!-- Form View -->
+    <app-profile-edit-form
+      [profile]="profile"
+      [isSaving]="store.isSaving()"
+      (save)="onSave($event)"
+      (cancel)="onCancel()"
+    />
+  }
+</main>

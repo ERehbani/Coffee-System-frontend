@@ -8,17 +8,15 @@ export interface LoyaltyProgress {
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
-export function calculateLoyaltyProgress(
-  loyalty: Pick<LoyaltyStatus, 'lifetimePoints' | 'nextTier' | 'nextTierThreshold'>,
+export function toLoyaltyProgress(
+  source: Pick<LoyaltyStatus, 'nextTier' | 'progressPercent' | 'pointsToNextTier'>,
 ): LoyaltyProgress {
-  const { lifetimePoints, nextTier, nextTierThreshold } = loyalty;
-  if (nextTier === null || nextTierThreshold === null || nextTierThreshold <= 0) {
+  if (source.nextTier === null) {
     return { percent: 100, remainingPoints: 0, isMaxTier: true };
   }
 
-  const points = Math.min(Math.max(lifetimePoints, 0), nextTierThreshold);
-  const percent = Math.floor((points * 1000) / nextTierThreshold) / 10;
-  return { percent, remainingPoints: nextTierThreshold - points, isMaxTier: false };
+  const percent = Math.min(Math.max(source.progressPercent, 0), 100);
+  return { percent, remainingPoints: Math.max(source.pointsToNextTier, 0), isMaxTier: false };
 }
 
 export function calendarDaysUntil(target: Date, now: Date): number {
