@@ -1,0 +1,201 @@
+<form
+  (submit)="onSubmit($event)"
+  novalidate
+  class="rounded-3xl border border-border bg-surface p-6 shadow-xs sm:p-8"
+>
+  <div class="mb-6 border-b border-border pb-4">
+    <h2 class="text-xl font-extrabold text-text">Editar datos personales</h2>
+    <p class="text-sm text-muted">
+      Modificá tu información para recibir promociones y mantener tu perfil de cliente al día.
+    </p>
+  </div>
+
+  @if (attemptedSubmit() && !isFormValid()) {
+    <div
+      role="alert"
+      class="mb-6 flex items-center gap-3 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-semibold text-rose-800"
+    >
+      <app-icon name="x" [size]="18" class="shrink-0 text-rose-600" />
+      <p>No se pudieron guardar los cambios. Por favor, corregí los campos marcados en rojo.</p>
+    </div>
+  }
+
+  <div class="space-y-6">
+    <!-- Avatar Section -->
+    <div class="rounded-2xl border border-border bg-bg/50 p-4 sm:p-5">
+      <label class="block text-sm font-bold text-text mb-3">Foto de perfil / Avatar</label>
+      <div class="flex flex-col gap-4 sm:flex-row sm:items-center">
+        <!-- Live Avatar Preview -->
+        <div class="relative size-20 shrink-0 overflow-hidden rounded-full border-2 border-border bg-surface shadow-xs">
+          @if (avatarUrl() && !avatarUrlError()) {
+            <img
+              [src]="avatarUrl()"
+              alt="Vista previa de avatar"
+              class="h-full w-full object-cover"
+              (error)="$any($event.target).style.display = 'none'"
+            />
+          } @else {
+            <div class="flex h-full w-full items-center justify-center bg-accent-light text-xl font-bold text-primary-dark">
+              {{ initials() }}
+            </div>
+          }
+        </div>
+
+        <div class="flex-1 space-y-2">
+          <input
+            id="avatarUrl"
+            type="url"
+            [value]="avatarUrl()"
+            (input)="avatarUrl.set($any($event.target).value)"
+            (blur)="avatarUrlTouched.set(true)"
+            placeholder="https://ejemplo.com/foto.jpg"
+            [class.border-rose-500]="avatarUrlTouched() && avatarUrlError()"
+            class="w-full rounded-xl border border-border bg-surface px-4 py-2.5 text-sm text-text placeholder:text-muted/60 transition focus:border-primary focus:outline-hidden focus:ring-2 focus:ring-primary/20"
+          />
+          @if (avatarUrlTouched() && avatarUrlError(); as err) {
+            <p role="alert" class="text-xs font-semibold text-rose-600">{{ err }}</p>
+          }
+
+          <!-- Presets and reset -->
+          <div class="flex flex-wrap items-center gap-2 pt-1">
+            <span class="text-xs font-medium text-muted">Elegir predeterminada:</span>
+            @for (preset of avatarPresets; track preset.url) {
+              <button
+                type="button"
+                (click)="onSelectAvatar(preset.url)"
+                class="size-7 overflow-hidden rounded-full border border-border transition hover:scale-110 hover:ring-2 hover:ring-primary focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-primary"
+                [title]="preset.label"
+              >
+                <img [src]="preset.url" [alt]="preset.label" class="h-full w-full object-cover" />
+              </button>
+            }
+            @if (avatarUrl()) {
+              <button
+                type="button"
+                (click)="onClearAvatar()"
+                class="ml-auto text-xs font-semibold text-rose-600 hover:underline"
+              >
+                Quitar foto
+              </button>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Name & Lastname Grid -->
+    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+      <!-- First Name -->
+      <div class="space-y-1.5">
+        <label for="firstName" class="block text-sm font-bold text-text">
+          Nombre <span class="text-accent">*</span>
+        </label>
+        <input
+          id="firstName"
+          type="text"
+          [value]="firstName()"
+          (input)="firstName.set($any($event.target).value)"
+          (blur)="firstNameTouched.set(true)"
+          placeholder="Ej: Juan"
+          [attr.aria-invalid]="firstNameTouched() && firstNameError() ? 'true' : 'false'"
+          [class.border-rose-500]="firstNameTouched() && firstNameError()"
+          class="w-full rounded-xl border border-border bg-bg px-4 py-2.5 text-sm text-text placeholder:text-muted/60 transition focus:border-primary focus:bg-surface focus:outline-hidden focus:ring-2 focus:ring-primary/20"
+        />
+        @if (firstNameTouched() && firstNameError(); as err) {
+          <p role="alert" class="text-xs font-semibold text-rose-600">{{ err }}</p>
+        }
+      </div>
+
+      <!-- Last Name -->
+      <div class="space-y-1.5">
+        <label for="lastName" class="block text-sm font-bold text-text">
+          Apellido <span class="text-accent">*</span>
+        </label>
+        <input
+          id="lastName"
+          type="text"
+          [value]="lastName()"
+          (input)="lastName.set($any($event.target).value)"
+          (blur)="lastNameTouched.set(true)"
+          placeholder="Ej: Pérez"
+          [attr.aria-invalid]="lastNameTouched() && lastNameError() ? 'true' : 'false'"
+          [class.border-rose-500]="lastNameTouched() && lastNameError()"
+          class="w-full rounded-xl border border-border bg-bg px-4 py-2.5 text-sm text-text placeholder:text-muted/60 transition focus:border-primary focus:bg-surface focus:outline-hidden focus:ring-2 focus:ring-primary/20"
+        />
+        @if (lastNameTouched() && lastNameError(); as err) {
+          <p role="alert" class="text-xs font-semibold text-rose-600">{{ err }}</p>
+        }
+      </div>
+    </div>
+
+    <!-- Phone -->
+    <div class="space-y-1.5">
+      <label for="phoneNumber" class="block text-sm font-bold text-text">
+        Teléfono móvil (10 dígitos) <span class="text-accent">*</span>
+      </label>
+      <input
+        id="phoneNumber"
+        type="tel"
+        maxlength="10"
+        [value]="phoneNumber()"
+        (input)="phoneNumber.set($any($event.target).value)"
+        (blur)="phoneTouched.set(true)"
+        placeholder="Ej: 1145238890"
+        [attr.aria-invalid]="phoneTouched() && phoneError() ? 'true' : 'false'"
+        [class.border-rose-500]="phoneTouched() && phoneError()"
+        class="w-full rounded-xl border border-border bg-bg px-4 py-2.5 text-sm text-text placeholder:text-muted/60 transition focus:border-primary focus:bg-surface focus:outline-hidden focus:ring-2 focus:ring-primary/20"
+      />
+      <p class="text-xs text-muted">Ingresá los 10 dígitos sin 0 ni 15 (código de área + número).</p>
+      @if (phoneTouched() && phoneError(); as err) {
+        <p role="alert" class="text-xs font-semibold text-rose-600">{{ err }}</p>
+      }
+    </div>
+
+    <!-- Email -->
+    <div class="space-y-1.5">
+      <label for="email" class="block text-sm font-bold text-text">
+        Correo electrónico <span class="text-accent">*</span>
+      </label>
+      <input
+        id="email"
+        type="email"
+        [value]="email()"
+        (input)="email.set($any($event.target).value)"
+        (blur)="emailTouched.set(true)"
+        placeholder="Ej: juan.perez@example.com"
+        [attr.aria-invalid]="emailTouched() && emailError() ? 'true' : 'false'"
+        [class.border-rose-500]="emailTouched() && emailError()"
+        class="w-full rounded-xl border border-border bg-bg px-4 py-2.5 text-sm text-text placeholder:text-muted/60 transition focus:border-primary focus:bg-surface focus:outline-hidden focus:ring-2 focus:ring-primary/20"
+      />
+      @if (emailTouched() && emailError(); as err) {
+        <p role="alert" class="text-xs font-semibold text-rose-600">{{ err }}</p>
+      }
+    </div>
+  </div>
+
+  <!-- Form Actions -->
+  <div class="mt-8 flex flex-col-reverse gap-3 border-t border-border pt-4 sm:flex-row sm:justify-end">
+    <button
+      type="button"
+      (click)="onCancel()"
+      [disabled]="isSaving()"
+      class="cursor-pointer inline-flex items-center justify-center rounded-xl border border-border px-5 py-2.5 text-sm font-bold text-muted transition-all duration-150 hover:bg-bg hover:text-text active:scale-95 select-none disabled:opacity-50 disabled:pointer-events-none"
+    >
+      Cancelar
+    </button>
+
+    <button
+      type="submit"
+      [disabled]="isSaving()"
+      class="cursor-pointer inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-6 py-2.5 text-sm font-bold text-white shadow-sm transition-all duration-150 hover:bg-primary-dark hover:shadow-md active:scale-95 select-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:opacity-50 disabled:pointer-events-none"
+    >
+      @if (isSaving()) {
+        <span class="size-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
+        <span>Guardando cambios...</span>
+      } @else {
+        <app-icon name="save" [size]="18" />
+        <span>Guardar cambios</span>
+      }
+    </button>
+  </div>
+</form>

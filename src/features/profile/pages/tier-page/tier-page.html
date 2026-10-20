@@ -1,0 +1,82 @@
+<header class="mb-6 flex items-center gap-3">
+  <a
+    routerLink="/profile"
+    class="flex size-10 shrink-0 items-center justify-center rounded-full border border-border bg-surface text-text transition-colors hover:bg-accent-light focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+  >
+    <app-icon name="arrow-left" [size]="20" label="Volver al perfil" />
+  </a>
+  <h1 class="text-xl font-extrabold tracking-tight text-text">Mi nivel</h1>
+</header>
+
+@switch (store.status()) {
+  @case ('loading') {
+    <div aria-busy="true">
+      <p role="status" class="sr-only">Cargando tu nivel…</p>
+      <div aria-hidden="true" class="space-y-6 motion-safe:animate-pulse">
+        <div class="h-56 rounded-3xl bg-border"></div>
+        <div class="h-6 w-40 rounded bg-border"></div>
+        @for (item of [1, 2, 3, 4]; track item) {
+          <div class="h-28 rounded-2xl bg-border"></div>
+        }
+      </div>
+    </div>
+  }
+  @case ('error') {
+    <section
+      role="alert"
+      class="flex flex-col items-center gap-3 rounded-2xl border border-border bg-surface p-6 text-center"
+    >
+      <h2 class="text-lg font-bold text-text">No pudimos cargar tu nivel</h2>
+      <p class="text-sm text-muted">Revisa tu conexión e inténtalo de nuevo.</p>
+      <button
+        type="button"
+        (click)="store.reload()"
+        class="mt-2 inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+      >
+        <app-icon name="refresh-cw" [size]="16" />
+        Reintentar
+      </button>
+    </section>
+  }
+  @case ('ready') {
+    @if (store.detail(); as detail) {
+      <div class="space-y-7">
+        <section
+          aria-label="Tu nivel actual"
+          class="rounded-3xl bg-linear-to-br from-primary-dark to-text p-5 text-white shadow-xl shadow-primary-dark/25 sm:p-6"
+        >
+          <p class="text-xs font-bold tracking-[0.2em] text-white/70">NIVEL ACTUAL</p>
+          <p class="mt-2 flex items-center gap-2 text-3xl font-extrabold tracking-tight">
+            <span class="inline-flex" [class]="tierClass()">
+              <app-icon name="shield" [size]="28" [filled]="true" />
+            </span>
+            {{ tierLabel() }}
+          </p>
+          <p class="mt-1 flex items-center gap-1.5 text-sm text-white/70">
+            <app-icon name="history" [size]="14" />
+            {{ detail.lifetimePoints | number }} pts acumulados en total
+          </p>
+
+          @if (store.progress(); as progress) {
+            <app-tier-progress
+              class="mt-5 rounded-2xl bg-text/50 p-4"
+              [progress]="progress"
+              [lifetimePoints]="detail.lifetimePoints"
+              [nextTier]="detail.nextTier"
+              [nextTierThreshold]="detail.nextTierThreshold"
+            />
+          }
+        </section>
+
+        <section aria-labelledby="tier-levels-heading" class="space-y-3">
+          <app-section-header headingId="tier-levels-heading" heading="Niveles y beneficios" />
+          <ol class="space-y-3">
+            @for (level of store.levels(); track level.tier) {
+              <li><app-tier-level-item [level]="level" /></li>
+            }
+          </ol>
+        </section>
+      </div>
+    }
+  }
+}

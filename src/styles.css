@@ -1,3 +1,19 @@
-/* You can add global styles to this file, and also import other style files */
-
 @import 'tailwindcss';
+
+@theme {
+  --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+  --color-bg: #faf8f5;
+  --color-surface: #ffffff;
+  --color-text: #1f1a17;
+  --color-muted: #6b605b;
+  --color-primary: #6f4e37;
+  --color-primary-dark: #4a332a;
+  --color-accent: #c2784f;
+  --color-accent-light: #f3e5d8;
+  --color-border: #e9e1d9;
+  --color-success: #2d6a4f;
+  --color-bronze: #b87333;
+  --color-silver: #a8a8a8;
+  --color-gold: #d4a017;
+  --color-diamond: #3ccfcf;
+}
