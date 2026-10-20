@@ -1,4 +1,4 @@
-import { ProfileDashboardDto } from '../types/profile.dto';
+import { ProfileDashboardDto, TierDetailDto } from '../types/profile.dto';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const UNSPLASH = 'https://images.unsplash.com';
@@ -19,6 +19,8 @@ export function buildProfileDashboardFixture(now: Date): ProfileDashboardDto {
       lifetimePoints: 1420,
       nextTier: 'GOLD',
       nextTierThreshold: 3000,
+      progressPercent: 21,
+      pointsToNextTier: 1580,
     },
     activeRedemptions: [
       {
@@ -67,6 +69,40 @@ export function buildProfileDashboardFixture(now: Date): ProfileDashboardDto {
         description: 'De manteca o grasa, recién horneadas',
         imageUrl: `${UNSPLASH}/photo-1555507036-ab1f4038808a?w=600&h=450&fit=crop&q=80&auto=format`,
         pointsCost: 200,
+      },
+    ],
+  };
+}
+
+export function buildTierDetailFixture(): TierDetailDto {
+  return {
+    tier: 'SILVER',
+    lifetimePoints: 1420,
+    currentTierThreshold: 1000,
+    nextTier: 'GOLD',
+    nextTierThreshold: 3000,
+    progressPercent: 21,
+    pointsToNextTier: 1580,
+    levels: [
+      {
+        tier: 'BRONZE',
+        threshold: 0,
+        benefits: ['Sumá puntos en cada compra', 'Regalo de bienvenida'],
+      },
+      {
+        tier: 'SILVER',
+        threshold: 1000,
+        benefits: ['5% de puntos extra', 'Café gratis en tu cumpleaños'],
+      },
+      {
+        tier: 'GOLD',
+        threshold: 3000,
+        benefits: ['10% de puntos extra', 'Acceso anticipado a lanzamientos'],
+      },
+      {
+        tier: 'DIAMOND',
+        threshold: 6000,
+        benefits: ['20% de puntos extra', 'Un café de especialidad gratis por mes'],
       },
     ],
   };

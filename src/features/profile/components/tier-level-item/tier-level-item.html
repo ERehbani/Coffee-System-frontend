@@ -1,0 +1,57 @@
+<article
+  class="rounded-2xl border bg-surface p-4"
+  [class.border-primary]="level().state === 'current'"
+  [class.border-2]="level().state === 'current'"
+  [class.border-border]="level().state !== 'current'"
+  [attr.aria-current]="level().state === 'current' ? 'step' : null"
+>
+  <div class="flex items-center justify-between gap-3">
+    <div class="flex min-w-0 items-center gap-3">
+      <span
+        class="flex size-10 shrink-0 items-center justify-center rounded-full bg-accent-light"
+        [class]="tierClass()"
+      >
+        <app-icon name="shield" [size]="20" [filled]="true" />
+      </span>
+      <div class="min-w-0">
+        <h3 class="truncate text-base font-extrabold tracking-wide text-text">{{ label() }}</h3>
+        <p class="text-xs text-muted">Desde {{ level().threshold | number }} pts</p>
+      </div>
+    </div>
+
+    @switch (level().state) {
+      @case ('current') {
+        <span class="shrink-0 rounded-full bg-primary px-3 py-1 text-xs font-bold text-white">
+          Tu nivel
+        </span>
+      }
+      @case ('reached') {
+        <span
+          class="inline-flex shrink-0 items-center gap-1 rounded-full bg-success/10 px-3 py-1 text-xs font-bold text-success"
+        >
+          <app-icon name="check" [size]="14" />
+          Alcanzado
+        </span>
+      }
+      @case ('locked') {
+        <span
+          class="inline-flex shrink-0 items-center gap-1 rounded-full bg-border px-3 py-1 text-xs font-bold text-muted"
+        >
+          <app-icon name="lock" [size]="14" />
+          Bloqueado
+        </span>
+      }
+    }
+  </div>
+
+  @if (level().benefits.length > 0) {
+    <ul class="mt-3 space-y-1.5 border-t border-border pt-3 text-sm text-text">
+      @for (benefit of level().benefits; track benefit) {
+        <li class="flex items-start gap-2">
+          <span class="mt-0.5 inline-flex text-accent"><app-icon name="gift" [size]="14" /></span>
+          {{ benefit }}
+        </li>
+      }
+    </ul>
+  }
+</article>

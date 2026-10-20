@@ -25,6 +25,8 @@ describe('ProfileStore', () => {
       lifetimePoints: 1420,
       nextTier: 'gold',
       nextTierThreshold: 3000,
+      progressPercent: 47,
+      pointsToNextTier: 1580,
     },
     activeRedemptions: [],
     nearbyCafes: [],

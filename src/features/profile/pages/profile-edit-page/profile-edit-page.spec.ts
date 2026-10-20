@@ -29,6 +29,8 @@ describe('ProfileEditPage', () => {
       lifetimePoints: 1000,
       nextTier: null,
       nextTierThreshold: null,
+      progressPercent: 100,
+      pointsToNextTier: 0,
     },
     activeRedemptions: [],
     nearbyCafes: [],
