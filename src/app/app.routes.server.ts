@@ -10,6 +10,10 @@ export const serverRoutes: ServerRoute[] = [
     renderMode: RenderMode.Client,
   },
   {
+    path: 'profile/tier',
+    renderMode: RenderMode.Client,
+  },
+  {
     path: 'cafe/profile',
     renderMode: RenderMode.Client,
   },

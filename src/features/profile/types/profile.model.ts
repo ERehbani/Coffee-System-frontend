@@ -12,6 +12,25 @@ export interface LoyaltyStatus {
   readonly lifetimePoints: number;
   readonly nextTier: LoyaltyTier | null;
   readonly nextTierThreshold: number | null;
+  readonly progressPercent: number;
+  readonly pointsToNextTier: number;
+}
+
+export interface TierLevel {
+  readonly tier: LoyaltyTier;
+  readonly threshold: number;
+  readonly benefits: readonly string[];
+}
+
+export interface TierDetail {
+  readonly tier: LoyaltyTier;
+  readonly lifetimePoints: number;
+  readonly currentTierThreshold: number;
+  readonly nextTier: LoyaltyTier | null;
+  readonly nextTierThreshold: number | null;
+  readonly progressPercent: number;
+  readonly pointsToNextTier: number;
+  readonly levels: readonly TierLevel[];
 }
 
 export interface ActiveRedemption {

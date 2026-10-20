@@ -1,5 +1,5 @@
-import { LoyaltyTierCodeDto, ProfileDashboardDto } from '../types/profile.dto';
-import { LoyaltyTier, ProfileDashboard } from '../types/profile.model';
+import { LoyaltyTierCodeDto, ProfileDashboardDto, TierDetailDto } from '../types/profile.dto';
+import { LoyaltyTier, ProfileDashboard, TierDetail } from '../types/profile.model';
 
 const LOYALTY_TIERS: readonly LoyaltyTier[] = ['bronze', 'silver', 'gold', 'diamond'];
 
@@ -33,6 +33,8 @@ export function toProfileDashboard(dto: ProfileDashboardDto): ProfileDashboard {
       lifetimePoints: loyalty.lifetimePoints,
       nextTier: loyalty.nextTier === null ? null : toLoyaltyTier(loyalty.nextTier),
       nextTierThreshold: loyalty.nextTierThreshold,
+      progressPercent: loyalty.progressPercent,
+      pointsToNextTier: loyalty.pointsToNextTier,
     },
     activeRedemptions: dto.activeRedemptions.map((redemption) => ({
       id: redemption.id,
@@ -59,5 +61,24 @@ export function toProfileDashboard(dto: ProfileDashboardDto): ProfileDashboard {
       imageUrl: benefit.imageUrl,
       pointsCost: benefit.pointsCost,
     })),
+  };
+}
+
+export function toTierDetail(dto: TierDetailDto): TierDetail {
+  return {
+    tier: toLoyaltyTier(dto.tier),
+    lifetimePoints: dto.lifetimePoints,
+    currentTierThreshold: dto.currentTierThreshold,
+    nextTier: dto.nextTier === null ? null : toLoyaltyTier(dto.nextTier),
+    nextTierThreshold: dto.nextTierThreshold,
+    progressPercent: dto.progressPercent,
+    pointsToNextTier: dto.pointsToNextTier,
+    levels: dto.levels
+      .map((level) => ({
+        tier: toLoyaltyTier(level.tier),
+        threshold: level.threshold,
+        benefits: [...level.benefits],
+      }))
+      .sort((a, b) => a.threshold - b.threshold),
   };
 }
