@@ -19,6 +19,10 @@ export const routes: Routes = [
         path: 'profile',
         loadChildren: () => import('../features/profile/profile.routes'),
       },
+      {
+        path: 'orders',
+        loadChildren: () => import('../features/orders/orders.routes'),
+      },
     ],
   },
   { path: '**', redirectTo: 'home' },

@@ -1,4 +1,5 @@
 import { Component, computed, inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { Icon } from '../../../../shared/components/icon/icon';
 import { ActiveRedemptionCard } from '../../components/active-redemption-card/active-redemption-card';
 import { DashboardHeader } from '../../components/dashboard-header/dashboard-header';
@@ -26,6 +27,7 @@ import { ProfileStore } from '../../services/profile.store';
 })
 export class ProfilePage {
   protected readonly store = inject(ProfileStore);
+  private readonly router = inject(Router);
 
   protected readonly activeRedemptionsBadge = computed(() => {
     const count = this.store.activeRedemptions().length;
@@ -37,7 +39,11 @@ export class ProfilePage {
 
   protected onScanQr(): void {}
   protected onViewCard(): void {}
-  protected onQuickAction(_action: QuickActionId): void {}
+  protected onQuickAction(action: QuickActionId): void {
+    if (action === 'write-review') {
+      this.router.navigate(['/orders']);
+    }
+  }
   protected onShowQr(_redemptionId: string): void {}
   protected onSeeMap(): void {}
   protected onSeeCatalog(): void {}
