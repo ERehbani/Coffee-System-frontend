@@ -79,3 +79,15 @@ export interface FeaturedBenefitDto {
   readonly imageUrl: string;
   readonly pointsCost: number;
 }
+
+/** Backend RedemptionResponse (GET /redemption). `state: false` means it was already used. */
+export interface RedemptionDto {
+  readonly externalId: string;
+  readonly date: string;
+  readonly usedPoints: number;
+  readonly state: boolean;
+  readonly validationCode: string;
+  readonly benefitName: string;
+  /** null for global benefits that are valid in any cafe */
+  readonly cafeName: string | null;
+}

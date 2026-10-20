@@ -79,3 +79,11 @@ export interface ProfileDashboard {
   readonly nearbyCafes: readonly NearbyCafe[];
   readonly featuredBenefits: readonly FeaturedBenefit[];
 }
+
+export interface UsedBenefit {
+  readonly id: string;
+  readonly benefitName: string;
+  readonly cafeName: string | null;
+  readonly redeemedAt: Date;
+  readonly usedPoints: number;
+}

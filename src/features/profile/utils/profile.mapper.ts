@@ -2,6 +2,7 @@ import {
   ClientProfileDto,
   LoyaltyTierCodeDto,
   ProfileDashboardDto,
+  RedemptionDto,
   TierDetailDto,
   UpdateClientProfileDto,
 } from '../types/profile.dto';
@@ -11,6 +12,7 @@ import {
   ProfileDashboard,
   TierDetail,
   UpdateClientProfileInput,
+  UsedBenefit,
 } from '../types/profile.model';
 
 const LOYALTY_TIERS: readonly LoyaltyTier[] = ['bronze', 'silver', 'gold', 'diamond'];
@@ -110,4 +112,17 @@ export function toTierDetail(dto: TierDetailDto): TierDetail {
       }))
       .sort((a, b) => a.threshold - b.threshold),
   };
+}
+
+export function toUsedBenefits(dtos: readonly RedemptionDto[]): readonly UsedBenefit[] {
+  return dtos
+    .filter((dto) => !dto.state)
+    .map((dto) => ({
+      id: dto.externalId,
+      benefitName: dto.benefitName,
+      cafeName: dto.cafeName,
+      redeemedAt: toDate(dto.date),
+      usedPoints: dto.usedPoints,
+    }))
+    .sort((a, b) => b.redeemedAt.getTime() - a.redeemedAt.getTime());
 }
