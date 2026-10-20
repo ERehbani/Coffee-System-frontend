@@ -25,6 +25,10 @@ export const routes: Routes = [
         loadChildren: () => import('../features/home/home.routes'),
       },
       {
+        path: 'catalog',
+        loadChildren: () => import('../features/catalog/catalog.routes'),
+      },
+      {
         path: 'profile',
         loadChildren: () => import('../features/profile/profile.routes'),
       },
