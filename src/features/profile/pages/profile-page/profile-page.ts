@@ -1,5 +1,4 @@
 import { Component, computed, inject } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import { Icon } from '../../../../shared/components/icon/icon';
 import { ActiveRedemptionCard } from '../../components/active-redemption-card/active-redemption-card';
 import { DashboardHeader } from '../../components/dashboard-header/dashboard-header';
@@ -12,7 +11,6 @@ import { ProfileStore } from '../../services/profile.store';
 
 @Component({
   imports: [
-    RouterLink,
     Icon,
     DashboardHeader,
     LoyaltyCard,

@@ -72,27 +72,6 @@
           [availablePoints]="dashboard.loyalty.availablePoints"
         />
 
-        <div class="flex items-center justify-between rounded-2xl border border-border bg-surface p-4 shadow-2xs">
-          <div class="space-y-0.5">
-            <p class="text-xs font-bold uppercase tracking-wider text-muted">Mis datos de contacto</p>
-            <p class="text-sm font-bold text-text">
-              {{ dashboard.profile.firstName }} {{ dashboard.profile.lastName }}
-            </p>
-            <p class="text-xs text-muted flex items-center gap-2">
-              <span>{{ dashboard.profile.phoneNumber }}</span>
-              <span>•</span>
-              <span>{{ dashboard.profile.email }}</span>
-            </p>
-          </div>
-          <a
-            routerLink="/profile/edit"
-            class="cursor-pointer inline-flex items-center gap-1.5 rounded-xl border border-border bg-bg px-3 py-1.5 text-xs font-bold text-primary transition hover:border-primary hover:bg-accent-light/30 active:scale-95 select-none"
-          >
-            <app-icon name="edit" [size]="14" />
-            <span>Editar</span>
-          </a>
-        </div>
-
         @if (store.loyaltyProgress(); as progress) {
           <app-loyalty-card
             [loyalty]="dashboard.loyalty"
