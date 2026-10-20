@@ -1,0 +1,225 @@
+<main class="mx-auto max-w-6xl px-4 py-8 space-y-6">
+  <!-- Top Navigation & Title Bar -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-border">
+    <div class="flex items-center gap-3">
+      <span class="inline-flex size-10 items-center justify-center rounded-xl bg-purple-700 text-white shadow-xs">
+        <app-icon name="shield" [size]="20" />
+      </span>
+      <div>
+        <div class="flex items-center gap-2">
+          <h1 class="text-xl font-extrabold text-text">Auditoría de Usuarios</h1>
+          <span class="rounded-lg bg-purple-100 px-2 py-0.5 text-xs font-bold text-purple-800">
+            Superadmin
+          </span>
+        </div>
+        <p class="text-xs text-muted">Control centralizado y auditoría de perfiles registrados en la plataforma</p>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-2 flex-wrap">
+      <button
+        type="button"
+        (click)="onRefresh()"
+        class="cursor-pointer inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface px-3 py-2 text-xs font-bold text-muted transition hover:bg-bg hover:text-text active:scale-95 shadow-2xs select-none"
+        title="Recargar usuarios"
+      >
+        <app-icon name="refresh-cw" [size]="14" />
+        <span>Actualizar</span>
+      </button>
+
+      <a
+        routerLink="/home"
+        class="cursor-pointer inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface px-3 py-2 text-xs font-bold text-muted transition hover:bg-bg hover:text-text active:scale-95 shadow-2xs select-none"
+      >
+        <app-icon name="coffee" [size]="14" />
+        <span>Inicio App</span>
+      </a>
+
+      <a
+        routerLink="/cafe/profile"
+        class="cursor-pointer inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface px-3 py-2 text-xs font-bold text-muted transition hover:bg-bg hover:text-text active:scale-95 shadow-2xs select-none"
+      >
+        <app-icon name="store" [size]="14" />
+        <span>Panel Comercio</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- KPI / Stats Ribbon -->
+  <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+    <!-- Total Users -->
+    <div class="rounded-2xl border border-border bg-surface p-4 shadow-2xs">
+      <div class="flex items-center justify-between text-muted mb-1">
+        <span class="text-xs font-bold">Total Registrados</span>
+        <app-icon name="users" [size]="16" class="text-primary" />
+      </div>
+      <p class="text-2xl font-black text-text">{{ store.stats().totalUsers }}</p>
+      <span class="text-[11px] text-muted">En el sistema</span>
+    </div>
+
+    <!-- Active Users -->
+    <div class="rounded-2xl border border-border bg-surface p-4 shadow-2xs">
+      <div class="flex items-center justify-between text-muted mb-1">
+        <span class="text-xs font-bold">Activos</span>
+        <app-icon name="check-circle" [size]="16" class="text-emerald-600" />
+      </div>
+      <p class="text-2xl font-black text-emerald-700">{{ store.stats().activeUsers }}</p>
+      <span class="text-[11px] text-muted">Cuentas operativas</span>
+    </div>
+
+    <!-- Clients -->
+    <div class="rounded-2xl border border-border bg-surface p-4 shadow-2xs">
+      <div class="flex items-center justify-between text-muted mb-1">
+        <span class="text-xs font-bold">Clientes</span>
+        <app-icon name="user" [size]="16" class="text-sky-600" />
+      </div>
+      <p class="text-2xl font-black text-sky-800">{{ store.stats().clientUsers }}</p>
+      <span class="text-[11px] text-muted">Fidelizados</span>
+    </div>
+
+    <!-- Cafe Admins -->
+    <div class="rounded-2xl border border-border bg-surface p-4 shadow-2xs">
+      <div class="flex items-center justify-between text-muted mb-1">
+        <span class="text-xs font-bold">Comercios</span>
+        <app-icon name="store" [size]="16" class="text-amber-600" />
+      </div>
+      <p class="text-2xl font-black text-amber-800">{{ store.stats().cafeAdminUsers }}</p>
+      <span class="text-[11px] text-muted">Cafeterías aliadas</span>
+    </div>
+
+    <!-- Superadmins -->
+    <div class="col-span-2 sm:col-span-1 rounded-2xl border border-border bg-surface p-4 shadow-2xs">
+      <div class="flex items-center justify-between text-muted mb-1">
+        <span class="text-xs font-bold">Superadmins</span>
+        <app-icon name="shield" [size]="16" class="text-purple-600" />
+      </div>
+      <p class="text-2xl font-black text-purple-800">{{ store.stats().superadminUsers }}</p>
+      <span class="text-[11px] text-muted">Auditores raíz</span>
+    </div>
+  </div>
+
+  <!-- Search & Filter Bar -->
+  <div class="rounded-2xl border border-border bg-surface p-4 shadow-2xs space-y-3">
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
+      <!-- Search Input -->
+      <div class="md:col-span-6 relative">
+        <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-muted">
+          <app-icon name="search" [size]="16" />
+        </span>
+        <input
+          type="text"
+          placeholder="Buscar por nombre, email, teléfono, ID o cafetería..."
+          [value]="store.searchQuery()"
+          (input)="onSearchChange($event)"
+          class="w-full rounded-xl border border-border bg-bg/50 pl-10 pr-4 py-2.5 text-xs text-text placeholder:text-muted focus:border-primary focus:bg-surface focus:outline-hidden focus:ring-2 focus:ring-primary/20 transition"
+        />
+      </div>
+
+      <!-- Role Filter -->
+      <div class="md:col-span-3">
+        <select
+          [value]="store.roleFilter()"
+          (change)="onRoleChange($event)"
+          class="w-full rounded-xl border border-border bg-bg/50 px-3.5 py-2.5 text-xs font-medium text-text focus:border-primary focus:bg-surface focus:outline-hidden focus:ring-2 focus:ring-primary/20 transition cursor-pointer"
+          aria-label="Filtrar por rol de usuario"
+        >
+          <option value="all">Todos los roles</option>
+          <option value="superadmin">Superadmin</option>
+          <option value="cafe_admin">Comercios / Cafeterías</option>
+          <option value="client">Clientes</option>
+        </select>
+      </div>
+
+      <!-- Status Filter -->
+      <div class="md:col-span-3">
+        <select
+          [value]="store.statusFilter()"
+          (change)="onStatusChange($event)"
+          class="w-full rounded-xl border border-border bg-bg/50 px-3.5 py-2.5 text-xs font-medium text-text focus:border-primary focus:bg-surface focus:outline-hidden focus:ring-2 focus:ring-primary/20 transition cursor-pointer"
+          aria-label="Filtrar por estado de la cuenta"
+        >
+          <option value="all">Todos los estados</option>
+          <option value="active">Activos</option>
+          <option value="inactive">Inactivos</option>
+          <option value="suspended">Suspendidos</option>
+          <option value="pending">Pendientes</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Active Filter Indicators & Reset -->
+    @if (store.searchQuery() || store.roleFilter() !== 'all' || store.statusFilter() !== 'all') {
+      <div class="flex items-center justify-between pt-2 border-t border-border/50 text-xs text-muted">
+        <div class="flex items-center gap-2 flex-wrap">
+          <span class="font-bold text-text">Filtros activos:</span>
+          @if (store.searchQuery(); as q) {
+            <span class="rounded-lg bg-bg px-2.5 py-1 text-[11px] font-medium border border-border">
+              Búsqueda: "{{ q }}"
+            </span>
+          }
+          @if (store.roleFilter() !== 'all') {
+            <span class="rounded-lg bg-bg px-2.5 py-1 text-[11px] font-medium border border-border capitalize">
+              Rol: {{ store.roleFilter() }}
+            </span>
+          }
+          @if (store.statusFilter() !== 'all') {
+            <span class="rounded-lg bg-bg px-2.5 py-1 text-[11px] font-medium border border-border capitalize">
+              Estado: {{ store.statusFilter() }}
+            </span>
+          }
+        </div>
+
+        <button
+          type="button"
+          (click)="onClearFilters()"
+          class="cursor-pointer text-[11px] font-bold text-primary hover:underline hover:text-primary-dark transition select-none"
+        >
+          Restablecer filtros
+        </button>
+      </div>
+    }
+  </div>
+
+  <!-- Error Alert -->
+  @if (store.errorMessage(); as errorMsg) {
+    <div
+      role="alert"
+      class="flex items-center justify-between gap-3 rounded-2xl border border-rose-300 bg-rose-50 px-5 py-3.5 text-rose-800 transition"
+    >
+      <div class="flex items-center gap-3">
+        <span class="inline-flex size-8 shrink-0 items-center justify-center rounded-full bg-rose-600 text-white">
+          <app-icon name="x" [size]="16" />
+        </span>
+        <p class="text-xs font-bold text-rose-900">{{ errorMsg }}</p>
+      </div>
+      <button
+        type="button"
+        (click)="onRefresh()"
+        class="cursor-pointer text-xs font-bold underline hover:text-rose-950"
+      >
+        Reintentar
+      </button>
+    </div>
+  }
+
+  <!-- Users Table Section -->
+  <section aria-label="Tabla de usuarios del sistema">
+    <app-user-table
+      [users]="store.filteredUsers()"
+      [status]="store.status()"
+      (selectUser)="store.selectUser($event)"
+    />
+  </section>
+
+  <!-- Detail Modal -->
+  @if (store.selectedUser(); as selectedUser) {
+    <app-user-detail-modal
+      [user]="selectedUser"
+      [isProcessing]="store.isProcessing()"
+      [actionMessage]="store.actionMessage()"
+      (updateStatus)="onUpdateStatus($event)"
+      (dismissMessage)="store.dismissActionMessage()"
+      (close)="store.clearSelection()"
+    />
+  }
+</main>
