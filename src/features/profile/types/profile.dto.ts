@@ -11,6 +11,17 @@ export type LoyaltyTierCodeDto = string;
 export interface ClientProfileDto {
   readonly id: string;
   readonly firstName: string;
+  readonly lastName?: string;
+  readonly email?: string;
+  readonly phoneNumber?: string;
+  readonly avatarUrl?: string | null;
+}
+
+export interface UpdateClientProfileDto {
+  readonly firstName: string;
+  readonly lastName: string;
+  readonly email: string;
+  readonly phoneNumber: string;
   readonly avatarUrl?: string | null;
 }
 

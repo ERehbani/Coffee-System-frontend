@@ -44,11 +44,54 @@
   @case ('ready') {
     @if (store.dashboard(); as dashboard) {
       <div class="space-y-7">
+        @if (store.successMessage(); as successMsg) {
+          <div
+            role="status"
+            class="flex items-center justify-between gap-3 rounded-2xl border border-emerald-300 bg-emerald-50 px-5 py-4 text-emerald-800 transition shadow-xs"
+          >
+            <div class="flex items-center gap-3">
+              <span class="inline-flex size-8 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-white">
+                <app-icon name="check" [size]="16" />
+              </span>
+              <p class="text-sm font-bold text-emerald-950">{{ successMsg }}</p>
+            </div>
+            <button
+              type="button"
+              (click)="store.dismissSuccess()"
+              class="cursor-pointer rounded-lg p-1 text-emerald-800 hover:bg-emerald-100 active:scale-95 transition-all select-none"
+              aria-label="Cerrar notificación"
+            >
+              <app-icon name="x" [size]="16" />
+            </button>
+          </div>
+        }
+
         <app-dashboard-header
           [firstName]="dashboard.profile.firstName"
           [avatarUrl]="dashboard.profile.avatarUrl"
           [availablePoints]="dashboard.loyalty.availablePoints"
         />
+
+        <div class="flex items-center justify-between rounded-2xl border border-border bg-surface p-4 shadow-2xs">
+          <div class="space-y-0.5">
+            <p class="text-xs font-bold uppercase tracking-wider text-muted">Mis datos de contacto</p>
+            <p class="text-sm font-bold text-text">
+              {{ dashboard.profile.firstName }} {{ dashboard.profile.lastName }}
+            </p>
+            <p class="text-xs text-muted flex items-center gap-2">
+              <span>{{ dashboard.profile.phoneNumber }}</span>
+              <span>•</span>
+              <span>{{ dashboard.profile.email }}</span>
+            </p>
+          </div>
+          <a
+            routerLink="/profile/edit"
+            class="cursor-pointer inline-flex items-center gap-1.5 rounded-xl border border-border bg-bg px-3 py-1.5 text-xs font-bold text-primary transition hover:border-primary hover:bg-accent-light/30 active:scale-95 select-none"
+          >
+            <app-icon name="edit" [size]="14" />
+            <span>Editar</span>
+          </a>
+        </div>
 
         @if (store.loyaltyProgress(); as progress) {
           <app-loyalty-card
