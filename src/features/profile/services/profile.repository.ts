@@ -1,6 +1,7 @@
 import { Observable } from 'rxjs';
-import { ProfileDashboard } from '../types/profile.model';
+import { ClientProfile, ProfileDashboard, UpdateClientProfileInput } from '../types/profile.model';
 
 export abstract class ProfileRepository {
   abstract getDashboard(): Observable<ProfileDashboard>;
+  abstract updateProfile(clientId: string, input: UpdateClientProfileInput): Observable<ClientProfile>;
 }

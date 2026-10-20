@@ -8,6 +8,9 @@ export function buildProfileDashboardFixture(now: Date): ProfileDashboardDto {
     client: {
       id: 'client-001',
       firstName: 'Juan',
+      lastName: 'Pérez',
+      email: 'juan.perez@example.com',
+      phoneNumber: '1145238890',
       avatarUrl: `${UNSPLASH}/photo-1507003211169-0a1dd7228f2d?w=96&h=96&fit=crop&crop=faces&q=80&auto=format`,
     },
     loyalty: {

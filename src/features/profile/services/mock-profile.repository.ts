@@ -1,18 +1,43 @@
 import { Service } from '@angular/core';
 import { defer, delay, map, Observable, of } from 'rxjs';
-import { ProfileDashboard } from '../types/profile.model';
+import { ClientProfileDto, ProfileDashboardDto } from '../types/profile.dto';
+import { ClientProfile, ProfileDashboard, UpdateClientProfileInput } from '../types/profile.model';
 import { buildProfileDashboardFixture } from '../utils/profile.fixture';
-import { toProfileDashboard } from '../utils/profile.mapper';
+import { toClientProfile, toProfileDashboard } from '../utils/profile.mapper';
 import { ProfileRepository } from './profile.repository';
 
 export const MOCK_LATENCY_MS = 400;
 
 @Service({ autoProvided: false })
 export class MockProfileRepository implements ProfileRepository {
+  private currentDashboard: ProfileDashboardDto = buildProfileDashboardFixture(new Date());
+
   getDashboard(): Observable<ProfileDashboard> {
-    return defer(() => of(buildProfileDashboardFixture(new Date()))).pipe(
+    return defer(() => of(this.currentDashboard)).pipe(
       delay(MOCK_LATENCY_MS),
       map(toProfileDashboard),
     );
   }
+
+  updateProfile(clientId: string, input: UpdateClientProfileInput): Observable<ClientProfile> {
+    const updatedClientDto: ClientProfileDto = {
+      id: clientId,
+      firstName: input.firstName,
+      lastName: input.lastName,
+      email: input.email,
+      phoneNumber: input.phoneNumber,
+      avatarUrl: input.avatarUrl,
+    };
+
+    this.currentDashboard = {
+      ...this.currentDashboard,
+      client: updatedClientDto,
+    };
+
+    return defer(() => of(updatedClientDto)).pipe(
+      delay(MOCK_LATENCY_MS),
+      map(toClientProfile),
+    );
+  }
 }
+

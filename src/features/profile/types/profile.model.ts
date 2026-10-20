@@ -3,6 +3,17 @@ export type LoyaltyTier = 'bronze' | 'silver' | 'gold' | 'diamond';
 export interface ClientProfile {
   readonly id: string;
   readonly firstName: string;
+  readonly lastName: string;
+  readonly email: string;
+  readonly phoneNumber: string;
+  readonly avatarUrl: string | null;
+}
+
+export interface UpdateClientProfileInput {
+  readonly firstName: string;
+  readonly lastName: string;
+  readonly email: string;
+  readonly phoneNumber: string;
   readonly avatarUrl: string | null;
 }
 

@@ -1,5 +1,15 @@
-import { LoyaltyTierCodeDto, ProfileDashboardDto } from '../types/profile.dto';
-import { LoyaltyTier, ProfileDashboard } from '../types/profile.model';
+import {
+  ClientProfileDto,
+  LoyaltyTierCodeDto,
+  ProfileDashboardDto,
+  UpdateClientProfileDto,
+} from '../types/profile.dto';
+import {
+  ClientProfile,
+  LoyaltyTier,
+  ProfileDashboard,
+  UpdateClientProfileInput,
+} from '../types/profile.model';
 
 const LOYALTY_TIERS: readonly LoyaltyTier[] = ['bronze', 'silver', 'gold', 'diamond'];
 
@@ -19,14 +29,31 @@ function toDate(isoDate: string): Date {
   return date;
 }
 
+export function toClientProfile(dto: ClientProfileDto): ClientProfile {
+  return {
+    id: dto.id,
+    firstName: dto.firstName,
+    lastName: dto.lastName ?? '',
+    email: dto.email ?? '',
+    phoneNumber: dto.phoneNumber ?? '',
+    avatarUrl: dto.avatarUrl ?? null,
+  };
+}
+
+export function toUpdateClientProfileDto(input: UpdateClientProfileInput): UpdateClientProfileDto {
+  return {
+    firstName: input.firstName,
+    lastName: input.lastName,
+    email: input.email,
+    phoneNumber: input.phoneNumber,
+    avatarUrl: input.avatarUrl,
+  };
+}
+
 export function toProfileDashboard(dto: ProfileDashboardDto): ProfileDashboard {
   const { client, loyalty } = dto;
   return {
-    profile: {
-      id: client.id,
-      firstName: client.firstName,
-      avatarUrl: client.avatarUrl ?? null,
-    },
+    profile: toClientProfile(client),
     loyalty: {
       tier: toLoyaltyTier(loyalty.tier),
       availablePoints: loyalty.availablePoints,
