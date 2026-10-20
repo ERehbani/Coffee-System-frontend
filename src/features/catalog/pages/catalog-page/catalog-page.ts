@@ -1,6 +1,9 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { Subject, merge, of } from 'rxjs';
+import { catchError, distinctUntilChanged, map, switchMap, tap } from 'rxjs/operators';
 import { Icon } from '../../../../shared/components/icon/icon';
 import { Cafe } from '../../../home/model/cafe.model';
 import { CafeService } from '../../../home/services/cafe.service';
@@ -19,6 +22,9 @@ export class CatalogPage implements OnInit {
   private readonly productService = inject(ProductService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
+
+  private readonly manualCafeId$ = new Subject<string>();
 
   cafes = signal<Cafe[]>([]);
   selectedCafe = signal<Cafe | null>(null);
@@ -64,62 +70,73 @@ export class CatalogPage implements OnInit {
   });
 
   ngOnInit(): void {
-    this.cafeService.getAll().subscribe({
-      next: (cafes) => {
-        this.cafes.set(cafes);
-        const queryCafeId = this.route.snapshot.queryParams['cafe'];
-        const matched = cafes.find((c) => c.externalId === queryCafeId) || cafes[0];
-        if (matched) {
-          this.selectCafe(matched, false);
-        }
-        this.isLoadingCafes.set(false);
-      },
-      error: (err) => {
-        console.error('Error loading cafes for catalog:', err);
-        this.isLoadingCafes.set(false);
-      },
-    });
+    this.cafeService
+      .getAll()
+      .pipe(
+        tap((cafes) => {
+          this.cafes.set(cafes);
+          this.isLoadingCafes.set(false);
+        }),
+        switchMap((cafes) => {
+          const queryParamCafeId$ = this.route.queryParams.pipe(
+            map((params) => params['cafe'] as string | undefined)
+          );
 
-    this.route.queryParams.subscribe((params) => {
-      const cafeId = params['cafe'];
-      if (cafeId && this.cafes().length > 0) {
-        const found = this.cafes().find((c) => c.externalId === cafeId);
-        if (found && this.selectedCafe()?.externalId !== found.externalId) {
-          this.selectCafe(found, false);
-        }
-      }
-    });
+          return merge(queryParamCafeId$, this.manualCafeId$).pipe(
+            map((cafeId) => {
+              return cafes.find((c) => c.externalId === cafeId) || cafes[0];
+            }),
+            distinctUntilChanged((prev, curr) => prev?.externalId === curr?.externalId),
+            tap((cafe) => {
+              if (cafe) {
+                this.selectedCafe.set(cafe);
+                this.selectedCategory.set('Todas');
+                this.productSearchQuery.set('');
+                this.isLoadingProducts.set(true);
+              }
+            }),
+            switchMap((cafe) => {
+              if (!cafe) {
+                return of([]);
+              }
+              return this.productService.getProductsByCafe(cafe.externalId).pipe(
+                catchError((error) => {
+                  console.error('Error loading products:', error);
+                  return of([]);
+                })
+              );
+            })
+          );
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: (products) => {
+          this.products.set(products);
+          this.isLoadingProducts.set(false);
+        },
+        error: (err) => {
+          console.error('Error loading catalog data:', err);
+          this.isLoadingCafes.set(false);
+          this.isLoadingProducts.set(false);
+        },
+      });
   }
 
   selectCafe(cafe: Cafe, updateUrl: boolean = true): void {
-    this.selectedCafe.set(cafe);
-    this.loadProducts(cafe.externalId);
-
     if (updateUrl) {
       this.router.navigate([], {
         relativeTo: this.route,
         queryParams: { cafe: cafe.externalId },
         queryParamsHandling: 'merge',
       });
+    } else {
+      this.manualCafeId$.next(cafe.externalId);
     }
   }
 
   loadProducts(cafeExternalId: string): void {
-    this.isLoadingProducts.set(true);
-    this.selectedCategory.set('Todas');
-    this.productSearchQuery.set('');
-
-    this.productService.getProductsByCafe(cafeExternalId).subscribe({
-      next: (data) => {
-        this.products.set(data);
-        this.isLoadingProducts.set(false);
-      },
-      error: (error) => {
-        console.error('Error loading products:', error);
-        this.products.set([]);
-        this.isLoadingProducts.set(false);
-      },
-    });
+    this.manualCafeId$.next(cafeExternalId);
   }
 
   onSelectCategory(category: string): void {

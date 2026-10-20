@@ -1,5 +1,4 @@
 <div class="space-y-6 pb-12">
-  <!-- Header -->
   <header class="space-y-2">
     <div class="flex items-center justify-between">
       <div>
@@ -22,9 +21,7 @@
     </p>
   </header>
 
-  <!-- Search & Filters Section -->
   <section aria-label="Búsqueda y filtros" class="space-y-3.5">
-    <!-- Search Bar -->
     <div class="relative">
       <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-muted">
         <app-icon name="search" [size]="18" />
@@ -49,7 +46,6 @@
       }
     </div>
 
-    <!-- Filter chips & info count -->
     <div class="flex flex-wrap items-center justify-between gap-2 pt-1">
       <div class="flex items-center gap-2">
         <button
@@ -101,7 +97,6 @@
     </div>
   </section>
 
-  <!-- Cafes Grid Section -->
   <section aria-label="Listado de cafeterías" class="space-y-4">
     @if (isLoading()) {
       <div class="grid grid-cols-1 gap-6 md:grid-cols-2">

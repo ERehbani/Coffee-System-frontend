@@ -1,7 +1,6 @@
 import { Product } from '../model/product.model';
 
 export const MOCK_PRODUCTS: Product[] = [
-  // Cafe Central
   {
     externalId: 'prod-central-001',
     name: 'Espresso Doble',
@@ -102,7 +101,6 @@ export const MOCK_PRODUCTS: Product[] = [
     image: 'https://images.unsplash.com/photo-1594911772125-07fc7a2d8d9f?w=400&h=300&fit=crop&q=80&auto=format',
   },
 
-  // Cafe Norte
   {
     externalId: 'prod-norte-001',
     name: 'Latte Vainilla Caramel',
@@ -170,7 +168,6 @@ export const MOCK_PRODUCTS: Product[] = [
     image: 'https://images.unsplash.com/photo-1536256263959-770b48d82b0a?w=400&h=300&fit=crop&q=80&auto=format',
   },
 
-  // Tostado Club
   {
     externalId: 'prod-tostado-001',
     name: 'Tostado Especial Club',
@@ -227,7 +224,6 @@ export const MOCK_PRODUCTS: Product[] = [
     image: 'https://images.unsplash.com/photo-1613478223719-2ab802602423?w=400&h=300&fit=crop&q=80&auto=format',
   },
 
-  // Origen Specialty Coffee
   {
     externalId: 'prod-origen-001',
     name: 'Filtrado V60 Geisha',

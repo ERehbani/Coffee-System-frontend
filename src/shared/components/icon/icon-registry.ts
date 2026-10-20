@@ -5,7 +5,7 @@ export const ICONS = {
     'M12 16h.01',
   ],
   'arrow-left': ['m12 19-7-7 7-7', 'M19 12H5'],
-  'arrow-right': ['M5 12h14', 'm12 5 7-7-7-7'],
+  'arrow-right': ['M5 12h14', 'm12 5 7 7-7 7'],
   check: ['M20 6 9 17l-5-5'],
   'check-circle': [
     'M22 11.08V12a10 10 0 1 1-5.93-9.14',

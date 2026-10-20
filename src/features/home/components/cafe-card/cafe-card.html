@@ -1,7 +1,6 @@
 <article
   class="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-surface shadow-xs transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-lg"
 >
-  <!-- Card Header Banner -->
   <div class="relative h-48 w-full overflow-hidden bg-border/60">
     <img
       [src]="cafe().image || 'https://images.unsplash.com/photo-1525610553991-2bede1a236e2?w=800&h=500&fit=crop&q=80&auto=format'"
@@ -11,7 +10,6 @@
     />
     <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/15 to-transparent"></div>
 
-    <!-- Status Badge -->
     <div class="absolute top-3 left-3">
       @if (cafe().state) {
         <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-600/90 px-3 py-1 text-xs font-semibold text-white shadow-sm backdrop-blur-md">
@@ -26,14 +24,12 @@
       }
     </div>
 
-    <!-- Rating Badge -->
     <div class="absolute top-3 right-3 flex items-center gap-1 rounded-full bg-black/60 px-3 py-1 text-xs font-bold text-white shadow-sm backdrop-blur-md">
       <app-icon name="star" [size]="14" class="text-amber-400" />
       <span>{{ cafe().rating || 4.8 }}</span>
       <span class="text-[11px] font-normal text-white/80">({{ cafe().reviewCount || 100 }})</span>
     </div>
 
-    <!-- Name on banner -->
     <div class="absolute bottom-3 left-4 right-4">
       <h3 class="text-xl font-bold tracking-tight text-white drop-shadow-sm">
         {{ cafe().name }}
@@ -41,9 +37,7 @@
     </div>
   </div>
 
-  <!-- Card Body -->
   <div class="flex flex-1 flex-col justify-between p-5 space-y-4">
-    <!-- Description -->
     <div>
       @if (cafe().description) {
         <p class="text-sm text-muted leading-relaxed">
@@ -52,7 +46,6 @@
       }
     </div>
 
-    <!-- Detailed Info List -->
     <div class="space-y-2 rounded-xl bg-background/50 p-3.5 border border-border/60 text-xs">
       <div class="flex items-start gap-2.5 text-text">
         <app-icon name="map-pin" [size]="15" class="mt-0.5 shrink-0 text-primary" />
@@ -81,7 +74,6 @@
       }
     </div>
 
-    <!-- Actions Footer -->
     <div class="pt-2">
       <a
         [routerLink]="['/catalog']"

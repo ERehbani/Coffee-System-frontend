@@ -1,5 +1,4 @@
 <div class="space-y-6 pb-12">
-  <!-- Header -->
   <header class="space-y-2">
     <div class="flex items-center justify-between">
       <div>
@@ -22,7 +21,6 @@
     </p>
   </header>
 
-  <!-- Added Toast Notification -->
   @if (addedProductMessage(); as msg) {
     <div class="sticky top-4 z-30 flex items-center justify-between rounded-2xl bg-emerald-700 px-4 py-3 text-sm font-semibold text-white shadow-lg animate-in fade-in slide-in-from-top-2 duration-200">
       <span class="flex items-center gap-2">
@@ -39,7 +37,6 @@
     </div>
   }
 
-  <!-- APARTADO SIMPLE PARA CAMBIAR ENTRE CAFETERÍAS -->
   <section aria-label="Selector de Cafetería" class="rounded-2xl border border-border bg-surface p-4 sm:p-5 shadow-xs space-y-3.5">
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
       <div class="flex items-center gap-2">
@@ -56,7 +53,6 @@
       </span>
     </div>
 
-    <!-- Cafe Selector Chips (Horizontal Scroll) -->
     <div class="flex items-center gap-2.5 overflow-x-auto pb-1.5 pt-0.5 no-scrollbar">
       @for (cafe of cafes(); track cafe.externalId) {
         <button
@@ -110,7 +106,6 @@
       }
     </div>
 
-    <!-- Active Cafe Banner Details -->
     @if (selectedCafe(); as activeCafe) {
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl bg-accent-light/30 border border-primary/20 p-3 text-xs">
         <div class="flex items-center gap-2.5">
@@ -155,9 +150,7 @@
     }
   </section>
 
-  <!-- Products Section -->
   <section aria-label="Listado de productos" class="space-y-4">
-    <!-- Search & Categories header -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
       <div>
         <h3 class="text-base font-bold text-text">Menú y Especialidades</h3>
@@ -166,7 +159,6 @@
         </p>
       </div>
 
-      <!-- Search in menu -->
       <div class="relative w-full sm:w-64">
         <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-muted">
           <app-icon name="search" [size]="15" />
@@ -192,7 +184,6 @@
       </div>
     </div>
 
-    <!-- Category filter pills -->
     <div class="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
       @for (category of categories(); track category) {
         <button
@@ -217,7 +208,6 @@
       }
     </div>
 
-    <!-- Products Grid -->
     @if (isLoadingProducts()) {
       <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         @for (item of [1, 2, 3, 4, 5, 6]; track item) {

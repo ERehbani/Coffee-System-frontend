@@ -2,7 +2,6 @@
   class="group relative flex h-full flex-col justify-between overflow-hidden rounded-2xl border border-border bg-surface p-4 shadow-xs transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-md"
 >
   <div>
-    <!-- Image & points -->
     <div class="relative h-36 w-full overflow-hidden rounded-xl bg-border/50">
       <img
         [src]="product().image || 'https://images.unsplash.com/photo-1510707577719-ae7c14805e3a?w=500&h=350&fit=crop&q=80&auto=format'"
@@ -20,7 +19,6 @@
       }
     </div>
 
-    <!-- Title and Category -->
     <div class="mt-3.5 space-y-1.5">
       <div class="flex items-start justify-between gap-2">
         <h4 class="text-base font-bold text-text transition-colors group-hover:text-primary leading-tight">
@@ -39,7 +37,6 @@
     </div>
   </div>
 
-  <!-- Price & Action -->
   <div class="mt-4 flex items-center justify-between border-t border-border/60 pt-3">
     <div class="flex flex-col">
       <span class="text-[10px] uppercase font-bold tracking-wider text-muted">Precio</span>
