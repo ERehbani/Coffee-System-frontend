@@ -41,10 +41,14 @@ export class MockAdminUserRepository implements AdminUserRepository {
 
     const current = this.users[index];
     let updatedNotes = current.notes;
-    if (status === 'active' && current.role === 'cafe_admin' && current.status === 'pending') {
-      updatedNotes = 'Cafetería aprobada y activada por Superadmin.';
+    if (status === 'active' && current.status === 'inactive') {
+      updatedNotes = current.role === 'cafe_admin'
+        ? 'Cafetería reactivada por Superadmin.'
+        : 'Usuario reactivado por Superadmin.';
     } else if (status === 'inactive') {
-      updatedNotes = 'Usuario dado de baja por Superadmin.';
+      updatedNotes = current.role === 'cafe_admin'
+        ? 'Cafetería dada de baja por Superadmin.'
+        : 'Usuario dado de baja por Superadmin.';
     }
 
     const updatedDto: AdminUserDto = {
