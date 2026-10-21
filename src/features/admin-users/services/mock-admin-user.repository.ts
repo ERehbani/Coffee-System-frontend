@@ -19,6 +19,13 @@ export class MockAdminUserRepository implements AdminUserRepository {
     );
   }
 
+  getClients(): Observable<readonly AdminUser[]> {
+    return of(this.users.filter((u) => u.role === 'client')).pipe(
+      delay(MOCK_ADMIN_LATENCY_MS),
+      map(toAdminUserList),
+    );
+  }
+
   getUserById(id: string): Observable<AdminUser | null> {
     const found = this.users.find((u) => u.id === id);
     return of(found ? toAdminUser(found) : null).pipe(

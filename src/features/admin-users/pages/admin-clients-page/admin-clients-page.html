@@ -1,0 +1,245 @@
+<main class="mx-auto max-w-6xl px-4 py-8 space-y-6">
+  <!-- Header -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-border">
+    <div class="flex items-center gap-3">
+      <span class="inline-flex size-10 items-center justify-center rounded-xl bg-sky-700 text-white shadow-xs">
+        <app-icon name="users" [size]="20" />
+      </span>
+      <div>
+        <div class="flex items-center gap-2">
+          <h1 class="text-xl font-extrabold text-text">Clientes</h1>
+          <span class="rounded-lg bg-purple-100 px-2 py-0.5 text-xs font-bold text-purple-800">Superadmin</span>
+        </div>
+        <p class="text-xs text-muted">Monitoreo de cuentas de consumidores finales y sus puntos</p>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-2 flex-wrap">
+      <button
+        type="button"
+        (click)="store.loadClients()"
+        class="cursor-pointer inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface px-3 py-2 text-xs font-bold text-muted transition hover:bg-bg hover:text-text active:scale-95 shadow-2xs select-none"
+      >
+        <app-icon name="refresh-cw" [size]="14" />
+        <span>Actualizar</span>
+      </button>
+      <a
+        routerLink="/admin/users"
+        class="cursor-pointer inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface px-3 py-2 text-xs font-bold text-muted transition hover:bg-bg hover:text-text active:scale-95 shadow-2xs select-none"
+      >
+        <app-icon name="shield" [size]="14" />
+        <span>Todos los usuarios</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+    <div class="rounded-2xl border border-border bg-surface p-4 shadow-2xs">
+      <span class="text-xs font-bold text-muted">Clientes</span>
+      <p class="text-2xl font-black text-sky-800" data-testid="stat-total">{{ store.stats().totalClients }}</p>
+    </div>
+    <div class="rounded-2xl border border-border bg-surface p-4 shadow-2xs">
+      <span class="text-xs font-bold text-muted">Activos</span>
+      <p class="text-2xl font-black text-emerald-700">{{ store.stats().activeClients }}</p>
+    </div>
+    <div class="rounded-2xl border border-border bg-surface p-4 shadow-2xs">
+      <span class="text-xs font-bold text-muted">Puntos disponibles</span>
+      <p class="text-2xl font-black text-primary">{{ store.stats().totalAvailablePoints | number }}</p>
+    </div>
+    <div class="rounded-2xl border border-border bg-surface p-4 shadow-2xs">
+      <span class="text-xs font-bold text-muted">Canjes realizados</span>
+      <p class="text-2xl font-black text-text">{{ store.stats().totalRedemptions | number }}</p>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="rounded-2xl border border-border bg-surface p-4 shadow-2xs space-y-3">
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
+      <div class="md:col-span-6 relative">
+        <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-muted">
+          <app-icon name="search" [size]="16" />
+        </span>
+        <input
+          type="text"
+          placeholder="Buscar por nombre, email, teléfono o ID..."
+          aria-label="Buscar clientes"
+          [value]="store.searchQuery()"
+          (input)="onSearchChange($event)"
+          class="w-full rounded-xl border border-border bg-bg/50 pl-10 pr-4 py-2.5 text-xs text-text placeholder:text-muted focus:border-primary focus:bg-surface focus:outline-hidden focus:ring-2 focus:ring-primary/20 transition"
+        />
+      </div>
+      <div class="md:col-span-3">
+        <select
+          [value]="store.tierFilter()"
+          (change)="onTierChange($event)"
+          aria-label="Filtrar por nivel de fidelización"
+          class="w-full rounded-xl border border-border bg-bg/50 px-3.5 py-2.5 text-xs font-medium text-text focus:border-primary focus:outline-hidden focus:ring-2 focus:ring-primary/20 transition cursor-pointer"
+        >
+          <option value="all">Todos los niveles</option>
+          <option value="bronze">Bronce</option>
+          <option value="silver">Plata</option>
+          <option value="gold">Oro</option>
+          <option value="diamond">Diamante</option>
+        </select>
+      </div>
+      <div class="md:col-span-3">
+        <select
+          [value]="store.statusFilter()"
+          (change)="onStatusChange($event)"
+          aria-label="Filtrar por estado de la cuenta"
+          class="w-full rounded-xl border border-border bg-bg/50 px-3.5 py-2.5 text-xs font-medium text-text focus:border-primary focus:outline-hidden focus:ring-2 focus:ring-primary/20 transition cursor-pointer"
+        >
+          <option value="all">Todos los estados</option>
+          <option value="active">Activos</option>
+          <option value="inactive">Inactivos</option>
+          <option value="suspended">Suspendidos</option>
+          <option value="pending">Pendientes</option>
+        </select>
+      </div>
+    </div>
+
+    @if (store.hasActiveFilters()) {
+      <div class="flex justify-end pt-2 border-t border-border/50">
+        <button
+          type="button"
+          (click)="store.resetFilters()"
+          class="cursor-pointer text-[11px] font-bold text-primary hover:underline select-none"
+        >
+          Restablecer filtros
+        </button>
+      </div>
+    }
+  </div>
+
+  <!-- Error -->
+  @if (store.errorMessage(); as errorMsg) {
+    <div
+      role="alert"
+      class="flex items-center justify-between gap-3 rounded-2xl border border-rose-300 bg-rose-50 px-5 py-3.5 text-rose-800"
+    >
+      <p class="text-xs font-bold text-rose-900">{{ errorMsg }}</p>
+      <button type="button" (click)="store.loadClients()" class="cursor-pointer text-xs font-bold underline">
+        Reintentar
+      </button>
+    </div>
+  }
+
+  <!-- Table -->
+  <section aria-label="Tabla de clientes" class="w-full overflow-hidden rounded-2xl border border-border bg-surface shadow-xs">
+    @if (store.status() === 'loading') {
+      <div class="p-8 space-y-3" aria-busy="true">
+        @for (i of [1, 2, 3, 4, 5]; track i) {
+          <div class="h-10 rounded-xl bg-border/50 animate-pulse"></div>
+        }
+      </div>
+    } @else if (store.status() === 'ready' && store.filteredClients().length === 0) {
+      <div class="flex flex-col items-center justify-center py-16 px-4 text-center">
+        <div class="flex size-14 items-center justify-center rounded-2xl bg-bg border border-border text-muted mb-3">
+          <app-icon name="user" [size]="28" />
+        </div>
+        <h3 class="text-base font-bold text-text">No se encontraron clientes</h3>
+        <p class="mt-1 text-xs text-muted max-w-sm">
+          No hay clientes que coincidan con la búsqueda o los filtros seleccionados.
+        </p>
+      </div>
+    } @else if (store.status() === 'ready') {
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse text-xs">
+          <thead>
+            <tr class="border-b border-border bg-bg/60 text-muted font-bold uppercase tracking-wider text-[11px]">
+              <th scope="col" class="py-3.5 px-4">Cliente</th>
+              <th scope="col" class="py-3.5 px-4">ID</th>
+              <th scope="col" class="py-3.5 px-4">Estado</th>
+              <th scope="col" class="py-3.5 px-4">Nivel</th>
+              <th scope="col" class="py-3.5 px-4 text-right">Puntos</th>
+              <th scope="col" class="py-3.5 px-4 text-right hidden md:table-cell">Canjes</th>
+              <th scope="col" class="py-3.5 px-4 hidden lg:table-cell">Registro</th>
+              <th scope="col" class="py-3.5 px-4 text-right">Acción</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-border/60">
+            @for (client of store.filteredClients(); track client.id) {
+              <tr
+                tabindex="0"
+                (click)="openClient(client)"
+                (keydown)="onRowKeyDown($event, client)"
+                class="group cursor-pointer hover:bg-bg/60 transition-colors focus:bg-bg focus:outline-hidden focus:ring-2 focus:ring-primary/40"
+                data-testid="client-row"
+              >
+                <td class="py-3.5 px-4">
+                  <div class="flex items-center gap-3">
+                    @if (client.avatarUrl) {
+                      <img [src]="client.avatarUrl" [alt]="client.fullName" class="size-9 rounded-xl object-cover ring-1 ring-border shrink-0" />
+                    } @else {
+                      <div class="flex size-9 items-center justify-center rounded-xl bg-accent text-xs font-black text-white shrink-0">
+                        {{ toInitials(client.fullName) }}
+                      </div>
+                    }
+                    <div class="min-w-0">
+                      <p class="font-bold text-text truncate group-hover:text-primary transition-colors">{{ client.fullName }}</p>
+                      <p class="text-muted text-[11px] truncate">{{ client.email }}</p>
+                    </div>
+                  </div>
+                </td>
+                <td class="py-3.5 px-4 font-mono font-semibold text-muted text-[11px] whitespace-nowrap">{{ client.id }}</td>
+                <td class="py-3.5 px-4 whitespace-nowrap">
+                  <span
+                    class="inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-bold"
+                    [class.bg-emerald-100]="client.status === 'active'"
+                    [class.text-emerald-800]="client.status === 'active'"
+                    [class.bg-slate-100]="client.status === 'inactive'"
+                    [class.text-slate-700]="client.status === 'inactive'"
+                    [class.bg-rose-100]="client.status === 'suspended'"
+                    [class.text-rose-800]="client.status === 'suspended'"
+                    [class.bg-amber-100]="client.status === 'pending'"
+                    [class.text-amber-800]="client.status === 'pending'"
+                  >
+                    {{ toStatusLabel(client.status) }}
+                  </span>
+                </td>
+                <td class="py-3.5 px-4 whitespace-nowrap font-bold">
+                  @if (client.clientDetails; as details) {
+                    <span
+                      [class.text-bronze]="details.loyaltyTier === 'bronze'"
+                      [class.text-silver]="details.loyaltyTier === 'silver'"
+                      [class.text-gold]="details.loyaltyTier === 'gold'"
+                      [class.text-cyan-600]="details.loyaltyTier === 'diamond'"
+                    >
+                      {{ toTierLabel(details.loyaltyTier) }}
+                    </span>
+                  } @else {
+                    <span class="text-muted">-</span>
+                  }
+                </td>
+                <td class="py-3.5 px-4 text-right font-black text-primary whitespace-nowrap">
+                  {{ (client.clientDetails?.availablePoints ?? 0) | number }}
+                </td>
+                <td class="py-3.5 px-4 text-right text-muted hidden md:table-cell">
+                  {{ client.clientDetails?.redemptionsCount ?? 0 }}
+                </td>
+                <td class="py-3.5 px-4 text-muted hidden lg:table-cell whitespace-nowrap">
+                  {{ client.createdAt | date: 'dd/MM/yyyy' }}
+                </td>
+                <td class="py-3.5 px-4 text-right whitespace-nowrap">
+                  <a
+                    [routerLink]="['/admin/clients', client.id]"
+                    (click)="$event.stopPropagation()"
+                    class="inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface px-3 py-1.5 text-[11px] font-bold text-muted transition hover:bg-bg hover:text-text hover:border-primary/40 shadow-2xs"
+                    [attr.aria-label]="'Ver detalle de ' + client.fullName"
+                  >
+                    <app-icon name="eye" [size]="14" />
+                    <span>Ver detalle</span>
+                  </a>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      <div class="border-t border-border bg-bg/40 px-4 py-3 text-xs text-muted">
+        Mostrando <strong>{{ store.filteredClients().length }}</strong> de {{ store.stats().totalClients }} cliente(s)
+      </div>
+    }
+  </section>
+</main>

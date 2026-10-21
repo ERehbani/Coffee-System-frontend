@@ -15,6 +15,12 @@ export class HttpAdminUserRepository implements AdminUserRepository {
     return this.http.get<readonly AdminUserDto[]>(this.baseUrl).pipe(map(toAdminUserList));
   }
 
+  getClients(): Observable<readonly AdminUser[]> {
+    return this.http
+      .get<readonly AdminUserDto[]>(this.baseUrl, { params: { role: 'client' } })
+      .pipe(map(toAdminUserList));
+  }
+
   getUserById(id: string): Observable<AdminUser | null> {
     return this.http
       .get<AdminUserDto>(`${this.baseUrl}/${id}`)

@@ -7,6 +7,10 @@ export const routes: Routes = [
     loadChildren: () => import('../features/admin-users/admin-users.routes'),
   },
   {
+    path: 'admin/clients',
+    loadChildren: () => import('../features/admin-users/admin-clients.routes'),
+  },
+  {
     path: 'admin',
     pathMatch: 'full',
     redirectTo: 'admin/users',

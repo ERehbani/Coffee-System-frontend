@@ -1,0 +1,167 @@
+<main class="mx-auto max-w-4xl px-4 py-8 space-y-6">
+  <a
+    routerLink="/admin/clients"
+    class="inline-flex items-center gap-1.5 text-xs font-bold text-muted hover:text-text transition"
+  >
+    <app-icon name="arrow-left" [size]="14" />
+    <span>Volver a clientes</span>
+  </a>
+
+  @if (store.status() === 'loading') {
+    <div class="space-y-4" aria-busy="true">
+      <div class="h-24 rounded-2xl bg-border/50 animate-pulse"></div>
+      <div class="h-40 rounded-2xl bg-border/50 animate-pulse"></div>
+    </div>
+  } @else if (store.status() === 'error') {
+    <div role="alert" class="flex items-center justify-between gap-3 rounded-2xl border border-rose-300 bg-rose-50 px-5 py-3.5">
+      <p class="text-xs font-bold text-rose-900">{{ store.errorMessage() }}</p>
+      <button type="button" (click)="store.loadClients()" class="cursor-pointer text-xs font-bold text-rose-800 underline">
+        Reintentar
+      </button>
+    </div>
+  } @else if (client(); as client) {
+    <!-- Header -->
+    <section class="flex flex-col sm:flex-row sm:items-center gap-4 rounded-2xl border border-border bg-surface p-5 shadow-2xs">
+      @if (client.avatarUrl) {
+        <img [src]="client.avatarUrl" [alt]="client.fullName" class="size-16 rounded-2xl object-cover ring-1 ring-border" />
+      } @else {
+        <div class="flex size-16 items-center justify-center rounded-2xl bg-accent text-xl font-black text-white">
+          {{ toInitials(client.fullName) }}
+        </div>
+      }
+      <div class="min-w-0 flex-1">
+        <h1 class="text-xl font-extrabold text-text">{{ client.fullName }}</h1>
+        <p class="text-xs text-muted">
+          <span class="font-mono font-semibold">{{ client.id }}</span> · Cliente desde {{ client.createdAt | date: 'dd/MM/yyyy' }}
+        </p>
+      </div>
+      <span
+        class="self-start sm:self-center rounded-full px-3 py-1 text-xs font-bold"
+        [class.bg-emerald-100]="client.status === 'active'"
+        [class.text-emerald-800]="client.status === 'active'"
+        [class.bg-slate-100]="client.status === 'inactive'"
+        [class.text-slate-700]="client.status === 'inactive'"
+        [class.bg-rose-100]="client.status === 'suspended'"
+        [class.text-rose-800]="client.status === 'suspended'"
+        [class.bg-amber-100]="client.status === 'pending'"
+        [class.text-amber-800]="client.status === 'pending'"
+        data-testid="client-status"
+      >
+        {{ toStatusLabel(client.status) }}
+      </span>
+    </section>
+
+    <!-- Points -->
+    <section class="space-y-3" aria-labelledby="points-heading">
+      <h2 id="points-heading" class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted">
+        <app-icon name="star" [size]="14" />
+        Puntos y fidelización
+      </h2>
+      @if (client.clientDetails; as details) {
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div class="rounded-2xl border border-border bg-surface p-4">
+            <span class="text-xs text-muted block">Nivel</span>
+            <span
+              class="block mt-1 text-base font-extrabold"
+              [class.text-bronze]="details.loyaltyTier === 'bronze'"
+              [class.text-silver]="details.loyaltyTier === 'silver'"
+              [class.text-gold]="details.loyaltyTier === 'gold'"
+              [class.text-cyan-600]="details.loyaltyTier === 'diamond'"
+              data-testid="client-tier"
+            >
+              {{ toTierLabel(details.loyaltyTier) }}
+            </span>
+          </div>
+          <div class="rounded-2xl border border-border bg-surface p-4">
+            <span class="text-xs text-muted block">Puntos disponibles</span>
+            <span class="block mt-1 text-base font-black text-primary" data-testid="client-available-points">
+              {{ details.availablePoints | number }} pts
+            </span>
+          </div>
+          <div class="rounded-2xl border border-border bg-surface p-4">
+            <span class="text-xs text-muted block">Puntos históricos</span>
+            <span class="block mt-1 text-base font-bold text-text" data-testid="client-lifetime-points">
+              {{ details.lifetimePoints | number }} pts
+            </span>
+          </div>
+          <div class="rounded-2xl border border-border bg-surface p-4">
+            <span class="text-xs text-muted block">Canjes realizados</span>
+            <span class="block mt-1 text-base font-bold text-text">{{ details.redemptionsCount }}</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 rounded-2xl border border-border bg-surface px-4 py-3 text-xs text-muted">
+          <app-icon name="coffee" [size]="16" class="text-primary" />
+          <span>
+            Cafetería preferida:
+            <strong class="text-text">{{ details.preferredCafe ?? 'Sin cafetería preferida' }}</strong>
+          </span>
+        </div>
+      } @else {
+        <p class="rounded-2xl border border-border bg-surface px-4 py-3 text-xs text-muted">
+          Este cliente todavía no tiene datos de fidelización.
+        </p>
+      }
+    </section>
+
+    <!-- Account data -->
+    <section class="space-y-3" aria-labelledby="data-heading">
+      <h2 id="data-heading" class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted">
+        <app-icon name="id-card" [size]="14" />
+        Datos de la cuenta
+      </h2>
+      <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 rounded-2xl border border-border bg-surface p-5 text-xs">
+        <div>
+          <dt class="text-muted">Email</dt>
+          <dd class="font-bold text-text break-all">
+            {{ client.email }}
+            <span class="ml-1 font-medium" [class.text-emerald-700]="client.emailVerified" [class.text-amber-700]="!client.emailVerified">
+              ({{ client.emailVerified ? 'verificado' : 'sin verificar' }})
+            </span>
+          </dd>
+        </div>
+        <div>
+          <dt class="text-muted">Teléfono</dt>
+          <dd class="font-bold text-text">{{ client.phoneNumber || '-' }}</dd>
+        </div>
+        <div>
+          <dt class="text-muted">Método de acceso</dt>
+          <dd class="font-bold text-text">{{ toAuthProviderLabel(client.authProvider) }}</dd>
+        </div>
+        <div>
+          <dt class="text-muted">Verificación en dos pasos</dt>
+          <dd class="font-bold text-text">{{ client.twoFactorEnabled ? 'Activada' : 'Desactivada' }}</dd>
+        </div>
+        <div>
+          <dt class="text-muted">Fecha de registro</dt>
+          <dd class="font-bold text-text">{{ client.createdAt | date: 'dd/MM/yyyy HH:mm' }}</dd>
+        </div>
+        <div>
+          <dt class="text-muted">Último acceso</dt>
+          <dd class="font-bold text-text">
+            @if (client.lastLoginAt) {
+              {{ client.lastLoginAt | date: 'dd/MM/yyyy HH:mm' }}
+            } @else {
+              Nunca
+            }
+          </dd>
+        </div>
+        @if (client.notes) {
+          <div class="sm:col-span-2">
+            <dt class="text-muted">Notas</dt>
+            <dd class="font-medium text-text">{{ client.notes }}</dd>
+          </div>
+        }
+      </dl>
+    </section>
+  } @else {
+    <div class="flex flex-col items-center justify-center rounded-2xl border border-border bg-surface py-16 px-4 text-center" data-testid="client-not-found">
+      <div class="flex size-14 items-center justify-center rounded-2xl bg-bg border border-border text-muted mb-3">
+        <app-icon name="user" [size]="28" />
+      </div>
+      <h1 class="text-base font-bold text-text">Cliente no encontrado</h1>
+      <p class="mt-1 text-xs text-muted max-w-sm">
+        No existe un cliente con ese ID o la cuenta no tiene el rol cliente.
+      </p>
+    </div>
+  }
+</main>
