@@ -29,10 +29,6 @@ export class UserDetailModal {
     this.close.emit();
   }
 
-  protected onActivateCafe(): void {
-    this.updateStatus.emit({ id: this.user().id, status: 'active' });
-  }
-
   protected onRequestDeactivate(): void {
     this.confirmingDeactivate.set(true);
   }

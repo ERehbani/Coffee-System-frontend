@@ -35,9 +35,6 @@
             <h2 [id]="'modal-title-' + user().id" class="text-xl font-black text-text">
               {{ user().fullName }}
             </h2>
-            <span class="font-mono text-xs font-semibold px-2 py-0.5 rounded-md bg-border/50 text-muted">
-              {{ user().id }}
-            </span>
           </div>
 
           <div class="mt-1 flex items-center gap-2 flex-wrap">
@@ -131,36 +128,6 @@
 
     <!-- Scrollable Body -->
     <div class="flex-1 overflow-y-auto px-6 py-5 space-y-6">
-      <!-- Special Action Banner: Pending Cafe Approval -->
-      @if (user().role === 'cafe_admin' && user().status === 'pending') {
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-2xl border border-amber-300 bg-amber-50 p-4 shadow-xs">
-          <div class="flex items-center gap-3">
-            <span class="inline-flex size-10 shrink-0 items-center justify-center rounded-xl bg-amber-500 text-white shadow-2xs">
-              <app-icon name="store" [size]="20" />
-            </span>
-            <div>
-              <p class="text-xs font-black text-amber-950">Solicitud de Cafetería Pendiente</p>
-              <p class="text-[11px] text-amber-800">
-                El comercio "{{ user().cafeAdminDetails?.cafeName }}" está pendiente de validación y habilitación.
-              </p>
-            </div>
-          </div>
-          <button
-            type="button"
-            (click)="onActivateCafe()"
-            [disabled]="isProcessing()"
-            class="cursor-pointer shrink-0 inline-flex items-center justify-center gap-1.5 rounded-xl bg-emerald-600 px-4 py-2 text-xs font-bold text-white hover:bg-emerald-700 active:scale-95 transition disabled:opacity-50 shadow-xs select-none"
-          >
-            @if (isProcessing()) {
-              <app-icon name="refresh-cw" [size]="14" class="animate-spin" />
-              <span>Activando...</span>
-            } @else {
-              <app-icon name="check" [size]="14" />
-              <span>Activar Cafetería</span>
-            }
-          </button>
-        </div>
-      }
 
       <!-- Special Action Banner: Inactive user reactivation -->
       @if (user().status === 'inactive') {
@@ -193,60 +160,6 @@
         </div>
       }
 
-      <!-- Security & Auth Ribbon -->
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <div class="flex items-center gap-3 rounded-2xl border border-border bg-bg/40 p-3.5">
-          <div
-            class="flex size-9 shrink-0 items-center justify-center rounded-xl"
-            [class.bg-emerald-100]="user().emailVerified"
-            [class.text-emerald-700]="user().emailVerified"
-            [class.bg-rose-100]="!user().emailVerified"
-            [class.text-rose-700]="!user().emailVerified"
-          >
-            @if (user().emailVerified) {
-              <app-icon name="check-circle" [size]="18" />
-            } @else {
-              <app-icon name="alert-circle" [size]="18" />
-            }
-          </div>
-          <div class="min-w-0">
-            <p class="text-[11px] font-bold uppercase tracking-wider text-muted">Email Verificado</p>
-            <p class="text-xs font-extrabold text-text truncate">
-              {{ user().emailVerified ? 'Confirmado' : 'Sin verificar' }}
-            </p>
-          </div>
-        </div>
-
-        <div class="flex items-center gap-3 rounded-2xl border border-border bg-bg/40 p-3.5">
-          <div
-            class="flex size-9 shrink-0 items-center justify-center rounded-xl"
-            [class.bg-emerald-100]="user().twoFactorEnabled"
-            [class.text-emerald-700]="user().twoFactorEnabled"
-            [class.bg-slate-100]="!user().twoFactorEnabled"
-            [class.text-slate-600]="!user().twoFactorEnabled"
-          >
-            <app-icon name="lock" [size]="18" />
-          </div>
-          <div class="min-w-0">
-            <p class="text-[11px] font-bold uppercase tracking-wider text-muted">Seguridad 2FA</p>
-            <p class="text-xs font-extrabold text-text truncate">
-              {{ user().twoFactorEnabled ? 'Activado' : 'Desactivado' }}
-            </p>
-          </div>
-        </div>
-
-        <div class="flex items-center gap-3 rounded-2xl border border-border bg-bg/40 p-3.5">
-          <div class="flex size-9 shrink-0 items-center justify-center rounded-xl bg-accent-light text-primary">
-            <app-icon name="id-card" [size]="18" />
-          </div>
-          <div class="min-w-0">
-            <p class="text-[11px] font-bold uppercase tracking-wider text-muted">Autenticación</p>
-            <p class="text-xs font-extrabold text-text capitalize truncate">
-              {{ user().authProvider === 'email_password' ? 'Email y clave' : user().authProvider }}
-            </p>
-          </div>
-        </div>
-      </div>
 
       <!-- Personal & Contact Info -->
       <section class="space-y-3">
@@ -272,18 +185,13 @@
           </div>
 
           <div>
-            <span class="text-xs text-muted block">ID en Base de Datos</span>
-            <span class="font-mono text-sm font-semibold text-text">{{ user().id }}</span>
-          </div>
-
-          <div>
             <span class="text-xs text-muted block">Fecha de Registro</span>
             <span class="text-sm font-bold text-text">
               {{ user().createdAt | date: 'dd/MM/yyyy HH:mm' }}
             </span>
           </div>
 
-          <div>
+          <div class="sm:col-span-2">
             <span class="text-xs text-muted block">Último Inicio de Sesión</span>
             <span class="text-sm font-bold text-text">
               @if (user().lastLoginAt) {
@@ -360,7 +268,6 @@
             <div class="flex items-center justify-between pb-3 border-b border-border">
               <div>
                 <p class="text-base font-extrabold text-text">{{ cafe.cafeName }}</p>
-                <p class="text-xs text-muted">ID Comercio: <span class="font-mono font-semibold">{{ cafe.cafeId }}</span></p>
               </div>
               <span class="rounded-xl bg-amber-100 px-3 py-1 text-xs font-bold text-amber-900">
                 {{ cafe.cafeRole }}
@@ -381,63 +288,24 @@
         </section>
       }
 
-      @if (user().role === 'superadmin' && user().superadminDetails; as superadmin) {
-        <section class="space-y-3">
+      <!-- Audit Notes (Client & Cafe) -->
+      @if (user().role !== 'superadmin') {
+        <section class="space-y-2">
           <h3 class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted">
-            <app-icon name="shield" [size]="14" />
-            Privilegios y Auditoría de Seguridad (Superadmin)
+            <app-icon name="message-square-text" [size]="14" />
+            Notas de Auditoría y Observaciones
           </h3>
-
-          <div class="rounded-2xl border border-border bg-surface p-4 space-y-3">
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <span class="text-xs text-muted block">Nivel de Acceso</span>
-                <span class="text-sm font-extrabold text-purple-900">{{ superadmin.accessLevel }}</span>
-              </div>
-              <div>
-                <span class="text-xs text-muted block">Departamento</span>
-                <span class="text-sm font-bold text-text">{{ superadmin.department }}</span>
-              </div>
-              <div>
-                <span class="text-xs text-muted block">Última Acción Registrada</span>
-                <span class="text-xs font-medium text-text">{{ superadmin.lastAuditAction }}</span>
-              </div>
-              <div>
-                <span class="text-xs text-muted block">IP de Último Acceso</span>
-                <span class="font-mono text-xs font-semibold text-text">{{ superadmin.ipAddressLastLogin }}</span>
-              </div>
-            </div>
+          <div class="rounded-2xl border border-border bg-bg/40 p-4 text-xs text-text leading-relaxed">
+            {{ user().notes || 'Sin observaciones registradas para este perfil de usuario.' }}
           </div>
         </section>
       }
-
-      <!-- Audit Notes -->
-      <section class="space-y-2">
-        <h3 class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted">
-          <app-icon name="message-square-text" [size]="14" />
-          Notas de Auditoría y Observaciones
-        </h3>
-        <div class="rounded-2xl border border-border bg-bg/40 p-4 text-xs text-text leading-relaxed">
-          {{ user().notes || 'Sin observaciones registradas para este perfil de usuario.' }}
-        </div>
-      </section>
     </div>
 
     <!-- Modal Footer Actions -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-t border-border bg-bg/40 px-6 py-4">
       <!-- Left side: Administrative Actions (Dar de baja, Activar, etc.) -->
       <div class="flex items-center gap-2 flex-wrap">
-        @if (user().role === 'cafe_admin' && user().status === 'pending') {
-          <button
-            type="button"
-            (click)="onActivateCafe()"
-            [disabled]="isProcessing()"
-            class="cursor-pointer inline-flex items-center gap-1.5 rounded-xl bg-emerald-600 px-4 py-2 text-xs font-bold text-white hover:bg-emerald-700 active:scale-95 transition disabled:opacity-50 shadow-2xs select-none"
-          >
-            <app-icon name="check" [size]="14" />
-            <span>Activar Cafetería</span>
-          </button>
-        }
 
         @if (user().status === 'active' || user().status === 'pending') {
           @if (!confirmingDeactivate()) {

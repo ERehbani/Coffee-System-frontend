@@ -44,13 +44,13 @@ describe('AdminUsersPage', () => {
       phoneNumber: '+54 11 9812-7634',
       avatarUrl: null,
       role: 'cafe_admin',
-      status: 'pending',
+      status: 'active',
       createdAt: new Date('2026-10-18T11:45:00.000Z'),
-      lastLoginAt: null,
-      emailVerified: false,
+      lastLoginAt: new Date('2026-10-19T14:10:00.000Z'),
+      emailVerified: true,
       twoFactorEnabled: false,
       authProvider: 'email_password',
-      notes: 'Solicitud pendiente',
+      notes: 'Cafetería habilitada',
       cafeAdminDetails: {
         cafeId: 'cafe-velvet-brew',
         cafeName: 'Velvet Specialty Brew',
@@ -133,7 +133,7 @@ describe('AdminUsersPage', () => {
     expect(modal).toBeNull();
   });
 
-  it('should open modal with full attributes when a user is selected', () => {
+  it('should open modal with superadmin attributes without security audit section or audit notes', () => {
     store.selectUser(mockUsers[0]);
     fixture.detectChanges();
 
@@ -142,10 +142,15 @@ describe('AdminUsersPage', () => {
 
     const modalText = modal.textContent;
     expect(modalText).toContain('Elena Rostova');
-    expect(modalText).toContain('USR-1001');
-    expect(modalText).toContain('Control Total');
-    expect(modalText).toContain('Seguridad y Operaciones');
-    expect(modalText).toContain('190.210.45.12');
+    expect(modalText).not.toContain('Privilegios y Auditoría de Seguridad');
+    expect(modalText).not.toContain('Control Total');
+    expect(modalText).not.toContain('Seguridad y Operaciones');
+    expect(modalText).not.toContain('190.210.45.12');
+    expect(modalText).not.toContain('Notas de Auditoría y Observaciones');
+    expect(modalText).not.toContain('ID en Base de Datos');
+    expect(modalText).not.toContain('Email Verificado');
+    expect(modalText).not.toContain('Seguridad 2FA');
+    expect(modalText).not.toContain('Autenticación');
   });
 
   it('should show client-specific attributes in modal when client is selected', () => {
@@ -160,27 +165,26 @@ describe('AdminUsersPage', () => {
     expect(modalText).toContain('4520 pts');
     expect(modalText).toContain('12450 pts');
     expect(modalText).toContain('Café Central');
+    expect(modalText).not.toContain('ID en Base de Datos');
+    expect(modalText).not.toContain('Email Verificado');
+    expect(modalText).not.toContain('Seguridad 2FA');
   });
 
-  it('should allow activating a pending cafe from the modal', () => {
+  it('should display cafe details without pending request banner, activate button, or database id', () => {
     store.selectUser(mockUsers[1]);
     fixture.detectChanges();
 
     const modal = fixture.nativeElement.querySelector('app-user-detail-modal');
-    expect(modal.textContent).toContain('Solicitud de Cafetería Pendiente');
+    expect(modal).toBeTruthy();
 
-    // Find the activate button
-    const activateButtons = modal.querySelectorAll('button');
-    const activateBtn = Array.from(activateButtons).find((b: any) =>
-      b.textContent?.includes('Activar Cafetería')
-    ) as HTMLButtonElement;
-
-    expect(activateBtn).toBeTruthy();
-    activateBtn.click();
-    fixture.detectChanges();
-
-    expect(mockRepository.updateUserStatus).toHaveBeenCalledWith('USR-2003', 'active');
-    expect(store.selectedUser()?.status).toBe('active');
+    const modalText = modal.textContent;
+    expect(modalText).toContain('Velvet Specialty Brew');
+    expect(modalText).toContain('Thames 1720');
+    expect(modalText).not.toContain('Solicitud de Cafetería Pendiente');
+    expect(modalText).not.toContain('Activar Cafetería');
+    expect(modalText).not.toContain('ID en Base de Datos');
+    expect(modalText).not.toContain('Email Verificado');
+    expect(modalText).not.toContain('Seguridad 2FA');
   });
 
   it('should allow giving a user de baja (inactive) with confirmation in the modal', () => {
