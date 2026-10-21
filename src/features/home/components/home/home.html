@@ -8,13 +8,16 @@
         </span>
         <h1 class="text-2xl font-bold tracking-tight text-text md:text-3xl">Explorar Cafeterías</h1>
       </div>
-      <a
-        routerLink="/profile"
-        aria-label="Mi perfil y fidelización"
-        class="flex size-11 items-center justify-center rounded-2xl border border-border bg-surface text-primary shadow-xs transition-all hover:border-primary hover:bg-accent-light/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-      >
-        <app-icon name="user" [size]="20" />
-      </a>
+      <div class="flex items-center gap-2">
+        <app-cart-button />
+        <a
+          routerLink="/profile"
+          aria-label="Mi perfil y fidelización"
+          class="flex size-11 items-center justify-center rounded-2xl border border-border bg-surface text-primary shadow-xs transition-all hover:border-primary hover:bg-accent-light/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+        >
+          <app-icon name="user" [size]="20" />
+        </a>
+      </div>
     </div>
     <p class="text-sm text-muted max-w-2xl">
       Descubrí las mejores cafeterías de especialidad, conocé sus horarios, ubicaciones y explorá sus catálogos de productos.

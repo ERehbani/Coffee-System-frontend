@@ -5,6 +5,8 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Subject, merge, of } from 'rxjs';
 import { catchError, distinctUntilChanged, map, switchMap, tap } from 'rxjs/operators';
 import { Icon } from '../../../../shared/components/icon/icon';
+import { CartButton } from '../../../cart/components/cart-button/cart-button';
+import { CartService } from '../../../cart/services/cart.service';
 import { Cafe } from '../../../home/model/cafe.model';
 import { CafeService } from '../../../home/services/cafe.service';
 import { ProductCard } from '../../components/product-card/product-card';
@@ -13,7 +15,7 @@ import { ProductService } from '../../services/product.service';
 
 @Component({
   selector: 'app-catalog-page',
-  imports: [RouterLink, FormsModule, Icon, ProductCard],
+  imports: [RouterLink, FormsModule, Icon, ProductCard, CartButton],
   templateUrl: './catalog-page.html',
   host: { class: 'block' },
 })
@@ -23,6 +25,7 @@ export class CatalogPage implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
+  readonly cartService = inject(CartService);
 
   private readonly manualCafeId$ = new Subject<string>();
 
@@ -36,6 +39,8 @@ export class CatalogPage implements OnInit {
   selectedCategory = signal('Todas');
   productSearchQuery = signal('');
   addedProductMessage = signal<string | null>(null);
+  pendingProduct = signal<Product | null>(null);
+  private messageTimeout?: ReturnType<typeof setTimeout>;
 
   categories = computed(() => {
     const set = new Set(this.products().map((p) => p.category));
@@ -152,8 +157,42 @@ export class CatalogPage implements OnInit {
   }
 
   onAddToOrder(product: Product): void {
-    this.addedProductMessage.set(`¡${product.name} agregado al pedido!`);
-    setTimeout(() => {
+    const cafe = this.selectedCafe();
+    if (!cafe) {
+      return;
+    }
+
+    if (this.cartService.isFromAnotherCafe(product)) {
+      this.pendingProduct.set(product);
+      return;
+    }
+
+    if (this.cartService.addProduct(product, cafe)) {
+      this.showAddedMessage(product);
+    }
+  }
+
+  confirmReplaceCart(): void {
+    const product = this.pendingProduct();
+    const cafe = this.selectedCafe();
+    if (!product || !cafe) {
+      return;
+    }
+
+    if (this.cartService.replaceWithProduct(product, cafe)) {
+      this.showAddedMessage(product);
+    }
+    this.pendingProduct.set(null);
+  }
+
+  cancelReplaceCart(): void {
+    this.pendingProduct.set(null);
+  }
+
+  private showAddedMessage(product: Product): void {
+    clearTimeout(this.messageTimeout);
+    this.addedProductMessage.set(`¡${product.name} agregado al carrito!`);
+    this.messageTimeout = setTimeout(() => {
       this.addedProductMessage.set(null);
     }, 2500);
   }
