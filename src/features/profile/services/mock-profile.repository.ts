@@ -6,9 +6,19 @@ import {
   ProfileDashboard,
   TierDetail,
   UpdateClientProfileInput,
+  UsedBenefit,
 } from '../types/profile.model';
-import { buildProfileDashboardFixture, buildTierDetailFixture } from '../utils/profile.fixture';
-import { toClientProfile, toProfileDashboard, toTierDetail } from '../utils/profile.mapper';
+import {
+  buildProfileDashboardFixture,
+  buildRedemptionHistoryFixture,
+  buildTierDetailFixture,
+} from '../utils/profile.fixture';
+import {
+  toClientProfile,
+  toProfileDashboard,
+  toTierDetail,
+  toUsedBenefits,
+} from '../utils/profile.mapper';
 import { ProfileRepository } from './profile.repository';
 
 export const MOCK_LATENCY_MS = 400;
@@ -28,6 +38,13 @@ export class MockProfileRepository implements ProfileRepository {
     return defer(() => of(buildTierDetailFixture())).pipe(
       delay(MOCK_LATENCY_MS),
       map(toTierDetail),
+    );
+  }
+
+  getUsedBenefits(): Observable<readonly UsedBenefit[]> {
+    return defer(() => of(buildRedemptionHistoryFixture(new Date()))).pipe(
+      delay(MOCK_LATENCY_MS),
+      map(toUsedBenefits),
     );
   }
 

@@ -1,19 +1,26 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Service } from '@angular/core';
 import { map, Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { ClientProfileDto, ProfileDashboardDto, TierDetailDto } from '../types/profile.dto';
+import {
+  ClientProfileDto,
+  ProfileDashboardDto,
+  RedemptionDto,
+  TierDetailDto,
+} from '../types/profile.dto';
 import {
   ClientProfile,
   ProfileDashboard,
   TierDetail,
   UpdateClientProfileInput,
+  UsedBenefit,
 } from '../types/profile.model';
 import {
   toClientProfile,
   toProfileDashboard,
   toTierDetail,
   toUpdateClientProfileDto,
+  toUsedBenefits,
 } from '../utils/profile.mapper';
 import { ProfileRepository } from './profile.repository';
 
@@ -31,6 +38,13 @@ export class HttpProfileRepository implements ProfileRepository {
     return this.http
       .get<TierDetailDto>(`${environment.apiBaseUrl}/clients/me/tier`)
       .pipe(map(toTierDetail));
+  }
+
+  getUsedBenefits(): Observable<readonly UsedBenefit[]> {
+    const params = new HttpParams().set('state', false);
+    return this.http
+      .get<RedemptionDto[]>(`${environment.apiBaseUrl}/redemption`, { params })
+      .pipe(map(toUsedBenefits));
   }
 
   updateProfile(clientId: string, input: UpdateClientProfileInput): Observable<ClientProfile> {

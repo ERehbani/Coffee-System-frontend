@@ -102,6 +102,16 @@
               </li>
             }
           </ul>
+          <a
+            routerLink="/profile/redemptions"
+            class="flex items-center justify-between gap-2 rounded-2xl border border-border bg-surface px-4 py-3 text-sm font-bold text-primary transition-colors hover:border-primary hover:bg-accent-light/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+          >
+            <span class="flex items-center gap-2">
+              <app-icon name="history" [size]="18" />
+              Historial de beneficios canjeados
+            </span>
+            <app-icon name="chevron-right" [size]="18" />
+          </a>
         </section>
 
         <section aria-labelledby="nearby-cafes-heading" class="space-y-3">
