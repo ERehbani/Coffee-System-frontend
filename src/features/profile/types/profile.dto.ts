@@ -58,6 +58,8 @@ export interface ActiveRedemptionDto {
   readonly description: string;
   readonly code: string;
   readonly expiresAt: string;
+  /** Usage conditions. Not in the backend contract yet; treated as empty when missing. */
+  readonly conditions?: readonly string[];
 }
 
 export interface NearbyCafeDto {

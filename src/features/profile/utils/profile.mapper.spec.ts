@@ -1,5 +1,6 @@
 import { RedemptionDto } from '../types/profile.dto';
-import { toUsedBenefits } from './profile.mapper';
+import { buildProfileDashboardFixture } from './profile.fixture';
+import { toProfileDashboard, toUsedBenefits } from './profile.mapper';
 
 const redemption = (overrides: Partial<RedemptionDto>): RedemptionDto => ({
   externalId: 'redemption',
@@ -23,5 +24,28 @@ describe('toUsedBenefits', () => {
     expect(result.map((benefit) => benefit.id)).toEqual(['new', 'old']);
     expect(result[0].cafeName).toBeNull();
     expect(result[0].redeemedAt).toEqual(new Date('2026-10-10T10:00:00'));
+  });
+});
+
+describe('toProfileDashboard', () => {
+  const now = new Date(2026, 9, 21, 12, 0);
+
+  it('maps the conditions of active redemptions', () => {
+    const dashboard = toProfileDashboard(buildProfileDashboardFixture(now));
+
+    expect(dashboard.activeRedemptions[0].conditions).toEqual([
+      'Un solo uso por cliente.',
+      'No acumulable con otras promociones.',
+      'Presentá el código antes de pagar.',
+    ]);
+  });
+
+  it('defaults to no conditions when the backend does not send them', () => {
+    const dto = buildProfileDashboardFixture(now);
+    const { conditions: _omitted, ...withoutConditions } = dto.activeRedemptions[0];
+
+    const dashboard = toProfileDashboard({ ...dto, activeRedemptions: [withoutConditions] });
+
+    expect(dashboard.activeRedemptions[0].conditions).toEqual([]);
   });
 });

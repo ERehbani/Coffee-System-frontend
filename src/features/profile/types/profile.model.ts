@@ -50,6 +50,7 @@ export interface ActiveRedemption {
   readonly description: string;
   readonly code: string;
   readonly expiresAt: Date;
+  readonly conditions: readonly string[];
 }
 
 export interface NearbyCafe {
