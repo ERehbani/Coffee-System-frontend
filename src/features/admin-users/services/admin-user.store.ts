@@ -119,7 +119,7 @@ export class AdminUserStore {
 
         let msg = '¡Estado del usuario actualizado exitosamente!';
         if (status === 'active' && updatedUser.role === 'cafe_admin') {
-          msg = `¡La cafetería "${updatedUser.cafeAdminDetails?.cafeName || updatedUser.fullName}" ha sido activada y aprobada con éxito!`;
+          msg = `¡La cafetería "${updatedUser.cafeAdminDetails?.cafeName || updatedUser.fullName}" ha sido activada con éxito!`;
         } else if (status === 'active') {
           msg = `¡El usuario ${updatedUser.fullName} ha sido reactivado exitosamente!`;
         } else if (status === 'inactive') {
