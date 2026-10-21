@@ -2,13 +2,14 @@ import { Component, OnInit, computed, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { Icon } from '../../../../shared/components/icon/icon';
+import { CartButton } from '../../../cart/components/cart-button/cart-button';
 import { Cafe } from '../../model/cafe.model';
 import { CafeService } from '../../services/cafe.service';
 import { CafeCard } from '../cafe-card/cafe-card';
 
 @Component({
   selector: 'app-home',
-  imports: [RouterLink, FormsModule, Icon, CafeCard],
+  imports: [RouterLink, FormsModule, Icon, CafeCard, CartButton],
   templateUrl: './home.html',
   host: { class: 'block' },
 })

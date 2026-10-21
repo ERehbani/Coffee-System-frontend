@@ -8,13 +8,16 @@
         </span>
         <h1 class="text-2xl font-bold tracking-tight text-text md:text-3xl">Catálogo de Productos</h1>
       </div>
-      <a
-        routerLink="/profile"
-        aria-label="Mi perfil y fidelización"
-        class="flex size-11 items-center justify-center rounded-2xl border border-border bg-surface text-primary shadow-xs transition-all hover:border-primary hover:bg-accent-light/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-      >
-        <app-icon name="user" [size]="20" />
-      </a>
+      <div class="flex items-center gap-2">
+        <app-cart-button />
+        <a
+          routerLink="/profile"
+          aria-label="Mi perfil y fidelización"
+          class="flex size-11 items-center justify-center rounded-2xl border border-border bg-surface text-primary shadow-xs transition-all hover:border-primary hover:bg-accent-light/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+        >
+          <app-icon name="user" [size]="20" />
+        </a>
+      </div>
     </div>
     <p class="text-sm text-muted max-w-2xl">
       Descubrí las opciones gastronómicas y de especialidad. Podés cambiar de cafetería en cualquier momento para ver sus productos.
@@ -34,6 +37,49 @@
       >
         <app-icon name="x" [size]="16" />
       </button>
+    </div>
+  }
+
+  @if (pendingProduct(); as pending) {
+    <div class="fixed inset-0 z-40 flex items-end justify-center bg-text/40 p-4 sm:items-center">
+      <div
+        role="alertdialog"
+        aria-modal="true"
+        aria-labelledby="titulo-cambiar-carrito"
+        class="w-full max-w-sm rounded-2xl bg-surface p-5 shadow-lg space-y-4"
+      >
+        <div class="flex items-start gap-3">
+          <div class="flex size-10 shrink-0 items-center justify-center rounded-full bg-accent-light text-primary">
+            <app-icon name="alert-circle" [size]="20" />
+          </div>
+          <div class="space-y-1">
+            <h2 id="titulo-cambiar-carrito" class="text-base font-bold text-text">
+              Tu carrito es de otra cafetería
+            </h2>
+            <p class="text-xs text-muted leading-relaxed">
+              Ya tenés productos de <span class="font-semibold text-text">{{ cartService.cafe()?.name }}</span>.
+              No se pueden mezclar productos de distintas cafeterías en un mismo pedido.
+              ¿Querés vaciar el carrito y agregar {{ pending.name }}?
+            </p>
+          </div>
+        </div>
+        <div class="flex justify-end gap-2">
+          <button
+            type="button"
+            (click)="cancelReplaceCart()"
+            class="rounded-xl border border-border px-4 py-2 text-xs font-semibold text-muted transition-colors hover:border-primary/50 hover:text-text cursor-pointer"
+          >
+            Cancelar
+          </button>
+          <button
+            type="button"
+            (click)="confirmReplaceCart()"
+            class="rounded-xl bg-primary px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-primary-dark cursor-pointer"
+          >
+            Vaciar y agregar
+          </button>
+        </div>
+      </div>
     </div>
   }
 
