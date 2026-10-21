@@ -1,0 +1,125 @@
+<header class="mb-6 flex items-center gap-3">
+  <a
+    routerLink="/profile"
+    class="flex size-10 shrink-0 items-center justify-center rounded-full border border-border bg-surface text-text transition-colors hover:bg-accent-light focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+  >
+    <app-icon name="arrow-left" [size]="20" label="Volver al perfil" />
+  </a>
+  <h1 class="text-xl font-extrabold tracking-tight text-text">Tu código de canje</h1>
+</header>
+
+@switch (store.status()) {
+  @case ('loading') {
+    <div aria-busy="true">
+      <p role="status" class="sr-only">Cargando tu canje…</p>
+      <div aria-hidden="true" class="space-y-4 motion-safe:animate-pulse">
+        <div class="mx-auto size-64 rounded-2xl bg-border"></div>
+        <div class="mx-auto h-8 w-48 rounded bg-border"></div>
+        <div class="h-28 rounded-2xl bg-border"></div>
+      </div>
+    </div>
+  }
+  @case ('error') {
+    <section
+      role="alert"
+      class="flex flex-col items-center gap-3 rounded-2xl border border-border bg-surface p-6 text-center"
+    >
+      <h2 class="text-lg font-bold text-text">No pudimos cargar tu canje</h2>
+      <p class="text-sm text-muted">Revisa tu conexión e inténtalo de nuevo.</p>
+      <button
+        type="button"
+        (click)="store.reload()"
+        class="mt-2 inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+      >
+        <app-icon name="refresh-cw" [size]="16" />
+        Reintentar
+      </button>
+    </section>
+  }
+  @case ('ready') {
+    @if (redemption(); as redemption) {
+      <article aria-labelledby="redemption-title" class="space-y-4">
+        <section class="rounded-3xl border border-border bg-surface p-5 text-center shadow-sm">
+          <p
+            class="flex items-center justify-center gap-2 text-xs font-bold tracking-wide text-success uppercase"
+          >
+            <span aria-hidden="true" class="size-2 rounded-full bg-success"></span>
+            Listo para canje
+          </p>
+          <h2 id="redemption-title" class="mt-1.5 text-lg leading-snug font-bold text-text">
+            {{ redemption.title }}
+          </h2>
+          <p class="mt-0.5 text-sm text-muted">{{ redemption.description }}</p>
+
+          <div class="mt-5 flex justify-center">
+            <div class="rounded-2xl border border-border bg-white p-3">
+              <app-qr-code
+                [value]="redemption.code"
+                [size]="240"
+                [label]="'Código QR del canje ' + redemption.code"
+              />
+            </div>
+          </div>
+
+          <p class="mt-4">
+            <span class="sr-only">Código alfanumérico: </span>
+            <code
+              data-testid="redemption-code"
+              class="font-mono text-2xl font-bold tracking-[0.2em] text-text"
+              >{{ redemption.code }}</code
+            >
+          </p>
+          <p class="mt-2 text-sm text-muted">Mostrá este código al personal de la cafetería.</p>
+        </section>
+
+        <section
+          aria-labelledby="redemption-expiry-heading"
+          class="flex items-start gap-3 rounded-2xl border border-border bg-surface p-4"
+        >
+          <app-icon name="clock" [size]="18" class="mt-0.5 text-muted" />
+          <div>
+            <h3 id="redemption-expiry-heading" class="text-sm font-bold text-text">Vencimiento</h3>
+            <p class="text-sm text-text">
+              <time [attr.datetime]="redemption.expiresAt.toISOString()">
+                {{ redemption.expiresAt | date: 'd MMM y, HH:mm' }}
+              </time>
+            </p>
+            <p class="text-xs text-muted">{{ expiryLabel() }}</p>
+          </div>
+        </section>
+
+        <section
+          aria-labelledby="redemption-conditions-heading"
+          class="rounded-2xl border border-border bg-surface p-4"
+        >
+          <h3 id="redemption-conditions-heading" class="text-sm font-bold text-text">
+            Condiciones
+          </h3>
+          @if (redemption.conditions.length > 0) {
+            <ul class="mt-2 list-disc space-y-1 pl-5 text-sm text-text">
+              @for (condition of redemption.conditions; track $index) {
+                <li>{{ condition }}</li>
+              }
+            </ul>
+          } @else {
+            <p class="mt-2 text-sm text-muted">Este beneficio no tiene condiciones adicionales.</p>
+          }
+        </section>
+      </article>
+    } @else {
+      <section
+        role="alert"
+        class="flex flex-col items-center gap-3 rounded-2xl border border-border bg-surface p-6 text-center"
+      >
+        <h2 class="text-lg font-bold text-text">No encontramos este canje</h2>
+        <p class="text-sm text-muted">Puede que ya se haya usado o que haya vencido.</p>
+        <a
+          routerLink="/profile"
+          class="mt-2 inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+        >
+          Volver al perfil
+        </a>
+      </section>
+    }
+  }
+}

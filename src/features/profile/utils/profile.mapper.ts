@@ -73,6 +73,7 @@ export function toProfileDashboard(dto: ProfileDashboardDto): ProfileDashboard {
       description: redemption.description,
       code: redemption.code,
       expiresAt: toDate(redemption.expiresAt),
+      conditions: redemption.conditions ?? [],
     })),
     nearbyCafes: dto.nearbyCafes.map((cafe) => ({
       id: cafe.id,

@@ -45,7 +45,9 @@ export class ProfilePage {
       this.router.navigate(['/orders']);
     }
   }
-  protected onShowQr(_redemptionId: string): void {}
+  protected onShowQr(redemptionId: string): void {
+    this.router.navigate(['/profile/redemptions', redemptionId]);
+  }
   protected onSeeMap(): void {}
   protected onSeeCatalog(): void {}
   protected onRedeem(_benefitId: string): void {}

@@ -10,6 +10,7 @@ import {
 } from '@angular/core';
 import { Icon } from '../../../../shared/components/icon/icon';
 import { ActiveRedemptionView } from '../../services/profile.store';
+import { toExpiryLabel } from '../../utils/redemption-expiry';
 
 type CopyState = 'idle' | 'copied' | 'failed';
 
@@ -30,13 +31,7 @@ export class ActiveRedemptionCard {
 
   protected readonly copyState = signal<CopyState>('idle');
   protected readonly titleId = computed(() => `redemption-${this.redemption().id}`);
-  protected readonly expiryLabel = computed(() => {
-    const days = this.redemption().daysUntilExpiry;
-    if (days === 0) {
-      return 'Expira hoy';
-    }
-    return days === 1 ? 'Expira en 1 día' : `Expira en ${days} días`;
-  });
+  protected readonly expiryLabel = computed(() => toExpiryLabel(this.redemption().daysUntilExpiry));
   protected readonly copyMessage = computed(() => {
     switch (this.copyState()) {
       case 'copied':

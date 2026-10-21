@@ -29,6 +29,11 @@ export function buildProfileDashboardFixture(now: Date): ProfileDashboardDto {
         description: 'Válido en cualquier sucursal adherida',
         code: 'VLD-8492-C0FF',
         expiresAt: new Date(now.getTime() + 5 * DAY_MS).toISOString(),
+        conditions: [
+          'Un solo uso por cliente.',
+          'No acumulable con otras promociones.',
+          'Presentá el código antes de pagar.',
+        ],
       },
     ],
     nearbyCafes: [
