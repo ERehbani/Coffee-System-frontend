@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { Observable, of, throwError } from 'rxjs';
+import { Observable, of, Subject, throwError } from 'rxjs';
 import { ProfileRepository } from '../../services/profile.repository';
 import { RedemptionHistoryStore } from '../../services/redemption-history.store';
 import { UsedBenefit } from '../../types/profile.model';
@@ -75,11 +75,53 @@ describe('RedemptionHistoryPage', () => {
     expect(element.textContent).toContain('Todavía no usaste ningún beneficio');
   });
 
+  it('uses the singular label for a single used benefit', async () => {
+    await render(() => of([usedBenefits[0]]));
+
+    expect(element.textContent).toContain('1 beneficio usado');
+    expect(element.textContent).not.toContain('beneficios usados');
+  });
+
+  it('warns that the history may include expired or cancelled redemptions', async () => {
+    await render(() => of(usedBenefits));
+
+    expect(element.querySelector('[data-testid="history-disclaimer"]')?.textContent).toContain(
+      'vencidos o cancelados',
+    );
+  });
+
+  it('shows a loading state while the history is loading', async () => {
+    const pending = new Subject<readonly UsedBenefit[]>();
+    await render(() => pending);
+
+    expect(element.querySelector('[aria-busy="true"]')).not.toBeNull();
+    expect(element.textContent).toContain('Cargando tu historial');
+    expect(element.querySelector('app-used-benefit-item')).toBeNull();
+  });
+
   it('shows an error with a retry button when loading fails', async () => {
     await render(() => throwError(() => new Error('500')));
 
     expect(element.querySelector('[role="alert"]')?.textContent).toContain(
       'No pudimos cargar tu historial',
     );
+  });
+
+  it('reloads the history when "Reintentar" is clicked', async () => {
+    let calls = 0;
+    await render(() => (++calls === 1 ? throwError(() => new Error('500')) : of(usedBenefits)));
+
+    const retry = Array.from(element.querySelectorAll('button')).find((button) =>
+      button.textContent?.includes('Reintentar'),
+    );
+    expect(retry).toBeDefined();
+    retry!.click();
+    TestBed.flushEffects();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(calls).toBe(2);
+    expect(element.querySelector('[role="alert"]')).toBeNull();
+    expect(element.querySelectorAll('app-used-benefit-item').length).toBe(2);
   });
 });

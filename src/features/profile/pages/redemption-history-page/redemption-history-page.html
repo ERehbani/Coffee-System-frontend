@@ -48,6 +48,14 @@
             <strong>{{ store.totalUsedPoints() | number }}</strong> pts canjeados
           </span>
         </p>
+        <!-- El backend aún no distingue canjes usados de vencidos o cancelados (state=false para todos). -->
+        <p data-testid="history-disclaimer" class="flex items-start gap-2 px-1 text-xs text-muted">
+          <app-icon name="alert-circle" [size]="14" class="mt-0.5 shrink-0" />
+          <span>
+            Por ahora este historial también incluye canjes vencidos o cancelados, y sus puntos se
+            suman al total.
+          </span>
+        </p>
       }
 
       <ul aria-label="Beneficios canjeados" class="space-y-3">
