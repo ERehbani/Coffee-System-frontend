@@ -1,0 +1,67 @@
+<header
+  class="sticky top-0 z-20 flex items-center justify-between border-b border-border bg-surface px-4 py-3 lg:hidden"
+>
+  <span class="text-base font-semibold text-text">Coffee System</span>
+  <button
+    #menuButton
+    type="button"
+    aria-controls="admin-sidebar"
+    [attr.aria-expanded]="menuOpen()"
+    [attr.aria-label]="menuOpen() ? 'Cerrar menú' : 'Abrir menú'"
+    (click)="toggleMenu()"
+    class="inline-flex size-10 items-center justify-center rounded-lg text-text transition-colors hover:bg-bg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+  >
+    <app-icon [name]="menuOpen() ? 'x' : 'menu'" [size]="22" />
+  </button>
+</header>
+
+@if (menuOpen()) {
+  <div
+    data-testid="admin-backdrop"
+    aria-hidden="true"
+    class="fixed inset-0 z-30 bg-text/40 lg:hidden"
+    (click)="closeMenu()"
+  ></div>
+}
+
+<aside
+  id="admin-sidebar"
+  class="fixed inset-y-0 left-0 z-40 flex w-60 flex-col border-r border-border bg-surface pt-6 pr-4 pb-4 pl-4 transition-[translate,visibility] duration-200 motion-reduce:transition-none lg:visible lg:translate-x-0"
+  [class.invisible]="!menuOpen()"
+  [class.-translate-x-full]="!menuOpen()"
+>
+  <p data-testid="admin-brand" class="px-2.5 text-lg font-semibold text-text">Coffee System</p>
+
+  <nav aria-label="Administración" class="mt-6 flex-1 overflow-y-auto">
+    <ul class="flex flex-col gap-1">
+      @for (item of items; track item.path) {
+        <li>
+          <a
+            [routerLink]="['/admin', item.path]"
+            routerLinkActive="bg-accent-light text-primary"
+            ariaCurrentWhenActive="page"
+            (click)="closeMenu()"
+            class="block rounded-lg px-2.5 py-2 text-sm font-medium text-text transition-colors hover:bg-bg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+          >
+            {{ item.label }}
+          </a>
+        </li>
+      }
+    </ul>
+  </nav>
+
+  <footer class="mt-4 flex flex-col gap-1 border-t border-border pt-4">
+    <p class="px-2.5 text-xs text-muted">Superadmin</p>
+    <a
+      routerLink="/home"
+      (click)="closeMenu()"
+      class="block rounded-lg px-2.5 py-2 text-sm font-medium text-muted transition-colors hover:bg-bg hover:text-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+    >
+      Volver a la app
+    </a>
+  </footer>
+</aside>
+
+<div class="lg:pl-60">
+  <router-outlet />
+</div>

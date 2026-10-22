@@ -1,0 +1,17 @@
+<main class="mx-auto w-full max-w-6xl space-y-6 px-4 py-8 lg:px-8">
+  <app-admin-page-header [title]="title()" />
+
+  <section
+    class="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-border bg-surface px-6 py-16 text-center"
+  >
+    <span
+      class="inline-flex size-12 items-center justify-center rounded-full bg-accent-light text-primary"
+    >
+      <app-icon name="clock" [size]="24" />
+    </span>
+    <h2 class="text-lg font-semibold text-text">Próximamente</h2>
+    <p class="max-w-md text-sm text-muted">
+      La sección «{{ title() }}» todavía no está disponible en el panel de administración.
+    </p>
+  </section>
+</main>
