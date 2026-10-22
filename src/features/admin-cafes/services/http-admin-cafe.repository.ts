@@ -25,6 +25,7 @@ export class HttpAdminCafeRepository implements AdminCafeRepository {
     const payload: CreateCafeAccountRequestDto = {
       email: request.email,
       password: request.password,
+      ownerName: request.ownerName ?? null,
       name: request.name,
       address: request.address,
       description: request.description ?? null,

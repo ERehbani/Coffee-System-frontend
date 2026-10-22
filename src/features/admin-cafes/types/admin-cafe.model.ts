@@ -23,6 +23,7 @@ export interface CafeStatsSummary {
 export interface CreateCafeInput {
   readonly email: string;
   readonly password: string;
+  readonly ownerName: string;
   readonly name: string;
   readonly address: string;
   readonly description?: string;

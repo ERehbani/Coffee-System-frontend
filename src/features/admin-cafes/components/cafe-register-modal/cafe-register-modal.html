@@ -184,12 +184,52 @@
         }
       </section>
 
-      <!-- Section 2: Datos Base del Comercio -->
+      <!-- Section 2: Datos del Dueño -->
+      <section class="space-y-4">
+        <div class="flex items-center gap-2 border-b border-border pb-2">
+          <app-icon name="user" [size]="16" class="text-primary" />
+          <h3 class="text-xs font-black uppercase tracking-wider text-text">
+            2. Datos del Dueño
+          </h3>
+        </div>
+
+        <div class="space-y-1.5">
+          <label for="cafe-owner-name" class="block text-xs font-bold text-text">
+            Nombre y Apellido <span class="text-rose-600">*</span>
+          </label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-muted">
+              <app-icon name="user" [size]="14" />
+            </span>
+            <input
+              id="cafe-owner-name"
+              type="text"
+              formControlName="ownerName"
+              placeholder="ej: Mateo Valenzuela"
+              class="w-full rounded-xl border border-border bg-bg/50 pl-10 pr-4 py-2.5 text-xs text-text placeholder:text-muted focus:border-primary focus:bg-surface focus:outline-hidden focus:ring-2 focus:ring-primary/20 transition"
+            />
+          </div>
+          @if (form.get('ownerName')?.touched && form.get('ownerName')?.errors; as err) {
+            <p class="text-[11px] font-medium text-rose-600">
+              @if (err['required']) {
+                El nombre y apellido del dueño es requerido.
+              } @else if (err['minlength']) {
+                Debe tener al menos 2 caracteres.
+              }
+            </p>
+          }
+          <p class="text-[11px] text-muted">
+            Este titular se registrará en <strong>Auditoría de Usuarios (/admin/users)</strong> con el rol de comercio asociado.
+          </p>
+        </div>
+      </section>
+
+      <!-- Section 3: Datos Base del Comercio -->
       <section class="space-y-4">
         <div class="flex items-center gap-2 border-b border-border pb-2">
           <app-icon name="store" [size]="16" class="text-primary" />
           <h3 class="text-xs font-black uppercase tracking-wider text-text">
-            2. Información Base de la Cafetería
+            3. Información Base de la Cafetería
           </h3>
         </div>
 

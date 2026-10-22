@@ -40,7 +40,7 @@ describe('AdminUsersPage', () => {
       firstName: 'Andrés',
       lastName: 'Morales',
       fullName: 'Andrés Morales',
-      email: 'andres@velvetbrew.com',
+      email: 'contacto@velvetbrew.com',
       phoneNumber: '+54 11 9812-7634',
       avatarUrl: null,
       role: 'cafe_admin',
@@ -54,7 +54,7 @@ describe('AdminUsersPage', () => {
       cafeAdminDetails: {
         cafeId: 'cafe-velvet-brew',
         cafeName: 'Velvet Specialty Brew',
-        cafeRole: 'Propietario',
+        cafeRole: 'Comercio Asociado',
         cafeAddress: 'Thames 1720',
         branchCount: 1,
       },
@@ -125,6 +125,7 @@ describe('AdminUsersPage', () => {
     expect(compiled.textContent).toContain('Elena Rostova');
     expect(compiled.textContent).toContain('elena.rostova@coffeesystem.admin');
     expect(compiled.textContent).toContain('Andrés Morales');
+    expect(compiled.textContent).toContain('Velvet Specialty Brew');
     expect(compiled.textContent).toContain('Sofía Martínez');
   });
 
@@ -178,6 +179,7 @@ describe('AdminUsersPage', () => {
     expect(modal).toBeTruthy();
 
     const modalText = modal.textContent;
+    expect(modalText).toContain('Andrés Morales');
     expect(modalText).toContain('Velvet Specialty Brew');
     expect(modalText).toContain('Thames 1720');
     expect(modalText).not.toContain('Solicitud de Cafetería Pendiente');

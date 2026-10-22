@@ -41,7 +41,7 @@
       <table class="w-full text-left border-collapse text-xs">
         <thead>
           <tr class="border-b border-border bg-bg/60 text-muted font-bold uppercase tracking-wider text-[11px]">
-            <th scope="col" class="py-3.5 px-4">Usuario</th>
+            <th scope="col" class="py-3.5 px-4">Usuario / Comercio</th>
             <th scope="col" class="py-3.5 px-4">ID</th>
             <th scope="col" class="py-3.5 px-4">Rol</th>
             <th scope="col" class="py-3.5 px-4">Estado</th>
@@ -61,7 +61,7 @@
               class="group cursor-pointer hover:bg-bg/60 transition-colors focus:bg-bg focus:outline-hidden focus:ring-2 focus:ring-primary/40"
               [attr.aria-label]="'Ver detalles de ' + user.fullName"
             >
-              <!-- Usuario (Avatar + Nombre + Email) -->
+              <!-- Usuario / Dueño (Avatar + Nombre + Subtítulo) -->
               <td class="py-3.5 px-4">
                 <div class="flex items-center gap-3">
                   @if (user.avatarUrl) {
@@ -84,8 +84,15 @@
                     <p class="font-bold text-text truncate group-hover:text-primary transition-colors">
                       {{ user.fullName }}
                     </p>
-                    <p class="text-muted text-[11px] truncate">
-                      {{ user.email }}
+                    <p class="text-muted text-[11px] truncate flex items-center gap-1">
+                      @if (user.role === 'cafe_admin' && user.cafeAdminDetails?.cafeName) {
+                        <span class="inline-flex items-center gap-1 font-medium text-text/80 truncate">
+                          <app-icon name="store" [size]="11" class="text-amber-700 shrink-0" />
+                          {{ user.cafeAdminDetails.cafeName }}
+                        </span>
+                        <span class="text-muted/40">•</span>
+                      }
+                      <span class="truncate">{{ user.email }}</span>
                     </p>
                   </div>
                 </div>

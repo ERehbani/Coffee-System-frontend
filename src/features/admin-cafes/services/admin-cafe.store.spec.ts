@@ -138,6 +138,7 @@ describe('AdminCafeStore', () => {
 
   it('registers a cafe successfully and adds it to the list', () => {
     const input: CreateCafeInput = {
+      ownerName: 'Valeria Rossi',
       name: 'Nueva Cafetería',
       address: 'Calle Falsa 123',
       email: 'nueva@cafe.com',
@@ -178,6 +179,7 @@ describe('AdminCafeStore', () => {
       .mockReturnValue(throwError(() => new Error('Email ya registrado')));
 
     store.registerCafe({
+      ownerName: 'Error Owner',
       name: 'Café Error',
       address: 'Av. Test 100',
       email: 'error@cafe.com',

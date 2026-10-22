@@ -1,5 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { delay, map, Observable, of, throwError } from 'rxjs';
+import { AdminUserService } from '../../admin-users/services/admin-user.service';
+import { AdminUserDto } from '../../admin-users/types/admin-user.dto';
 import { Cafe } from '../../home/model/cafe.model';
 import { CafeService } from '../../home/services/cafe.service';
 import { AdminCafe, CreateCafeInput } from '../types/admin-cafe.model';
@@ -30,6 +32,7 @@ export function toAdminCafeFromHomeCafe(cafe: Cafe): AdminCafe {
 @Injectable()
 export class MockAdminCafeRepository implements AdminCafeRepository {
   private readonly cafeService = inject(CafeService);
+  private readonly adminUserService = inject(AdminUserService);
 
   getCafes(): Observable<readonly AdminCafe[]> {
     return this.cafeService.getAll().pipe(
@@ -79,8 +82,43 @@ export class MockAdminCafeRepository implements AdminCafeRepository {
       createdAt: new Date().toISOString(),
     };
 
-    // Synchronize with shared CafeService and localStorage
+    // 1. Synchronize with shared CafeService and localStorage for /admin/cafes and /home
     this.cafeService.addCafe(newHomeCafe);
+
+    // 2. Synchronize owner user with AdminUserService and localStorage for /admin/users
+    const owner = request.ownerName ? request.ownerName.trim() : 'Dueño';
+    const parts = owner.split(/\s+/);
+    const firstName = parts[0] || owner;
+    const lastName = parts.slice(1).join(' ') || '';
+    const existingUsers = this.adminUserService.getAll();
+    const nextNumber = existingUsers.length + 1;
+    const userId = `USR-${2100 + nextNumber}`;
+
+    const newOwnerUser: AdminUserDto = {
+      id: userId,
+      firstName,
+      lastName,
+      email: emailNormalized,
+      phoneNumber: request.phoneNumber?.trim() || '',
+      avatarUrl: null,
+      role: 'cafe_admin',
+      status: 'active',
+      createdAt: new Date().toISOString(),
+      lastLoginAt: null,
+      emailVerified: true,
+      twoFactorEnabled: false,
+      authProvider: 'email_password',
+      notes: `Dueño y titular registrado del comercio ${request.name.trim()}.`,
+      cafeAdminDetails: {
+        cafeId: externalId,
+        cafeName: request.name.trim(),
+        cafeRole: 'Dueño / Propietario',
+        cafeAddress: request.address.trim(),
+        branchCount: 1,
+      },
+    };
+
+    this.adminUserService.addUser(newOwnerUser);
 
     return of(toAdminCafeFromHomeCafe(newHomeCafe)).pipe(delay(MOCK_CAFE_LATENCY_MS));
   }
@@ -90,6 +128,10 @@ export class MockAdminCafeRepository implements AdminCafeRepository {
     if (!updated) {
       return throwError(() => new Error(`Cafetería con ID ${externalId} no encontrada`));
     }
+
+    // Sync status change with owner in AdminUserService as well
+    this.adminUserService.updateUserStatusByCafeId(externalId, state ? 'active' : 'inactive');
+
     return of(toAdminCafeFromHomeCafe(updated)).pipe(delay(MOCK_CAFE_LATENCY_MS));
   }
 }

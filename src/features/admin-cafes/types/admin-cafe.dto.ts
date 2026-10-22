@@ -16,6 +16,7 @@ export interface AdminCafeDto {
 export interface CreateCafeAccountRequestDto {
   readonly email: string;
   readonly password: string;
+  readonly ownerName?: string | null;
   readonly name: string;
   readonly address: string;
   readonly description?: string | null;

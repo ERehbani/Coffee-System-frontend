@@ -51,10 +51,14 @@ export class UserDetailModal {
       case 'superadmin':
         return 'Superadministrador';
       case 'cafe_admin':
-        return 'Administrador de Comercio';
+        return 'Comercio / Cafetería';
       case 'client':
         return 'Cliente / Consumidor';
     }
+  }
+
+  protected getDisplayName(): string {
+    return this.user().fullName;
   }
 
   protected getStatusLabel(status: UserStatus): string {

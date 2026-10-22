@@ -170,8 +170,11 @@ describe('AdminCafesPage', () => {
     const emailInput = el.querySelector('#cafe-email') as HTMLInputElement;
     const passInput = el.querySelector('#cafe-password') as HTMLInputElement;
     const confirmPassInput = el.querySelector('#cafe-confirm-password') as HTMLInputElement;
+    const ownerInput = el.querySelector('#cafe-owner-name') as HTMLInputElement;
     const addressInput = el.querySelector('#cafe-address') as HTMLInputElement;
 
+    ownerInput.value = 'Valeria Rossi';
+    ownerInput.dispatchEvent(new Event('input'));
     nameInput.value = 'Café Latte Art';
     nameInput.dispatchEvent(new Event('input'));
     emailInput.value = 'contacto@latteart.coffee';

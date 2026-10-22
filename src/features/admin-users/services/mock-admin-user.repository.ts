@@ -1,59 +1,36 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { delay, map, Observable, of, throwError } from 'rxjs';
-import { AdminUserDto } from '../types/admin-user.dto';
 import { AdminUser, UserStatus } from '../types/admin-user.model';
-import { ADMIN_USERS_FIXTURE } from '../utils/admin-user.fixture';
 import { toAdminUser, toAdminUserList } from '../utils/admin-user.mapper';
 import { AdminUserRepository } from './admin-user.repository';
+import { AdminUserService } from './admin-user.service';
 
 export const MOCK_ADMIN_LATENCY_MS = 250;
 
 @Injectable()
 export class MockAdminUserRepository implements AdminUserRepository {
-  private users: AdminUserDto[] = ADMIN_USERS_FIXTURE.map((u) => ({ ...u }));
+  private readonly userService = inject(AdminUserService);
 
   getUsers(): Observable<readonly AdminUser[]> {
-    return of(this.users).pipe(
+    return this.userService.getUsers().pipe(
       delay(MOCK_ADMIN_LATENCY_MS),
       map(toAdminUserList),
     );
   }
 
   getUserById(id: string): Observable<AdminUser | null> {
-    const found = this.users.find((u) => u.id === id);
-    return of(found ? toAdminUser(found) : null).pipe(
+    return this.userService.getUserById(id).pipe(
       delay(MOCK_ADMIN_LATENCY_MS),
+      map((dto) => (dto ? toAdminUser(dto) : null)),
     );
   }
 
   updateUserStatus(id: string, status: UserStatus): Observable<AdminUser> {
-    const index = this.users.findIndex((u) => u.id === id);
-    if (index === -1) {
+    const updated = this.userService.updateUserStatus(id, status);
+    if (!updated) {
       return throwError(() => new Error(`Usuario con ID ${id} no encontrado`));
     }
 
-    const current = this.users[index];
-    let updatedNotes = current.notes;
-    if (status === 'active' && current.status === 'inactive') {
-      updatedNotes = current.role === 'cafe_admin'
-        ? 'Cafetería reactivada por Superadmin.'
-        : 'Usuario reactivado por Superadmin.';
-    } else if (status === 'inactive') {
-      updatedNotes = current.role === 'cafe_admin'
-        ? 'Cafetería dada de baja por Superadmin.'
-        : 'Usuario dado de baja por Superadmin.';
-    }
-
-    const updatedDto: AdminUserDto = {
-      ...current,
-      status,
-      notes: updatedNotes,
-    };
-
-    this.users[index] = updatedDto;
-
-    return of(toAdminUser(updatedDto)).pipe(
-      delay(MOCK_ADMIN_LATENCY_MS),
-    );
+    return of(toAdminUser(updated)).pipe(delay(MOCK_ADMIN_LATENCY_MS));
   }
 }

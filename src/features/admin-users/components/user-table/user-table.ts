@@ -58,4 +58,8 @@ export class UserTable {
       .map((part) => part[0].toUpperCase())
       .join('');
   }
+
+  protected getUserDisplayName(user: AdminUser): string {
+    return user.fullName;
+  }
 }

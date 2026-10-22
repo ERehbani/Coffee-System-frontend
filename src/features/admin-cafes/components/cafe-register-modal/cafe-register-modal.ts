@@ -105,6 +105,9 @@ export class CafeRegisterModal {
       ],
       confirmPassword: ['', [Validators.required]],
 
+      // Datos del dueño
+      ownerName: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(80)]],
+
       // Datos base del comercio
       name: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(80)]],
       address: ['', [Validators.required, Validators.minLength(5), Validators.maxLength(150)]],
@@ -269,6 +272,7 @@ export class CafeRegisterModal {
     const request: CreateCafeInput = {
       email: val.email.trim(),
       password: val.password,
+      ownerName: val.ownerName.trim(),
       name: val.name.trim(),
       address: val.address.trim(),
       phoneNumber: val.phoneNumber?.trim() || undefined,
