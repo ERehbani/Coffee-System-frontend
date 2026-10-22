@@ -2,14 +2,17 @@ import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { CafeService } from '../../services/cafe.service';
 import { Home } from './home';
 
 describe('Home', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [Home],
-      providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting()],
+      providers: [CafeService, provideRouter([]), provideHttpClient(), provideHttpClientTesting()],
     }).compileComponents();
+
+    TestBed.inject(CafeService).resetToDefault();
   });
 
   it('should create the home component', () => {
@@ -50,5 +53,27 @@ describe('Home', () => {
 
     component.setFilterState('open');
     expect(component.filteredCafes().every((c) => c.state)).toBe(true);
+  });
+
+  it('should display newly registered cafe in home list', async () => {
+    const cafeService = TestBed.inject(CafeService);
+    cafeService.addCafe({
+      externalId: 'cafe-test-999',
+      name: 'Cafetería Agregada por Admin',
+      address: 'Palermo 123',
+      email: 'admin@esmeralda.com',
+      state: true,
+      description: 'Café recién dado de alta',
+    });
+
+    const fixture = TestBed.createComponent(Home);
+    const component = fixture.componentInstance;
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(component.cafes()[0].name).toBe('Cafetería Agregada por Admin');
+    expect(
+      component.filteredCafes().some((c) => c.name === 'Cafetería Agregada por Admin'),
+    ).toBe(true);
   });
 });

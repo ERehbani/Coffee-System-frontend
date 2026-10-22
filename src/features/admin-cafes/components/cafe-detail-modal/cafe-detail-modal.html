@@ -1,0 +1,249 @@
+<div
+  class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-text/50 backdrop-blur-xs overflow-y-auto"
+  role="dialog"
+  aria-modal="true"
+  [attr.aria-label]="'Detalle de cafetería ' + cafe().name"
+>
+  <!-- Modal Content Box -->
+  <div
+    class="relative w-full max-w-2xl overflow-hidden rounded-3xl border border-border bg-surface shadow-2xl transition-all my-8 animate-in fade-in zoom-in-95 duration-150"
+    (click)="$event.stopPropagation()"
+  >
+    <!-- Hero Image Banner -->
+    <div class="relative h-48 sm:h-56 w-full overflow-hidden bg-bg">
+      @if (cafe().image) {
+        <img
+          [src]="cafe().image"
+          [alt]="cafe().name"
+          class="h-full w-full object-cover"
+        />
+      } @else {
+        <div class="flex h-full w-full items-center justify-center bg-primary/20 text-primary">
+          <app-icon name="store" [size]="56" />
+        </div>
+      }
+      <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
+
+      <!-- Close Button -->
+      <button
+        type="button"
+        (click)="close.emit()"
+        class="cursor-pointer absolute top-4 right-4 inline-flex size-9 items-center justify-center rounded-full bg-black/50 text-white hover:bg-black/80 transition active:scale-95 shadow-md"
+        aria-label="Cerrar modal"
+      >
+        <app-icon name="x" [size]="18" />
+      </button>
+
+      <!-- Badge state on banner -->
+      <div class="absolute top-4 left-4">
+        @if (cafe().state) {
+          <span
+            class="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/90 px-3 py-1 text-xs font-bold text-white shadow-md backdrop-blur-xs"
+          >
+            <span class="size-2 rounded-full bg-white animate-pulse"></span>
+            Comercio Activo
+          </span>
+        } @else {
+          <span
+            class="inline-flex items-center gap-1.5 rounded-full bg-rose-600/90 px-3 py-1 text-xs font-bold text-white shadow-md backdrop-blur-xs"
+          >
+            <span class="size-2 rounded-full bg-white"></span>
+            Comercio Inactivo
+          </span>
+        }
+      </div>
+
+      <!-- Title & ID overlaid on banner bottom -->
+      <div class="absolute bottom-4 left-6 right-6 text-white">
+        <h2 class="text-2xl font-black tracking-tight drop-shadow-sm">{{ cafe().name }}</h2>
+        <div class="flex items-center gap-2 mt-1">
+          <span class="font-mono text-xs text-white/80">ID: {{ cafe().externalId }}</span>
+          <button
+            type="button"
+            (click)="onCopyId()"
+            class="cursor-pointer inline-flex items-center gap-1 text-[11px] font-semibold text-white/90 hover:text-white bg-white/20 hover:bg-white/30 px-2 py-0.5 rounded-md transition"
+            title="Copiar ID externo"
+          >
+            <app-icon name="copy" [size]="12" />
+            <span>{{ copiedId() ? '¡Copiado!' : 'Copiar' }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Body -->
+    <div class="p-6 space-y-6">
+      <!-- Action Feedback Banner -->
+      @if (actionMessage(); as msg) {
+        <div
+          role="alert"
+          class="flex items-center justify-between gap-3 rounded-2xl p-4 text-xs font-bold transition"
+          [class.bg-emerald-50]="msg.type === 'success'"
+          [class.text-emerald-900]="msg.type === 'success'"
+          [class.border]="true"
+          [class.border-emerald-300]="msg.type === 'success'"
+          [class.bg-rose-50]="msg.type === 'error'"
+          [class.text-rose-900]="msg.type === 'error'"
+          [class.border-rose-300]="msg.type === 'error'"
+        >
+          <div class="flex items-center gap-2.5">
+            <app-icon
+              [name]="msg.type === 'success' ? 'check-circle' : 'alert-circle'"
+              [size]="18"
+              [class.text-emerald-600]="msg.type === 'success'"
+              [class.text-rose-600]="msg.type === 'error'"
+            />
+            <p>{{ msg.text }}</p>
+          </div>
+          <button
+            type="button"
+            (click)="dismissMessage.emit()"
+            class="cursor-pointer text-muted hover:text-text"
+          >
+            <app-icon name="x" [size]="14" />
+          </button>
+        </div>
+      }
+
+      <!-- Quick Info Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Location Card -->
+        <div class="rounded-2xl border border-border bg-bg/50 p-4 space-y-1">
+          <div class="flex items-center gap-2 text-xs font-bold text-muted">
+            <app-icon name="map-pin" [size]="15" class="text-primary" />
+            <span>Dirección comercial</span>
+          </div>
+          <p class="text-sm font-semibold text-text">{{ cafe().address }}</p>
+        </div>
+
+        <!-- Schedule Card -->
+        <div class="rounded-2xl border border-border bg-bg/50 p-4 space-y-1">
+          <div class="flex items-center gap-2 text-xs font-bold text-muted">
+            <app-icon name="clock" [size]="15" class="text-amber-600" />
+            <span>Horario de atención</span>
+          </div>
+          <p class="text-sm font-semibold text-text">{{ cafe().schedule }}</p>
+        </div>
+
+        <!-- Email Card -->
+        <div class="rounded-2xl border border-border bg-bg/50 p-4 space-y-1">
+          <div class="flex items-center gap-2 text-xs font-bold text-muted">
+            <app-icon name="mail" [size]="15" class="text-sky-600" />
+            <span>Correo corporativo / Acceso</span>
+          </div>
+          <p class="text-sm font-semibold text-text truncate">{{ cafe().email }}</p>
+        </div>
+
+        <!-- Phone Card -->
+        <div class="rounded-2xl border border-border bg-bg/50 p-4 space-y-1">
+          <div class="flex items-center gap-2 text-xs font-bold text-muted">
+            <app-icon name="phone" [size]="15" class="text-emerald-600" />
+            <span>Teléfono de contacto</span>
+          </div>
+          @if (cafe().phoneNumber) {
+            <a
+              [href]="'tel:' + cafe().phoneNumber"
+              class="text-sm font-semibold text-text hover:text-primary transition underline"
+            >
+              {{ cafe().phoneNumber }}
+            </a>
+          } @else {
+            <p class="text-sm font-semibold text-muted italic">No registrado</p>
+          }
+        </div>
+      </div>
+
+      <!-- Description Section -->
+      <div class="space-y-2">
+        <h3 class="text-xs font-bold text-muted uppercase tracking-wider">Descripción del Comercio</h3>
+        <div class="rounded-2xl border border-border bg-bg/30 p-4 text-xs text-text leading-relaxed">
+          {{ cafe().description }}
+        </div>
+      </div>
+
+      <!-- Audit Metadata Ribbon -->
+      <div class="flex items-center justify-between text-[11px] text-muted border-t border-border pt-4">
+        <span>Fecha de alta en plataforma:</span>
+        <span class="font-medium text-text">{{ cafe().createdAt | date: 'dd/MM/yyyy HH:mm' }}</span>
+      </div>
+
+      <!-- Deactivate Warning Banner -->
+      @if (confirmingDeactivate()) {
+        <div
+          class="rounded-2xl border border-rose-300 bg-rose-50 p-4 space-y-3 animate-in fade-in"
+        >
+          <div class="flex items-start gap-3">
+            <app-icon name="alert-circle" [size]="20" class="text-rose-600 shrink-0 mt-0.5" />
+            <div>
+              <h4 class="text-xs font-bold text-rose-900">¿Confirmar baja de la cafetería?</h4>
+              <p class="text-xs text-rose-800 mt-0.5">
+                Al dar de baja el comercio, este quedará inactivo y no aparecerá en las búsquedas ni catálogo de los clientes. Podrá reactivarlo en cualquier momento.
+              </p>
+            </div>
+          </div>
+          <div class="flex items-center justify-end gap-2 pt-1">
+            <button
+              type="button"
+              (click)="onCancelDeactivate()"
+              class="cursor-pointer rounded-xl border border-rose-300 bg-white px-3 py-1.5 text-xs font-bold text-rose-900 hover:bg-rose-100 transition"
+            >
+              Cancelar
+            </button>
+            <button
+              type="button"
+              (click)="onConfirmDeactivate()"
+              [disabled]="isProcessing()"
+              class="cursor-pointer inline-flex items-center gap-1.5 rounded-xl bg-rose-600 px-4 py-1.5 text-xs font-bold text-white hover:bg-rose-700 active:scale-95 transition disabled:opacity-50"
+            >
+              @if (isProcessing()) {
+                <app-icon name="refresh-cw" [size]="14" class="animate-spin" />
+              }
+              <span>Sí, dar de baja</span>
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Modal Footer Actions -->
+    <div class="flex items-center justify-between border-t border-border bg-bg/40 px-6 py-4">
+      <div>
+        @if (!confirmingDeactivate()) {
+          @if (cafe().state) {
+            <button
+              type="button"
+              (click)="onRequestDeactivate()"
+              [disabled]="isProcessing()"
+              class="cursor-pointer inline-flex items-center gap-1.5 rounded-xl border border-rose-300 bg-rose-50 px-3.5 py-2 text-xs font-bold text-rose-800 hover:bg-rose-100 hover:text-rose-950 transition active:scale-95 disabled:opacity-50"
+            >
+              <app-icon name="alert-circle" [size]="14" class="text-rose-600" />
+              <span>Dar de baja comercio</span>
+            </button>
+          } @else {
+            <button
+              type="button"
+              (click)="onReactivate()"
+              [disabled]="isProcessing()"
+              class="cursor-pointer inline-flex items-center gap-1.5 rounded-xl bg-emerald-600 px-3.5 py-2 text-xs font-bold text-white hover:bg-emerald-700 transition active:scale-95 disabled:opacity-50 shadow-xs"
+            >
+              @if (isProcessing()) {
+                <app-icon name="refresh-cw" [size]="14" class="animate-spin" />
+              } @else {
+                <app-icon name="check" [size]="14" />
+              }
+              <span>Reactivar comercio</span>
+            </button>
+          }
+        }
+      </div>
+
+      <button
+        type="button"
+        (click)="close.emit()"
+        class="cursor-pointer rounded-xl border border-border bg-surface px-4 py-2 text-xs font-bold text-text hover:bg-bg transition active:scale-95"
+      >
+        Cerrar
+      </button>
+    </div>
+  </div>
+</div>

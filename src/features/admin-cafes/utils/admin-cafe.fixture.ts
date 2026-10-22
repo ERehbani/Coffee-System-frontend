@@ -1,0 +1,96 @@
+import { AdminCafeDto } from '../types/admin-cafe.dto';
+
+const UNSPLASH = 'https://images.unsplash.com';
+
+export const ADMIN_CAFES_FIXTURE: readonly AdminCafeDto[] = [
+  {
+    externalId: 'cafe-central-001',
+    name: 'Café Central',
+    address: 'Av. Corrientes 1450, CABA',
+    email: 'contacto@cafecentral.com.ar',
+    phoneNumber: '+54 11 4523-8890',
+    description:
+      'Cafetería de especialidad clásica con granos de origen único seleccionados de Colombia y Etiopía. Pastelería artesanal horneada todos los días.',
+    state: true,
+    schedule: 'Lun a Vie 07:30 - 20:00 | Sáb y Dom 08:30 - 19:00',
+    image: `${UNSPLASH}/photo-1501339847302-ac426a4a7cbb?w=1200&h=600&fit=crop&q=80&auto=format`,
+    createdAt: '2023-03-12T10:00:00.000Z',
+    rating: 4.9,
+    totalReviews: 124,
+  },
+  {
+    externalId: 'cafe-grano-002',
+    name: 'Grano Dorado Specialty',
+    address: 'Honduras 4920, Palermo, CABA',
+    email: 'hola@granodorado.coffee',
+    phoneNumber: '+54 11 3490-1122',
+    description:
+      'Micro-tostaduría urbana enfocada en perfiles de tueste claro y medio. Métodos de filtrado manual V60, Chemex y Aeropress.',
+    state: true,
+    schedule: 'Mar a Dom 08:30 - 20:30',
+    image: `${UNSPLASH}/photo-1554118811-1e0d58224f24?w=1200&h=600&fit=crop&q=80&auto=format`,
+    createdAt: '2023-06-18T14:30:00.000Z',
+    rating: 4.8,
+    totalReviews: 89,
+  },
+  {
+    externalId: 'cafe-cupping-003',
+    name: 'Cupping Coffee Lab',
+    address: 'Gorriti 5540, Palermo Hollywood, CABA',
+    email: 'info@cuppinglab.com',
+    phoneNumber: '+54 11 6788-3344',
+    description:
+      'Laboratorio sensorial de café. Catas semanales para entusiastas y baristas. Espacio pet-friendly y coworking con alta velocidad.',
+    state: true,
+    schedule: 'Lun a Sáb 08:00 - 21:00',
+    image: `${UNSPLASH}/photo-1495474472287-4d71bcdd2085?w=1200&h=600&fit=crop&q=80&auto=format`,
+    createdAt: '2023-09-05T09:15:00.000Z',
+    rating: 4.7,
+    totalReviews: 62,
+  },
+  {
+    externalId: 'cafe-tostado-004',
+    name: 'Tostado Club de Café',
+    address: 'Thames 1600, Palermo Soho, CABA',
+    email: 'admin@tostadoclub.com.ar',
+    phoneNumber: '+54 11 4833-9090',
+    description:
+      'Cafetería y brunch contemporáneo. Toasties gourmet y café de especialidad servido con leche vegetal orgánica.',
+    state: false,
+    schedule: 'Lun a Dom 09:00 - 19:30',
+    image: `${UNSPLASH}/photo-1442512595331-e89e73853f31?w=1200&h=600&fit=crop&q=80&auto=format`,
+    createdAt: '2023-11-20T11:45:00.000Z',
+    rating: 4.5,
+    totalReviews: 41,
+  },
+  {
+    externalId: 'cafe-barista-005',
+    name: 'Barista & Co. Roasters',
+    address: 'Fitz Roy 2100, Villa Crespo, CABA',
+    email: 'contacto@baristaco.com',
+    phoneNumber: '+54 11 5122-4400',
+    description:
+      'Tostadores de lotes pequeños con trazabilidad directa desde fincas en Brasil y Guatemala. Envíos y suscripciones de café en grano.',
+    state: true,
+    schedule: 'Lun a Vie 08:00 - 19:00 | Sáb 09:00 - 18:00',
+    image: `${UNSPLASH}/photo-1514432324607-a09d9b4aefdd?w=1200&h=600&fit=crop&q=80&auto=format`,
+    createdAt: '2024-01-14T08:00:00.000Z',
+    rating: 4.9,
+    totalReviews: 108,
+  },
+  {
+    externalId: 'cafe-santal-006',
+    name: 'Santal Café Boutique',
+    address: 'Virrey del Pino 2400, Belgrano, CABA',
+    email: 'belgrano@santalcafe.com.ar',
+    phoneNumber: '+54 11 4781-6500',
+    description:
+      'Ambiente boutique rodeado de jardines internos. Degustación de espressos y carta de repostería francesa de vanguardia.',
+    state: false,
+    schedule: 'Mar a Dom 09:00 - 20:00',
+    image: `${UNSPLASH}/photo-1559925393-8be0ec4767c8?w=1200&h=600&fit=crop&q=80&auto=format`,
+    createdAt: '2024-03-02T16:20:00.000Z',
+    rating: 4.6,
+    totalReviews: 35,
+  },
+];

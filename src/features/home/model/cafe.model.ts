@@ -10,4 +10,5 @@ export interface Cafe {
   image?: string | null;
   rating?: number;
   reviewCount?: number;
+  createdAt?: string;
 }

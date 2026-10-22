@@ -1,0 +1,221 @@
+<main class="mx-auto w-full max-w-6xl space-y-6 px-4 py-8 lg:px-8">
+  <!-- Page Header with Actions -->
+  <app-admin-page-header
+    title="Cafeterías del Sistema"
+    subtitle="Administración, detalle individual y alta de comercios aliados en la red"
+  >
+    <div actions class="flex items-center gap-2 flex-wrap">
+      <button
+        type="button"
+        (click)="onRefresh()"
+        class="cursor-pointer inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface px-3 py-2 text-xs font-bold text-muted transition hover:bg-bg hover:text-text active:scale-95 shadow-2xs select-none"
+        title="Recargar cafeterías"
+      >
+        <app-icon name="refresh-cw" [size]="14" />
+        <span class="hidden sm:inline">Actualizar</span>
+      </button>
+
+      <button
+        type="button"
+        (click)="store.openRegisterModal()"
+        class="cursor-pointer inline-flex items-center gap-2 rounded-xl bg-primary px-3.5 py-2 text-xs font-bold text-white shadow-xs transition hover:bg-primary/90 active:scale-95 select-none"
+        title="Registrar una nueva cafetería"
+      >
+        <app-icon name="plus" [size]="15" />
+        <span>Dar de Alta Cafetería</span>
+      </button>
+    </div>
+  </app-admin-page-header>
+
+  <!-- Global Action Notification Toast/Banner -->
+  @if (store.actionMessage(); as msg) {
+    @if (!store.selectedCafe() && !store.isRegisterModalOpen()) {
+      <div
+        role="alert"
+        class="flex items-center justify-between gap-3 rounded-2xl p-4 text-xs font-bold transition shadow-xs"
+        [class.bg-emerald-50]="msg.type === 'success'"
+        [class.text-emerald-900]="msg.type === 'success'"
+        [class.border]="true"
+        [class.border-emerald-300]="msg.type === 'success'"
+        [class.bg-rose-50]="msg.type === 'error'"
+        [class.text-rose-900]="msg.type === 'error'"
+        [class.border-rose-300]="msg.type === 'error'"
+      >
+        <div class="flex items-center gap-2.5">
+          <app-icon
+            [name]="msg.type === 'success' ? 'check-circle' : 'alert-circle'"
+            [size]="18"
+            [class.text-emerald-600]="msg.type === 'success'"
+            [class.text-rose-600]="msg.type === 'error'"
+          />
+          <p>{{ msg.text }}</p>
+        </div>
+        <button
+          type="button"
+          (click)="store.dismissActionMessage()"
+          class="cursor-pointer text-muted hover:text-text p-1"
+          aria-label="Cerrar notificación"
+        >
+          <app-icon name="x" [size]="14" />
+        </button>
+      </div>
+    }
+  }
+
+  <!-- Error Alert if loading failed -->
+  @if (store.errorMessage(); as errorMsg) {
+    <div
+      role="alert"
+      class="flex items-center justify-between gap-3 rounded-2xl border border-rose-300 bg-rose-50 px-5 py-3.5 text-rose-800 transition"
+    >
+      <div class="flex items-center gap-3">
+        <span class="inline-flex size-8 shrink-0 items-center justify-center rounded-full bg-rose-600 text-white">
+          <app-icon name="x" [size]="16" />
+        </span>
+        <p class="text-xs font-bold text-rose-900">{{ errorMsg }}</p>
+      </div>
+      <button
+        type="button"
+        (click)="onRefresh()"
+        class="cursor-pointer text-xs font-bold underline hover:text-rose-950"
+      >
+        Reintentar
+      </button>
+    </div>
+  }
+
+  <!-- KPI / Stats Ribbon -->
+  <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+    <!-- Total Cafes -->
+    <div class="rounded-2xl border border-border bg-surface p-4 shadow-2xs">
+      <div class="flex items-center justify-between text-muted mb-1">
+        <span class="text-xs font-bold">Total Comercios</span>
+        <app-icon name="store" [size]="16" class="text-primary" />
+      </div>
+      <p class="text-2xl font-black text-text">{{ store.stats().totalCafes }}</p>
+      <span class="text-[11px] text-muted">En la plataforma</span>
+    </div>
+
+    <!-- Active Cafes -->
+    <div class="rounded-2xl border border-border bg-surface p-4 shadow-2xs">
+      <div class="flex items-center justify-between text-muted mb-1">
+        <span class="text-xs font-bold">Comercios Activos</span>
+        <app-icon name="check-circle" [size]="16" class="text-emerald-600" />
+      </div>
+      <p class="text-2xl font-black text-emerald-700">{{ store.stats().activeCafes }}</p>
+      <span class="text-[11px] text-muted">Visibles para clientes</span>
+    </div>
+
+    <!-- Inactive Cafes -->
+    <div class="rounded-2xl border border-border bg-surface p-4 shadow-2xs">
+      <div class="flex items-center justify-between text-muted mb-1">
+        <span class="text-xs font-bold">Inactivos / Pausados</span>
+        <app-icon name="alert-circle" [size]="16" class="text-rose-600" />
+      </div>
+      <p class="text-2xl font-black text-rose-700">{{ store.stats().inactiveCafes }}</p>
+      <span class="text-[11px] text-muted">Fuera de catálogo</span>
+    </div>
+
+    <!-- With Schedule -->
+    <div class="rounded-2xl border border-border bg-surface p-4 shadow-2xs">
+      <div class="flex items-center justify-between text-muted mb-1">
+        <span class="text-xs font-bold">Con Horario</span>
+        <app-icon name="clock" [size]="16" class="text-amber-600" />
+      </div>
+      <p class="text-2xl font-black text-amber-800">{{ store.stats().withSchedule }}</p>
+      <span class="text-[11px] text-muted">Horarios especificados</span>
+    </div>
+  </div>
+
+  <!-- Search & Filter Bar -->
+  <div class="rounded-2xl border border-border bg-surface p-4 shadow-2xs space-y-3">
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
+      <!-- Search Input -->
+      <div class="md:col-span-8 relative">
+        <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-muted">
+          <app-icon name="search" [size]="16" />
+        </span>
+        <input
+          type="text"
+          placeholder="Buscar por nombre, dirección, email, teléfono o ID..."
+          [value]="store.searchQuery()"
+          (input)="onSearchChange($event)"
+          class="w-full rounded-xl border border-border bg-bg/50 pl-10 pr-4 py-2.5 text-xs text-text placeholder:text-muted focus:border-primary focus:bg-surface focus:outline-hidden focus:ring-2 focus:ring-primary/20 transition"
+        />
+      </div>
+
+      <!-- State Filter -->
+      <div class="md:col-span-4">
+        <select
+          [value]="store.stateFilter()"
+          (change)="onStateChange($event)"
+          class="w-full rounded-xl border border-border bg-bg/50 px-3.5 py-2.5 text-xs font-medium text-text focus:border-primary focus:bg-surface focus:outline-hidden focus:ring-2 focus:ring-primary/20 transition cursor-pointer"
+          aria-label="Filtrar por estado del comercio"
+        >
+          <option value="all">Todos los estados</option>
+          <option value="active">Solo comercios activos</option>
+          <option value="inactive">Solo comercios inactivos</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Active Filter Indicators & Reset -->
+    @if (store.searchQuery() || store.stateFilter() !== 'all') {
+      <div class="flex items-center justify-between pt-2 border-t border-border/50 text-xs text-muted">
+        <div class="flex items-center gap-2 flex-wrap">
+          <span class="font-bold text-text">Filtros activos:</span>
+          @if (store.searchQuery(); as q) {
+            <span class="rounded-lg bg-bg px-2.5 py-1 text-[11px] font-medium border border-border">
+              Búsqueda: "{{ q }}"
+            </span>
+          }
+          @if (store.stateFilter() !== 'all') {
+            <span class="rounded-lg bg-bg px-2.5 py-1 text-[11px] font-medium border border-border capitalize">
+              Estado: {{ store.stateFilter() === 'active' ? 'Activas' : 'Inactivas' }}
+            </span>
+          }
+        </div>
+
+        <button
+          type="button"
+          (click)="onClearFilters()"
+          class="cursor-pointer text-[11px] font-bold text-primary hover:underline transition select-none"
+        >
+          Restablecer filtros
+        </button>
+      </div>
+    }
+  </div>
+
+  <!-- Cafes Table Section -->
+  <section aria-label="Tabla de cafeterías registradas">
+    <app-cafe-table
+      [cafes]="store.filteredCafes()"
+      [status]="store.status()"
+      (selectCafe)="store.selectCafe($event)"
+      (toggleStatus)="onToggleStatus($event)"
+    />
+  </section>
+
+  <!-- Detail Modal -->
+  @if (store.selectedCafe(); as selected) {
+    <app-cafe-detail-modal
+      [cafe]="selected"
+      [isProcessing]="store.isProcessing()"
+      [actionMessage]="store.actionMessage()"
+      (toggleStatus)="onToggleStatus($event)"
+      (dismissMessage)="store.dismissActionMessage()"
+      (close)="store.clearSelection()"
+    />
+  }
+
+  <!-- Register Modal -->
+  @if (store.isRegisterModalOpen()) {
+    <app-cafe-register-modal
+      [isProcessing]="store.isProcessing()"
+      [actionMessage]="store.actionMessage()"
+      (register)="onRegister($event)"
+      (close)="store.closeRegisterModal()"
+    />
+  }
+</main>

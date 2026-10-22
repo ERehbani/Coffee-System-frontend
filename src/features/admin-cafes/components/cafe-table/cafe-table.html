@@ -1,0 +1,172 @@
+<div class="w-full overflow-hidden rounded-2xl border border-border bg-surface shadow-xs">
+  @if (status() === 'loading') {
+    <!-- Loading skeleton -->
+    <div class="p-8 space-y-4">
+      <div class="flex items-center justify-between animate-pulse">
+        <div class="h-5 w-48 rounded-lg bg-border/60"></div>
+        <div class="h-5 w-24 rounded-lg bg-border/60"></div>
+      </div>
+      <div class="space-y-3 pt-4">
+        @for (i of [1, 2, 3, 4, 5]; track i) {
+          <div class="flex items-center justify-between gap-4 py-3 border-b border-border/40 animate-pulse">
+            <div class="flex items-center gap-3">
+              <div class="size-11 rounded-xl bg-border/60"></div>
+              <div class="space-y-1.5">
+                <div class="h-4 w-36 rounded bg-border/60"></div>
+                <div class="h-3 w-48 rounded bg-border/40"></div>
+              </div>
+            </div>
+            <div class="h-6 w-20 rounded-full bg-border/50"></div>
+            <div class="h-6 w-24 rounded-full bg-border/50"></div>
+            <div class="h-8 w-24 rounded-lg bg-border/50"></div>
+          </div>
+        }
+      </div>
+    </div>
+  } @else if (cafes().length === 0) {
+    <!-- Empty state -->
+    <div class="flex flex-col items-center justify-center py-16 px-4 text-center">
+      <div class="flex size-14 items-center justify-center rounded-2xl bg-bg border border-border text-muted mb-3 shadow-2xs">
+        <app-icon name="store" [size]="28" />
+      </div>
+      <h3 class="text-base font-bold text-text">No se encontraron cafeterías</h3>
+      <p class="mt-1 text-xs text-muted max-w-sm">
+        No hay comercios que coincidan con la búsqueda o filtro seleccionado.
+      </p>
+    </div>
+  } @else {
+    <!-- Responsive Table -->
+    <div class="overflow-x-auto">
+      <table class="w-full text-left border-collapse text-xs">
+        <thead>
+          <tr class="border-b border-border bg-bg/60 text-muted font-bold uppercase tracking-wider text-[11px]">
+            <th scope="col" class="py-3.5 px-4">Cafetería</th>
+            <th scope="col" class="py-3.5 px-4 hidden sm:table-cell">Dirección</th>
+            <th scope="col" class="py-3.5 px-4 hidden md:table-cell">Contacto</th>
+            <th scope="col" class="py-3.5 px-4 hidden lg:table-cell">Horario</th>
+            <th scope="col" class="py-3.5 px-4">Estado</th>
+            <th scope="col" class="py-3.5 px-4 text-right">Acciones</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-border/60">
+          @for (cafe of cafes(); track cafe.externalId) {
+            <tr
+              tabindex="0"
+              role="button"
+              (click)="onRowClick(cafe)"
+              (keydown)="onRowKeyDown($event, cafe)"
+              class="group cursor-pointer hover:bg-bg/60 transition-colors focus:bg-bg focus:outline-hidden focus:ring-2 focus:ring-primary/40"
+              [attr.aria-label]="'Ver detalle de ' + cafe.name"
+            >
+              <!-- Cafetería (Foto + Nombre + ID) -->
+              <td class="py-3.5 px-4">
+                <div class="flex items-center gap-3">
+                  @if (cafe.image) {
+                    <img
+                      [src]="cafe.image"
+                      [alt]="cafe.name"
+                      class="size-11 rounded-xl object-cover ring-1 ring-border shrink-0 shadow-2xs"
+                    />
+                  } @else {
+                    <div
+                      class="flex size-11 items-center justify-center rounded-xl bg-primary text-xs font-black text-white shrink-0 shadow-2xs"
+                    >
+                      {{ getInitials(cafe.name) }}
+                    </div>
+                  }
+                  <div class="min-w-0">
+                    <p class="font-bold text-text truncate group-hover:text-primary transition-colors text-sm">
+                      {{ cafe.name }}
+                    </p>
+                    <p class="font-mono text-muted text-[11px] truncate">
+                      {{ cafe.externalId }}
+                    </p>
+                  </div>
+                </div>
+              </td>
+
+              <!-- Dirección -->
+              <td class="py-3.5 px-4 hidden sm:table-cell text-muted max-w-xs">
+                <div class="flex items-center gap-1.5 truncate">
+                  <app-icon name="map-pin" [size]="14" class="text-primary shrink-0" />
+                  <span class="truncate">{{ cafe.address }}</span>
+                </div>
+              </td>
+
+              <!-- Contacto -->
+              <td class="py-3.5 px-4 hidden md:table-cell text-muted">
+                <div class="space-y-0.5">
+                  <div class="flex items-center gap-1.5 truncate">
+                    <app-icon name="mail" [size]="13" class="text-muted shrink-0" />
+                    <span class="truncate text-text font-medium">{{ cafe.email }}</span>
+                  </div>
+                  @if (cafe.phoneNumber) {
+                    <div class="flex items-center gap-1.5 text-[11px] text-muted">
+                      <app-icon name="phone" [size]="12" class="shrink-0" />
+                      <span>{{ cafe.phoneNumber }}</span>
+                    </div>
+                  }
+                </div>
+              </td>
+
+              <!-- Horario -->
+              <td class="py-3.5 px-4 hidden lg:table-cell text-muted max-w-xs">
+                <div class="flex items-center gap-1.5 truncate">
+                  <app-icon name="clock" [size]="14" class="text-amber-600 shrink-0" />
+                  <span class="truncate">{{ cafe.schedule }}</span>
+                </div>
+              </td>
+
+              <!-- Estado Badge -->
+              <td class="py-3.5 px-4 whitespace-nowrap">
+                @if (cafe.state) {
+                  <span
+                    class="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-1 text-[11px] font-bold text-emerald-800"
+                  >
+                    <span class="size-1.5 rounded-full bg-emerald-600"></span>
+                    Activa
+                  </span>
+                } @else {
+                  <span
+                    class="inline-flex items-center gap-1 rounded-full bg-rose-100 px-2.5 py-1 text-[11px] font-bold text-rose-800"
+                  >
+                    <span class="size-1.5 rounded-full bg-rose-600"></span>
+                    Inactiva
+                  </span>
+                }
+              </td>
+
+              <!-- Acciones -->
+              <td class="py-3.5 px-4 text-right whitespace-nowrap">
+                <div class="inline-flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    (click)="onToggleStatusClick($event, cafe)"
+                    [class]="
+                      cafe.state
+                        ? 'text-rose-700 hover:bg-rose-50 border-rose-200'
+                        : 'text-emerald-700 hover:bg-emerald-50 border-emerald-200'
+                    "
+                    class="cursor-pointer inline-flex items-center gap-1 rounded-lg border px-2 py-1 text-[11px] font-bold transition select-none"
+                    [title]="cafe.state ? 'Desactivar cafetería' : 'Activar cafetería'"
+                  >
+                    {{ cafe.state ? 'Desactivar' : 'Activar' }}
+                  </button>
+
+                  <button
+                    type="button"
+                    (click)="onRowClick(cafe)"
+                    class="cursor-pointer inline-flex items-center gap-1 rounded-lg border border-border bg-surface px-2.5 py-1 text-[11px] font-bold text-primary hover:bg-bg transition select-none shadow-2xs"
+                  >
+                    <app-icon name="eye" [size]="12" />
+                    <span>Detalle</span>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>
