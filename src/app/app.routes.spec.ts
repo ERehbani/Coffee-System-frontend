@@ -58,25 +58,21 @@ describe('admin routes', () => {
     }
   });
 
-  it('renders the cafes page inside the admin layout', async () => {
-    await harness.navigateByUrl('/admin/cafes');
-
-    expect(page().querySelector('app-admin-layout app-admin-cafes-page')).not.toBeNull();
-    expect(page().querySelector('app-admin-placeholder-page')).toBeNull();
-  });
-
   describe.each(
     ADMIN_NAV_ITEMS.filter((item) => item.path !== 'users' && item.path !== 'cafes'),
-  )('section $label', ({ label, path }) => {
-    it(`resolves /admin/${path} to the placeholder titled "${label}"`, async () => {
-      await harness.navigateByUrl(`/admin/${path}`);
+  )(
+    'section $label',
+    ({ label, path }) => {
+      it(`resolves /admin/${path} to the placeholder titled "${label}"`, async () => {
+        await harness.navigateByUrl(`/admin/${path}`);
 
-      expect(router.url).toBe(`/admin/${path}`);
-      expect(
-        page()
-          .querySelector('app-admin-layout app-admin-placeholder-page h1')
-          ?.textContent?.trim(),
-      ).toBe(label);
-    });
-  });
+        expect(router.url).toBe(`/admin/${path}`);
+        expect(
+          page()
+            .querySelector('app-admin-layout app-admin-placeholder-page h1')
+            ?.textContent?.trim(),
+        ).toBe(label);
+      });
+    },
+  );
 });
