@@ -1,5 +1,5 @@
 import { CurrencyPipe } from '@angular/common';
-import { Component, HostListener, signal } from '@angular/core';
+import { Component, HostListener, inject, signal } from '@angular/core';
 import { Icon } from '../../../../shared/components/icon/icon';
 import { CartService } from '../../services/cart.service';
 
@@ -10,9 +10,10 @@ import { CartService } from '../../services/cart.service';
   host: { class: 'block' },
 })
 export class CartButton {
-  isOpen = signal(false);
+  readonly cartService = inject(CartService);
 
-  constructor(public cartService: CartService) {}
+  isOpen = signal(false);
+  productToRemove = signal<string | null>(null);
 
   openCart(): void {
     this.isOpen.set(true);
@@ -20,6 +21,28 @@ export class CartButton {
 
   closeCart(): void {
     this.isOpen.set(false);
+    this.productToRemove.set(null);
+  }
+
+  increase(productId: string): void {
+    this.cartService.increaseQuantity(productId);
+  }
+
+  decrease(productId: string): void {
+    this.cartService.decreaseQuantity(productId);
+  }
+
+  askRemove(productId: string): void {
+    this.productToRemove.set(productId);
+  }
+
+  cancelRemove(): void {
+    this.productToRemove.set(null);
+  }
+
+  confirmRemove(productId: string): void {
+    this.cartService.removeProduct(productId);
+    this.productToRemove.set(null);
   }
 
   @HostListener('document:keydown.escape')
