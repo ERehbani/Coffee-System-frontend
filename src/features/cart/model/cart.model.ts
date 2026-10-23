@@ -9,3 +9,17 @@ export interface CartCafe {
   externalId: string;
   name: string;
 }
+
+export interface CartItemResponse {
+  productId: string;
+  productName: string;
+  quantity: number;
+}
+
+export interface CartResponse {
+  externalId: string;
+  clientid: string;
+  cafeid: string;
+  totalPrice: number;
+  products: CartItemResponse[];
+}
