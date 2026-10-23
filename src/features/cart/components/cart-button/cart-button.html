@@ -64,21 +64,76 @@
   } @else {
     <ul class="flex-1 space-y-3 overflow-y-auto p-4">
       @for (item of cartService.items(); track item.product.externalId) {
-        <li class="flex items-center gap-3">
-          <img
-            [src]="item.product.image || 'https://images.unsplash.com/photo-1510707577719-ae7c14805e3a?w=100&h=100&fit=crop&q=80&auto=format'"
-            [alt]="item.product.name"
-            class="size-12 shrink-0 rounded-lg object-cover"
-          />
-          <div class="min-w-0 flex-1">
-            <p class="truncate text-sm font-semibold text-text">{{ item.product.name }}</p>
-            <p class="text-xs text-muted">
-              {{ item.quantity }} x {{ item.product.price | currency:'ARS':'$ ':'1.0-0' }}
-            </p>
+        <li class="space-y-2">
+          <div class="flex items-center gap-3">
+            <img
+              [src]="item.product.image || 'https://images.unsplash.com/photo-1510707577719-ae7c14805e3a?w=100&h=100&fit=crop&q=80&auto=format'"
+              [alt]="item.product.name"
+              class="size-12 shrink-0 rounded-lg object-cover"
+            />
+            <div class="min-w-0 flex-1">
+              <p class="truncate text-sm font-semibold text-text">{{ item.product.name }}</p>
+              <p class="text-xs text-muted">
+                {{ item.product.price | currency:'ARS':'$ ':'1.0-0' }} c/u
+              </p>
+            </div>
+            <span class="shrink-0 text-sm font-bold text-text">
+              {{ item.product.price * item.quantity | currency:'ARS':'$ ':'1.0-0' }}
+            </span>
           </div>
-          <span class="shrink-0 text-sm font-bold text-text">
-            {{ item.product.price * item.quantity | currency:'ARS':'$ ':'1.0-0' }}
-          </span>
+
+          <div class="flex items-center justify-between pl-15">
+            <div class="flex items-center gap-2">
+              <button
+                type="button"
+                (click)="decrease(item.product.externalId)"
+                [disabled]="item.quantity <= 1"
+                [attr.aria-label]="'Restar una unidad de ' + item.product.name"
+                class="flex size-7 items-center justify-center rounded-lg border border-border text-text hover:border-primary disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+              >
+                <app-icon name="minus" [size]="14" />
+              </button>
+              <span class="w-6 text-center text-sm font-semibold text-text">{{ item.quantity }}</span>
+              <button
+                type="button"
+                (click)="increase(item.product.externalId)"
+                [attr.aria-label]="'Sumar una unidad de ' + item.product.name"
+                class="flex size-7 items-center justify-center rounded-lg border border-border text-text hover:border-primary cursor-pointer"
+              >
+                <app-icon name="plus" [size]="14" />
+              </button>
+            </div>
+            <button
+              type="button"
+              (click)="askRemove(item.product.externalId)"
+              [attr.aria-label]="'Eliminar ' + item.product.name + ' del carrito'"
+              class="rounded-lg p-1.5 text-muted hover:bg-red-50 hover:text-red-600 cursor-pointer"
+            >
+              <app-icon name="trash" [size]="16" />
+            </button>
+          </div>
+
+          @if (productToRemove() === item.product.externalId) {
+            <div class="flex items-center justify-between gap-2 rounded-lg bg-red-50 p-2.5">
+              <p class="text-xs text-red-700">¿Eliminar este producto?</p>
+              <div class="flex gap-2">
+                <button
+                  type="button"
+                  (click)="cancelRemove()"
+                  class="rounded-lg px-2.5 py-1 text-xs font-semibold text-muted hover:text-text cursor-pointer"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  (click)="confirmRemove(item.product.externalId)"
+                  class="rounded-lg bg-red-600 px-2.5 py-1 text-xs font-semibold text-white hover:bg-red-700 cursor-pointer"
+                >
+                  Eliminar
+                </button>
+              </div>
+            </div>
+          }
         </li>
       }
     </ul>
