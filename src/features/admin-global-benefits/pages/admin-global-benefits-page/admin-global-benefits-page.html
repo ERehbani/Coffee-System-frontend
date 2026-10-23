@@ -9,7 +9,6 @@
         <div class="flex items-center gap-2">
           <h1 class="text-xl font-black text-text">Beneficios Globales</h1>
           <span class="rounded bg-purple-100 px-2 py-0.5 text-xs font-bold text-purple-800">Superadmin</span>
-          <span class="rounded bg-emerald-100 px-2 py-0.5 text-[11px] font-bold text-emerald-800">Red 100%</span>
         </div>
         <p class="text-xs text-muted">Gestión centralizada de promociones válidas en todas las cafeterías de la red.</p>
       </div>
@@ -54,8 +53,8 @@
     </div>
   }
 
-  <!-- KPIs Ribbon -->
-  <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+  <!-- KPIs Ribbon (4 cards) -->
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
     <div class="rounded-2xl border border-border bg-surface p-3.5 shadow-2xs">
       <span class="text-[11px] font-bold text-muted block mb-0.5">Total Beneficios</span>
       <p class="text-2xl font-black text-text">{{ store.stats().total }}</p>
@@ -72,80 +71,15 @@
       <span class="text-[10px] text-muted">Visibles a clientes</span>
     </div>
     <div class="rounded-2xl border border-border bg-surface p-3.5 shadow-2xs">
-      <span class="text-[11px] font-bold text-muted block mb-0.5">Promedio Puntos</span>
-      <p class="text-2xl font-black text-amber-800">{{ store.stats().avgPoints }} pts</p>
-      <span class="text-[10px] text-muted">Costo medio</span>
-    </div>
-    <div class="col-span-2 sm:col-span-1 rounded-2xl border border-border bg-surface p-3.5 shadow-2xs">
       <span class="text-[11px] font-bold text-muted block mb-0.5">Canjes Totales</span>
       <p class="text-2xl font-black text-purple-800">{{ store.stats().totalRedemptions }}</p>
       <span class="text-[10px] text-muted">Redimidos</span>
     </div>
   </div>
 
-  <!-- Search & Filter Toolbar -->
-  <div class="rounded-2xl border border-border bg-surface p-3.5 shadow-2xs flex flex-wrap items-center gap-2">
-    <!-- Search -->
-    <div class="relative flex-1 min-w-[200px]">
-      <input
-        type="text"
-        [value]="store.filters().query"
-        (input)="onInput($event, 'query')"
-        placeholder="Buscar por nombre o descripción..."
-        class="w-full rounded-xl border border-border bg-bg/40 px-3 py-1.5 text-xs text-text placeholder:text-muted/60 focus:outline-none focus:border-primary"
-      />
-    </div>
-
-    <!-- Type -->
-    <select [value]="store.filters().type" (change)="onInput($event, 'type')" class="cursor-pointer rounded-xl border border-border bg-bg/40 px-2.5 py-1.5 text-xs text-text">
-      <option value="all">Todos los tipos</option>
-      <option value="CODIGO_DESCUENTO">Descuento %</option>
-      <option value="DOS_POR_UNO">2x1</option>
-      <option value="PRODUCTO_POR_PUNTOS">Por Puntos</option>
-      <option value="PRODUCTO_GRATIS_SOCIO">Gratis Socio</option>
-    </select>
-
-    <!-- Tier -->
-    <select [value]="store.filters().tier" (change)="onInput($event, 'tier')" class="cursor-pointer rounded-xl border border-border bg-bg/40 px-2.5 py-1.5 text-xs text-text">
-      <option value="all">Todos los niveles</option>
-      <option value="ALL">Sin restricción</option>
-      <option value="BRONCE">Bronce</option>
-      <option value="PLATA">Plata</option>
-      <option value="ORO">Oro</option>
-      <option value="DIAMANTE">Diamante</option>
-    </select>
-
-    <!-- Status -->
-    <select [value]="store.filters().status" (change)="onInput($event, 'status')" class="cursor-pointer rounded-xl border border-border bg-bg/40 px-2.5 py-1.5 text-xs text-text">
-      <option value="all">Estado: Todos</option>
-      <option value="active">Activos</option>
-      <option value="inactive">Pausados</option>
-    </select>
-
-    <!-- Public -->
-    <select [value]="store.filters().public" (change)="onInput($event, 'public')" class="cursor-pointer rounded-xl border border-border bg-bg/40 px-2.5 py-1.5 text-xs text-text">
-      <option value="all">Visibilidad: Todas</option>
-      <option value="published">Publicados</option>
-      <option value="draft">Borradores</option>
-    </select>
-
-    <!-- Sort -->
-    <select [value]="store.filters().sortBy" (change)="onInput($event, 'sortBy')" class="cursor-pointer rounded-xl border border-border bg-bg/40 px-2.5 py-1.5 text-xs text-text">
-      <option value="endDateAsc">Vencimiento próximo</option>
-      <option value="pointsDesc">Mayor costo puntos</option>
-      <option value="pointsAsc">Menor costo puntos</option>
-      <option value="nameAsc">Nombre (A - Z)</option>
-      <option value="redemptionsDesc">Más canjeados</option>
-    </select>
-
-    <button type="button" (click)="store.resetFilters()" class="cursor-pointer rounded-xl border border-border bg-surface px-2.5 py-1.5 text-xs font-bold text-muted hover:text-text">
-      Limpiar
-    </button>
-  </div>
-
   <!-- Benefits Table -->
   <app-global-benefit-table
-    [benefits]="store.filteredBenefits()"
+    [benefits]="store.benefits()"
     [status]="store.status()"
     [isProcessing]="store.isProcessing()"
     (edit)="store.openEditModal($event)"

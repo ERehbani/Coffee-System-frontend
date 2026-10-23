@@ -14,9 +14,4 @@ import { GlobalBenefitStore } from '../../services/global-benefit.store';
 })
 export class AdminGlobalBenefitsPage {
   protected readonly store = inject(GlobalBenefitStore);
-
-  protected onInput(event: Event, key: 'query' | 'type' | 'tier' | 'status' | 'public' | 'sortBy'): void {
-    const val = (event.target as HTMLInputElement | HTMLSelectElement).value;
-    this.store.setFilter(key as any, val as any);
-  }
 }
