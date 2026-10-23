@@ -10,6 +10,10 @@ const adminSectionRoutes: Routes = [
     path: 'users',
     loadChildren: () => import('../features/admin-users/admin-users.routes'),
   },
+  {
+    path: 'global-benefits',
+    loadChildren: () => import('../features/admin-global-benefits/admin-global-benefits.routes'),
+  },
 ];
 
 const adminPlaceholderRoutes: Routes = ADMIN_NAV_ITEMS.filter(
