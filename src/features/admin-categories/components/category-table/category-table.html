@@ -1,0 +1,168 @@
+<div class="overflow-hidden rounded-3xl border border-border bg-surface shadow-xs">
+  @if (status() === 'loading') {
+    <!-- Skeleton loader state -->
+    <div class="p-6 space-y-4 animate-pulse">
+      <div class="h-8 bg-border/40 rounded-xl w-1/4"></div>
+      <div class="space-y-3">
+        @for (_ of [1, 2, 3, 4, 5]; track _) {
+          <div class="h-16 bg-border/20 rounded-2xl w-full flex items-center px-4 gap-4">
+            <div class="size-10 bg-border/50 rounded-xl"></div>
+            <div class="flex-1 space-y-2">
+              <div class="h-4 bg-border/50 rounded w-1/3"></div>
+              <div class="h-3 bg-border/40 rounded w-1/2"></div>
+            </div>
+            <div class="h-6 bg-border/40 rounded-full w-20"></div>
+          </div>
+        }
+      </div>
+    </div>
+  } @else if (categories().length === 0) {
+    <!-- Empty state -->
+    <div class="flex flex-col items-center justify-center px-6 py-16 text-center">
+      <div class="flex size-16 items-center justify-center rounded-2xl bg-amber-50 text-primary mb-4 shadow-2xs">
+        <app-icon name="tag" [size]="28" />
+      </div>
+      <h3 class="text-base font-extrabold text-text">No se encontraron categorías</h3>
+      <p class="mt-1 max-w-md text-xs text-muted">
+        No hay categorías registradas o ninguna coincide con los filtros aplicados. Puedes crear una nueva categoría ahora mismo.
+      </p>
+      <div class="mt-5">
+        <button
+          type="button"
+          (click)="createCategory.emit()"
+          class="cursor-pointer inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-xs font-bold text-white shadow-xs hover:bg-primary-dark transition active:scale-95"
+        >
+          <app-icon name="plus" [size]="16" />
+          <span>Crear Nueva Categoría</span>
+        </button>
+      </div>
+    </div>
+  } @else {
+    <!-- Desktop Table View -->
+    <div class="overflow-x-auto">
+      <table class="w-full text-left border-collapse text-xs">
+        <thead>
+          <tr class="border-b border-border bg-bg/50 text-[11px] font-black uppercase tracking-wider text-muted select-none">
+            <th scope="col" class="py-4 pl-6 pr-3">Categoría</th>
+            <th scope="col" class="py-4 px-3">Descripción</th>
+            <th scope="col" class="py-4 px-3 text-center">Productos</th>
+            <th scope="col" class="py-4 px-3 text-center">Comercios</th>
+            <th scope="col" class="py-4 px-3 text-center">Estado</th>
+            <th scope="col" class="py-4 px-3">Última Modificación</th>
+            <th scope="col" class="py-4 pl-3 pr-6 text-right">Acciones</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-border/60">
+          @for (category of categories(); track category.id) {
+            <tr class="transition hover:bg-bg/40 group">
+              <!-- Name & Icon -->
+              <td class="py-4 pl-6 pr-3">
+                <div class="flex items-center gap-3">
+                  <div
+                    class="flex size-10 shrink-0 items-center justify-center rounded-xl shadow-2xs ring-1"
+                    [class]="getColorClasses(category.color).bg + ' ' + getColorClasses(category.color).text + ' ' + getColorClasses(category.color).ring"
+                  >
+                    <app-icon [name]="category.icon" [size]="18" />
+                  </div>
+                  <div>
+                    <span class="font-extrabold text-sm text-text block group-hover:text-primary transition-colors">
+                      {{ category.name }}
+                    </span>
+                  </div>
+                </div>
+              </td>
+
+              <!-- Description -->
+              <td class="py-4 px-3 max-w-xs">
+                <p class="text-xs text-muted line-clamp-2">
+                  {{ category.description || 'Sin descripción detallada' }}
+                </p>
+              </td>
+
+              <!-- Products Count -->
+              <td class="py-4 px-3 text-center">
+                <span class="inline-flex items-center gap-1 rounded-lg bg-bg px-2.5 py-1 text-xs font-bold text-text border border-border">
+                  <app-icon name="coffee" [size]="12" class="text-muted" />
+                  {{ category.productCount }}
+                </span>
+              </td>
+
+              <!-- Cafes Count -->
+              <td class="py-4 px-3 text-center">
+                <span class="inline-flex items-center gap-1 rounded-lg bg-bg px-2.5 py-1 text-xs font-bold text-text border border-border">
+                  <app-icon name="store" [size]="12" class="text-muted" />
+                  {{ category.cafeCount }}
+                </span>
+              </td>
+
+              <!-- Status with fast toggle -->
+              <td class="py-4 px-3 text-center">
+                <button
+                  type="button"
+                  (click)="toggleStatus.emit(category)"
+                  [disabled]="isProcessing()"
+                  [title]="category.status === 'active' ? 'Click para pausar/desactivar' : 'Click para activar'"
+                  class="cursor-pointer inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-bold transition active:scale-95 disabled:opacity-50"
+                  [class.bg-emerald-100]="category.status === 'active'"
+                  [class.text-emerald-800]="category.status === 'active'"
+                  [class.hover:bg-emerald-200]="category.status === 'active'"
+                  [class.bg-slate-100]="category.status === 'inactive'"
+                  [class.text-slate-700]="category.status === 'inactive'"
+                  [class.hover:bg-slate-200]="category.status === 'inactive'"
+                >
+                  <span
+                    class="size-1.5 rounded-full"
+                    [class.bg-emerald-500]="category.status === 'active'"
+                    [class.bg-slate-400]="category.status === 'inactive'"
+                  ></span>
+                  <span>{{ category.status === 'active' ? 'Activa' : 'Inactiva' }}</span>
+                </button>
+              </td>
+
+              <!-- Updated Date -->
+              <td class="py-4 px-3 text-muted">
+                <span class="block text-xs font-medium">{{ category.updatedAt | date: 'dd/MM/yyyy' }}</span>
+                <span class="block text-[10px] text-muted">{{ category.updatedAt | date: 'HH:mm' }} hs</span>
+              </td>
+
+              <!-- Actions -->
+              <td class="py-4 pl-3 pr-6 text-right">
+                <div class="flex items-center justify-end gap-1.5">
+                  <!-- Edit button -->
+                  <button
+                    type="button"
+                    (click)="editCategory.emit(category)"
+                    [disabled]="isProcessing()"
+                    class="cursor-pointer inline-flex items-center gap-1 rounded-xl border border-border bg-surface px-2.5 py-1.5 text-xs font-bold text-text shadow-2xs hover:bg-bg hover:text-primary transition active:scale-95 disabled:opacity-50"
+                    title="Editar categoría"
+                  >
+                    <app-icon name="edit" [size]="14" />
+                    <span class="hidden sm:inline">Editar</span>
+                  </button>
+
+                  <!-- Delete button -->
+                  <button
+                    type="button"
+                    (click)="deleteCategory.emit(category)"
+                    [disabled]="isProcessing()"
+                    class="cursor-pointer inline-flex items-center gap-1 rounded-xl border border-rose-200 bg-rose-50/50 px-2.5 py-1.5 text-xs font-bold text-rose-700 shadow-2xs hover:bg-rose-100 hover:border-rose-300 transition active:scale-95 disabled:opacity-50"
+                    title="Eliminar categoría"
+                  >
+                    <app-icon name="trash" [size]="14" />
+                    <span class="hidden sm:inline">Eliminar</span>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Table Footer / Count Info -->
+    <div class="flex items-center justify-between border-t border-border bg-bg/30 px-6 py-3 text-xs text-muted">
+      <span>Mostrando <strong>{{ categories().length }}</strong> categoría(s)</span>
+      <span class="text-[11px]">Control de catálogo para productos y cafeterías</span>
+    </div>
+  }
+</div>

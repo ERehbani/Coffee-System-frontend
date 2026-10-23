@@ -10,6 +10,10 @@ const adminSectionRoutes: Routes = [
     path: 'users',
     loadChildren: () => import('../features/admin-users/admin-users.routes'),
   },
+  {
+    path: 'categories',
+    loadChildren: () => import('../features/admin-categories/admin-categories.routes'),
+  },
 ];
 
 const adminPlaceholderRoutes: Routes = ADMIN_NAV_ITEMS.filter(

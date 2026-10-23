@@ -1,0 +1,263 @@
+<main class="mx-auto max-w-6xl px-4 py-8 space-y-6">
+  <!-- Top Navigation & Title Bar -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-border">
+    <div class="flex items-center gap-3">
+      <span class="inline-flex size-10 items-center justify-center rounded-xl bg-primary text-white shadow-xs">
+        <app-icon name="tag" [size]="20" />
+      </span>
+      <div>
+        <div class="flex items-center gap-2">
+          <h1 class="text-xl font-extrabold text-text">Gestión de Categorías</h1>
+          <span class="rounded-lg bg-purple-100 px-2 py-0.5 text-xs font-bold text-purple-800">
+            Superadmin
+          </span>
+        </div>
+        <p class="text-xs text-muted">Alta, baja y modificación de categorías para ordenar la oferta de productos y comercios</p>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-2 flex-wrap">
+      <!-- Primary Action: Nueva Categoría -->
+      <button
+        type="button"
+        (click)="onOpenCreate()"
+        class="cursor-pointer inline-flex items-center gap-1.5 rounded-xl bg-primary px-3.5 py-2 text-xs font-bold text-white shadow-xs hover:bg-primary-dark transition active:scale-95 select-none"
+      >
+        <app-icon name="plus" [size]="16" />
+        <span>Nueva Categoría</span>
+      </button>
+
+      <button
+        type="button"
+        (click)="onRefresh()"
+        class="cursor-pointer inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface px-3 py-2 text-xs font-bold text-muted transition hover:bg-bg hover:text-text active:scale-95 shadow-2xs select-none"
+        title="Recargar categorías"
+      >
+        <app-icon name="refresh-cw" [size]="14" />
+        <span>Actualizar</span>
+      </button>
+
+      <a
+        routerLink="/admin/users"
+        class="cursor-pointer inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface px-3 py-2 text-xs font-bold text-muted transition hover:bg-bg hover:text-text active:scale-95 shadow-2xs select-none"
+      >
+        <app-icon name="shield" [size]="14" />
+        <span>Usuarios</span>
+      </a>
+
+      <a
+        routerLink="/home"
+        class="cursor-pointer inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface px-3 py-2 text-xs font-bold text-muted transition hover:bg-bg hover:text-text active:scale-95 shadow-2xs select-none"
+      >
+        <app-icon name="coffee" [size]="14" />
+        <span>Inicio App</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- KPI / Stats Ribbon -->
+  <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+    <!-- Total Categorías -->
+    <div class="rounded-2xl border border-border bg-surface p-4 shadow-2xs">
+      <div class="flex items-center justify-between text-muted mb-1">
+        <span class="text-xs font-bold">Total Categorías</span>
+        <app-icon name="tag" [size]="16" class="text-primary" />
+      </div>
+      <p class="text-2xl font-black text-text">{{ store.stats().totalCategories }}</p>
+      <span class="text-[11px] text-muted">Configuradas en la plataforma</span>
+    </div>
+
+    <!-- Active Categories -->
+    <div class="rounded-2xl border border-border bg-surface p-4 shadow-2xs">
+      <div class="flex items-center justify-between text-muted mb-1">
+        <span class="text-xs font-bold">Activas</span>
+        <app-icon name="check-circle" [size]="16" class="text-emerald-600" />
+      </div>
+      <p class="text-2xl font-black text-emerald-700">{{ store.stats().activeCategories }}</p>
+      <span class="text-[11px] text-muted">Visibles en catálogo</span>
+    </div>
+
+    <!-- Inactive Categories -->
+    <div class="rounded-2xl border border-border bg-surface p-4 shadow-2xs">
+      <div class="flex items-center justify-between text-muted mb-1">
+        <span class="text-xs font-bold">En Pausa / Inactivas</span>
+        <app-icon name="alert-circle" [size]="16" class="text-slate-500" />
+      </div>
+      <p class="text-2xl font-black text-slate-700">{{ store.stats().inactiveCategories }}</p>
+      <span class="text-[11px] text-muted">Ocultas para usuarios</span>
+    </div>
+
+    <!-- Total Products Linked -->
+    <div class="rounded-2xl border border-border bg-surface p-4 shadow-2xs">
+      <div class="flex items-center justify-between text-muted mb-1">
+        <span class="text-xs font-bold">Total Productos</span>
+        <app-icon name="coffee" [size]="16" class="text-amber-600" />
+      </div>
+      <p class="text-2xl font-black text-amber-800">{{ store.stats().totalProducts }}</p>
+      <span class="text-[11px] text-muted">Asociados al catálogo</span>
+    </div>
+  </div>
+
+  <!-- Search, Filter & Sort Bar -->
+  <div class="rounded-2xl border border-border bg-surface p-4 shadow-2xs space-y-3">
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
+      <!-- Search Input -->
+      <div class="md:col-span-6 relative">
+        <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-muted">
+          <app-icon name="search" [size]="16" />
+        </span>
+        <input
+          type="text"
+          placeholder="Buscar por nombre, descripción o ID de categoría..."
+          [value]="store.searchQuery()"
+          (input)="onSearchChange($event)"
+          class="w-full rounded-xl border border-border bg-bg/50 pl-10 pr-4 py-2.5 text-xs text-text placeholder:text-muted focus:border-primary focus:bg-surface focus:outline-hidden focus:ring-2 focus:ring-primary/20 transition"
+        />
+      </div>
+
+      <!-- Status Filter -->
+      <div class="md:col-span-3">
+        <select
+          [value]="store.statusFilter()"
+          (change)="onStatusChange($event)"
+          class="w-full rounded-xl border border-border bg-bg/50 px-3.5 py-2.5 text-xs font-medium text-text focus:border-primary focus:bg-surface focus:outline-hidden focus:ring-2 focus:ring-primary/20 transition cursor-pointer"
+          aria-label="Filtrar por estado de categoría"
+        >
+          <option value="all">Todos los estados</option>
+          <option value="active">Solo Activas</option>
+          <option value="inactive">Solo Inactivas</option>
+        </select>
+      </div>
+
+      <!-- Sort Options -->
+      <div class="md:col-span-3">
+        <select
+          [value]="store.sortBy()"
+          (change)="onSortChange($event)"
+          class="w-full rounded-xl border border-border bg-bg/50 px-3.5 py-2.5 text-xs font-medium text-text focus:border-primary focus:bg-surface focus:outline-hidden focus:ring-2 focus:ring-primary/20 transition cursor-pointer"
+          aria-label="Ordenar listado de categorías"
+        >
+          <option value="name-asc">Nombre (A - Z)</option>
+          <option value="name-desc">Nombre (Z - A)</option>
+          <option value="products-desc">Mayor cantidad de productos</option>
+          <option value="recent">Más recientes primero</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Active Filters Indicators & Reset -->
+    @if (store.searchQuery() || store.statusFilter() !== 'all') {
+      <div class="flex items-center justify-between pt-2 border-t border-border/50 text-xs text-muted">
+        <div class="flex items-center gap-2 flex-wrap">
+          <span class="font-bold text-text">Filtros aplicados:</span>
+          @if (store.searchQuery(); as q) {
+            <span class="rounded-lg bg-bg px-2.5 py-1 text-[11px] font-medium border border-border">
+              Búsqueda: "{{ q }}"
+            </span>
+          }
+          @if (store.statusFilter() !== 'all') {
+            <span class="rounded-lg bg-bg px-2.5 py-1 text-[11px] font-medium border border-border capitalize">
+              Estado: {{ store.statusFilter() === 'active' ? 'Activas' : 'Inactivas' }}
+            </span>
+          }
+        </div>
+
+        <button
+          type="button"
+          (click)="onClearFilters()"
+          class="cursor-pointer text-[11px] font-bold text-primary hover:underline hover:text-primary-dark transition select-none"
+        >
+          Restablecer filtros
+        </button>
+      </div>
+    }
+  </div>
+
+  <!-- Action Feedback Notification Toast / Alert -->
+  @if (store.actionMessage(); as msg) {
+    <div
+      role="status"
+      class="flex items-center justify-between gap-3 rounded-2xl border px-5 py-3.5 text-xs font-bold transition shadow-2xs"
+      [class.bg-emerald-50]="msg.type === 'success'"
+      [class.border-emerald-300]="msg.type === 'success'"
+      [class.text-emerald-900]="msg.type === 'success'"
+      [class.bg-rose-50]="msg.type === 'error'"
+      [class.border-rose-300]="msg.type === 'error'"
+      [class.text-rose-900]="msg.type === 'error'"
+    >
+      <div class="flex items-center gap-3">
+        <span
+          class="inline-flex size-7 shrink-0 items-center justify-center rounded-full text-white"
+          [class.bg-emerald-600]="msg.type === 'success'"
+          [class.bg-rose-600]="msg.type === 'error'"
+        >
+          <app-icon [name]="msg.type === 'success' ? 'check' : 'alert-circle'" [size]="14" />
+        </span>
+        <p>{{ msg.text }}</p>
+      </div>
+      <button
+        type="button"
+        (click)="store.dismissActionMessage()"
+        class="cursor-pointer rounded-lg p-1 hover:bg-black/5 active:scale-95"
+        aria-label="Cerrar notificación"
+      >
+        <app-icon name="x" [size]="14" />
+      </button>
+    </div>
+  }
+
+  <!-- Error Alert -->
+  @if (store.errorMessage(); as errorMsg) {
+    <div
+      role="alert"
+      class="flex items-center justify-between gap-3 rounded-2xl border border-rose-300 bg-rose-50 px-5 py-3.5 text-rose-800 transition"
+    >
+      <div class="flex items-center gap-3">
+        <span class="inline-flex size-8 shrink-0 items-center justify-center rounded-full bg-rose-600 text-white">
+          <app-icon name="x" [size]="16" />
+        </span>
+        <p class="text-xs font-bold text-rose-900">{{ errorMsg }}</p>
+      </div>
+      <button
+        type="button"
+        (click)="onRefresh()"
+        class="cursor-pointer text-xs font-bold underline hover:text-rose-950"
+      >
+        Reintentar
+      </button>
+    </div>
+  }
+
+  <!-- Categories Table Section -->
+  <section aria-label="Tabla de categorías de la plataforma">
+    <app-category-table
+      [categories]="store.filteredCategories()"
+      [status]="store.status()"
+      [isProcessing]="store.isProcessing()"
+      (editCategory)="onEdit($event)"
+      (toggleStatus)="onToggleStatus($event)"
+      (deleteCategory)="onOpenDelete($event)"
+      (createCategory)="onOpenCreate()"
+    />
+  </section>
+
+  <!-- Create / Edit Form Modal -->
+  @if (store.isFormModalOpen()) {
+    <app-category-form-modal
+      [category]="store.selectedCategoryForEdit()"
+      [isProcessing]="store.isProcessing()"
+      (save)="onSaveCategory($event)"
+      (close)="store.closeFormModal()"
+    />
+  }
+
+  <!-- Delete Confirmation Modal -->
+  @if (store.categoryToDelete(); as toDelete) {
+    <app-category-delete-modal
+      [category]="toDelete"
+      [isProcessing]="store.isProcessing()"
+      (confirmDelete)="onConfirmDelete($event)"
+      (close)="store.closeDeleteConfirm()"
+    />
+  }
+</main>
