@@ -27,7 +27,6 @@
         <tbody class="divide-y divide-border">
           @for (b of benefits(); track b.id) {
             <tr class="hover:bg-bg/40 transition">
-              <!-- Info -->
               <td class="px-5 py-3.5">
                 <div class="flex items-center gap-2.5">
                   <span class="size-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
@@ -46,7 +45,6 @@
                 </div>
               </td>
 
-              <!-- Mecanica / Nivel -->
               <td class="px-4 py-3.5 whitespace-nowrap">
                 <div class="space-y-0.5">
                   <span class="block text-[10px] font-semibold text-text">{{ getTypeMeta(b.type).shortLabel }}</span>
@@ -56,14 +54,12 @@
                 </div>
               </td>
 
-              <!-- Costo -->
               <td class="px-4 py-3.5 text-center whitespace-nowrap">
                 <span class="font-bold px-2 py-0.5 rounded-full" [class.bg-emerald-100]="b.pointsCost === 0" [class.text-emerald-800]="b.pointsCost === 0" [class.bg-primary/10]="b.pointsCost > 0" [class.text-primary]="b.pointsCost > 0">
                   {{ b.pointsCost === 0 ? 'GRATIS' : b.pointsCost + ' pts' }}
                 </span>
               </td>
 
-              <!-- Canjes -->
               <td class="px-4 py-3.5 whitespace-nowrap min-w-[110px]">
                 <div class="flex items-center justify-between text-[10px] font-semibold text-muted mb-1">
                   <span>{{ b.currentRedemptions }} / {{ b.maxRedemptions }}</span>
@@ -74,13 +70,11 @@
                 </div>
               </td>
 
-              <!-- Vigencia -->
               <td class="px-4 py-3.5 whitespace-nowrap text-[11px]">
                 <p class="font-medium text-text">Hasta {{ b.endDate }}</p>
                 <p class="text-[10px] text-muted">Desde {{ b.startDate }}</p>
               </td>
 
-              <!-- Estado -->
               <td class="px-4 py-3.5 text-center whitespace-nowrap">
                 <div class="flex flex-col items-center gap-1">
                   <button
@@ -102,7 +96,6 @@
                 </div>
               </td>
 
-              <!-- Acciones -->
               <td class="px-5 py-3.5 text-right whitespace-nowrap">
                 <div class="flex items-center justify-end gap-1">
                   <button type="button" (click)="edit.emit(b)" class="cursor-pointer rounded-lg border border-border px-2 py-1 text-xs font-bold text-text hover:border-primary" title="Editar">

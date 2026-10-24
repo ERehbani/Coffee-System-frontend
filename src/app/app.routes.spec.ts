@@ -58,7 +58,9 @@ describe('admin routes', () => {
     }
   });
 
-  describe.each(ADMIN_NAV_ITEMS.filter((item) => item.path !== 'users'))(
+  describe.each(
+    ADMIN_NAV_ITEMS.filter((item) => item.path !== 'users' && item.path !== 'categories' && item.path !== 'global-benefits'),
+  )(
     'section $label',
     ({ label, path }) => {
       it(`resolves /admin/${path} to the placeholder titled "${label}"`, async () => {

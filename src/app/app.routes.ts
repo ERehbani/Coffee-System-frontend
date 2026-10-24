@@ -11,6 +11,10 @@ const adminSectionRoutes: Routes = [
     loadChildren: () => import('../features/admin-users/admin-users.routes'),
   },
   {
+    path: 'categories',
+    loadChildren: () => import('../features/admin-categories/admin-categories.routes'),
+  },
+  {
     path: 'global-benefits',
     loadChildren: () => import('../features/admin-global-benefits/admin-global-benefits.routes'),
   },
