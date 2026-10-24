@@ -10,12 +10,13 @@ import { CartService } from '../../../cart/services/cart.service';
 import { Cafe } from '../../../home/model/cafe.model';
 import { CafeService } from '../../../home/services/cafe.service';
 import { ProductCard } from '../../components/product-card/product-card';
+import { ProductDetailModal } from '../../components/product-detail-modal/product-detail-modal';
 import { Product } from '../../model/product.model';
 import { ProductService } from '../../services/product.service';
 
 @Component({
   selector: 'app-catalog-page',
-  imports: [RouterLink, FormsModule, Icon, ProductCard, CartButton],
+  imports: [RouterLink, FormsModule, Icon, ProductCard, ProductDetailModal, CartButton],
   templateUrl: './catalog-page.html',
   host: { class: 'block' },
 })
@@ -40,6 +41,7 @@ export class CatalogPage implements OnInit {
   productSearchQuery = signal('');
   addedProductMessage = signal<string | null>(null);
   pendingProduct = signal<Product | null>(null);
+  selectedProduct = signal<Product | null>(null);
   private messageTimeout?: ReturnType<typeof setTimeout>;
 
   categories = computed(() => {
@@ -170,6 +172,19 @@ export class CatalogPage implements OnInit {
     if (this.cartService.addProduct(product, cafe)) {
       this.showAddedMessage(product);
     }
+  }
+
+  openProductDetail(product: Product): void {
+    this.selectedProduct.set(product);
+  }
+
+  closeProductDetail(): void {
+    this.selectedProduct.set(null);
+  }
+
+  onAddFromDetail(product: Product): void {
+    this.selectedProduct.set(null);
+    this.onAddToOrder(product);
   }
 
   confirmReplaceCart(): void {
