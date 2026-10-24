@@ -1,0 +1,75 @@
+<div
+  (click)="onClose()"
+  class="fixed inset-0 z-40 flex items-end justify-center bg-text/40 p-4 sm:items-center"
+>
+  <div
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="titulo-detalle-producto"
+    (click)="$event.stopPropagation()"
+    class="w-full max-w-md overflow-hidden rounded-2xl bg-surface shadow-lg"
+  >
+    <div class="relative h-56 w-full bg-border/50">
+      <img
+        [src]="product().image || 'https://images.unsplash.com/photo-1510707577719-ae7c14805e3a?w=800&h=500&fit=crop&q=80&auto=format'"
+        [alt]="product().name"
+        class="size-full object-cover"
+      />
+      <button
+        type="button"
+        (click)="onClose()"
+        aria-label="Cerrar detalle del producto"
+        class="absolute top-3 right-3 flex size-8 items-center justify-center rounded-full bg-black/60 text-white backdrop-blur-md hover:bg-black/80 cursor-pointer"
+      >
+        <app-icon name="x" [size]="16" />
+      </button>
+    </div>
+
+    <div class="space-y-4 p-5">
+      <div class="space-y-1.5">
+        <span class="inline-block rounded-full bg-accent-light px-2.5 py-0.5 text-[11px] font-semibold text-primary-dark">
+          {{ product().category }}
+        </span>
+        <h2 id="titulo-detalle-producto" class="text-xl font-bold text-text">
+          {{ product().name }}
+        </h2>
+        @if (product().description) {
+          <p class="text-sm text-muted leading-relaxed">
+            {{ product().description }}
+          </p>
+        } @else {
+          <p class="text-sm text-muted italic">Este producto no tiene descripción.</p>
+        }
+      </div>
+
+      <div class="flex items-center justify-between rounded-xl border border-border/60 bg-background/50 p-3.5">
+        <div class="flex flex-col">
+          <span class="text-[10px] uppercase font-bold tracking-wider text-muted">Precio unitario</span>
+          <span class="text-xl font-extrabold text-text">
+            {{ product().price | currency:'ARS':'$ ':'1.0-0' }}
+          </span>
+        </div>
+
+        @if (hasPoints()) {
+          <span class="inline-flex items-center gap-1.5 rounded-full bg-primary px-3 py-1.5 text-xs font-semibold text-white shadow-sm">
+            <app-icon name="zap" [size]="14" />
+            Puntos a ganar: +{{ pointsToEarn() }}
+          </span>
+        } @else {
+          <span class="rounded-full bg-zinc-200 px-3 py-1.5 text-xs font-semibold text-zinc-600">
+            No suma puntos
+          </span>
+        }
+      </div>
+
+      <button
+        type="button"
+        (click)="onAddClick()"
+        class="flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-white shadow-xs transition-colors hover:bg-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary cursor-pointer"
+      >
+        <app-icon name="plus" [size]="16" />
+        Agregar al carrito
+      </button>
+    </div>
+  </div>
+</div>
