@@ -1,5 +1,4 @@
 <main class="mx-auto max-w-5xl px-4 py-8 space-y-6">
-  <!-- Header Bar -->
   <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-border">
     <div class="flex items-center gap-3">
       <span class="inline-flex size-10 items-center justify-center rounded-xl bg-primary text-white shadow-xs">
@@ -46,7 +45,6 @@
     </div>
   </header>
 
-  <!-- Notification Toast -->
   @if (service.message(); as msg) {
     <div
       role="status"
@@ -73,7 +71,6 @@
     </div>
   }
 
-  <!-- Search & Stats Bar -->
   <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
     <div class="relative flex-1 max-w-md">
       <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-muted">
@@ -93,7 +90,6 @@
     </div>
   </div>
 
-  <!-- Categories Table -->
   <div class="overflow-hidden rounded-3xl border border-border bg-surface shadow-xs">
     @if (service.filteredCategories().length === 0) {
       <div class="flex flex-col items-center justify-center p-12 text-center">
@@ -168,7 +164,6 @@
     }
   </div>
 
-  <!-- Form Modal (Alta / Modificación) -->
   @if (isFormOpen()) {
     <div
       class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs"
@@ -239,7 +234,6 @@
     </div>
   }
 
-  <!-- Delete Modal (Baja) -->
   @if (deletingCategory(); as toDelete) {
     <div
       class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs"
