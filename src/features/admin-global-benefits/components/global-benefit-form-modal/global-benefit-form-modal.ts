@@ -112,7 +112,8 @@ export class GlobalBenefitFormModal {
 
   protected isValid(): boolean {
     const f = this.form();
-    return f.name.trim().length >= 3 && f.description.trim().length >= 5 && f.pointsCost >= 0 && f.maxRedemptions > 0;
+    const hasValidDates = Boolean(f.startDate && f.endDate && f.startDate <= f.endDate);
+    return f.name.trim().length >= 3 && f.description.trim().length >= 5 && f.pointsCost >= 0 && f.maxRedemptions > 0 && hasValidDates;
   }
 
   protected onSubmit(): void {

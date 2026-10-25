@@ -144,19 +144,40 @@ export class GlobalBenefitStore {
         this.isProcessing.set(false);
         this.actionMessage.set({ type: 'success', text: `Beneficio "${b.name}" eliminado de la red.` });
       },
-      error: () => { this.isProcessing.set(false); },
+      error: (err) => {
+        this.isProcessing.set(false);
+        this.actionMessage.set({ type: 'error', text: err?.message || 'Error al eliminar el beneficio de la red.' });
+      },
     });
   }
 
   togglePublish(id: string, currentPublic: boolean): void {
+    this.isProcessing.set(true);
     this.repository.togglePublish(id, !currentPublic).subscribe({
-      next: (res) => this.benefits.update((prev) => prev.map((b) => b.id === id ? res : b)),
+      next: (res) => {
+        this.benefits.update((prev) => prev.map((b) => (b.id === id ? res : b)));
+        this.isProcessing.set(false);
+        this.actionMessage.set({ type: 'success', text: `Beneficio "${res.name}" ${res.isPublic ? 'publicado' : 'cambiado a borrador'}.` });
+      },
+      error: (err) => {
+        this.isProcessing.set(false);
+        this.actionMessage.set({ type: 'error', text: err?.message || 'Error al cambiar la visibilidad del beneficio.' });
+      },
     });
   }
 
   toggleStatus(id: string, currentStatus: boolean): void {
+    this.isProcessing.set(true);
     this.repository.toggleStatus(id, !currentStatus).subscribe({
-      next: (res) => this.benefits.update((prev) => prev.map((b) => b.id === id ? res : b)),
+      next: (res) => {
+        this.benefits.update((prev) => prev.map((b) => (b.id === id ? res : b)));
+        this.isProcessing.set(false);
+        this.actionMessage.set({ type: 'success', text: `Estado del beneficio "${res.name}" actualizado.` });
+      },
+      error: (err) => {
+        this.isProcessing.set(false);
+        this.actionMessage.set({ type: 'error', text: err?.message || 'Error al actualizar el estado del beneficio.' });
+      },
     });
   }
 

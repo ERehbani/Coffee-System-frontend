@@ -105,6 +105,18 @@ export interface BenefitCreateRequestDto {
   readonly tierId: string;
 }
 
+export interface BenefitUpdateRequestDto {
+  readonly name: string;
+  readonly description: string;
+  readonly pointsCost: number;
+  readonly startDate: string;
+  readonly endDate: string;
+  readonly maxRedemptions: number;
+  readonly typeId: string;
+  readonly cafeId: null;
+  readonly tierId: string;
+}
+
 export interface NewEndDateRequestDto {
   readonly endDate: string;
 }

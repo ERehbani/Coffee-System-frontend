@@ -137,9 +137,26 @@
                 </div>
               </div>
               <div class="grid grid-cols-2 gap-2 text-xs">
-                <input type="date" [ngModel]="form().startDate" (ngModelChange)="updateField('startDate', $event)" class="rounded-xl border border-border bg-surface px-2.5 py-1.5" />
-                <input type="date" [ngModel]="form().endDate" (ngModelChange)="updateField('endDate', $event)" class="rounded-xl border border-border bg-surface px-2.5 py-1.5" />
+                <input
+                  type="date"
+                  [ngModel]="form().startDate"
+                  (ngModelChange)="updateField('startDate', $event)"
+                  class="rounded-xl border border-border bg-surface px-2.5 py-1.5 text-text focus:border-primary focus:outline-none"
+                  [class.border-red-400]="submitted() && (!form().startDate || form().startDate > form().endDate)"
+                />
+                <input
+                  type="date"
+                  [ngModel]="form().endDate"
+                  (ngModelChange)="updateField('endDate', $event)"
+                  class="rounded-xl border border-border bg-surface px-2.5 py-1.5 text-text focus:border-primary focus:outline-none"
+                  [class.border-red-400]="submitted() && (!form().endDate || form().startDate > form().endDate)"
+                />
               </div>
+              @if (submitted() && (!form().startDate || !form().endDate)) {
+                <p class="text-[10px] text-red-500 font-bold">Las fechas de inicio y fin son obligatorias.</p>
+              } @else if (submitted() && form().startDate > form().endDate) {
+                <p class="text-[10px] text-red-500 font-bold">La fecha de fin no puede ser anterior a la de inicio.</p>
+              }
             </div>
 
             <div class="grid grid-cols-2 gap-3 text-xs">

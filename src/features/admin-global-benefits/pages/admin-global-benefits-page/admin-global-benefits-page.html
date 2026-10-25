@@ -51,6 +51,27 @@
     </div>
   }
 
+  @if (store.errorMessage(); as errorMsg) {
+    <div
+      role="alert"
+      class="flex items-center justify-between gap-3 rounded-2xl border border-rose-300 bg-rose-50 px-5 py-3.5 text-rose-800 transition"
+    >
+      <div class="flex items-center gap-3">
+        <span class="inline-flex size-8 shrink-0 items-center justify-center rounded-full bg-rose-600 text-white">
+          <app-icon name="x" [size]="16" />
+        </span>
+        <p class="text-xs font-bold text-rose-900">{{ errorMsg }}</p>
+      </div>
+      <button
+        type="button"
+        (click)="store.loadBenefits()"
+        class="cursor-pointer text-xs font-bold underline hover:text-rose-950"
+      >
+        Reintentar
+      </button>
+    </div>
+  }
+
   <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
     <div class="rounded-2xl border border-border bg-surface p-3.5 shadow-2xs">
       <span class="text-[11px] font-bold text-muted block mb-0.5">Total Beneficios</span>
