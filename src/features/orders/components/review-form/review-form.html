@@ -4,62 +4,61 @@
   [attr.aria-label]="'Reseña de ' + cafeName()"
   class="space-y-4 rounded-2xl border border-border bg-bg p-4"
 >
-  <fieldset [disabled]="isSubmitting()" class="space-y-2">
-    <legend class="text-sm font-bold text-text">
+  <div class="space-y-2">
+    <p class="text-sm font-bold text-text">
       ¿Cómo calificarías tu experiencia? <span class="text-accent">*</span>
-    </legend>
+    </p>
     <div class="flex flex-wrap items-center gap-1">
       @for (star of stars; track star) {
-        <label
-          class="cursor-pointer rounded-lg p-1 transition-transform hover:scale-110 has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-primary"
-          [class.text-accent]="star <= rating()"
-          [class.text-muted]="star > rating()"
+        <button
+          type="button"
+          (click)="setRating(star)"
+          [disabled]="isSubmitting()"
+          [attr.aria-label]="star + ' de 5 estrellas'"
+          class="cursor-pointer rounded-lg p-1 transition-transform hover:scale-110 disabled:pointer-events-none"
+          [class.text-accent]="star <= reviewModel().rating"
+          [class.text-muted]="star > reviewModel().rating"
         >
-          <input
-            type="radio"
-            class="sr-only"
-            [name]="'rating-' + orderId()"
-            [value]="star"
-            [checked]="rating() === star"
-            (change)="rating.set(star)"
-          />
-          <app-icon name="star" [size]="28" [filled]="star <= rating()" />
-          <span class="sr-only">{{ star }} de 5 estrellas</span>
-        </label>
+          <app-icon name="star" [size]="28" [filled]="star <= reviewModel().rating" />
+        </button>
       }
-      @if (ratingLabel(); as label) {
-        <span class="ml-2 text-sm font-semibold text-muted">{{ label }}</span>
+      @if (ratingLabel()) {
+        <span class="ml-2 text-sm font-semibold text-muted">{{ ratingLabel() }}</span>
       }
     </div>
-    @if (attemptedSubmit() && ratingError(); as err) {
-      <p role="alert" class="text-xs font-semibold text-rose-600">{{ err }}</p>
+    @if (attemptedSubmit() && ratingError()) {
+      <p role="alert" class="text-xs font-semibold text-rose-600">{{ ratingError() }}</p>
     }
-  </fieldset>
-
-  <div class="space-y-1.5">
-    <label [for]="commentId()" class="block text-sm font-bold text-text">
-      Comentario <span class="font-normal text-muted">(opcional)</span>
-    </label>
-    <textarea
-      [id]="commentId()"
-      rows="3"
-      [maxLength]="maxCommentLength"
-      [value]="comment()"
-      (input)="comment.set($any($event.target).value)"
-      [disabled]="isSubmitting()"
-      placeholder="¿Qué te gustó? ¿Qué podría mejorar?"
-      class="w-full resize-none rounded-xl border border-border bg-surface px-4 py-2.5 text-sm text-text placeholder:text-muted/60 transition focus:border-primary focus:outline-hidden focus:ring-2 focus:ring-primary/20 disabled:opacity-60"
-    ></textarea>
-    <p class="text-right text-xs text-muted">{{ comment().length }}/{{ maxCommentLength }}</p>
   </div>
 
-  @if (errorMessage(); as err) {
+  <div class="space-y-1.5">
+    <label for="review-message" class="block text-sm font-bold text-text">
+      Comentario <span class="text-accent">*</span>
+    </label>
+    <textarea
+      id="review-message"
+      rows="3"
+      [formField]="reviewForm.message"
+      placeholder="¿Qué te gustó? ¿Qué podría mejorar?"
+      class="w-full resize-none rounded-xl border border-border bg-surface px-4 py-2.5 text-sm text-text placeholder:text-muted/60 transition focus:border-primary focus:outline-hidden focus:ring-2 focus:ring-primary/20"
+    ></textarea>
+    <div class="flex items-center justify-between gap-2">
+      @if (attemptedSubmit() && messageError()) {
+        <p role="alert" class="text-xs font-semibold text-rose-600">{{ messageError() }}</p>
+      } @else {
+        <span></span>
+      }
+      <p class="text-xs text-muted">{{ messageLength() }}/{{ maxMessageLength }}</p>
+    </div>
+  </div>
+
+  @if (errorMessage()) {
     <div
       role="alert"
       class="flex items-center gap-2 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-800"
     >
       <app-icon name="x" [size]="16" class="text-rose-600" />
-      <p>{{ err }}</p>
+      <p>{{ errorMessage() }}</p>
     </div>
   }
 
@@ -68,14 +67,14 @@
       type="button"
       (click)="cancelled.emit()"
       [disabled]="isSubmitting()"
-      class="inline-flex cursor-pointer items-center justify-center rounded-xl border border-border px-4 py-2 text-sm font-bold text-muted transition hover:bg-surface hover:text-text active:scale-95 disabled:pointer-events-none disabled:opacity-50"
+      class="inline-flex cursor-pointer items-center justify-center rounded-xl border border-border px-4 py-2 text-sm font-bold text-muted transition hover:bg-surface hover:text-text disabled:pointer-events-none disabled:opacity-50"
     >
       Cancelar
     </button>
     <button
       type="submit"
       [disabled]="isSubmitting()"
-      class="inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl bg-primary px-5 py-2 text-sm font-bold text-white shadow-sm transition hover:bg-primary-dark active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:pointer-events-none disabled:opacity-50"
+      class="inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl bg-primary px-5 py-2 text-sm font-bold text-white shadow-sm transition hover:bg-primary-dark disabled:pointer-events-none disabled:opacity-50"
     >
       @if (isSubmitting()) {
         <span class="size-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
