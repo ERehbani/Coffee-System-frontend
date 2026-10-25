@@ -59,6 +59,10 @@ export const routes: Routes = [
         path: 'orders',
         loadChildren: () => import('../features/orders/orders.routes'),
       },
+      {
+        path: 'purchases',
+        loadChildren: () => import('../features/purchase-history/purchase-history.routes'),
+      },
     ],
   },
   { path: '**', redirectTo: 'home' },
