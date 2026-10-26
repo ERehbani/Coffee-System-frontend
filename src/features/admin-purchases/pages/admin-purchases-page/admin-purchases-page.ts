@@ -117,6 +117,8 @@ export class AdminPurchasesPage implements OnInit {
         return 'bg-amber-50 text-amber-800 border-amber-300';
       case 'CANCELLED':
         return 'bg-rose-50 text-rose-800 border-rose-300';
+      case 'REFUNDED':
+        return 'bg-purple-50 text-purple-800 border-purple-300';
       default:
         return 'bg-neutral-100 text-neutral-800 border-neutral-300';
     }
@@ -130,6 +132,8 @@ export class AdminPurchasesPage implements OnInit {
         return 'Pendiente';
       case 'CANCELLED':
         return 'Cancelada';
+      case 'REFUNDED':
+        return 'Reembolsada';
       default:
         return status || 'Desconocido';
     }
