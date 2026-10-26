@@ -41,6 +41,26 @@
   @case ('ready') {
     @if (store.detail(); as detail) {
       <div class="space-y-7">
+        @if (store.detailRefreshFailed()) {
+          <div
+            role="alert"
+            data-testid="refresh-error"
+            class="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-surface p-4"
+          >
+            <p class="text-sm text-text">
+              No pudimos actualizar tu nivel y tus puntos. Es posible que veas datos anteriores.
+            </p>
+            <button
+              type="button"
+              (click)="store.reload()"
+              class="inline-flex min-h-11 items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+            >
+              <app-icon name="refresh-cw" [size]="16" />
+              Reintentar
+            </button>
+          </div>
+        }
+
         <section
           aria-label="Tu nivel actual"
           class="rounded-3xl bg-linear-to-br from-primary-dark to-text p-5 text-white shadow-xl shadow-primary-dark/25 sm:p-6"

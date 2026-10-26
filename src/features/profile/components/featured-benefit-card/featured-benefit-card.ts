@@ -1,9 +1,10 @@
 import { DecimalPipe, NgOptimizedImage } from '@angular/common';
 import { Component, computed, input, output } from '@angular/core';
+import { Icon } from '../../../../shared/components/icon/icon';
 import { FeaturedBenefit } from '../../types/profile.model';
 
 @Component({
-  imports: [DecimalPipe, NgOptimizedImage],
+  imports: [DecimalPipe, NgOptimizedImage, Icon],
   selector: 'app-featured-benefit-card',
   templateUrl: './featured-benefit-card.html',
   host: { class: 'block h-full' },

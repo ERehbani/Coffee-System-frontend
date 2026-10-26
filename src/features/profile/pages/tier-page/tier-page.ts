@@ -3,6 +3,7 @@ import {
   afterRenderEffect,
   Component,
   computed,
+  DestroyRef,
   ElementRef,
   inject,
   viewChild,
@@ -45,6 +46,11 @@ export class TierPage {
   });
 
   constructor() {
+    // The store lives in the route injector and survives navigation: hand the redeem flow back
+    // clean each time the page goes away, so a stale confirm step or success never reappears.
+    this.store.enter();
+    inject(DestroyRef).onDestroy(() => this.store.leave());
+
     // The benefit that was just activated may be far down the list: bring the result into view.
     afterRenderEffect(() => {
       if (this.store.redeemed()) {

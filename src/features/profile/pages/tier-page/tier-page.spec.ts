@@ -1,4 +1,5 @@
 import { registerLocaleData } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import localeEsAr from '@angular/common/locales/es-AR';
 import { LOCALE_ID } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -289,13 +290,38 @@ describe('TierPage', () => {
       buttonByText('Confirmar')!.click();
       await settle();
 
-      expect(itemByName('Café de cortesía').textContent).toContain('No pudimos canjear');
+      expect(itemByName('Café de cortesía').textContent).toContain(
+        'No pudimos activar este beneficio. Inténtalo de nuevo.',
+      );
       expect(itemByName('Taza de edición limitada').textContent).not.toContain(
-        'No pudimos canjear',
+        'No pudimos activar',
       );
       expect(element.querySelector('[data-testid="redeem-success"]')).toBeNull();
       expect(benefitsSection().textContent).toContain('Tienes 850 pts disponibles');
       expect(buttonByText('Activar', itemByName('Café de cortesía'))!.disabled).toBe(false);
+    });
+
+    it('explains why the backend rejected the redemption', async () => {
+      redeemBenefit = vi.fn(() =>
+        throwError(
+          () =>
+            new HttpErrorResponse({
+              status: 400,
+              error: { error: 'Benefit has no available redemptions', status: 400 },
+            }),
+        ),
+      );
+      await render();
+      buttonByText('Activar', itemByName('Café de cortesía'))!.click();
+      await settle();
+
+      buttonByText('Confirmar')!.click();
+      await settle();
+
+      expect(itemByName('Café de cortesía').textContent).toContain(
+        'Este beneficio ya no tiene canjes disponibles.',
+      );
+      expect(itemByName('Café de cortesía').textContent).not.toContain('Revisa tus puntos');
     });
 
     it('closes the success message', async () => {
@@ -309,6 +335,143 @@ describe('TierPage', () => {
       await settle();
 
       expect(element.querySelector('[data-testid="redeem-success"]')).toBeNull();
+    });
+  });
+
+  describe('when the refresh after a redemption fails', () => {
+    async function redeemCoffee() {
+      buttonByText('Activar', itemByName('Café de cortesía'))!.click();
+      await settle();
+      buttonByText('Confirmar')!.click();
+      await settle();
+    }
+
+    beforeEach(() => {
+      let calls = 0;
+      getTierDetail = vi.fn(() =>
+        ++calls === 2
+          ? throwError(() => new Error('500'))
+          : of(toTierDetail({ ...buildTierDetailFixture(), availablePoints: points })),
+      );
+    });
+
+    it('keeps the code and the coupon link visible with a non-blocking notice', async () => {
+      await render();
+
+      await redeemCoffee();
+
+      const success = element.querySelector('[data-testid="redeem-success"]')!;
+      expect(success.querySelector('[data-testid="redeem-code"]')?.textContent?.trim()).toBe(
+        'VLD-0009-MOCK',
+      );
+      expect(success.querySelector('a')?.getAttribute('href')).toBe(
+        '/profile/redemptions/redemption-9',
+      );
+      expect(element.querySelector('[data-testid="refresh-error"]')?.textContent).toContain(
+        'No pudimos actualizar',
+      );
+      expect(element.textContent).not.toContain('No pudimos cargar tu nivel');
+      expect(element.querySelectorAll('app-tier-level-item').length).toBe(4);
+    });
+
+    it('retries the refresh from the notice', async () => {
+      await render();
+      await redeemCoffee();
+
+      buttonByText('Reintentar', element.querySelector('[data-testid="refresh-error"]')!)!.click();
+      await settle();
+
+      expect(element.querySelector('[data-testid="refresh-error"]')).toBeNull();
+      expect(benefitsSection().textContent).toContain('Tienes 550 pts disponibles');
+      expect(element.querySelector('[data-testid="redeem-success"]')).not.toBeNull();
+    });
+  });
+
+  it('keeps the blocking error when the first load of the tier fails', async () => {
+    getTierDetail = vi.fn(() => throwError(() => new Error('500')));
+    await render();
+
+    expect(element.querySelector('[role="alert"]')?.textContent).toContain(
+      'No pudimos cargar tu nivel',
+    );
+    expect(element.querySelector('[data-testid="refresh-error"]')).toBeNull();
+    expect(element.querySelector('app-tier-benefit-item')).toBeNull();
+  });
+
+  describe('returning to the page', () => {
+    /** The store lives in the route injector: the same instance serves the next visit. */
+    async function revisit() {
+      fixture.destroy();
+      fixture = TestBed.createComponent(TierPage);
+      TestBed.flushEffects();
+      fixture.detectChanges();
+      element = fixture.nativeElement;
+      await settle();
+    }
+
+    it('does not bring back an open confirm step', async () => {
+      await render();
+      buttonByText('Activar', itemByName('Café de cortesía'))!.click();
+      await settle();
+      expect(element.textContent).toContain('¿Canjear');
+
+      await revisit();
+
+      expect(element.textContent).not.toContain('¿Canjear');
+      expect(buttonByText('Activar', itemByName('Café de cortesía'))!.disabled).toBe(false);
+    });
+
+    it('does not bring back the success panel', async () => {
+      await render();
+      buttonByText('Activar', itemByName('Café de cortesía'))!.click();
+      await settle();
+      buttonByText('Confirmar')!.click();
+      await settle();
+      expect(element.querySelector('[data-testid="redeem-success"]')).not.toBeNull();
+
+      await revisit();
+
+      expect(element.querySelector('[data-testid="redeem-success"]')).toBeNull();
+    });
+
+    it('does not bring back a redemption error', async () => {
+      redeemBenefit = vi.fn(() => throwError(() => new Error('400')));
+      await render();
+      buttonByText('Activar', itemByName('Café de cortesía'))!.click();
+      await settle();
+      buttonByText('Confirmar')!.click();
+      await settle();
+      expect(itemByName('Café de cortesía').textContent).toContain('No pudimos');
+
+      await revisit();
+
+      expect(itemByName('Café de cortesía').textContent).not.toContain('No pudimos');
+    });
+
+    it('shows the code of a redemption that was still in flight when the page was left', async () => {
+      const pending = new Subject<RedeemedBenefit>();
+      redeemBenefit = vi.fn(() => pending);
+      await render();
+      buttonByText('Activar', itemByName('Café de cortesía'))!.click();
+      await settle();
+      buttonByText('Confirmar')!.click();
+      await settle();
+      fixture.destroy();
+
+      points -= 300;
+      pending.next(redeemed);
+      pending.complete();
+      fixture = TestBed.createComponent(TierPage);
+      TestBed.flushEffects();
+      fixture.detectChanges();
+      element = fixture.nativeElement;
+      await settle();
+
+      expect(element.querySelector('[data-testid="redeem-code"]')?.textContent?.trim()).toBe(
+        'VLD-0009-MOCK',
+      );
+      expect(benefitsSection().textContent).toContain('Tienes 550 pts disponibles');
+      expect(getTierDetail).toHaveBeenCalledTimes(2);
     });
   });
 });

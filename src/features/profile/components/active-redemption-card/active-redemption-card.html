@@ -42,10 +42,12 @@
   </div>
 
   <div class="mt-2 flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-sm">
-    <p class="flex items-center gap-1.5 text-text">
-      <app-icon name="clock" [size]="14" class="text-muted" />
-      {{ expiryLabel() }}
-    </p>
+    @if (expiryLabel(); as label) {
+      <p class="flex items-center gap-1.5 text-text">
+        <app-icon name="clock" [size]="14" class="text-muted" />
+        {{ label }}
+      </p>
+    }
     <p
       aria-live="polite"
       class="text-xs font-semibold"

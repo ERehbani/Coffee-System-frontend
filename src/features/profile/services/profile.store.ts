@@ -12,7 +12,8 @@ import { ProfileRepository } from './profile.repository';
 export type ProfileDashboardStatus = 'loading' | 'error' | 'ready';
 
 export interface ActiveRedemptionView extends ActiveRedemption {
-  readonly daysUntilExpiry: number;
+  /** null when the redeemed benefit never expires */
+  readonly daysUntilExpiry: number | null;
 }
 
 @Service({ autoProvided: false })
@@ -64,7 +65,7 @@ export class ProfileStore {
     const now = new Date();
     return redemptions.map((redemption) => ({
       ...redemption,
-      daysUntilExpiry: calendarDaysUntil(redemption.expiresAt, now),
+      daysUntilExpiry: redemption.expiresAt ? calendarDaysUntil(redemption.expiresAt, now) : null,
     }));
   });
 
@@ -103,4 +104,3 @@ export class ProfileStore {
     this.resource.reload();
   }
 }
-

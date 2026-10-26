@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { Type } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Observable, of, Subject, throwError } from 'rxjs';
@@ -5,10 +6,11 @@ import type { Mock } from 'vitest';
 import { ProfileDashboard, RedeemedBenefit, TierBenefit, TierDetail } from '../types/profile.model';
 import { buildProfileDashboardFixture, buildTierDetailFixture } from '../utils/profile.fixture';
 import { toProfileDashboard, toTierDetail } from '../utils/profile.mapper';
+import { REDEEM_ERROR_MESSAGE } from '../utils/redeem-error';
 import { MOCK_LATENCY_MS, MockProfileRepository } from './mock-profile.repository';
 import { ProfileRepository } from './profile.repository';
 import { ProfileStore } from './profile.store';
-import { REDEEM_ERROR_MESSAGE, TierStore } from './tier.store';
+import { TierStore } from './tier.store';
 
 const coffee: TierBenefit = {
   id: 'benefit-coffee',
@@ -316,6 +318,25 @@ describe('TierStore', () => {
       expect(getTierDetail).toHaveBeenCalledTimes(1);
     });
 
+    it('explains why the backend rejected the redemption', () => {
+      redeemBenefit = vi.fn(() =>
+        throwError(
+          () =>
+            new HttpErrorResponse({
+              status: 400,
+              error: { error: 'Benefit has expired', status: 400 },
+            }),
+        ),
+      );
+      const store = createStore();
+      store.requestRedeem('benefit-coffee');
+
+      store.confirmRedeem();
+
+      expect(store.benefits()[0].errorMessage).toBe('Este beneficio venció.');
+      expect(store.benefits()[1].errorMessage).toBeNull();
+    });
+
     it('clears the error when the client tries again', () => {
       redeemBenefit = vi.fn(() => throwError(() => new Error('400')));
       const store = createStore();
@@ -351,6 +372,141 @@ describe('TierStore', () => {
       await settle();
 
       expect(store.redeemed()).toEqual(redeemed);
+    });
+  });
+
+  describe('when the refresh after a redemption fails', () => {
+    function failSecondDetailLoad() {
+      let calls = 0;
+      getTierDetail = vi.fn(() =>
+        ++calls === 2 ? throwError(() => new Error('500')) : of(detailWith(points)),
+      );
+    }
+
+    it('keeps the last tier detail and the success, and flags the failed refresh', async () => {
+      failSecondDetailLoad();
+      const store = createStore();
+      store.requestRedeem('benefit-coffee');
+
+      store.confirmRedeem();
+      await settle();
+
+      expect(store.status()).toBe('ready');
+      expect(store.detail()).not.toBeNull();
+      expect(store.detailRefreshFailed()).toBe(true);
+      expect(store.redeemed()).toEqual(redeemed);
+    });
+
+    it('recovers when the refresh is retried', async () => {
+      failSecondDetailLoad();
+      const store = createStore();
+      store.requestRedeem('benefit-coffee');
+      store.confirmRedeem();
+      await settle();
+
+      store.reload();
+      await settle();
+
+      expect(store.detailRefreshFailed()).toBe(false);
+      expect(store.status()).toBe('ready');
+      expect(store.availablePoints()).toBe(550);
+      expect(store.redeemed()).toEqual(redeemed);
+    });
+
+    it('still reports an error when the first load fails', () => {
+      getTierDetail = vi.fn(() => throwError(() => new Error('500')));
+      const store = createStore();
+
+      expect(store.status()).toBe('error');
+      expect(store.detail()).toBeNull();
+      expect(store.detailRefreshFailed()).toBe(false);
+    });
+  });
+
+  describe('leaving the page', () => {
+    it('drops an open confirm step', () => {
+      const store = createStore();
+      store.requestRedeem('benefit-coffee');
+
+      store.leave();
+      store.enter();
+
+      expect(store.benefits().every((benefit) => benefit.phase === 'idle')).toBe(true);
+    });
+
+    it('drops the success message', async () => {
+      const store = createStore();
+      store.requestRedeem('benefit-coffee');
+      store.confirmRedeem();
+      await settle();
+      expect(store.redeemed()).not.toBeNull();
+
+      store.leave();
+      store.enter();
+
+      expect(store.redeemed()).toBeNull();
+    });
+
+    it('drops a failed attempt', () => {
+      redeemBenefit = vi.fn(() => throwError(() => new Error('400')));
+      const store = createStore();
+      store.requestRedeem('benefit-coffee');
+      store.confirmRedeem();
+      expect(store.benefits()[0].errorMessage).not.toBeNull();
+
+      store.leave();
+      store.enter();
+
+      expect(store.benefits().every((benefit) => benefit.errorMessage === null)).toBe(true);
+    });
+
+    it('keeps a redemption in flight and shows its code when it lands while the page is away', async () => {
+      const pending = new Subject<RedeemedBenefit>();
+      redeemBenefit = vi.fn(() => pending);
+      const store = createStore();
+      store.requestRedeem('benefit-coffee');
+      store.confirmRedeem();
+
+      store.leave();
+      expect(store.benefits()[0].phase).toBe('redeeming');
+      points -= coffee.pointsCost;
+      pending.next(redeemed);
+      pending.complete();
+      await settle();
+      store.enter();
+
+      expect(store.redeemed()).toEqual(redeemed);
+      expect(store.availablePoints()).toBe(550);
+      expect(store.benefits().every((benefit) => benefit.phase === 'idle')).toBe(true);
+    });
+
+    it('does not show an error for a redemption that failed while the page was away', () => {
+      const pending = new Subject<RedeemedBenefit>();
+      redeemBenefit = vi.fn(() => pending);
+      const store = createStore();
+      store.requestRedeem('benefit-coffee');
+      store.confirmRedeem();
+
+      store.leave();
+      pending.error(new Error('400'));
+      store.enter();
+
+      expect(store.benefits().every((benefit) => benefit.errorMessage === null)).toBe(true);
+      expect(store.benefits().every((benefit) => benefit.phase === 'idle')).toBe(true);
+    });
+
+    it('still reports a failure that happens while the page is open', () => {
+      const pending = new Subject<RedeemedBenefit>();
+      redeemBenefit = vi.fn(() => pending);
+      const store = createStore();
+      store.leave();
+      store.enter();
+      store.requestRedeem('benefit-coffee');
+      store.confirmRedeem();
+
+      pending.error(new Error('400'));
+
+      expect(store.benefits()[0].errorMessage).toBe(REDEEM_ERROR_MESSAGE);
     });
   });
 });

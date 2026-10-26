@@ -110,4 +110,40 @@ describe('ProfileStore', () => {
     expect(store.errorMessage()).toBe('Ocurrió un error al intentar guardar los cambios.');
     expect(store.successMessage()).toBeNull();
   });
+
+  it('reports no days until expiry for a redemption that never expires', () => {
+    mockRepository.getDashboard = () =>
+      of({
+        ...mockDashboard,
+        activeRedemptions: [
+          {
+            id: 'r-1',
+            title: 'Café',
+            description: '',
+            code: 'VLD-1',
+            expiresAt: null,
+            conditions: [],
+          },
+          {
+            id: 'r-2',
+            title: 'Taza',
+            description: '',
+            code: 'VLD-2',
+            expiresAt: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
+            conditions: [],
+          },
+        ],
+      });
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [ProfileStore, { provide: ProfileRepository, useValue: mockRepository }],
+    });
+    store = TestBed.inject(ProfileStore);
+    TestBed.flushEffects();
+
+    expect(store.activeRedemptions().map((redemption) => redemption.daysUntilExpiry)).toEqual([
+      null,
+      3,
+    ]);
+  });
 });

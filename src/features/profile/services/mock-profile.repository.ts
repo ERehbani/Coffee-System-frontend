@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { Service } from '@angular/core';
 import { defer, delay, map, Observable, of } from 'rxjs';
 import {
@@ -36,6 +37,14 @@ export const MOCK_LATENCY_MS = 400;
 /** A redeemed benefit without an end date stays valid this long. */
 const REDEMPTION_VALIDITY_DAYS = 30;
 const DAY_MS = 24 * 60 * 60 * 1000;
+
+/** A rejection shaped like the backend's: 404 plain-text body, 400 `{ error, status }`. */
+function rejection(
+  status: number,
+  body: string | { error: string; status: number },
+): HttpErrorResponse {
+  return new HttpErrorResponse({ status, error: body });
+}
 
 @Service({ autoProvided: false })
 export class MockProfileRepository implements ProfileRepository {
@@ -92,24 +101,19 @@ export class MockProfileRepository implements ProfileRepository {
       client: updatedClientDto,
     };
 
-    return defer(() => of(updatedClientDto)).pipe(
-      delay(MOCK_LATENCY_MS),
-      map(toClientProfile),
-    );
+    return defer(() => of(updatedClientDto)).pipe(delay(MOCK_LATENCY_MS), map(toClientProfile));
   }
 
   /** Spends the points and registers an active redemption, so the coupon detail can show it. */
   private redeem(benefitId: string): RedemptionDto {
     const benefit = this.tierBenefits.find(({ externalId }) => externalId === benefitId);
     if (!benefit) {
-      throw new Error(`Beneficio no encontrado: ${benefitId}.`);
+      throw rejection(404, 'Benefit not found');
     }
 
     const { loyalty, activeRedemptions } = this.currentDashboard;
     if (loyalty.availablePoints < benefit.pointsCost) {
-      throw new Error(
-        `Puntos insuficientes: ${benefit.name} cuesta ${benefit.pointsCost} pts y tienes ${loyalty.availablePoints} pts.`,
-      );
+      throw rejection(400, { error: 'Client does not have enough points', status: 400 });
     }
 
     const now = new Date();

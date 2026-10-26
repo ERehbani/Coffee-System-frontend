@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { firstValueFrom, Observable } from 'rxjs';
 import { MOCK_LATENCY_MS, MockProfileRepository } from './mock-profile.repository';
 
@@ -98,7 +99,7 @@ describe('MockProfileRepository benefits', () => {
     const registered = after.activeRedemptions.find((redemption) => redemption.id === redeemed.id);
     expect(registered?.code).toBe(redeemed.validationCode);
     expect(registered?.title).toBe(redeemed.benefitName);
-    expect(registered!.expiresAt.getTime()).toBeGreaterThan(Date.now());
+    expect(registered!.expiresAt!.getTime()).toBeGreaterThan(Date.now());
   });
 
   it('gives every redemption its own id and code', async () => {
@@ -119,18 +120,20 @@ describe('MockProfileRepository benefits', () => {
     const expensive = benefits.find((benefit) => benefit.pointsCost > availablePoints)!;
     const activeBefore = (await settle(repository.getDashboard())).activeRedemptions.length;
 
-    await expect(settle(repository.redeemBenefit(expensive.id))).rejects.toThrowError(
-      /puntos insuficientes/i,
-    );
+    await expect(settle(repository.redeemBenefit(expensive.id))).rejects.toMatchObject({
+      status: 400,
+      error: { error: 'Client does not have enough points', status: 400 },
+    });
 
     expect((await settle(repository.getTierDetail())).availablePoints).toBe(availablePoints);
     expect((await settle(repository.getDashboard())).activeRedemptions.length).toBe(activeBefore);
   });
 
   it('fails when the benefit does not exist', async () => {
-    await expect(settle(repository.redeemBenefit('unknown'))).rejects.toThrowError(
-      /beneficio no encontrado/i,
-    );
+    await expect(settle(repository.redeemBenefit('unknown'))).rejects.toMatchObject({
+      status: 404,
+      error: 'Benefit not found',
+    });
   });
 
   it('stops redeeming once the points run out', async () => {
@@ -145,7 +148,7 @@ describe('MockProfileRepository benefits', () => {
       }
     }
 
-    expect(failure).toBeInstanceOf(Error);
+    expect(failure).toBeInstanceOf(HttpErrorResponse);
     const { availablePoints } = await settle(repository.getTierDetail());
     expect(availablePoints).toBeGreaterThanOrEqual(0);
   });

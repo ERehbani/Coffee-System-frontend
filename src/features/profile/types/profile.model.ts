@@ -50,14 +50,16 @@ export interface ActiveRedemption {
   readonly title: string;
   readonly description: string;
   readonly code: string;
-  readonly expiresAt: Date;
+  /** null when the redeemed benefit never ends */
+  readonly expiresAt: Date | null;
   readonly conditions: readonly string[];
 }
 
 export interface NearbyCafe {
   readonly id: string;
   readonly name: string;
-  readonly imageUrl: string;
+  /** null when the cafe has no photo */
+  readonly imageUrl: string | null;
   readonly rating: number;
   readonly reviewCount: number;
   readonly isOpenNow: boolean;
@@ -70,7 +72,8 @@ export interface FeaturedBenefit {
   readonly id: string;
   readonly title: string;
   readonly description: string;
-  readonly imageUrl: string;
+  /** null when the benefit has no photo */
+  readonly imageUrl: string | null;
   readonly pointsCost: number;
 }
 

@@ -11,7 +11,8 @@ export type LoyaltyTierCodeDto = string;
 export interface ClientProfileDto {
   readonly id: string;
   readonly firstName: string;
-  readonly lastName?: string;
+  /** null when the backend keeps a single name field */
+  readonly lastName?: string | null;
   readonly email?: string;
   readonly phoneNumber?: string;
   readonly avatarUrl?: string | null;
@@ -58,7 +59,8 @@ export interface ActiveRedemptionDto {
   readonly title: string;
   readonly description: string;
   readonly code: string;
-  readonly expiresAt: string;
+  /** ISO date or date-time; null when the benefit never ends */
+  readonly expiresAt: string | null;
   /** Usage conditions. Not in the backend contract yet; treated as empty when missing. */
   readonly conditions?: readonly string[];
 }
@@ -66,7 +68,7 @@ export interface ActiveRedemptionDto {
 export interface NearbyCafeDto {
   readonly id: string;
   readonly name: string;
-  readonly imageUrl: string;
+  readonly imageUrl: string | null;
   readonly rating: number;
   readonly reviewCount: number;
   readonly isOpenNow: boolean;
@@ -79,7 +81,8 @@ export interface FeaturedBenefitDto {
   readonly id: string;
   readonly title: string;
   readonly description: string;
-  readonly imageUrl: string;
+  /** Benefits have no image in the backend yet */
+  readonly imageUrl: string | null;
   readonly pointsCost: number;
 }
 

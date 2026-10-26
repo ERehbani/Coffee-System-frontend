@@ -1,4 +1,9 @@
-import { RedemptionDto, TierBenefitDto, TierDetailDto } from '../types/profile.dto';
+import {
+  ProfileDashboardDto,
+  RedemptionDto,
+  TierBenefitDto,
+  TierDetailDto,
+} from '../types/profile.dto';
 import { buildProfileDashboardFixture, buildTierDetailFixture } from './profile.fixture';
 import {
   toProfileDashboard,
@@ -53,6 +58,92 @@ describe('toProfileDashboard', () => {
     const dashboard = toProfileDashboard({ ...dto, activeRedemptions: [withoutConditions] });
 
     expect(dashboard.activeRedemptions[0].conditions).toEqual([]);
+  });
+
+  describe('with the nullable fields of the backend contract', () => {
+    const sparseDto = (): ProfileDashboardDto => {
+      const dto = buildProfileDashboardFixture(now);
+      const { conditions: _omitted, ...redemption } = dto.activeRedemptions[0];
+      return {
+        ...dto,
+        client: { ...dto.client, lastName: null, avatarUrl: null },
+        activeRedemptions: [{ ...redemption, expiresAt: null }],
+        nearbyCafes: [
+          {
+            ...dto.nearbyCafes[0],
+            imageUrl: null,
+            distanceMeters: null,
+            maxPointsPerProduct: null,
+          },
+        ],
+        featuredBenefits: [{ ...dto.featuredBenefits[0], imageUrl: null }],
+      };
+    };
+
+    it('maps a missing last name to an empty one and keeps a null avatar', () => {
+      const { profile } = toProfileDashboard(sparseDto());
+
+      expect(profile.lastName).toBe('');
+      expect(profile.avatarUrl).toBeNull();
+    });
+
+    it('keeps an active redemption without expiry date', () => {
+      const [redemption] = toProfileDashboard(sparseDto()).activeRedemptions;
+
+      expect(redemption.expiresAt).toBeNull();
+      expect(redemption.conditions).toEqual([]);
+    });
+
+    it('keeps a cafe without image, distance or points per product', () => {
+      const [cafe] = toProfileDashboard(sparseDto()).nearbyCafes;
+
+      expect(cafe.imageUrl).toBeNull();
+      expect(cafe.distanceMeters).toBeNull();
+      expect(cafe.maxPointsPerProduct).toBeNull();
+    });
+
+    it('keeps a featured benefit without image', () => {
+      const [benefit] = toProfileDashboard(sparseDto()).featuredBenefits;
+
+      expect(benefit.imageUrl).toBeNull();
+    });
+
+    it('treats an empty image url as missing', () => {
+      const dto = sparseDto();
+
+      const dashboard = toProfileDashboard({
+        ...dto,
+        nearbyCafes: [{ ...dto.nearbyCafes[0], imageUrl: '' }],
+        featuredBenefits: [{ ...dto.featuredBenefits[0], imageUrl: '  ' }],
+        client: { ...dto.client, avatarUrl: '' },
+      });
+
+      expect(dashboard.nearbyCafes[0].imageUrl).toBeNull();
+      expect(dashboard.featuredBenefits[0].imageUrl).toBeNull();
+      expect(dashboard.profile.avatarUrl).toBeNull();
+    });
+
+    it('reads a date-only expiry as the end of that local day', () => {
+      const dto = sparseDto();
+
+      const [redemption] = toProfileDashboard({
+        ...dto,
+        activeRedemptions: [{ ...dto.activeRedemptions[0], expiresAt: '2026-12-31' }],
+      }).activeRedemptions;
+
+      expect(redemption.expiresAt).toEqual(new Date(2026, 11, 31, 23, 59, 59));
+    });
+
+    it('keeps the instant of a date-time expiry', () => {
+      const dto = sparseDto();
+
+      const [redemption] = toProfileDashboard({
+        ...dto,
+        activeRedemptions: [{ ...dto.activeRedemptions[0], expiresAt: '2026-12-31T10:30:00Z' }],
+      }).activeRedemptions;
+
+      expect(redemption.expiresAt).toEqual(new Date('2026-12-31T10:30:00Z'));
+    });
   });
 });
 
