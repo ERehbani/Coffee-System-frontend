@@ -11,3 +11,20 @@ export interface Cafe {
   rating?: number;
   reviewCount?: number;
 }
+
+export interface CreateCafeAccountRequest {
+  email: string;
+  password: string;
+  name: string;
+  address: string;
+  description: string;
+  phoneNumber: string;
+  schedule: string;
+}
+
+export interface UserResponse {
+  externalId: string;
+  email: string;
+  state: boolean;
+}
+
