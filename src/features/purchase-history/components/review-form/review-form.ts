@@ -1,7 +1,7 @@
 import { Component, computed, input, output, signal } from '@angular/core';
 import { FormField, form, max, maxLength, min, required } from '@angular/forms/signals';
 import { Icon } from '../../../../shared/components/icon/icon';
-import { ReviewFormData } from '../../model/order.model';
+import { ReviewFormData } from '../../model/purchase.model';
 
 @Component({
   selector: 'app-review-form',

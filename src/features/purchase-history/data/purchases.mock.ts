@@ -30,6 +30,7 @@ export const MOCK_PURCHASES: Purchase[] = [
         subtotal: 3000,
       },
     ],
+    reviewed: false,
   },
   {
     externalId: 'purchase-002',
@@ -51,6 +52,7 @@ export const MOCK_PURCHASES: Purchase[] = [
         subtotal: 4500,
       },
     ],
+    reviewed: false,
   },
   {
     externalId: 'purchase-003',
@@ -81,5 +83,6 @@ export const MOCK_PURCHASES: Purchase[] = [
         subtotal: 2200,
       },
     ],
+    reviewed: true,
   },
 ];

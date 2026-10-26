@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { ReviewFormData } from '../../model/order.model';
+import { ReviewFormData } from '../../model/purchase.model';
 import { ReviewForm } from './review-form';
 
 describe('ReviewForm', () => {
