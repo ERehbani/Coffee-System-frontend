@@ -40,6 +40,14 @@ describe('admin routes', () => {
     expect(page().querySelector('h1')?.textContent?.trim()).toBe('Tiers');
   });
 
+  it('renders the benefit types page inside the admin layout', async () => {
+    await harness.navigateByUrl('/admin/benefit-types');
+
+    expect(page().querySelector('app-admin-layout app-admin-benefit-types-page')).not.toBeNull();
+    expect(page().querySelector('app-admin-placeholder-page')).toBeNull();
+    expect(page().querySelector('h1')?.textContent?.trim()).toBe('Tipos de beneficio');
+  });
+
   it('renders the placeholder with the section title inside the admin layout', async () => {
     await harness.navigateByUrl('/admin/clients');
 
@@ -67,7 +75,7 @@ describe('admin routes', () => {
   });
 
   describe.each(
-    ADMIN_NAV_ITEMS.filter((item) => item.path !== 'users' && item.path !== 'categories' && item.path !== 'global-benefits' && item.path !== 'purchases' && item.path !== 'tiers'),
+    ADMIN_NAV_ITEMS.filter((item) => item.path !== 'users' && item.path !== 'categories' && item.path !== 'global-benefits' && item.path !== 'purchases' && item.path !== 'tiers' && item.path !== 'benefit-types'),
   )(
     'section $label',
     ({ label, path }) => {
