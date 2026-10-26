@@ -1,0 +1,186 @@
+<div
+  data-testid="benefit-format-drawer-backdrop"
+  aria-hidden="true"
+  class="fixed inset-0 z-40 bg-text/40"
+  (click)="onCancel()"
+></div>
+
+<div
+  #panel
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="benefit-format-drawer-title"
+  class="fixed inset-y-0 right-0 z-50 flex w-full max-w-[400px] flex-col border-l border-border bg-surface shadow-xl"
+  (keydown)="onKeydown($event)"
+>
+  <form (submit)="onSubmit($event)" novalidate class="flex min-h-0 flex-1 flex-col">
+    <header class="flex items-center justify-between border-b border-border px-6 py-4">
+      <h2 id="benefit-format-drawer-title" class="text-lg font-semibold text-text">
+        {{ title() }}
+      </h2>
+      <button
+        type="button"
+        aria-label="Cerrar"
+        [disabled]="isProcessing()"
+        (click)="onCancel()"
+        class="inline-flex size-9 cursor-pointer items-center justify-center rounded-lg text-muted transition-colors hover:bg-bg hover:text-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-50"
+      >
+        <app-icon name="x" [size]="20" />
+      </button>
+    </header>
+
+    <div class="flex-1 space-y-5 overflow-y-auto px-6 py-6">
+      @if (errors().form; as formError) {
+        <div
+          role="alert"
+          class="flex items-start gap-3 rounded-xl border border-rose-600 bg-surface px-4 py-3 text-sm text-rose-700"
+        >
+          <app-icon name="alert-circle" [size]="18" class="mt-0.5" />
+          <p>{{ formError }}</p>
+        </div>
+      }
+
+      @if (format(); as current) {
+        <div class="space-y-1.5">
+          <p class="text-sm font-semibold text-text">Formato</p>
+          <p class="rounded-xl border border-border bg-bg px-4 py-2.5 text-sm text-muted">
+            {{ formatLabel(current.code) }}
+          </p>
+        </div>
+      } @else {
+        <div class="space-y-1.5">
+          <label for="benefit-format-code" class="block text-sm font-semibold text-text">
+            Formato
+          </label>
+          <select
+            id="benefit-format-code"
+            name="code"
+            data-autofocus
+            [ngModel]="code()"
+            (ngModelChange)="onCodeChange($event)"
+            [attr.aria-invalid]="codeError() ? 'true' : null"
+            [attr.aria-describedby]="codeError() ? 'benefit-format-code-error' : null"
+            [class.border-border]="!codeError()"
+            [class.border-rose-600]="codeError()"
+            class="w-full rounded-xl border bg-surface px-4 py-2.5 text-sm text-text transition focus:border-primary focus:outline-hidden focus:ring-2 focus:ring-primary/20"
+          >
+            <option value="">Elige un formato</option>
+            @for (option of availableCodes(); track option) {
+              <option [value]="option">{{ formatLabel(option) }}</option>
+            }
+          </select>
+          @if (codeError(); as message) {
+            <p id="benefit-format-code-error" class="text-xs font-medium text-rose-700">
+              {{ message }}
+            </p>
+          }
+        </div>
+      }
+
+      <div class="space-y-1.5">
+        <label for="benefit-format-name" class="block text-sm font-semibold text-text">
+          Nombre
+        </label>
+        <input
+          id="benefit-format-name"
+          name="displayName"
+          type="text"
+          autocomplete="off"
+          [attr.data-autofocus]="format() ? '' : null"
+          [ngModel]="displayName()"
+          (ngModelChange)="onNameChange($event)"
+          [attr.aria-invalid]="nameError() ? 'true' : null"
+          [attr.aria-describedby]="nameError() ? 'benefit-format-name-error' : null"
+          [class.border-border]="!nameError()"
+          [class.border-rose-600]="nameError()"
+          class="w-full rounded-xl border bg-surface px-4 py-2.5 text-sm text-text transition focus:border-primary focus:outline-hidden focus:ring-2 focus:ring-primary/20"
+        />
+        @if (nameError(); as message) {
+          <p id="benefit-format-name-error" class="text-xs font-medium text-rose-700">
+            {{ message }}
+          </p>
+        }
+      </div>
+
+      <div class="space-y-1.5">
+        <label for="benefit-format-description" class="block text-sm font-semibold text-text">
+          Descripción
+        </label>
+        <textarea
+          id="benefit-format-description"
+          name="description"
+          rows="4"
+          [ngModel]="description()"
+          (ngModelChange)="onDescriptionChange($event)"
+          [attr.aria-invalid]="descriptionError() ? 'true' : null"
+          [attr.aria-describedby]="
+            descriptionError()
+              ? 'benefit-format-description-error benefit-format-description-count'
+              : 'benefit-format-description-count'
+          "
+          [class.border-border]="!descriptionError()"
+          [class.border-rose-600]="descriptionError()"
+          class="w-full resize-y rounded-xl border bg-surface px-4 py-2.5 text-sm text-text transition focus:border-primary focus:outline-hidden focus:ring-2 focus:ring-primary/20"
+        ></textarea>
+        <div class="flex items-start justify-between gap-3">
+          @if (descriptionError(); as message) {
+            <p id="benefit-format-description-error" class="text-xs font-medium text-rose-700">
+              {{ message }}
+            </p>
+          } @else {
+            <span></span>
+          }
+          <p
+            id="benefit-format-description-count"
+            class="shrink-0 text-xs tabular-nums"
+            [class.text-muted]="!descriptionTooLong()"
+            [class.font-medium]="descriptionTooLong()"
+            [class.text-rose-700]="descriptionTooLong()"
+          >
+            {{ descriptionLength() }}/{{ descriptionMaxLength }}
+          </p>
+        </div>
+      </div>
+
+      <div class="space-y-1.5">
+        <div class="flex items-center gap-3">
+          <input
+            id="benefit-format-active"
+            name="active"
+            type="checkbox"
+            [ngModel]="active()"
+            (ngModelChange)="active.set($event)"
+            [attr.aria-describedby]="showInactiveNote() ? 'benefit-format-active-note' : null"
+            class="size-4 cursor-pointer accent-primary"
+          />
+          <label for="benefit-format-active" class="cursor-pointer text-sm font-semibold text-text">
+            Activo
+          </label>
+        </div>
+        @if (showInactiveNote()) {
+          <p id="benefit-format-active-note" class="text-xs text-muted">
+            Los beneficios existentes no cambian; no se podrán crear nuevos con este formato.
+          </p>
+        }
+      </div>
+    </div>
+
+    <footer class="flex justify-end gap-3 border-t border-border px-6 py-4">
+      <button
+        type="button"
+        [disabled]="isProcessing()"
+        (click)="onCancel()"
+        class="cursor-pointer rounded-xl border border-border bg-surface px-5 py-2.5 text-sm font-semibold text-text transition-colors hover:bg-bg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-50"
+      >
+        Cancelar
+      </button>
+      <button
+        type="submit"
+        [disabled]="isProcessing()"
+        class="cursor-pointer rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-60"
+      >
+        Guardar
+      </button>
+    </footer>
+  </form>
+</div>

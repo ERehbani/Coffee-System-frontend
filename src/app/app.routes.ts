@@ -26,6 +26,10 @@ const adminSectionRoutes: Routes = [
     path: 'tiers',
     loadChildren: () => import('../features/admin-tiers/admin-tiers.routes'),
   },
+  {
+    path: 'benefit-types',
+    loadChildren: () => import('../features/admin-benefit-types/admin-benefit-types.routes'),
+  },
 ];
 
 const adminPlaceholderRoutes: Routes = ADMIN_NAV_ITEMS.filter(
