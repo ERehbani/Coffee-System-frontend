@@ -50,6 +50,17 @@
             {{ redemption.title }}
           </h2>
           <p class="mt-0.5 text-sm text-muted">{{ redemption.description }}</p>
+          <p
+            data-testid="redemption-cafe"
+            class="mt-1 flex items-center justify-center gap-1.5 text-sm text-muted"
+          >
+            <app-icon name="store" [size]="14" />
+            {{
+              redemption.cafeName
+                ? 'Válido en ' + redemption.cafeName
+                : 'Válido en todas las cafeterías'
+            }}
+          </p>
 
           <div class="mt-5 flex justify-center">
             <div class="rounded-2xl border border-border bg-white p-3">

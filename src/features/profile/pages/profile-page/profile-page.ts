@@ -43,6 +43,8 @@ export class ProfilePage {
   protected onQuickAction(action: QuickActionId): void {
     if (action === 'write-review') {
       this.router.navigate(['/purchases']);
+    } else if (action === 'my-coupons') {
+      this.router.navigate(['/profile/coupons']);
     }
   }
   protected onShowQr(redemptionId: string): void {

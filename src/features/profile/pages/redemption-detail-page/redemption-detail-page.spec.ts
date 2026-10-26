@@ -86,6 +86,22 @@ describe('RedemptionDetailPage', () => {
     expect(expiry?.getAttribute('datetime')).toBe('2030-06-15');
   });
 
+  it('shows the cafe the coupon is valid in', async () => {
+    await render(() => of(dashboardWith([{ ...redemption, cafeName: 'Cafe Norte' }])));
+
+    expect(element.querySelector('[data-testid="redemption-cafe"]')?.textContent).toContain(
+      'Válido en Cafe Norte',
+    );
+  });
+
+  it('says a global coupon is valid in every cafe', async () => {
+    await render(() => of(dashboardWith([redemption])));
+
+    expect(element.querySelector('[data-testid="redemption-cafe"]')?.textContent).toContain(
+      'Válido en todas las cafeterías',
+    );
+  });
+
   it('omits the expiry section when the coupon never expires', async () => {
     await render(() => of(dashboardWith([{ ...redemption, expiresAt: null }])));
 

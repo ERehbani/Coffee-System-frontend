@@ -9,6 +9,10 @@ describe('server routes', () => {
     expect(find('admin')?.renderMode).toBe(RenderMode.Client);
   });
 
+  it('renders the my coupons page on the client', () => {
+    expect(find('profile/coupons')?.renderMode).toBe(RenderMode.Client);
+  });
+
   it('declares the admin wildcard before the catch-all prerender route', () => {
     const paths = serverRoutes.map((route) => route.path);
 
