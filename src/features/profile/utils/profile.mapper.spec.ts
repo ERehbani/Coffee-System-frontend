@@ -60,13 +60,31 @@ describe('toProfileDashboard', () => {
     expect(dashboard.activeRedemptions[0].conditions).toEqual([]);
   });
 
+  it('maps the cafe of active redemptions, null for global benefits', () => {
+    const dashboard = toProfileDashboard(buildProfileDashboardFixture(now));
+
+    expect(dashboard.activeRedemptions.map((redemption) => redemption.cafeName)).toEqual([
+      null,
+      'Cafe Norte',
+    ]);
+  });
+
+  it('defaults to no cafe when an older payload does not send it', () => {
+    const dto = buildProfileDashboardFixture(now);
+    const { cafeName: _omitted, ...withoutCafe } = dto.activeRedemptions[1];
+
+    const dashboard = toProfileDashboard({ ...dto, activeRedemptions: [withoutCafe] });
+
+    expect(dashboard.activeRedemptions[0].cafeName).toBeNull();
+  });
+
   describe('with the nullable fields of the backend contract', () => {
     const sparseDto = (): ProfileDashboardDto => {
       const dto = buildProfileDashboardFixture(now);
       const { conditions: _omitted, ...redemption } = dto.activeRedemptions[0];
       return {
         ...dto,
-        client: { ...dto.client, lastName: null, avatarUrl: null },
+        client: { ...dto.client, lastName: null, email: null, phoneNumber: null, avatarUrl: null },
         activeRedemptions: [{ ...redemption, expiresAt: null }],
         nearbyCafes: [
           {
@@ -85,6 +103,13 @@ describe('toProfileDashboard', () => {
 
       expect(profile.lastName).toBe('');
       expect(profile.avatarUrl).toBeNull();
+    });
+
+    it('maps a null email and phone number to empty strings', () => {
+      const { profile } = toProfileDashboard(sparseDto());
+
+      expect(profile.email).toBe('');
+      expect(profile.phoneNumber).toBe('');
     });
 
     it('keeps an active redemption without expiry date', () => {
@@ -132,6 +157,7 @@ describe('toProfileDashboard', () => {
       }).activeRedemptions;
 
       expect(redemption.expiresAt).toEqual(new Date(2026, 11, 31, 23, 59, 59));
+      expect(redemption.expiresAtHasTime).toBe(false);
     });
 
     it('keeps the instant of a date-time expiry', () => {
@@ -143,6 +169,18 @@ describe('toProfileDashboard', () => {
       }).activeRedemptions;
 
       expect(redemption.expiresAt).toEqual(new Date('2026-12-31T10:30:00Z'));
+      expect(redemption.expiresAtHasTime).toBe(true);
+    });
+
+    it('flags a coupon that never expires as having no time', () => {
+      const dto = sparseDto();
+
+      const [redemption] = toProfileDashboard({
+        ...dto,
+        activeRedemptions: [{ ...dto.activeRedemptions[0], expiresAt: null }],
+      }).activeRedemptions;
+
+      expect(redemption.expiresAtHasTime).toBe(false);
     });
   });
 });

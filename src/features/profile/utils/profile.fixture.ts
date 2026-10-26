@@ -34,11 +34,21 @@ export function buildProfileDashboardFixture(now: Date): ProfileDashboardDto {
         description: 'Válido en cualquier sucursal adherida',
         code: 'VLD-8492-C0FF',
         expiresAt: new Date(now.getTime() + 5 * DAY_MS).toISOString(),
+        cafeName: null,
         conditions: [
           'Un solo uso por cliente.',
           'No acumulable con otras promociones.',
           'Presentá el código antes de pagar.',
         ],
+      },
+      {
+        id: 'redemption-002',
+        title: '2x1 en medialunas',
+        description: 'Dos medialunas de manteca por el precio de una',
+        code: 'VLD-2201-B4KE',
+        expiresAt: new Date(now.getTime() + 12 * DAY_MS).toISOString(),
+        cafeName: 'Cafe Norte',
+        conditions: ['Un solo uso por canje.', 'Válido solo en Cafe Norte.'],
       },
     ],
     nearbyCafes: [

@@ -1,6 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
-import { ClientProfile, ProfileDashboard, UpdateClientProfileInput } from '../types/profile.model';
+import {
+  ActiveRedemption,
+  ClientProfile,
+  ProfileDashboard,
+  UpdateClientProfileInput,
+} from '../types/profile.model';
+import { buildProfileDashboardFixture } from '../utils/profile.fixture';
+import { toProfileDashboard } from '../utils/profile.mapper';
 import { ProfileRepository } from './profile.repository';
 import { ProfileStore } from './profile.store';
 
@@ -122,6 +129,8 @@ describe('ProfileStore', () => {
             description: '',
             code: 'VLD-1',
             expiresAt: null,
+            expiresAtHasTime: false,
+            cafeName: null,
             conditions: [],
           },
           {
@@ -130,6 +139,8 @@ describe('ProfileStore', () => {
             description: '',
             code: 'VLD-2',
             expiresAt: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
+            expiresAtHasTime: true,
+            cafeName: 'Cafe Norte',
             conditions: [],
           },
         ],
@@ -145,5 +156,68 @@ describe('ProfileStore', () => {
       null,
       3,
     ]);
+  });
+
+  describe('expired redemptions', () => {
+    const DAY_MS = 24 * 60 * 60 * 1000;
+    const redemption = (id: string, expiresAt: Date | null): ActiveRedemption => ({
+      id,
+      title: id,
+      description: '',
+      code: `VLD-${id}`,
+      expiresAt,
+      expiresAtHasTime: true,
+      cafeName: null,
+      conditions: [],
+    });
+
+    function loadWith(activeRedemptions: readonly ActiveRedemption[]): ProfileStore {
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({
+        providers: [
+          ProfileStore,
+          {
+            provide: ProfileRepository,
+            useValue: { getDashboard: () => of({ ...mockDashboard, activeRedemptions }) },
+          },
+        ],
+      });
+      const loaded = TestBed.inject(ProfileStore);
+      TestBed.flushEffects();
+      return loaded;
+    }
+
+    it('drops redemptions whose expiry has passed and keeps the rest in order', () => {
+      store = loadWith([
+        redemption('expired', new Date(Date.now() - DAY_MS)),
+        redemption('open-ended', null),
+        redemption('valid', new Date(Date.now() + DAY_MS)),
+        redemption('expired-just-now', new Date(Date.now() - 1000)),
+      ]);
+
+      expect(store.activeRedemptions().map(({ id }) => id)).toEqual(['open-ended', 'valid']);
+    });
+
+    it('keeps a coupon with a date-only expiry of today, valid through the end of the day', () => {
+      const now = new Date();
+      const pad = (value: number) => String(value).padStart(2, '0');
+      const today = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+      const dto = buildProfileDashboardFixture(now);
+      const dashboard = toProfileDashboard({
+        ...dto,
+        activeRedemptions: [{ ...dto.activeRedemptions[0], id: 'today', expiresAt: today }],
+      });
+
+      store = loadWith(dashboard.activeRedemptions);
+
+      expect(dashboard.activeRedemptions[0].expiresAtHasTime).toBe(false);
+      expect(store.activeRedemptions().map(({ id }) => id)).toEqual(['today']);
+    });
+
+    it('keeps a redemption that expires later today', () => {
+      store = loadWith([redemption('today', new Date(Date.now() + 60 * 1000))]);
+
+      expect(store.activeRedemptions().map(({ id }) => id)).toEqual(['today']);
+    });
   });
 });
