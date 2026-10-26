@@ -60,13 +60,18 @@ export class ProfileStore {
     return dashboard ? toLoyaltyProgress(dashboard.loyalty) : null;
   });
 
+  /** Ready coupons: expired ones are dropped here so every view agrees (defends against stale data). */
   readonly activeRedemptions = computed<readonly ActiveRedemptionView[]>(() => {
     const redemptions = this.dashboard()?.activeRedemptions ?? [];
     const now = new Date();
-    return redemptions.map((redemption) => ({
-      ...redemption,
-      daysUntilExpiry: redemption.expiresAt ? calendarDaysUntil(redemption.expiresAt, now) : null,
-    }));
+    return redemptions
+      .filter(
+        (redemption) => !redemption.expiresAt || redemption.expiresAt.getTime() >= now.getTime(),
+      )
+      .map((redemption) => ({
+        ...redemption,
+        daysUntilExpiry: redemption.expiresAt ? calendarDaysUntil(redemption.expiresAt, now) : null,
+      }));
   });
 
   saveProfile(input: UpdateClientProfileInput, onSuccess?: () => void): void {

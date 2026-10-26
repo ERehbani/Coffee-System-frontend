@@ -1,0 +1,41 @@
+<article
+  [attr.aria-labelledby]="'coupon-' + coupon().id"
+  class="rounded-2xl border border-border bg-surface p-4 shadow-sm"
+>
+  <div class="flex items-start justify-between gap-3">
+    <div class="min-w-0 space-y-1">
+      <h3 [id]="'coupon-' + coupon().id" class="text-base leading-snug font-bold text-text">
+        {{ coupon().title }}
+      </h3>
+      <p class="text-sm text-muted">
+        <span class="sr-only">Código: </span>
+        <code class="font-mono font-semibold text-text">{{ coupon().code }}</code>
+        @if (coupon().expiresAt; as expiresAt) {
+          ·
+          <time [attr.datetime]="expiresAt.toISOString()"
+            >Vence el {{ expiresAt | date: 'dd/MM/yyyy' }}</time
+          >
+        }
+      </p>
+      <p class="flex items-center gap-1.5 text-sm text-muted">
+        <app-icon name="store" [size]="14" />
+        {{
+          coupon().cafeName ? 'Válido en ' + coupon().cafeName : 'Válido en todas las cafeterías'
+        }}
+      </p>
+    </div>
+    <p class="flex shrink-0 items-center gap-1.5 text-xs font-bold text-success">
+      <span aria-hidden="true" class="size-2 rounded-full bg-success"></span>
+      Listo
+    </p>
+  </div>
+
+  <a
+    [routerLink]="['/profile/redemptions', coupon().id]"
+    [attr.aria-label]="'Ver código de ' + coupon().title"
+    class="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-border bg-accent-light px-3 py-1.5 text-sm font-bold text-primary-dark transition-colors hover:border-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+  >
+    <app-icon name="qr-code" [size]="16" />
+    Ver código
+  </a>
+</article>

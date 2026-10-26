@@ -130,10 +130,9 @@ export class MockProfileRepository implements ProfileRepository {
       cafeName: benefit.cafeName,
     };
 
+    // Like the backend: a dated benefit expires on a calendar day, an open one on a date-time.
     const expiresAt =
-      benefit.endDate === null
-        ? new Date(now.getTime() + REDEMPTION_VALIDITY_DAYS * DAY_MS)
-        : new Date(`${benefit.endDate}T23:59:59`);
+      benefit.endDate ?? new Date(now.getTime() + REDEMPTION_VALIDITY_DAYS * DAY_MS).toISOString();
     const conditions = [
       'Un solo uso por canje.',
       benefit.cafeName === null
@@ -150,7 +149,8 @@ export class MockProfileRepository implements ProfileRepository {
           title: benefit.name,
           description: benefit.description,
           code: redemption.validationCode,
-          expiresAt: expiresAt.toISOString(),
+          expiresAt,
+          cafeName: benefit.cafeName,
           conditions,
         },
         ...activeRedemptions,
@@ -160,7 +160,7 @@ export class MockProfileRepository implements ProfileRepository {
     MOCK_REDEMPTIONS.push({
       ...redemption,
       description: benefit.description,
-      expiresAt: benefit.endDate ?? expiresAt.toISOString().slice(0, 10),
+      expiresAt: expiresAt.slice(0, 10),
       conditions: conditions.join('\n'),
     });
 

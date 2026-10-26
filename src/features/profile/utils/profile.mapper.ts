@@ -62,6 +62,10 @@ function toCalendarDay(isoDay: string): Date {
   return date;
 }
 
+function isCalendarDay(isoDate: string): boolean {
+  return CALENDAR_DAY.test(isoDate);
+}
+
 /** The end of a calendar day: a benefit ending on a day is valid through that whole day. */
 function toEndOfDay(isoDay: string): Date {
   const match = CALENDAR_DAY.exec(isoDay);
@@ -121,6 +125,8 @@ export function toProfileDashboard(dto: ProfileDashboardDto): ProfileDashboard {
       description: redemption.description,
       code: redemption.code,
       expiresAt: redemption.expiresAt ? toEndOfDay(redemption.expiresAt) : null,
+      expiresAtHasTime: !!redemption.expiresAt && !isCalendarDay(redemption.expiresAt),
+      cafeName: redemption.cafeName ?? null,
       conditions: redemption.conditions ?? [],
     })),
     nearbyCafes: dto.nearbyCafes.map((cafe) => ({

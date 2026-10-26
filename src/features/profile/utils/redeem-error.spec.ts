@@ -22,10 +22,35 @@ describe('toRedeemErrorMessage', () => {
     expect(toRedeemErrorMessage(badRequest('BENEFIT HAS EXPIRED'))).toBe('Este beneficio venció.');
   });
 
-  it('explains a 404 whatever its plain-text body says', () => {
+  it('explains a 404 for a missing benefit', () => {
     const error = new HttpErrorResponse({ status: 404, error: 'Benefit not found' });
 
     expect(toRedeemErrorMessage(error)).toBe('No encontramos este beneficio.');
+  });
+
+  it('tells a missing client apart from a missing benefit', () => {
+    const expected =
+      'No pudimos identificar tu cuenta. Vuelve a iniciar sesión e inténtalo de nuevo.';
+
+    expect(
+      toRedeemErrorMessage(new HttpErrorResponse({ status: 404, error: 'Client not found' })),
+    ).toBe(expected);
+    expect(
+      toRedeemErrorMessage(new HttpErrorResponse({ status: 404, error: '  CLIENT NOT FOUND ' })),
+    ).toBe(expected);
+    expect(
+      toRedeemErrorMessage(
+        new HttpErrorResponse({ status: 404, error: { error: 'Client not found', status: 404 } }),
+      ),
+    ).toBe(expected);
+  });
+
+  it('keeps the benefit message for any other 404 body', () => {
+    for (const error of ['Redemption not found', '', null, { error: 'Cafe not found' }, { x: 1 }]) {
+      expect(toRedeemErrorMessage(new HttpErrorResponse({ status: 404, error }))).toBe(
+        'No encontramos este beneficio.',
+      );
+    }
   });
 
   it('falls back for a 400 with an unknown message', () => {

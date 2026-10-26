@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { environment } from '../../environments/environment';
 import { RedemptionDetail } from '../redemption-detail/components/redemption-detail/redemption-detail';
+import { CouponsPage } from './pages/coupons-page/coupons-page';
 import { ProfileEditPage } from './pages/profile-edit-page/profile-edit-page';
 import { ProfilePage } from './pages/profile-page/profile-page';
 import { RedemptionHistoryPage } from './pages/redemption-history-page/redemption-history-page';
@@ -31,6 +32,7 @@ export default [
         component: RedemptionHistoryPage,
         providers: [RedemptionHistoryStore],
       },
+      { path: 'coupons', component: CouponsPage },
       { path: 'redemptions/:id', component: RedemptionDetail },
     ],
   },
