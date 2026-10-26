@@ -46,6 +46,8 @@ export class TierStore {
   });
   private readonly redeemState = signal<RedeemState>({ kind: 'idle' });
   private readonly redeemedState = signal<RedeemedBenefit | null>(null);
+  /** The route injector outlives the page, so the store must know whether anyone is looking. */
+  private pageOpen = true;
 
   /** The latest successful redemption, shown until it is dismissed or another one starts. */
   readonly redeemed = this.redeemedState.asReadonly();
@@ -150,12 +152,35 @@ export class TierStore {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (redeemed) => {
+          // Kept even when the page was left meanwhile: the points are spent, so the client
+          // finds the code waiting on return.
           this.redeemedState.set(redeemed);
           this.redeemState.set({ kind: 'idle' });
           this.refreshAfterRedemption();
         },
-        error: () => this.redeemState.set({ kind: 'failed', benefitId: state.benefitId }),
+        error: () =>
+          this.redeemState.set(
+            this.pageOpen ? { kind: 'failed', benefitId: state.benefitId } : { kind: 'idle' },
+          ),
       });
+  }
+
+  /** The tier page is shown (again). */
+  enter(): void {
+    this.pageOpen = true;
+  }
+
+  /**
+   * The tier page is gone. Transient redeem state (open confirm step, error, success panel)
+   * must not reappear on return. A request in flight is kept: its points are spent anyway and
+   * its outcome still refreshes the data.
+   */
+  leave(): void {
+    this.pageOpen = false;
+    if (this.redeemState().kind !== 'redeeming') {
+      this.redeemState.set({ kind: 'idle' });
+    }
+    this.redeemedState.set(null);
   }
 
   dismissRedeemed(): void {

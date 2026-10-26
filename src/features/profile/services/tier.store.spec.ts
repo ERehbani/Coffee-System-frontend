@@ -353,6 +353,93 @@ describe('TierStore', () => {
       expect(store.redeemed()).toEqual(redeemed);
     });
   });
+
+  describe('leaving the page', () => {
+    it('drops an open confirm step', () => {
+      const store = createStore();
+      store.requestRedeem('benefit-coffee');
+
+      store.leave();
+      store.enter();
+
+      expect(store.benefits().every((benefit) => benefit.phase === 'idle')).toBe(true);
+    });
+
+    it('drops the success message', async () => {
+      const store = createStore();
+      store.requestRedeem('benefit-coffee');
+      store.confirmRedeem();
+      await settle();
+      expect(store.redeemed()).not.toBeNull();
+
+      store.leave();
+      store.enter();
+
+      expect(store.redeemed()).toBeNull();
+    });
+
+    it('drops a failed attempt', () => {
+      redeemBenefit = vi.fn(() => throwError(() => new Error('400')));
+      const store = createStore();
+      store.requestRedeem('benefit-coffee');
+      store.confirmRedeem();
+      expect(store.benefits()[0].errorMessage).not.toBeNull();
+
+      store.leave();
+      store.enter();
+
+      expect(store.benefits().every((benefit) => benefit.errorMessage === null)).toBe(true);
+    });
+
+    it('keeps a redemption in flight and shows its code when it lands while the page is away', async () => {
+      const pending = new Subject<RedeemedBenefit>();
+      redeemBenefit = vi.fn(() => pending);
+      const store = createStore();
+      store.requestRedeem('benefit-coffee');
+      store.confirmRedeem();
+
+      store.leave();
+      expect(store.benefits()[0].phase).toBe('redeeming');
+      points -= coffee.pointsCost;
+      pending.next(redeemed);
+      pending.complete();
+      await settle();
+      store.enter();
+
+      expect(store.redeemed()).toEqual(redeemed);
+      expect(store.availablePoints()).toBe(550);
+      expect(store.benefits().every((benefit) => benefit.phase === 'idle')).toBe(true);
+    });
+
+    it('does not show an error for a redemption that failed while the page was away', () => {
+      const pending = new Subject<RedeemedBenefit>();
+      redeemBenefit = vi.fn(() => pending);
+      const store = createStore();
+      store.requestRedeem('benefit-coffee');
+      store.confirmRedeem();
+
+      store.leave();
+      pending.error(new Error('400'));
+      store.enter();
+
+      expect(store.benefits().every((benefit) => benefit.errorMessage === null)).toBe(true);
+      expect(store.benefits().every((benefit) => benefit.phase === 'idle')).toBe(true);
+    });
+
+    it('still reports a failure that happens while the page is open', () => {
+      const pending = new Subject<RedeemedBenefit>();
+      redeemBenefit = vi.fn(() => pending);
+      const store = createStore();
+      store.leave();
+      store.enter();
+      store.requestRedeem('benefit-coffee');
+      store.confirmRedeem();
+
+      pending.error(new Error('400'));
+
+      expect(store.benefits()[0].errorMessage).toBe(REDEEM_ERROR_MESSAGE);
+    });
+  });
 });
 
 describe('TierStore with the mock repository', () => {

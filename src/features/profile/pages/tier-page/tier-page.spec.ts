@@ -311,4 +311,81 @@ describe('TierPage', () => {
       expect(element.querySelector('[data-testid="redeem-success"]')).toBeNull();
     });
   });
+
+  describe('returning to the page', () => {
+    /** The store lives in the route injector: the same instance serves the next visit. */
+    async function revisit() {
+      fixture.destroy();
+      fixture = TestBed.createComponent(TierPage);
+      TestBed.flushEffects();
+      fixture.detectChanges();
+      element = fixture.nativeElement;
+      await settle();
+    }
+
+    it('does not bring back an open confirm step', async () => {
+      await render();
+      buttonByText('Activar', itemByName('Café de cortesía'))!.click();
+      await settle();
+      expect(element.textContent).toContain('¿Canjear');
+
+      await revisit();
+
+      expect(element.textContent).not.toContain('¿Canjear');
+      expect(buttonByText('Activar', itemByName('Café de cortesía'))!.disabled).toBe(false);
+    });
+
+    it('does not bring back the success panel', async () => {
+      await render();
+      buttonByText('Activar', itemByName('Café de cortesía'))!.click();
+      await settle();
+      buttonByText('Confirmar')!.click();
+      await settle();
+      expect(element.querySelector('[data-testid="redeem-success"]')).not.toBeNull();
+
+      await revisit();
+
+      expect(element.querySelector('[data-testid="redeem-success"]')).toBeNull();
+    });
+
+    it('does not bring back a redemption error', async () => {
+      redeemBenefit = vi.fn(() => throwError(() => new Error('400')));
+      await render();
+      buttonByText('Activar', itemByName('Café de cortesía'))!.click();
+      await settle();
+      buttonByText('Confirmar')!.click();
+      await settle();
+      expect(itemByName('Café de cortesía').textContent).toContain('No pudimos');
+
+      await revisit();
+
+      expect(itemByName('Café de cortesía').textContent).not.toContain('No pudimos');
+    });
+
+    it('shows the code of a redemption that was still in flight when the page was left', async () => {
+      const pending = new Subject<RedeemedBenefit>();
+      redeemBenefit = vi.fn(() => pending);
+      await render();
+      buttonByText('Activar', itemByName('Café de cortesía'))!.click();
+      await settle();
+      buttonByText('Confirmar')!.click();
+      await settle();
+      fixture.destroy();
+
+      points -= 300;
+      pending.next(redeemed);
+      pending.complete();
+      fixture = TestBed.createComponent(TierPage);
+      TestBed.flushEffects();
+      fixture.detectChanges();
+      element = fixture.nativeElement;
+      await settle();
+
+      expect(element.querySelector('[data-testid="redeem-code"]')?.textContent?.trim()).toBe(
+        'VLD-0009-MOCK',
+      );
+      expect(benefitsSection().textContent).toContain('Tienes 550 pts disponibles');
+      expect(getTierDetail).toHaveBeenCalledTimes(2);
+    });
+  });
 });
