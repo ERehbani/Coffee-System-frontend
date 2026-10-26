@@ -60,7 +60,7 @@ export function toGlobalBenefit(dto: GlobalBenefitDto): GlobalBenefit {
     isPublic: dto.isPublic ?? true,
     isGlobal: 'GLOBAL_BENEFIT',
     discountPercent: parsedDiscount,
-    termsAndConditions: dto.termsAndConditions || 'Válido en toda la red.',
+    termsAndConditions: dto.conditions ?? '',
     createdAt: dto.createdAt || today,
   };
 }
@@ -73,9 +73,6 @@ export function toCreateRequestDto(input: CreateGlobalBenefitInput): BenefitCrea
   if (input.discountPercent && !description.includes(`${input.discountPercent}%`)) {
     description = `${description} (${input.discountPercent}% OFF)`;
   }
-  if (input.termsAndConditions && !description.includes(input.termsAndConditions)) {
-    description = `${description}. ${input.termsAndConditions}`;
-  }
 
   return {
     name: input.name.trim(),
@@ -87,6 +84,7 @@ export function toCreateRequestDto(input: CreateGlobalBenefitInput): BenefitCrea
     typeId: resolveTypeId(input.type, input.typeId),
     cafeId: null,
     tierId: resolveTierId(input.tier, input.tierId),
+    conditions: input.termsAndConditions?.trim() || null,
   };
 }
 
@@ -95,9 +93,6 @@ export function toUpdateRequestDto(input: UpdateGlobalBenefitInput): BenefitUpda
   if (input.discountPercent && !description.includes(`${input.discountPercent}%`)) {
     description = `${description} (${input.discountPercent}% OFF)`;
   }
-  if (input.termsAndConditions && !description.includes(input.termsAndConditions)) {
-    description = `${description}. ${input.termsAndConditions}`;
-  }
 
   return {
     name: input.name.trim(),
@@ -109,5 +104,6 @@ export function toUpdateRequestDto(input: UpdateGlobalBenefitInput): BenefitUpda
     typeId: resolveTypeId(input.type, input.typeId),
     cafeId: null,
     tierId: resolveTierId(input.tier, input.tierId),
+    conditions: input.termsAndConditions?.trim() || null,
   };
 }

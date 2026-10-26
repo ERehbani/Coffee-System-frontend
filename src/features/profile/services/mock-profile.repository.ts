@@ -30,6 +30,7 @@ import {
   toTierDetail,
   toUsedBenefits,
 } from '../utils/profile.mapper';
+import { MOCK_REDEMPTIONS } from '../../redemption-detail/data/redemptions.mock';
 import { ProfileRepository } from './profile.repository';
 
 export const MOCK_LATENCY_MS = 400;
@@ -133,6 +134,13 @@ export class MockProfileRepository implements ProfileRepository {
       benefit.endDate === null
         ? new Date(now.getTime() + REDEMPTION_VALIDITY_DAYS * DAY_MS)
         : new Date(`${benefit.endDate}T23:59:59`);
+    const conditions = [
+      'Un solo uso por canje.',
+      benefit.cafeName === null
+        ? 'Válido en cualquier cafetería de la red.'
+        : `Válido solo en ${benefit.cafeName}.`,
+      'Presenta el código antes de pagar.',
+    ];
     this.currentDashboard = {
       ...this.currentDashboard,
       loyalty: { ...loyalty, availablePoints: loyalty.availablePoints - benefit.pointsCost },
@@ -143,17 +151,18 @@ export class MockProfileRepository implements ProfileRepository {
           description: benefit.description,
           code: redemption.validationCode,
           expiresAt: expiresAt.toISOString(),
-          conditions: [
-            'Un solo uso por canje.',
-            benefit.cafeName === null
-              ? 'Válido en cualquier cafetería de la red.'
-              : `Válido solo en ${benefit.cafeName}.`,
-            'Presenta el código antes de pagar.',
-          ],
+          conditions,
         },
         ...activeRedemptions,
       ],
     };
+
+    MOCK_REDEMPTIONS.push({
+      ...redemption,
+      description: benefit.description,
+      expiresAt: benefit.endDate ?? expiresAt.toISOString().slice(0, 10),
+      conditions: conditions.join('\n'),
+    });
 
     return redemption;
   }

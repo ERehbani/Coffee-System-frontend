@@ -1,8 +1,8 @@
 import { Routes } from '@angular/router';
 import { environment } from '../../environments/environment';
+import { RedemptionDetail } from '../redemption-detail/components/redemption-detail/redemption-detail';
 import { ProfileEditPage } from './pages/profile-edit-page/profile-edit-page';
 import { ProfilePage } from './pages/profile-page/profile-page';
-import { RedemptionDetailPage } from './pages/redemption-detail-page/redemption-detail-page';
 import { RedemptionHistoryPage } from './pages/redemption-history-page/redemption-history-page';
 import { TierPage } from './pages/tier-page/tier-page';
 import { HttpProfileRepository } from './services/http-profile.repository';
@@ -31,7 +31,7 @@ export default [
         component: RedemptionHistoryPage,
         providers: [RedemptionHistoryStore],
       },
-      { path: 'redemptions/:id', component: RedemptionDetailPage },
+      { path: 'redemptions/:id', component: RedemptionDetail },
     ],
   },
 ] satisfies Routes;
