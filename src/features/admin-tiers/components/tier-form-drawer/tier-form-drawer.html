@@ -1,0 +1,112 @@
+<div
+  data-testid="tier-drawer-backdrop"
+  aria-hidden="true"
+  class="fixed inset-0 z-40 bg-text/40"
+  (click)="onCancel()"
+></div>
+
+<div
+  #panel
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="tier-drawer-title"
+  class="fixed inset-y-0 right-0 z-50 flex w-full max-w-[400px] flex-col border-l border-border bg-surface shadow-xl"
+  (keydown)="onKeydown($event)"
+>
+  <form (submit)="onSubmit($event)" novalidate class="flex min-h-0 flex-1 flex-col">
+    <header class="flex items-center justify-between border-b border-border px-6 py-4">
+      <h2 id="tier-drawer-title" class="text-lg font-semibold text-text">{{ title() }}</h2>
+      <button
+        type="button"
+        aria-label="Cerrar"
+        [disabled]="isProcessing()"
+        (click)="onCancel()"
+        class="inline-flex size-9 cursor-pointer items-center justify-center rounded-lg text-muted transition-colors hover:bg-bg hover:text-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-50"
+      >
+        <app-icon name="x" [size]="20" />
+      </button>
+    </header>
+
+    <div class="flex-1 space-y-5 overflow-y-auto px-6 py-6">
+      @if (errors().form; as formError) {
+        <div
+          role="alert"
+          class="flex items-start gap-3 rounded-xl border border-rose-600 bg-surface px-4 py-3 text-sm text-rose-700"
+        >
+          <app-icon name="alert-circle" [size]="18" class="mt-0.5" />
+          <p>{{ formError }}</p>
+        </div>
+      }
+
+      <div class="space-y-1.5">
+        <label for="tier-name" class="block text-sm font-semibold text-text">Nombre</label>
+        <input
+          #nameInput
+          id="tier-name"
+          name="name"
+          type="text"
+          autocomplete="off"
+          [ngModel]="name()"
+          (ngModelChange)="onNameChange($event)"
+          [attr.aria-invalid]="nameError() ? 'true' : null"
+          [attr.aria-describedby]="nameError() ? 'tier-name-error' : null"
+          [class.border-border]="!nameError()"
+          [class.border-rose-600]="nameError()"
+          class="w-full rounded-xl border bg-surface px-4 py-2.5 text-sm text-text transition focus:border-primary focus:outline-hidden focus:ring-2 focus:ring-primary/20"
+        />
+        @if (nameError(); as message) {
+          <p id="tier-name-error" class="text-xs font-medium text-rose-700">{{ message }}</p>
+        }
+      </div>
+
+      <div class="space-y-1.5">
+        <label for="tier-min-points" class="block text-sm font-semibold text-text">
+          Puntos necesarios
+        </label>
+        <input
+          id="tier-min-points"
+          name="minPoints"
+          type="number"
+          min="0"
+          step="1"
+          inputmode="numeric"
+          [disabled]="isBaseTier()"
+          [ngModel]="minPoints()"
+          (ngModelChange)="onPointsChange($event)"
+          [attr.aria-invalid]="pointsError() ? 'true' : null"
+          [attr.aria-describedby]="
+            pointsError() ? 'tier-min-points-error' : isBaseTier() ? 'tier-min-points-hint' : null
+          "
+          [class.border-border]="!pointsError()"
+          [class.border-rose-600]="pointsError()"
+          class="w-full rounded-xl border bg-surface px-4 py-2.5 text-sm text-text transition focus:border-primary focus:outline-hidden focus:ring-2 focus:ring-primary/20 disabled:cursor-not-allowed disabled:bg-bg disabled:text-muted"
+        />
+        @if (pointsError(); as message) {
+          <p id="tier-min-points-error" class="text-xs font-medium text-rose-700">{{ message }}</p>
+        } @else if (isBaseTier()) {
+          <p id="tier-min-points-hint" class="text-xs text-muted">
+            El tier base siempre requiere 0 puntos.
+          </p>
+        }
+      </div>
+    </div>
+
+    <footer class="flex justify-end gap-3 border-t border-border px-6 py-4">
+      <button
+        type="button"
+        [disabled]="isProcessing()"
+        (click)="onCancel()"
+        class="cursor-pointer rounded-xl border border-border bg-surface px-5 py-2.5 text-sm font-semibold text-text transition-colors hover:bg-bg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-50"
+      >
+        Cancelar
+      </button>
+      <button
+        type="submit"
+        [disabled]="isProcessing()"
+        class="cursor-pointer rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-60"
+      >
+        Guardar
+      </button>
+    </footer>
+  </form>
+</div>

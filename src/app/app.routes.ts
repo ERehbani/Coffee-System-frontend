@@ -22,6 +22,10 @@ const adminSectionRoutes: Routes = [
     path: 'purchases',
     loadChildren: () => import('../features/admin-purchases/admin-purchases.routes'),
   },
+  {
+    path: 'tiers',
+    loadChildren: () => import('../features/admin-tiers/admin-tiers.routes'),
+  },
 ];
 
 const adminPlaceholderRoutes: Routes = ADMIN_NAV_ITEMS.filter(
