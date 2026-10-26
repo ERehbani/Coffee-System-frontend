@@ -10,15 +10,13 @@ import {
 import { rxResource, takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RedeemedBenefit, TierBenefit, TierDetail, TierLevel } from '../types/profile.model';
 import { LoyaltyProgress, toLoyaltyProgress } from '../utils/loyalty-progress';
+import { toRedeemErrorMessage } from '../utils/redeem-error';
 import { ProfileRepository } from './profile.repository';
 import { ProfileStore } from './profile.store';
 
 export type TierDetailStatus = 'loading' | 'error' | 'ready';
 
 export type TierBenefitsStatus = 'loading' | 'error' | 'ready';
-
-export const REDEEM_ERROR_MESSAGE =
-  'No pudimos canjear este beneficio. Revisa tus puntos e inténtalo de nuevo.';
 
 export type TierBenefitPhase = 'idle' | 'confirming' | 'redeeming';
 
@@ -35,7 +33,7 @@ type RedeemState =
   | { readonly kind: 'idle' }
   | { readonly kind: 'confirming'; readonly benefitId: string }
   | { readonly kind: 'redeeming'; readonly benefitId: string }
-  | { readonly kind: 'failed'; readonly benefitId: string };
+  | { readonly kind: 'failed'; readonly benefitId: string; readonly message: string };
 
 export type TierLevelState = 'reached' | 'current' | 'locked';
 
@@ -107,7 +105,7 @@ export class TierStore {
             ? state.kind
             : 'idle',
         locked: state.kind === 'redeeming' && !isTarget,
-        errorMessage: isTarget && state.kind === 'failed' ? REDEEM_ERROR_MESSAGE : null,
+        errorMessage: isTarget && state.kind === 'failed' ? state.message : null,
       };
     });
   });
@@ -173,9 +171,11 @@ export class TierStore {
           this.redeemState.set({ kind: 'idle' });
           this.refreshAfterRedemption();
         },
-        error: () =>
+        error: (error: unknown) =>
           this.redeemState.set(
-            this.pageOpen ? { kind: 'failed', benefitId: state.benefitId } : { kind: 'idle' },
+            this.pageOpen
+              ? { kind: 'failed', benefitId: state.benefitId, message: toRedeemErrorMessage(error) }
+              : { kind: 'idle' },
           ),
       });
   }

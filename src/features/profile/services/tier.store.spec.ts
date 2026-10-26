@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { Type } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Observable, of, Subject, throwError } from 'rxjs';
@@ -5,10 +6,11 @@ import type { Mock } from 'vitest';
 import { ProfileDashboard, RedeemedBenefit, TierBenefit, TierDetail } from '../types/profile.model';
 import { buildProfileDashboardFixture, buildTierDetailFixture } from '../utils/profile.fixture';
 import { toProfileDashboard, toTierDetail } from '../utils/profile.mapper';
+import { REDEEM_ERROR_MESSAGE } from '../utils/redeem-error';
 import { MOCK_LATENCY_MS, MockProfileRepository } from './mock-profile.repository';
 import { ProfileRepository } from './profile.repository';
 import { ProfileStore } from './profile.store';
-import { REDEEM_ERROR_MESSAGE, TierStore } from './tier.store';
+import { TierStore } from './tier.store';
 
 const coffee: TierBenefit = {
   id: 'benefit-coffee',
@@ -314,6 +316,25 @@ describe('TierStore', () => {
       expect(store.redeemed()).toBeNull();
       expect(store.availablePoints()).toBe(850);
       expect(getTierDetail).toHaveBeenCalledTimes(1);
+    });
+
+    it('explains why the backend rejected the redemption', () => {
+      redeemBenefit = vi.fn(() =>
+        throwError(
+          () =>
+            new HttpErrorResponse({
+              status: 400,
+              error: { error: 'Benefit has expired', status: 400 },
+            }),
+        ),
+      );
+      const store = createStore();
+      store.requestRedeem('benefit-coffee');
+
+      store.confirmRedeem();
+
+      expect(store.benefits()[0].errorMessage).toBe('Este beneficio venció.');
+      expect(store.benefits()[1].errorMessage).toBeNull();
     });
 
     it('clears the error when the client tries again', () => {

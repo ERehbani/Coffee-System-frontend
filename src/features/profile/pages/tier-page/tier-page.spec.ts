@@ -1,4 +1,5 @@
 import { registerLocaleData } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import localeEsAr from '@angular/common/locales/es-AR';
 import { LOCALE_ID } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -289,13 +290,38 @@ describe('TierPage', () => {
       buttonByText('Confirmar')!.click();
       await settle();
 
-      expect(itemByName('Café de cortesía').textContent).toContain('No pudimos canjear');
+      expect(itemByName('Café de cortesía').textContent).toContain(
+        'No pudimos activar este beneficio. Inténtalo de nuevo.',
+      );
       expect(itemByName('Taza de edición limitada').textContent).not.toContain(
-        'No pudimos canjear',
+        'No pudimos activar',
       );
       expect(element.querySelector('[data-testid="redeem-success"]')).toBeNull();
       expect(benefitsSection().textContent).toContain('Tienes 850 pts disponibles');
       expect(buttonByText('Activar', itemByName('Café de cortesía'))!.disabled).toBe(false);
+    });
+
+    it('explains why the backend rejected the redemption', async () => {
+      redeemBenefit = vi.fn(() =>
+        throwError(
+          () =>
+            new HttpErrorResponse({
+              status: 400,
+              error: { error: 'Benefit has no available redemptions', status: 400 },
+            }),
+        ),
+      );
+      await render();
+      buttonByText('Activar', itemByName('Café de cortesía'))!.click();
+      await settle();
+
+      buttonByText('Confirmar')!.click();
+      await settle();
+
+      expect(itemByName('Café de cortesía').textContent).toContain(
+        'Este beneficio ya no tiene canjes disponibles.',
+      );
+      expect(itemByName('Café de cortesía').textContent).not.toContain('Revisa tus puntos');
     });
 
     it('closes the success message', async () => {
