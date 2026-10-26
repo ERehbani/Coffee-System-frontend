@@ -63,8 +63,19 @@ describe('RedemptionDetailPage', () => {
     expect(element.textContent).toContain('No acumulable con otras promociones.');
 
     const expiry = element.querySelector('time');
-    expect(expiry?.getAttribute('datetime')).toBe(redemption.expiresAt.toISOString());
+    expect(expiry?.getAttribute('datetime')).toBe(redemption.expiresAt!.toISOString());
     expect(element.textContent).toContain('Expira en 5 días');
+  });
+
+  it('omits the expiry section when the coupon never expires', async () => {
+    await render(() => of(dashboardWith([{ ...redemption, expiresAt: null }])));
+
+    expect(element.querySelector('time')).toBeNull();
+    expect(element.textContent).not.toContain('Vencimiento');
+    expect(element.textContent).not.toContain('Expira');
+    expect(element.querySelector('[data-testid="redemption-code"]')?.textContent?.trim()).toBe(
+      redemption.code,
+    );
   });
 
   it('shows a fallback when the benefit has no conditions', async () => {

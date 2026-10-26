@@ -62,6 +62,25 @@ function toCalendarDay(isoDay: string): Date {
   return date;
 }
 
+/** The end of a calendar day: a benefit ending on a day is valid through that whole day. */
+function toEndOfDay(isoDay: string): Date {
+  const match = CALENDAR_DAY.exec(isoDay);
+  if (!match) {
+    return toDate(isoDay);
+  }
+  const [, year, month, day] = match;
+  const date = new Date(Number(year), Number(month) - 1, Number(day), 23, 59, 59);
+  if (Number.isNaN(date.getTime())) {
+    throw new Error(`Invalid date: ${isoDay}`);
+  }
+  return date;
+}
+
+function toOptionalUrl(url: string | null | undefined): string | null {
+  const trimmed = url?.trim();
+  return trimmed ? trimmed : null;
+}
+
 export function toClientProfile(dto: ClientProfileDto): ClientProfile {
   return {
     id: dto.id,
@@ -69,7 +88,7 @@ export function toClientProfile(dto: ClientProfileDto): ClientProfile {
     lastName: dto.lastName ?? '',
     email: dto.email ?? '',
     phoneNumber: dto.phoneNumber ?? '',
-    avatarUrl: dto.avatarUrl ?? null,
+    avatarUrl: toOptionalUrl(dto.avatarUrl),
   };
 }
 
@@ -101,25 +120,25 @@ export function toProfileDashboard(dto: ProfileDashboardDto): ProfileDashboard {
       title: redemption.title,
       description: redemption.description,
       code: redemption.code,
-      expiresAt: toDate(redemption.expiresAt),
+      expiresAt: redemption.expiresAt ? toEndOfDay(redemption.expiresAt) : null,
       conditions: redemption.conditions ?? [],
     })),
     nearbyCafes: dto.nearbyCafes.map((cafe) => ({
       id: cafe.id,
       name: cafe.name,
-      imageUrl: cafe.imageUrl,
+      imageUrl: toOptionalUrl(cafe.imageUrl),
       rating: cafe.rating,
       reviewCount: cafe.reviewCount,
       isOpenNow: cafe.isOpenNow,
-      distanceMeters: cafe.distanceMeters,
-      maxPointsPerProduct: cafe.maxPointsPerProduct,
+      distanceMeters: cafe.distanceMeters ?? null,
+      maxPointsPerProduct: cafe.maxPointsPerProduct ?? null,
       tagline: cafe.tagline,
     })),
     featuredBenefits: dto.featuredBenefits.map((benefit) => ({
       id: benefit.id,
       title: benefit.title,
       description: benefit.description,
-      imageUrl: benefit.imageUrl,
+      imageUrl: toOptionalUrl(benefit.imageUrl),
       pointsCost: benefit.pointsCost,
     })),
   };

@@ -28,6 +28,6 @@ export class RedemptionDetailPage {
 
   protected readonly expiryLabel = computed(() => {
     const redemption = this.redemption();
-    return redemption ? toExpiryLabel(redemption.daysUntilExpiry) : '';
+    return redemption?.daysUntilExpiry == null ? '' : toExpiryLabel(redemption.daysUntilExpiry);
   });
 }

@@ -31,7 +31,10 @@ export class ActiveRedemptionCard {
 
   protected readonly copyState = signal<CopyState>('idle');
   protected readonly titleId = computed(() => `redemption-${this.redemption().id}`);
-  protected readonly expiryLabel = computed(() => toExpiryLabel(this.redemption().daysUntilExpiry));
+  protected readonly expiryLabel = computed(() => {
+    const days = this.redemption().daysUntilExpiry;
+    return days === null ? null : toExpiryLabel(days);
+  });
   protected readonly copyMessage = computed(() => {
     switch (this.copyState()) {
       case 'copied':

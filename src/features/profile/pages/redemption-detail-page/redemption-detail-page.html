@@ -72,21 +72,25 @@
           <p class="mt-2 text-sm text-muted">Mostrá este código al personal de la cafetería.</p>
         </section>
 
-        <section
-          aria-labelledby="redemption-expiry-heading"
-          class="flex items-start gap-3 rounded-2xl border border-border bg-surface p-4"
-        >
-          <app-icon name="clock" [size]="18" class="mt-0.5 text-muted" />
-          <div>
-            <h3 id="redemption-expiry-heading" class="text-sm font-bold text-text">Vencimiento</h3>
-            <p class="text-sm text-text">
-              <time [attr.datetime]="redemption.expiresAt.toISOString()">
-                {{ redemption.expiresAt | date: 'd MMM y, HH:mm' }}
-              </time>
-            </p>
-            <p class="text-xs text-muted">{{ expiryLabel() }}</p>
-          </div>
-        </section>
+        @if (redemption.expiresAt; as expiresAt) {
+          <section
+            aria-labelledby="redemption-expiry-heading"
+            class="flex items-start gap-3 rounded-2xl border border-border bg-surface p-4"
+          >
+            <app-icon name="clock" [size]="18" class="mt-0.5 text-muted" />
+            <div>
+              <h3 id="redemption-expiry-heading" class="text-sm font-bold text-text">
+                Vencimiento
+              </h3>
+              <p class="text-sm text-text">
+                <time [attr.datetime]="expiresAt.toISOString()">
+                  {{ expiresAt | date: 'd MMM y, HH:mm' }}
+                </time>
+              </p>
+              <p class="text-xs text-muted">{{ expiryLabel() }}</p>
+            </div>
+          </section>
+        }
 
         <section
           aria-labelledby="redemption-conditions-heading"

@@ -99,7 +99,7 @@ describe('MockProfileRepository benefits', () => {
     const registered = after.activeRedemptions.find((redemption) => redemption.id === redeemed.id);
     expect(registered?.code).toBe(redeemed.validationCode);
     expect(registered?.title).toBe(redeemed.benefitName);
-    expect(registered!.expiresAt.getTime()).toBeGreaterThan(Date.now());
+    expect(registered!.expiresAt!.getTime()).toBeGreaterThan(Date.now());
   });
 
   it('gives every redemption its own id and code', async () => {
