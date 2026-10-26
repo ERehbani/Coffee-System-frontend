@@ -102,6 +102,24 @@ describe('MockProfileRepository benefits', () => {
     expect(registered!.expiresAt!.getTime()).toBeGreaterThan(Date.now());
   });
 
+  it('registers a dated benefit with a date-only expiry and an open one with a time', async () => {
+    const [{ availablePoints }, benefits] = await Promise.all([
+      settle(repository.getTierDetail()),
+      settle(repository.getTierBenefits()),
+    ]);
+    const affordable = benefits.filter((benefit) => benefit.pointsCost <= availablePoints);
+    const dated = affordable.find((benefit) => benefit.expiresAt !== null)!;
+    const open = affordable.find((benefit) => benefit.expiresAt === null)!;
+
+    const datedRedemption = await settle(repository.redeemBenefit(dated.id));
+    const openRedemption = await settle(repository.redeemBenefit(open.id));
+
+    const { activeRedemptions } = await settle(repository.getDashboard());
+    const byId = (id: string) => activeRedemptions.find((redemption) => redemption.id === id)!;
+    expect(byId(datedRedemption.id).expiresAtHasTime).toBe(false);
+    expect(byId(openRedemption.id).expiresAtHasTime).toBe(true);
+  });
+
   it('gives every redemption its own id and code', async () => {
     const benefitId = await firstAffordableBenefitId();
 

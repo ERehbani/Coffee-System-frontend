@@ -17,6 +17,7 @@ const redemption: ActiveRedemption = {
   description: 'Válido en cualquier sucursal adherida',
   code: 'VLD-8492-C0FF',
   expiresAt: new Date(Date.now() + 5 * DAY_MS),
+  expiresAtHasTime: true,
   conditions: ['Un solo uso por cliente.', 'No acumulable con otras promociones.'],
 };
 
@@ -65,6 +66,23 @@ describe('RedemptionDetailPage', () => {
     const expiry = element.querySelector('time');
     expect(expiry?.getAttribute('datetime')).toBe(redemption.expiresAt!.toISOString());
     expect(element.textContent).toContain('Expira en 5 días');
+  });
+
+  it('shows the time of an expiry that has one', async () => {
+    const expiresAt = new Date(2030, 5, 15, 18, 45);
+    await render(() => of(dashboardWith([{ ...redemption, expiresAt, expiresAtHasTime: true }])));
+
+    expect(element.querySelector('time')?.textContent).toContain('18:45');
+  });
+
+  it('shows only the date when the expiry came without a time', async () => {
+    const expiresAt = new Date(2030, 5, 15, 23, 59, 59);
+    await render(() => of(dashboardWith([{ ...redemption, expiresAt, expiresAtHasTime: false }])));
+
+    const expiry = element.querySelector('time');
+    expect(expiry?.textContent).toContain('15');
+    expect(expiry?.textContent).not.toMatch(/\d{1,2}:\d{2}/);
+    expect(expiry?.getAttribute('datetime')).toBe('2030-06-15');
   });
 
   it('omits the expiry section when the coupon never expires', async () => {

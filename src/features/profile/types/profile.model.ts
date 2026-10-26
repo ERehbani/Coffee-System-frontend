@@ -52,6 +52,8 @@ export interface ActiveRedemption {
   readonly code: string;
   /** null when the redeemed benefit never ends */
   readonly expiresAt: Date | null;
+  /** false when the backend sent a calendar day only: `expiresAt` is then its end, not a time */
+  readonly expiresAtHasTime: boolean;
   readonly conditions: readonly string[];
 }
 

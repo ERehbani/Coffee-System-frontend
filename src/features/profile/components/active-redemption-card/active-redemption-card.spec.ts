@@ -8,6 +8,7 @@ const redemption: ActiveRedemptionView = {
   description: 'Un café a elección',
   code: 'VLD-0001',
   expiresAt: new Date(2026, 11, 31),
+  expiresAtHasTime: false,
   daysUntilExpiry: 5,
   conditions: [],
 };

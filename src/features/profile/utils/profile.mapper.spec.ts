@@ -132,6 +132,7 @@ describe('toProfileDashboard', () => {
       }).activeRedemptions;
 
       expect(redemption.expiresAt).toEqual(new Date(2026, 11, 31, 23, 59, 59));
+      expect(redemption.expiresAtHasTime).toBe(false);
     });
 
     it('keeps the instant of a date-time expiry', () => {
@@ -143,6 +144,18 @@ describe('toProfileDashboard', () => {
       }).activeRedemptions;
 
       expect(redemption.expiresAt).toEqual(new Date('2026-12-31T10:30:00Z'));
+      expect(redemption.expiresAtHasTime).toBe(true);
+    });
+
+    it('flags a coupon that never expires as having no time', () => {
+      const dto = sparseDto();
+
+      const [redemption] = toProfileDashboard({
+        ...dto,
+        activeRedemptions: [{ ...dto.activeRedemptions[0], expiresAt: null }],
+      }).activeRedemptions;
+
+      expect(redemption.expiresAtHasTime).toBe(false);
     });
   });
 });

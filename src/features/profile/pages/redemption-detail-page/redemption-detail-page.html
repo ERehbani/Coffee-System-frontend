@@ -83,8 +83,16 @@
                 Vencimiento
               </h3>
               <p class="text-sm text-text">
-                <time [attr.datetime]="expiresAt.toISOString()">
-                  {{ expiresAt | date: 'd MMM y, HH:mm' }}
+                <time
+                  [attr.datetime]="
+                    redemption.expiresAtHasTime
+                      ? expiresAt.toISOString()
+                      : (expiresAt | date: 'yyyy-MM-dd')
+                  "
+                >
+                  {{
+                    expiresAt | date: (redemption.expiresAtHasTime ? 'd MMM y, HH:mm' : 'd MMM y')
+                  }}
                 </time>
               </p>
               <p class="text-xs text-muted">{{ expiryLabel() }}</p>
