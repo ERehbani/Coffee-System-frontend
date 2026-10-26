@@ -1,0 +1,364 @@
+<main class="mx-auto max-w-6xl px-4 py-8 space-y-6">
+  <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-border">
+    <div class="flex items-center gap-3">
+      <span class="inline-flex size-10 items-center justify-center rounded-xl bg-primary text-white shadow-xs">
+        <app-icon name="history" [size]="20" />
+      </span>
+      <div>
+        <div class="flex items-center gap-2">
+          <h1 class="text-xl font-extrabold text-text">Historial de Compras Global</h1>
+          <span class="rounded-lg bg-purple-100 px-2 py-0.5 text-xs font-bold text-purple-800">
+            Superadmin
+          </span>
+        </div>
+        <p class="text-xs text-muted">Auditoría unificada de todas las transacciones generadas en la aplicación</p>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-2 flex-wrap">
+      <button
+        type="button"
+        (click)="loadPurchases()"
+        class="cursor-pointer inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface px-3 py-2 text-xs font-bold text-muted hover:bg-bg hover:text-text transition active:scale-95 shadow-2xs select-none"
+        title="Actualizar listado"
+      >
+        <app-icon name="refresh-cw" [size]="14" />
+        <span>Actualizar</span>
+      </button>
+
+      <a
+        routerLink="/admin/users"
+        class="cursor-pointer inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface px-3 py-2 text-xs font-bold text-muted hover:bg-bg hover:text-text transition active:scale-95 shadow-2xs select-none"
+      >
+        <app-icon name="shield" [size]="14" />
+        <span>Usuarios</span>
+      </a>
+    </div>
+  </header>
+
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <div class="rounded-2xl border border-border bg-surface p-4 shadow-xs flex items-center justify-between">
+      <div>
+        <p class="text-xs font-medium text-muted">Total de Compras</p>
+        <p class="text-2xl font-extrabold text-text mt-1">{{ totalPurchasesCount() }}</p>
+      </div>
+      <div class="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+        <app-icon name="shopping-bag" [size]="20" />
+      </div>
+    </div>
+
+    <div class="rounded-2xl border border-border bg-surface p-4 shadow-xs flex items-center justify-between">
+      <div>
+        <p class="text-xs font-medium text-muted">Monto Total Auditado</p>
+        <p class="text-2xl font-extrabold text-text mt-1">{{ formatPrice(totalAmount()) }}</p>
+      </div>
+      <div class="flex size-10 items-center justify-center rounded-xl bg-emerald-100 text-emerald-800">
+        <app-icon name="check-circle" [size]="20" />
+      </div>
+    </div>
+
+    <div class="rounded-2xl border border-border bg-surface p-4 shadow-xs flex items-center justify-between">
+      <div>
+        <p class="text-xs font-medium text-muted">Transacciones Confirmadas</p>
+        <p class="text-2xl font-extrabold text-text mt-1">{{ confirmedCount() }}</p>
+      </div>
+      <div class="flex size-10 items-center justify-center rounded-xl bg-purple-100 text-purple-800">
+        <app-icon name="coffee" [size]="20" />
+      </div>
+    </div>
+  </div>
+
+  <section class="space-y-4">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <div class="relative flex-1 max-w-md">
+        <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-muted">
+          <app-icon name="search" [size]="16" />
+        </span>
+        <input
+          type="text"
+          placeholder="Buscar por cafetería, cliente, producto..."
+          [value]="searchQuery()"
+          (input)="onSearchChange($any($event.target).value)"
+          class="w-full rounded-xl border border-border bg-surface pl-10 pr-10 py-2.5 text-xs text-text placeholder:text-muted focus:border-primary focus:outline-hidden focus:ring-2 focus:ring-primary/20 transition shadow-2xs"
+        />
+        @if (searchQuery()) {
+          <button
+            type="button"
+            (click)="clearSearch()"
+            class="absolute inset-y-0 right-0 flex items-center pr-3 text-muted hover:text-text cursor-pointer"
+          >
+            <app-icon name="x" [size]="16" />
+          </button>
+        }
+      </div>
+
+      <div class="flex items-center gap-1.5 flex-wrap">
+        <button
+          type="button"
+          (click)="setFilterStatus('all')"
+          class="rounded-lg px-3 py-1.5 text-xs font-semibold transition cursor-pointer select-none"
+          [class.bg-primary]="filterStatus() === 'all'"
+          [class.text-white]="filterStatus() === 'all'"
+          [class.shadow-xs]="filterStatus() === 'all'"
+          [class.bg-surface]="filterStatus() !== 'all'"
+          [class.text-muted]="filterStatus() !== 'all'"
+          [class.border]="filterStatus() !== 'all'"
+          [class.border-border]="filterStatus() !== 'all'"
+        >
+          Todas ({{ purchases().length }})
+        </button>
+
+        <button
+          type="button"
+          (click)="setFilterStatus('CONFIRMED')"
+          class="rounded-lg px-3 py-1.5 text-xs font-semibold transition cursor-pointer select-none"
+          [class.bg-primary]="filterStatus() === 'CONFIRMED'"
+          [class.text-white]="filterStatus() === 'CONFIRMED'"
+          [class.shadow-xs]="filterStatus() === 'CONFIRMED'"
+          [class.bg-surface]="filterStatus() !== 'CONFIRMED'"
+          [class.text-muted]="filterStatus() !== 'CONFIRMED'"
+          [class.border]="filterStatus() !== 'CONFIRMED'"
+          [class.border-border]="filterStatus() !== 'CONFIRMED'"
+        >
+          Confirmadas
+        </button>
+
+        <button
+          type="button"
+          (click)="setFilterStatus('PENDING')"
+          class="rounded-lg px-3 py-1.5 text-xs font-semibold transition cursor-pointer select-none"
+          [class.bg-primary]="filterStatus() === 'PENDING'"
+          [class.text-white]="filterStatus() === 'PENDING'"
+          [class.shadow-xs]="filterStatus() === 'PENDING'"
+          [class.bg-surface]="filterStatus() !== 'PENDING'"
+          [class.text-muted]="filterStatus() !== 'PENDING'"
+          [class.border]="filterStatus() !== 'PENDING'"
+          [class.border-border]="filterStatus() !== 'PENDING'"
+        >
+          Pendientes
+        </button>
+
+        <button
+          type="button"
+          (click)="setFilterStatus('CANCELLED')"
+          class="rounded-lg px-3 py-1.5 text-xs font-semibold transition cursor-pointer select-none"
+          [class.bg-primary]="filterStatus() === 'CANCELLED'"
+          [class.text-white]="filterStatus() === 'CANCELLED'"
+          [class.shadow-xs]="filterStatus() === 'CANCELLED'"
+          [class.bg-surface]="filterStatus() !== 'CANCELLED'"
+          [class.text-muted]="filterStatus() !== 'CANCELLED'"
+          [class.border]="filterStatus() !== 'CANCELLED'"
+          [class.border-border]="filterStatus() !== 'CANCELLED'"
+        >
+          Canceladas
+        </button>
+      </div>
+    </div>
+
+    <div class="overflow-hidden rounded-3xl border border-border bg-surface shadow-xs">
+      @if (isLoading()) {
+        <div class="flex flex-col items-center justify-center p-12 text-center">
+          <div class="flex size-12 items-center justify-center rounded-2xl bg-primary/10 text-primary animate-spin mb-3">
+            <app-icon name="refresh-cw" [size]="20" />
+          </div>
+          <p class="text-xs font-medium text-muted">Cargando transacciones del sistema...</p>
+        </div>
+      } @else if (filteredPurchases().length === 0) {
+        <div class="flex flex-col items-center justify-center p-12 text-center">
+          <div class="flex size-14 items-center justify-center rounded-2xl bg-primary/10 text-primary mb-3">
+            <app-icon name="history" [size]="24" />
+          </div>
+          <p class="text-sm font-bold text-text">No se encontraron compras</p>
+          <p class="text-xs text-muted mt-1">No hay transacciones registradas que coincidan con la búsqueda o filtro seleccionado.</p>
+        </div>
+      } @else {
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs text-text border-collapse">
+            <thead class="bg-bg/60 text-muted border-b border-border text-[11px] uppercase tracking-wider font-bold">
+              <tr>
+                <th scope="col" class="py-3.5 px-4">Fecha</th>
+                <th scope="col" class="py-3.5 px-4">Cafetería</th>
+                <th scope="col" class="py-3.5 px-4">Cliente</th>
+                <th scope="col" class="py-3.5 px-4">Items</th>
+                <th scope="col" class="py-3.5 px-4">Monto Final</th>
+                <th scope="col" class="py-3.5 px-4">Estado</th>
+                <th scope="col" class="py-3.5 px-4 text-right">Detalle</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-border">
+              @for (purchase of filteredPurchases(); track purchase.externalId) {
+                <tr class="hover:bg-bg/40 transition">
+                  <td class="py-3.5 px-4 whitespace-nowrap font-medium text-text">
+                    {{ formatDate(purchase.date) }}
+                  </td>
+
+                  <td class="py-3.5 px-4 whitespace-nowrap">
+                    <div class="flex items-center gap-2">
+                      <span class="flex size-6 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                        <app-icon name="coffee" [size]="14" />
+                      </span>
+                      <span class="font-semibold text-text">{{ purchase.cafeName || 'Sin cafetería' }}</span>
+                    </div>
+                  </td>
+
+                  <td class="py-3.5 px-4 whitespace-nowrap">
+                    <div class="flex items-center gap-2">
+                      <span class="flex size-6 items-center justify-center rounded-lg bg-surface border border-border text-muted">
+                        <app-icon name="user" [size]="14" />
+                      </span>
+                      <div>
+                        <p class="font-medium text-text">{{ purchase.clientName || 'Cliente' }}</p>
+                        <p class="text-[10px] text-muted">{{ purchase.clientId }}</p>
+                      </div>
+                    </div>
+                  </td>
+
+                  <td class="py-3.5 px-4">
+                    <div class="max-w-xs">
+                      <span class="inline-flex items-center gap-1 rounded-md bg-bg px-2 py-0.5 text-[11px] font-semibold text-text">
+                        <app-icon name="shopping-bag" [size]="12" />
+                        {{ purchase.details.length }} {{ purchase.details.length === 1 ? 'producto' : 'productos' }}
+                      </span>
+                      <p class="text-[11px] text-muted truncate mt-0.5">
+                        @for (detail of purchase.details; track detail.externalId; let last = $last) {
+                          {{ detail.amount }}x {{ detail.productName }}{{ last ? '' : ', ' }}
+                        }
+                      </p>
+                    </div>
+                  </td>
+
+                  <td class="py-3.5 px-4 whitespace-nowrap">
+                    <span class="font-bold text-sm text-text">
+                      {{ formatPrice(purchase.price) }}
+                    </span>
+                  </td>
+
+                  <td class="py-3.5 px-4 whitespace-nowrap">
+                    <span
+                      class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider"
+                      [class]="getStatusBadgeClass(purchase.status)"
+                    >
+                      {{ getStatusLabel(purchase.status) }}
+                    </span>
+                  </td>
+
+                  <td class="py-3.5 px-4 whitespace-nowrap text-right">
+                    <button
+                      type="button"
+                      (click)="openDetails(purchase)"
+                      class="cursor-pointer inline-flex items-center gap-1 rounded-lg border border-border bg-surface px-2.5 py-1.5 text-xs font-bold text-muted hover:bg-bg hover:text-text transition active:scale-95 shadow-2xs"
+                      title="Ver detalle del pedido"
+                    >
+                      <app-icon name="eye" [size]="14" />
+                      <span>Ver</span>
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+  </section>
+
+  @if (selectedPurchase(); as item) {
+    <div
+      role="dialog"
+      aria-modal="true"
+      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs"
+    >
+      <div class="w-full max-w-2xl rounded-3xl border border-border bg-surface p-6 shadow-xl space-y-5 animate-in fade-in zoom-in-95 duration-150">
+        <div class="flex items-center justify-between pb-3 border-b border-border">
+          <div class="flex items-center gap-2.5">
+            <span class="flex size-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
+              <app-icon name="shopping-bag" [size]="18" />
+            </span>
+            <div>
+              <h2 class="text-base font-bold text-text">Detalle del Pedido</h2>
+              <p class="text-xs text-muted">ID: {{ item.externalId }}</p>
+            </div>
+          </div>
+          <button
+            type="button"
+            (click)="closeDetails()"
+            class="cursor-pointer rounded-lg p-1.5 text-muted hover:bg-bg hover:text-text transition active:scale-95"
+            aria-label="Cerrar modal"
+          >
+            <app-icon name="x" [size]="18" />
+          </button>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 p-3.5 rounded-2xl bg-bg/50 border border-border text-xs">
+          <div>
+            <span class="text-muted text-[11px] block">Fecha y Hora</span>
+            <span class="font-semibold text-text mt-0.5 block">{{ formatDate(item.date) }}</span>
+          </div>
+
+          <div>
+            <span class="text-muted text-[11px] block">Cafetería</span>
+            <span class="font-semibold text-text mt-0.5 block">{{ item.cafeName }}</span>
+          </div>
+
+          <div>
+            <span class="text-muted text-[11px] block">Cliente</span>
+            <span class="font-semibold text-text mt-0.5 block">{{ item.clientName || 'Cliente' }}</span>
+          </div>
+
+          <div>
+            <span class="text-muted text-[11px] block">Estado</span>
+            <span
+              class="inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-bold mt-0.5"
+              [class]="getStatusBadgeClass(item.status)"
+            >
+              {{ getStatusLabel(item.status) }}
+            </span>
+          </div>
+        </div>
+
+        <div class="space-y-2">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-muted">Items del Pedido</h3>
+          <div class="overflow-hidden rounded-2xl border border-border">
+            <table class="w-full text-left text-xs border-collapse">
+              <thead class="bg-bg/60 text-muted border-b border-border text-[11px] font-semibold">
+                <tr>
+                  <th scope="col" class="py-2.5 px-3">Producto</th>
+                  <th scope="col" class="py-2.5 px-3 text-center">Cant.</th>
+                  <th scope="col" class="py-2.5 px-3 text-right">Precio Unit.</th>
+                  <th scope="col" class="py-2.5 px-3 text-center">Puntos</th>
+                  <th scope="col" class="py-2.5 px-3 text-right">Subtotal</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-border">
+                @for (detail of item.details; track detail.externalId) {
+                  <tr>
+                    <td class="py-2.5 px-3 font-medium text-text">{{ detail.productName }}</td>
+                    <td class="py-2.5 px-3 text-center text-muted">{{ detail.amount }}</td>
+                    <td class="py-2.5 px-3 text-right text-muted">{{ formatPrice(detail.unitPrice) }}</td>
+                    <td class="py-2.5 px-3 text-center text-primary font-semibold">+{{ detail.generatedPoints }}</td>
+                    <td class="py-2.5 px-3 text-right font-semibold text-text">{{ formatPrice(detail.subtotal) }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between pt-3 border-t border-border">
+          <div class="flex items-center gap-2">
+            <span class="text-xs text-muted">Total a pagar:</span>
+            <span class="text-lg font-extrabold text-primary">{{ formatPrice(item.price) }}</span>
+          </div>
+
+          <button
+            type="button"
+            (click)="closeDetails()"
+            class="cursor-pointer rounded-xl bg-primary px-4 py-2 text-xs font-bold text-white shadow-xs hover:bg-primary-dark transition active:scale-95"
+          >
+            Cerrar
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</main>

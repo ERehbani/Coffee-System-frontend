@@ -24,6 +24,16 @@ export class PurchaseService {
     );
   }
 
+  getAll(): Observable<Purchase[]> {
+    if (environment.useMockApi) {
+      return of(MOCK_PURCHASES);
+    }
+
+    return this.http.get<Purchase[]>(this.url).pipe(
+      catchError(() => of(MOCK_PURCHASES))
+    );
+  }
+
   createReview(request: ReviewRequest): Observable<Review> {
     if (environment.useMockApi) {
       return of({

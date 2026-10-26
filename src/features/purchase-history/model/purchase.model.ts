@@ -14,6 +14,7 @@ export interface Purchase {
   price: number;
   status: string;
   clientId: string;
+  clientName?: string;
   cafeId: string;
   cafeName: string;
   redemptionId?: string | null;

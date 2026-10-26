@@ -59,7 +59,7 @@ describe('admin routes', () => {
   });
 
   describe.each(
-    ADMIN_NAV_ITEMS.filter((item) => item.path !== 'users' && item.path !== 'categories' && item.path !== 'global-benefits'),
+    ADMIN_NAV_ITEMS.filter((item) => item.path !== 'users' && item.path !== 'categories' && item.path !== 'global-benefits' && item.path !== 'purchases'),
   )(
     'section $label',
     ({ label, path }) => {
