@@ -1,0 +1,228 @@
+@if (isOpen()) {
+  <div
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-3 sm:p-6 backdrop-blur-xs overflow-y-auto"
+    role="dialog"
+    aria-modal="true"
+    (click)="close.emit()"
+  >
+    <div
+      class="relative flex my-auto max-h-[94vh] w-full max-w-4xl flex-col rounded-3xl border border-border bg-surface shadow-2xl overflow-hidden"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="flex items-center justify-between border-b border-border bg-bg/50 px-6 py-4">
+        <div class="flex items-center gap-3">
+          <span class="inline-flex size-10 items-center justify-center rounded-2xl bg-primary text-white shadow-sm">
+            <app-icon [name]="mode() === 'create' ? 'plus' : 'edit'" [size]="18" />
+          </span>
+          <div>
+            <div class="flex items-center gap-2">
+              <h2 class="text-lg font-black text-text">
+                {{ mode() === 'create' ? 'Crear Beneficio Global' : 'Editar Beneficio Global' }}
+              </h2>
+              <span class="rounded-full bg-purple-100 px-2 py-0.5 text-[11px] font-bold text-purple-800">Toda la Red</span>
+            </div>
+            <p class="text-xs text-muted">Promoción válida en todas las cafeterías asociadas</p>
+          </div>
+        </div>
+        <button type="button" (click)="close.emit()" class="cursor-pointer rounded-xl p-1.5 text-muted hover:text-text">
+          <app-icon name="x" [size]="20" />
+        </button>
+      </div>
+
+      <div class="flex-1 overflow-y-auto p-6">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div class="lg:col-span-7 space-y-4">
+            <div class="space-y-3 rounded-2xl border border-border bg-bg/30 p-4">
+              <div>
+                <label class="block text-xs font-bold text-text mb-1">Nombre de la Promoción *</label>
+                <input
+                  type="text"
+                  [ngModel]="form().name"
+                  (ngModelChange)="updateField('name', $event)"
+                  placeholder="Ej: 2x1 en Medialunas Artesanales"
+                  class="w-full rounded-xl border border-border bg-surface px-3 py-2 text-sm text-text focus:border-primary focus:outline-none"
+                  [class.border-red-400]="submitted() && form().name.trim().length < 3"
+                />
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold text-text mb-1">Descripción para Clientes *</label>
+                <textarea
+                  [ngModel]="form().description"
+                  (ngModelChange)="updateField('description', $event)"
+                  rows="2"
+                  placeholder="Explicación clara del beneficio..."
+                  class="w-full rounded-xl border border-border bg-surface px-3 py-2 text-xs text-text focus:border-primary focus:outline-none resize-none"
+                  [class.border-red-400]="submitted() && form().description.trim().length < 5"
+                ></textarea>
+              </div>
+            </div>
+
+            <div class="space-y-3 rounded-2xl border border-border bg-bg/30 p-4">
+              <label class="block text-xs font-bold text-text">Mecánica del Beneficio</label>
+              <div class="grid grid-cols-2 gap-2">
+                @for (opt of typeOptions; track opt.value) {
+                  <button
+                    type="button"
+                    (click)="updateField('type', opt.value)"
+                    class="cursor-pointer flex items-center gap-2 rounded-xl border p-2.5 text-left transition select-none text-xs font-bold"
+                    [class.border-primary]="form().type === opt.value"
+                    [class.bg-primary/5]="form().type === opt.value"
+                    [class.border-border]="form().type !== opt.value"
+                    [class.bg-surface]="form().type !== opt.value"
+                  >
+                    <app-icon [name]="opt.icon" [size]="15" [class.text-primary]="form().type === opt.value" />
+                    <span class="truncate">{{ opt.shortLabel }}</span>
+                  </button>
+                }
+              </div>
+
+              @if (form().type === 'CODIGO_DESCUENTO') {
+                <div class="flex items-center justify-between rounded-xl bg-accent/10 p-3 text-xs">
+                  <span class="font-bold text-text">Descuento (%)</span>
+                  <div class="flex items-center gap-2">
+                    <input
+                      type="range" min="5" max="80" step="5"
+                      [ngModel]="form().discountPercent || 15"
+                      (ngModelChange)="updateField('discountPercent', $event)"
+                      class="accent-primary cursor-pointer w-32"
+                    />
+                    <span class="font-black text-accent w-12 text-right">{{ form().discountPercent || 15 }}%</span>
+                  </div>
+                </div>
+              }
+
+              <div>
+                <label class="block text-xs font-bold text-text mb-1">Nivel de Socio Requerido</label>
+                <select
+                  [ngModel]="form().tier"
+                  (ngModelChange)="updateField('tier', $event)"
+                  class="cursor-pointer w-full rounded-xl border border-border bg-surface px-3 py-2 text-xs font-semibold text-text focus:border-primary focus:outline-none"
+                >
+                  @for (t of tierOptions; track t.value) {
+                    <option [value]="t.value">{{ t.label }}</option>
+                  }
+                </select>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div class="rounded-2xl border border-border bg-bg/30 p-3">
+                <label class="block text-xs font-bold text-text mb-1">Costo en Puntos</label>
+                <input
+                  type="number" min="0" step="50"
+                  [ngModel]="form().pointsCost"
+                  (ngModelChange)="updateField('pointsCost', $event)"
+                  class="w-full rounded-xl border border-border bg-surface px-3 py-1.5 text-sm font-bold text-text focus:border-primary focus:outline-none"
+                />
+              </div>
+              <div class="rounded-2xl border border-border bg-bg/30 p-3">
+                <label class="block text-xs font-bold text-text mb-1">Cupo Máximo (Red)</label>
+                <input
+                  type="number" min="1" step="25"
+                  [ngModel]="form().maxRedemptions"
+                  (ngModelChange)="updateField('maxRedemptions', $event)"
+                  class="w-full rounded-xl border border-border bg-surface px-3 py-1.5 text-sm font-bold text-text focus:border-primary focus:outline-none"
+                />
+              </div>
+            </div>
+
+            <div class="rounded-2xl border border-border bg-bg/30 p-3 space-y-2">
+              <div class="flex items-center justify-between text-xs">
+                <span class="font-bold text-text">Vigencia</span>
+                <div class="flex gap-1 text-[10px]">
+                  <button type="button" (click)="setPresetDuration(30)" class="cursor-pointer rounded border border-border bg-surface px-1.5 py-0.5 hover:text-primary">+30d</button>
+                  <button type="button" (click)="setPresetDuration(60)" class="cursor-pointer rounded border border-border bg-surface px-1.5 py-0.5 hover:text-primary">+60d</button>
+                  <button type="button" (click)="setPresetDuration(90)" class="cursor-pointer rounded border border-border bg-surface px-1.5 py-0.5 hover:text-primary">+90d</button>
+                </div>
+              </div>
+              <div class="grid grid-cols-2 gap-2 text-xs">
+                <input
+                  type="date"
+                  [ngModel]="form().startDate"
+                  (ngModelChange)="updateField('startDate', $event)"
+                  class="rounded-xl border border-border bg-surface px-2.5 py-1.5 text-text focus:border-primary focus:outline-none"
+                  [class.border-red-400]="submitted() && (!form().startDate || form().startDate > form().endDate)"
+                />
+                <input
+                  type="date"
+                  [ngModel]="form().endDate"
+                  (ngModelChange)="updateField('endDate', $event)"
+                  class="rounded-xl border border-border bg-surface px-2.5 py-1.5 text-text focus:border-primary focus:outline-none"
+                  [class.border-red-400]="submitted() && (!form().endDate || form().startDate > form().endDate)"
+                />
+              </div>
+              @if (submitted() && (!form().startDate || !form().endDate)) {
+                <p class="text-[10px] text-red-500 font-bold">Las fechas de inicio y fin son obligatorias.</p>
+              } @else if (submitted() && form().startDate > form().endDate) {
+                <p class="text-[10px] text-red-500 font-bold">La fecha de fin no puede ser anterior a la de inicio.</p>
+              }
+            </div>
+
+            <div class="grid grid-cols-2 gap-3 text-xs">
+              <label class="cursor-pointer flex items-center justify-between rounded-xl border border-border bg-bg/30 p-3">
+                <span class="font-bold text-text">Activo para Canjes</span>
+                <input type="checkbox" [checked]="form().status" (change)="updateField('status', !form().status)" class="size-4 accent-primary" />
+              </label>
+              <label class="cursor-pointer flex items-center justify-between rounded-xl border border-border bg-bg/30 p-3">
+                <span class="font-bold text-text">Visible en Catálogo</span>
+                <input type="checkbox" [checked]="form().isPublic" (change)="updateField('isPublic', !form().isPublic)" class="size-4 accent-primary" />
+              </label>
+            </div>
+          </div>
+
+          <div class="lg:col-span-5 space-y-3">
+            <span class="text-xs font-bold uppercase tracking-wider text-muted">Vista Previa Cliente</span>
+            <div class="rounded-3xl border border-border bg-surface p-5 shadow-lg space-y-3">
+              <div class="flex items-center justify-between">
+                <span class="inline-flex items-center gap-1 rounded-full bg-purple-100 px-2 py-0.5 text-[11px] font-extrabold text-purple-900">
+                  <app-icon name="globe" [size]="11" /> Red Global
+                </span>
+                <span class="rounded-full px-2 py-0.5 text-[10px] font-bold" [class.bg-emerald-100]="form().isPublic" [class.text-emerald-800]="form().isPublic" [class.bg-stone-100]="!form().isPublic" [class.text-stone-600]="!form().isPublic">
+                  {{ form().isPublic ? 'Público' : 'Borrador' }}
+                </span>
+              </div>
+
+              <div class="flex items-start gap-3">
+                <div class="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary text-white shadow-sm">
+                  <app-icon [name]="getTypeMeta(form().type).icon" [size]="18" />
+                </div>
+                <div>
+                  <h3 class="font-extrabold text-text text-sm leading-tight">{{ form().name || 'Nombre de la Promoción' }}</h3>
+                  <p class="text-[11px] text-muted line-clamp-2 mt-0.5">{{ form().description || 'Descripción del beneficio...' }}</p>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-2 rounded-xl bg-bg/60 p-2.5 text-xs">
+                <div><span class="text-[10px] text-muted block">Tipo</span><span class="font-bold text-text">{{ getTypeMeta(form().type).shortLabel }}</span></div>
+                <div><span class="text-[10px] text-muted block">Costo</span><span class="font-black text-primary">{{ form().pointsCost === 0 ? '¡GRATIS!' : form().pointsCost + ' pts' }}</span></div>
+                <div><span class="text-[10px] text-muted block">Nivel</span><span class="font-bold text-text">{{ form().tier === 'ALL' ? 'Todos' : form().tier }}</span></div>
+                <div><span class="text-[10px] text-muted block">Cupo</span><span class="font-bold text-text">{{ form().maxRedemptions }} canjes</span></div>
+              </div>
+
+              <div class="flex items-center justify-between text-xs text-muted border-t border-border pt-2">
+                <span>Hasta {{ form().endDate || '2026-12-31' }}</span>
+                <span class="font-bold text-primary">Toda la red</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between border-t border-border bg-bg/50 px-6 py-3.5">
+        <button type="button" (click)="close.emit()" class="cursor-pointer rounded-xl border border-border px-4 py-2 text-xs font-bold text-muted hover:bg-bg select-none">
+          Cancelar
+        </button>
+        <button
+          type="button"
+          (click)="onSubmit()"
+          [disabled]="isProcessing()"
+          class="cursor-pointer inline-flex items-center gap-1.5 rounded-xl bg-primary px-5 py-2 text-xs font-extrabold text-white shadow-md hover:bg-primary-dark active:scale-95 disabled:opacity-50 select-none"
+        >
+          <app-icon [name]="mode() === 'create' ? 'plus' : 'save'" [size]="14" />
+          <span>{{ mode() === 'create' ? 'Crear Beneficio' : 'Guardar Cambios' }}</span>
+        </button>
+      </div>
+    </div>
+  </div>
+}
