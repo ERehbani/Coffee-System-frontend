@@ -15,7 +15,6 @@ import {
   TierBenefit,
   TierDetail,
   UpdateClientProfileInput,
-  UsedBenefit,
 } from '../types/profile.model';
 
 /** Accepts the backend tier names (Spanish) and the English codes, in any letter case. */
@@ -168,19 +167,6 @@ export function toTierDetail(dto: TierDetailDto): TierDetail {
       }))
       .sort((a, b) => a.threshold - b.threshold),
   };
-}
-
-export function toUsedBenefits(dtos: readonly RedemptionDto[]): readonly UsedBenefit[] {
-  return dtos
-    .filter((dto) => !dto.state)
-    .map((dto) => ({
-      id: dto.externalId,
-      benefitName: dto.benefitName,
-      cafeName: dto.cafeName,
-      redeemedAt: toDate(dto.date),
-      usedPoints: dto.usedPoints,
-    }))
-    .sort((a, b) => b.redeemedAt.getTime() - a.redeemedAt.getTime());
 }
 
 export function toTierBenefits(dtos: readonly TierBenefitDto[]): readonly TierBenefit[] {

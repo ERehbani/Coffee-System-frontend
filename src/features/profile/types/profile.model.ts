@@ -89,13 +89,6 @@ export interface ProfileDashboard {
   readonly featuredBenefits: readonly FeaturedBenefit[];
 }
 
-export interface UsedBenefit {
-  readonly id: string;
-  readonly benefitName: string;
-  readonly cafeName: string | null;
-  readonly redeemedAt: Date;
-  readonly usedPoints: number;
-}
 
 /** A benefit enabled for the client's tier that can be redeemed with points. */
 export interface TierBenefit {

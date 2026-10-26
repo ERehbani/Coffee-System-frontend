@@ -16,7 +16,6 @@ import {
   TierBenefit,
   TierDetail,
   UpdateClientProfileInput,
-  UsedBenefit,
 } from '../types/profile.model';
 import {
   toClientProfile,
@@ -25,7 +24,6 @@ import {
   toTierBenefits,
   toTierDetail,
   toUpdateClientProfileDto,
-  toUsedBenefits,
 } from '../utils/profile.mapper';
 import { ProfileRepository } from './profile.repository';
 
@@ -57,12 +55,6 @@ export class HttpProfileRepository implements ProfileRepository {
       .pipe(map(toRedeemedBenefit));
   }
 
-  getUsedBenefits(): Observable<readonly UsedBenefit[]> {
-    const params = new HttpParams().set('state', false);
-    return this.http
-      .get<RedemptionDto[]>(`${environment.apiBaseUrl}/redemption`, { params })
-      .pipe(map(toUsedBenefits));
-  }
 
   updateProfile(clientId: string, input: UpdateClientProfileInput): Observable<ClientProfile> {
     const payload = toUpdateClientProfileDto(input);

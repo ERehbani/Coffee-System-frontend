@@ -19,4 +19,12 @@ export class RedemptionService {
 
     return this.http.get<Redemption>(`${this.url}/${externalId}`);
   }
+
+  getUsedRedemptions(): Observable<Redemption[]> {
+    if (environment.useMockApi) {
+      return of(MOCK_REDEMPTIONS.filter((r) => r.usedDate !== null));
+    }
+
+    return this.http.get<Redemption[]>(this.url, { params: { used: true } });
+  }
 }

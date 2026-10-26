@@ -14,11 +14,9 @@ import {
   TierBenefit,
   TierDetail,
   UpdateClientProfileInput,
-  UsedBenefit,
 } from '../types/profile.model';
 import {
   buildProfileDashboardFixture,
-  buildRedemptionHistoryFixture,
   buildTierBenefitsFixture,
   buildTierDetailFixture,
 } from '../utils/profile.fixture';
@@ -28,7 +26,6 @@ import {
   toRedeemedBenefit,
   toTierBenefits,
   toTierDetail,
-  toUsedBenefits,
 } from '../utils/profile.mapper';
 import { MOCK_REDEMPTIONS } from '../../redemption-detail/data/redemptions.mock';
 import { ProfileRepository } from './profile.repository';
@@ -80,12 +77,6 @@ export class MockProfileRepository implements ProfileRepository {
     );
   }
 
-  getUsedBenefits(): Observable<readonly UsedBenefit[]> {
-    return defer(() => of(buildRedemptionHistoryFixture(new Date()))).pipe(
-      delay(MOCK_LATENCY_MS),
-      map(toUsedBenefits),
-    );
-  }
 
   updateProfile(clientId: string, input: UpdateClientProfileInput): Observable<ClientProfile> {
     const updatedClientDto: ClientProfileDto = {
@@ -162,6 +153,7 @@ export class MockProfileRepository implements ProfileRepository {
       description: benefit.description,
       expiresAt: expiresAt.slice(0, 10),
       conditions: conditions.join('\n'),
+      usedDate: null,
     });
 
     return redemption;
