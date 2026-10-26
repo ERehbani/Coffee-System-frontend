@@ -38,6 +38,10 @@
         @if (redemption.description) {
           <p class="mt-0.5 text-sm text-muted">{{ redemption.description }}</p>
         }
+        <p class="mt-1 flex items-center justify-center gap-1.5 text-sm text-muted">
+          <app-icon name="store" [size]="14" />
+          {{ cafeLabel() }}
+        </p>
 
         <div class="mt-5">
           <div class="qr-box border border-border">

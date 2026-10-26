@@ -25,6 +25,14 @@ export class RedemptionDetail implements OnInit {
 
   isReadyToUse = computed(() => this.redemption()?.state === true);
 
+  cafeLabel = computed(() => {
+    const cafeName = this.redemption()?.cafeName;
+    if (!cafeName || cafeName === 'Global') {
+      return 'Válido en todas las cafeterías';
+    }
+    return `Válido en ${cafeName}`;
+  });
+
   conditions = computed(() => {
     const text = this.redemption()?.conditions ?? '';
     return text

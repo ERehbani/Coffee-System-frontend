@@ -35,6 +35,7 @@ describe('RedemptionDetail', () => {
     expect(element.textContent).toContain('No acumulable con otras promociones.');
     expect(element.textContent).toContain('Vencimiento');
     expect(component.expiryDate()).toEqual(new Date(2026, 11, 31));
+    expect(element.textContent).toContain('Válido en todas las cafeterías');
   });
 
   it('should not show the qr when the redemption was already used', async () => {
