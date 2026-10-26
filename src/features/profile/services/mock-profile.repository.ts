@@ -142,6 +142,7 @@ export class MockProfileRepository implements ProfileRepository {
           description: benefit.description,
           code: redemption.validationCode,
           expiresAt,
+          cafeName: benefit.cafeName,
           conditions: [
             'Un solo uso por canje.',
             benefit.cafeName === null

@@ -60,6 +60,24 @@ describe('toProfileDashboard', () => {
     expect(dashboard.activeRedemptions[0].conditions).toEqual([]);
   });
 
+  it('maps the cafe of active redemptions, null for global benefits', () => {
+    const dashboard = toProfileDashboard(buildProfileDashboardFixture(now));
+
+    expect(dashboard.activeRedemptions.map((redemption) => redemption.cafeName)).toEqual([
+      null,
+      'Cafe Norte',
+    ]);
+  });
+
+  it('defaults to no cafe when an older payload does not send it', () => {
+    const dto = buildProfileDashboardFixture(now);
+    const { cafeName: _omitted, ...withoutCafe } = dto.activeRedemptions[1];
+
+    const dashboard = toProfileDashboard({ ...dto, activeRedemptions: [withoutCafe] });
+
+    expect(dashboard.activeRedemptions[0].cafeName).toBeNull();
+  });
+
   describe('with the nullable fields of the backend contract', () => {
     const sparseDto = (): ProfileDashboardDto => {
       const dto = buildProfileDashboardFixture(now);

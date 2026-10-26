@@ -63,6 +63,8 @@ export interface ActiveRedemptionDto {
   readonly code: string;
   /** ISO date or date-time; null when the benefit never ends */
   readonly expiresAt: string | null;
+  /** Cafe the coupon is valid in; null for global benefits. Missing in older payloads. */
+  readonly cafeName?: string | null;
   /** Usage conditions. Not in the backend contract yet; treated as empty when missing. */
   readonly conditions?: readonly string[];
 }

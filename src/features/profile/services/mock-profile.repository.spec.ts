@@ -120,6 +120,31 @@ describe('MockProfileRepository benefits', () => {
     expect(byId(openRedemption.id).expiresAtHasTime).toBe(true);
   });
 
+  it('carries the cafe of the benefit, null for global ones, into the active redemption', async () => {
+    const [{ availablePoints }, benefits] = await Promise.all([
+      settle(repository.getTierDetail()),
+      settle(repository.getTierBenefits()),
+    ]);
+    const affordable = benefits.filter((benefit) => benefit.pointsCost <= availablePoints / 2);
+    const global = affordable.find((benefit) => benefit.cafeName === null)!;
+    const specific = affordable.find((benefit) => benefit.cafeName !== null)!;
+
+    const globalRedemption = await settle(repository.redeemBenefit(global.id));
+    const specificRedemption = await settle(repository.redeemBenefit(specific.id));
+
+    const { activeRedemptions } = await settle(repository.getDashboard());
+    const cafeOf = (id: string) => activeRedemptions.find((redemption) => redemption.id === id);
+    expect(cafeOf(globalRedemption.id)?.cafeName).toBeNull();
+    expect(cafeOf(specificRedemption.id)?.cafeName).toBe(specific.cafeName);
+  });
+
+  it('seeds one cafe specific and one global ready coupon', async () => {
+    const { activeRedemptions } = await settle(repository.getDashboard());
+
+    expect(activeRedemptions.some((redemption) => redemption.cafeName === null)).toBe(true);
+    expect(activeRedemptions.some((redemption) => redemption.cafeName !== null)).toBe(true);
+  });
+
   it('gives every redemption its own id and code', async () => {
     const benefitId = await firstAffordableBenefitId();
 

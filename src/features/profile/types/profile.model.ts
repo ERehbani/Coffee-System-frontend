@@ -54,6 +54,8 @@ export interface ActiveRedemption {
   readonly expiresAt: Date | null;
   /** false when the backend sent a calendar day only: `expiresAt` is then its end, not a time */
   readonly expiresAtHasTime: boolean;
+  /** null for global benefits that are valid in any cafe */
+  readonly cafeName: string | null;
   readonly conditions: readonly string[];
 }
 

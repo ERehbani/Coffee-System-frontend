@@ -126,6 +126,7 @@ export function toProfileDashboard(dto: ProfileDashboardDto): ProfileDashboard {
       code: redemption.code,
       expiresAt: redemption.expiresAt ? toEndOfDay(redemption.expiresAt) : null,
       expiresAtHasTime: !!redemption.expiresAt && !isCalendarDay(redemption.expiresAt),
+      cafeName: redemption.cafeName ?? null,
       conditions: redemption.conditions ?? [],
     })),
     nearbyCafes: dto.nearbyCafes.map((cafe) => ({

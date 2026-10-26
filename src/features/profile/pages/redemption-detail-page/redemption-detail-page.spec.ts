@@ -18,6 +18,7 @@ const redemption: ActiveRedemption = {
   code: 'VLD-8492-C0FF',
   expiresAt: new Date(Date.now() + 5 * DAY_MS),
   expiresAtHasTime: true,
+  cafeName: null,
   conditions: ['Un solo uso por cliente.', 'No acumulable con otras promociones.'],
 };
 

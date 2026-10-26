@@ -10,6 +10,7 @@ const redemption: ActiveRedemptionView = {
   expiresAt: new Date(2026, 11, 31),
   expiresAtHasTime: false,
   daysUntilExpiry: 5,
+  cafeName: null,
   conditions: [],
 };
 
