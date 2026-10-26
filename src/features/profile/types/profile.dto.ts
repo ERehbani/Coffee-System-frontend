@@ -37,6 +37,7 @@ export interface LoyaltyStatusDto {
 
 export interface TierDetailDto {
   readonly tier: LoyaltyTierCodeDto;
+  readonly availablePoints: number;
   readonly lifetimePoints: number;
   readonly currentTierThreshold: number;
   readonly nextTier: LoyaltyTierCodeDto | null;
@@ -92,4 +93,19 @@ export interface RedemptionDto {
   readonly benefitName: string;
   /** null for global benefits that are valid in any cafe */
   readonly cafeName: string | null;
+}
+
+/** Backend TierBenefitResponse (GET /clients/me/benefits): a benefit the client can redeem. */
+export interface TierBenefitDto {
+  readonly externalId: string;
+  readonly name: string;
+  readonly description: string;
+  readonly pointsCost: number;
+  /** ISO calendar day (yyyy-MM-dd); null when the benefit never ends */
+  readonly endDate: string | null;
+  /** null for global benefits that are valid in any cafe */
+  readonly cafeName: string | null;
+  /** Backend tier name (BRONCE, PLATA, ORO, DIAMANTE) the benefit belongs to */
+  readonly tierName: LoyaltyTierCodeDto;
+  readonly benefitType: string;
 }

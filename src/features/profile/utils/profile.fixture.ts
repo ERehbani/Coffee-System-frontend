@@ -1,4 +1,9 @@
-import { ProfileDashboardDto, RedemptionDto, TierDetailDto } from '../types/profile.dto';
+import {
+  ProfileDashboardDto,
+  RedemptionDto,
+  TierBenefitDto,
+  TierDetailDto,
+} from '../types/profile.dto';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const UNSPLASH = 'https://images.unsplash.com';
@@ -82,6 +87,7 @@ export function buildProfileDashboardFixture(now: Date): ProfileDashboardDto {
 export function buildTierDetailFixture(): TierDetailDto {
   return {
     tier: 'SILVER',
+    availablePoints: 850,
     lifetimePoints: 1420,
     currentTierThreshold: 1000,
     nextTier: 'GOLD',
@@ -111,6 +117,61 @@ export function buildTierDetailFixture(): TierDetailDto {
       },
     ],
   };
+}
+
+function toIsoDay(date: Date): string {
+  const pad = (value: number) => String(value).padStart(2, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+}
+
+/**
+ * Benefits enabled for the mock client (tier PLATA, 850 points): the BRONCE and PLATA ones, ordered
+ * by tier and name like the backend does. Tier names are the backend ones.
+ */
+export function buildTierBenefitsFixture(now: Date): TierBenefitDto[] {
+  const endsIn = (days: number) => toIsoDay(new Date(now.getTime() + days * DAY_MS));
+  return [
+    {
+      externalId: 'benefit-2x1-medialunas',
+      name: '2x1 en medialunas',
+      description: 'Dos medialunas de manteca por el precio de una',
+      pointsCost: 200,
+      endDate: endsIn(60),
+      cafeName: 'Cafe Norte',
+      tierName: 'BRONCE',
+      benefitType: 'DESCUENTO_PORCENTAJE',
+    },
+    {
+      externalId: 'benefit-cafe-cortesia',
+      name: 'Café de cortesía',
+      description: 'Un café de filtro a elección en cualquier cafetería de la red',
+      pointsCost: 300,
+      endDate: null,
+      cafeName: null,
+      tierName: 'BRONCE',
+      benefitType: 'PRODUCTO_GRATIS_SOCIO',
+    },
+    {
+      externalId: 'benefit-descuento-15',
+      name: 'Descuento 15% en tu pedido',
+      description: 'Aplicable a toda la carta, una vez por visita',
+      pointsCost: 600,
+      endDate: endsIn(90),
+      cafeName: null,
+      tierName: 'PLATA',
+      benefitType: 'DESCUENTO_PORCENTAJE',
+    },
+    {
+      externalId: 'benefit-taza-edicion-limitada',
+      name: 'Taza de edición limitada',
+      description: 'Taza de cerámica con el diseño de la temporada',
+      pointsCost: 1200,
+      endDate: null,
+      cafeName: 'Cafe Central',
+      tierName: 'PLATA',
+      benefitType: 'PRODUCTO_GRATIS_SOCIO',
+    },
+  ];
 }
 
 export function buildRedemptionHistoryFixture(now: Date): RedemptionDto[] {

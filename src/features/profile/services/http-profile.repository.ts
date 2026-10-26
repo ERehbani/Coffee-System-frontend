@@ -6,11 +6,14 @@ import {
   ClientProfileDto,
   ProfileDashboardDto,
   RedemptionDto,
+  TierBenefitDto,
   TierDetailDto,
 } from '../types/profile.dto';
 import {
   ClientProfile,
   ProfileDashboard,
+  RedeemedBenefit,
+  TierBenefit,
   TierDetail,
   UpdateClientProfileInput,
   UsedBenefit,
@@ -18,6 +21,8 @@ import {
 import {
   toClientProfile,
   toProfileDashboard,
+  toRedeemedBenefit,
+  toTierBenefits,
   toTierDetail,
   toUpdateClientProfileDto,
   toUsedBenefits,
@@ -38,6 +43,18 @@ export class HttpProfileRepository implements ProfileRepository {
     return this.http
       .get<TierDetailDto>(`${environment.apiBaseUrl}/clients/me/tier`)
       .pipe(map(toTierDetail));
+  }
+
+  getTierBenefits(): Observable<readonly TierBenefit[]> {
+    return this.http
+      .get<TierBenefitDto[]>(`${environment.apiBaseUrl}/clients/me/benefits`)
+      .pipe(map(toTierBenefits));
+  }
+
+  redeemBenefit(benefitId: string): Observable<RedeemedBenefit> {
+    return this.http
+      .post<RedemptionDto>(`${environment.apiBaseUrl}/redemption`, { benefitId })
+      .pipe(map(toRedeemedBenefit));
   }
 
   getUsedBenefits(): Observable<readonly UsedBenefit[]> {
