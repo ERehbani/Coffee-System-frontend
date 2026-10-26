@@ -152,6 +152,21 @@
         >
           Canceladas
         </button>
+
+        <button
+          type="button"
+          (click)="setFilterStatus('REFUNDED')"
+          class="rounded-lg px-3 py-1.5 text-xs font-semibold transition cursor-pointer select-none"
+          [class.bg-primary]="filterStatus() === 'REFUNDED'"
+          [class.text-white]="filterStatus() === 'REFUNDED'"
+          [class.shadow-xs]="filterStatus() === 'REFUNDED'"
+          [class.bg-surface]="filterStatus() !== 'REFUNDED'"
+          [class.text-muted]="filterStatus() !== 'REFUNDED'"
+          [class.border]="filterStatus() !== 'REFUNDED'"
+          [class.border-border]="filterStatus() !== 'REFUNDED'"
+        >
+          Reembolsadas
+        </button>
       </div>
     </div>
 
