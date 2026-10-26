@@ -3,6 +3,7 @@ import {
   LoyaltyTierCodeDto,
   ProfileDashboardDto,
   RedemptionDto,
+  TierBenefitDto,
   TierDetailDto,
   UpdateClientProfileDto,
 } from '../types/profile.dto';
@@ -10,15 +11,27 @@ import {
   ClientProfile,
   LoyaltyTier,
   ProfileDashboard,
+  RedeemedBenefit,
+  TierBenefit,
   TierDetail,
   UpdateClientProfileInput,
   UsedBenefit,
 } from '../types/profile.model';
 
-const LOYALTY_TIERS: readonly LoyaltyTier[] = ['bronze', 'silver', 'gold', 'diamond'];
+/** Accepts the backend tier names (Spanish) and the English codes, in any letter case. */
+const LOYALTY_TIERS_BY_CODE: ReadonlyMap<string, LoyaltyTier> = new Map<string, LoyaltyTier>([
+  ['bronce', 'bronze'],
+  ['plata', 'silver'],
+  ['oro', 'gold'],
+  ['diamante', 'diamond'],
+  ['bronze', 'bronze'],
+  ['silver', 'silver'],
+  ['gold', 'gold'],
+  ['diamond', 'diamond'],
+]);
 
 function toLoyaltyTier(code: LoyaltyTierCodeDto): LoyaltyTier {
-  const tier = LOYALTY_TIERS.find((candidate) => candidate === code.toLowerCase());
+  const tier = LOYALTY_TIERS_BY_CODE.get(code.toLowerCase());
   if (!tier) {
     throw new Error(`Unknown loyalty tier code: ${code}`);
   }
@@ -29,6 +42,22 @@ function toDate(isoDate: string): Date {
   const date = new Date(isoDate);
   if (Number.isNaN(date.getTime())) {
     throw new Error(`Invalid date: ${isoDate}`);
+  }
+  return date;
+}
+
+const CALENDAR_DAY = /^(\d{4})-(\d{2})-(\d{2})$/;
+
+/** A yyyy-MM-dd day is read in local time: `new Date('2026-12-31')` would be UTC midnight. */
+function toCalendarDay(isoDay: string): Date {
+  const match = CALENDAR_DAY.exec(isoDay);
+  if (!match) {
+    return toDate(isoDay);
+  }
+  const [, year, month, day] = match;
+  const date = new Date(Number(year), Number(month) - 1, Number(day));
+  if (Number.isNaN(date.getTime())) {
+    throw new Error(`Invalid date: ${isoDay}`);
   }
   return date;
 }
@@ -99,6 +128,7 @@ export function toProfileDashboard(dto: ProfileDashboardDto): ProfileDashboard {
 export function toTierDetail(dto: TierDetailDto): TierDetail {
   return {
     tier: toLoyaltyTier(dto.tier),
+    availablePoints: dto.availablePoints,
     lifetimePoints: dto.lifetimePoints,
     currentTierThreshold: dto.currentTierThreshold,
     nextTier: dto.nextTier === null ? null : toLoyaltyTier(dto.nextTier),
@@ -126,4 +156,27 @@ export function toUsedBenefits(dtos: readonly RedemptionDto[]): readonly UsedBen
       usedPoints: dto.usedPoints,
     }))
     .sort((a, b) => b.redeemedAt.getTime() - a.redeemedAt.getTime());
+}
+
+export function toTierBenefits(dtos: readonly TierBenefitDto[]): readonly TierBenefit[] {
+  return dtos.map((dto) => ({
+    id: dto.externalId,
+    name: dto.name,
+    description: dto.description,
+    pointsCost: dto.pointsCost,
+    expiresAt: dto.endDate === null ? null : toCalendarDay(dto.endDate),
+    cafeName: dto.cafeName,
+    tier: toLoyaltyTier(dto.tierName),
+  }));
+}
+
+export function toRedeemedBenefit(dto: RedemptionDto): RedeemedBenefit {
+  return {
+    id: dto.externalId,
+    validationCode: dto.validationCode,
+    benefitName: dto.benefitName,
+    cafeName: dto.cafeName,
+    usedPoints: dto.usedPoints,
+    redeemedAt: toDate(dto.date),
+  };
 }
