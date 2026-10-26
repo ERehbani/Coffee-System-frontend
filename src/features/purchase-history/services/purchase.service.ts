@@ -22,4 +22,14 @@ export class PurchaseService {
       catchError(() => of(MOCK_PURCHASES))
     );
   }
+
+  getAll(): Observable<Purchase[]> {
+    if (environment.useMockApi) {
+      return of(MOCK_PURCHASES);
+    }
+
+    return this.http.get<Purchase[]>(this.url).pipe(
+      catchError(() => of(MOCK_PURCHASES))
+    );
+  }
 }
