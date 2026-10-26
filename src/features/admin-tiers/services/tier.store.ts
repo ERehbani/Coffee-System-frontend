@@ -25,6 +25,9 @@ export class AdminTierStore {
   readonly editingTier = signal<Tier | null>(null);
 
   readonly isEmpty = computed(() => this.status() === 'ready' && this.tiers().length === 0);
+  readonly baseTierId = computed(
+    () => this.tiers().find((tier) => this.isBaseTier(tier))?.id ?? null,
+  );
 
   constructor() {
     this.loadTiers();

@@ -67,6 +67,15 @@ describe('AdminTierStore', () => {
     expect(store.isBaseTier(plata)).toBe(false);
   });
 
+  it('exposes the id of the base tier, or none when there is not one', () => {
+    const store = create();
+
+    expect(store.baseTierId()).toBe(bronce.id);
+
+    store.tiers.set([plata]);
+    expect(store.baseTierId()).toBeNull();
+  });
+
   it('opens the drawer to create and to edit, and closes it clearing the form errors', () => {
     const store = create();
 

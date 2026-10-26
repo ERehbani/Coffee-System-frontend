@@ -32,12 +32,20 @@ describe('admin routes', () => {
     expect(page().querySelector('app-admin-placeholder-page')).toBeNull();
   });
 
-  it('renders the placeholder with the section title inside the admin layout', async () => {
+  it('renders the tiers page inside the admin layout', async () => {
     await harness.navigateByUrl('/admin/tiers');
+
+    expect(page().querySelector('app-admin-layout app-admin-tiers-page')).not.toBeNull();
+    expect(page().querySelector('app-admin-placeholder-page')).toBeNull();
+    expect(page().querySelector('h1')?.textContent?.trim()).toBe('Tiers');
+  });
+
+  it('renders the placeholder with the section title inside the admin layout', async () => {
+    await harness.navigateByUrl('/admin/clients');
 
     const placeholder = page().querySelector('app-admin-layout app-admin-placeholder-page');
 
-    expect(placeholder?.querySelector('h1')?.textContent?.trim()).toBe('Tiers');
+    expect(placeholder?.querySelector('h1')?.textContent?.trim()).toBe('Clientes');
     expect(placeholder?.textContent).toContain('Próximamente');
   });
 
@@ -59,7 +67,7 @@ describe('admin routes', () => {
   });
 
   describe.each(
-    ADMIN_NAV_ITEMS.filter((item) => item.path !== 'users' && item.path !== 'categories' && item.path !== 'global-benefits' && item.path !== 'purchases'),
+    ADMIN_NAV_ITEMS.filter((item) => item.path !== 'users' && item.path !== 'categories' && item.path !== 'global-benefits' && item.path !== 'purchases' && item.path !== 'tiers'),
   )(
     'section $label',
     ({ label, path }) => {
