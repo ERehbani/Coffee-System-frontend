@@ -1,0 +1,117 @@
+<main class="mx-auto max-w-6xl px-4 py-8 space-y-6">
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-border">
+    <div class="flex items-center gap-3">
+      <span class="size-10 rounded-2xl bg-purple-700 text-white flex items-center justify-center shadow-xs">
+        <app-icon name="globe" [size]="20" />
+      </span>
+      <div>
+        <div class="flex items-center gap-2">
+          <h1 class="text-xl font-black text-text">Beneficios Globales</h1>
+          <span class="rounded bg-purple-100 px-2 py-0.5 text-xs font-bold text-purple-800">Superadmin</span>
+        </div>
+        <p class="text-xs text-muted">Gestión centralizada de promociones válidas en todas las cafeterías de la red.</p>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <button
+        type="button"
+        (click)="store.loadBenefits()"
+        class="cursor-pointer inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface px-3 py-2 text-xs font-bold text-muted hover:bg-bg hover:text-text"
+        title="Actualizar"
+      >
+        <app-icon name="refresh-cw" [size]="14" [class.animate-spin]="store.status() === 'loading'" />
+        <span>Actualizar</span>
+      </button>
+
+      <button
+        type="button"
+        (click)="store.openCreateModal()"
+        class="cursor-pointer inline-flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-xs font-extrabold text-white shadow-md hover:bg-primary-dark active:scale-95"
+      >
+        <app-icon name="plus" [size]="14" />
+        <span>Nuevo Beneficio Global</span>
+      </button>
+    </div>
+  </div>
+
+  @if (store.actionMessage(); as msg) {
+    <div
+      class="flex items-center justify-between rounded-2xl border p-3.5 text-xs font-semibold shadow-xs"
+      [class.border-emerald-200]="msg.type === 'success'" [class.bg-emerald-50]="msg.type === 'success'" [class.text-emerald-900]="msg.type === 'success'"
+      [class.border-red-200]="msg.type === 'error'" [class.bg-red-50]="msg.type === 'error'" [class.text-red-900]="msg.type === 'error'"
+    >
+      <div class="flex items-center gap-2">
+        <app-icon [name]="msg.type === 'success' ? 'check-circle' : 'alert-circle'" [size]="16" />
+        <span>{{ msg.text }}</span>
+      </div>
+      <button type="button" (click)="store.dismissActionMessage()" class="cursor-pointer text-muted hover:text-text">
+        <app-icon name="x" [size]="14" />
+      </button>
+    </div>
+  }
+
+  @if (store.errorMessage(); as errorMsg) {
+    <div
+      role="alert"
+      class="flex items-center justify-between gap-3 rounded-2xl border border-rose-300 bg-rose-50 px-5 py-3.5 text-rose-800 transition"
+    >
+      <div class="flex items-center gap-3">
+        <span class="inline-flex size-8 shrink-0 items-center justify-center rounded-full bg-rose-600 text-white">
+          <app-icon name="x" [size]="16" />
+        </span>
+        <p class="text-xs font-bold text-rose-900">{{ errorMsg }}</p>
+      </div>
+      <button
+        type="button"
+        (click)="store.loadBenefits()"
+        class="cursor-pointer text-xs font-bold underline hover:text-rose-950"
+      >
+        Reintentar
+      </button>
+    </div>
+  }
+
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+    <div class="rounded-2xl border border-border bg-surface p-3.5 shadow-2xs">
+      <span class="text-[11px] font-bold text-muted block mb-0.5">Total Beneficios</span>
+      <p class="text-2xl font-black text-text">{{ store.stats().total }}</p>
+      <span class="text-[10px] text-muted">Alcance red</span>
+    </div>
+    <div class="rounded-2xl border border-border bg-surface p-3.5 shadow-2xs">
+      <span class="text-[11px] font-bold text-muted block mb-0.5">Activos en Red</span>
+      <p class="text-2xl font-black text-emerald-700">{{ store.stats().active }}</p>
+      <span class="text-[10px] text-muted">Operativos</span>
+    </div>
+    <div class="rounded-2xl border border-border bg-surface p-3.5 shadow-2xs">
+      <span class="text-[11px] font-bold text-muted block mb-0.5">Publicados en App</span>
+      <p class="text-2xl font-black text-sky-800">{{ store.stats().publicCount }}</p>
+      <span class="text-[10px] text-muted">Visibles a clientes</span>
+    </div>
+    <div class="rounded-2xl border border-border bg-surface p-3.5 shadow-2xs">
+      <span class="text-[11px] font-bold text-muted block mb-0.5">Canjes Totales</span>
+      <p class="text-2xl font-black text-purple-800">{{ store.stats().totalRedemptions }}</p>
+      <span class="text-[10px] text-muted">Redimidos</span>
+    </div>
+  </div>
+
+  <app-global-benefit-table
+    [benefits]="store.benefits()"
+    [status]="store.status()"
+    [isProcessing]="store.isProcessing()"
+    (edit)="store.openEditModal($event)"
+    (duplicate)="store.duplicateBenefit($event)"
+    (delete)="store.deleteBenefit($event)"
+    (togglePublish)="store.togglePublish($event.id, $event.current)"
+    (toggleStatus)="store.toggleStatus($event.id, $event.current)"
+  />
+
+  <app-global-benefit-form-modal
+    [isOpen]="store.isFormModalOpen()"
+    [mode]="store.formModalMode()"
+    [benefit]="store.editingBenefit()"
+    [isProcessing]="store.isProcessing()"
+    (save)="store.saveBenefit($event)"
+    (close)="store.closeFormModal()"
+  />
+</main>

@@ -1,0 +1,63 @@
+<div class="space-y-6 pb-12">
+  <header class="flex items-center gap-3">
+    <a
+      routerLink="/profile"
+      aria-label="Volver al perfil"
+      class="flex size-10 shrink-0 items-center justify-center rounded-full border border-border bg-surface text-text transition-colors hover:bg-accent-light focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+    >
+      <app-icon name="arrow-left" [size]="20" />
+    </a>
+    <div>
+      <span class="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-accent">
+        <app-icon name="history" [size]="14" />
+        Mis consumos
+      </span>
+      <h1 class="text-2xl font-bold tracking-tight text-text">Historial de compras</h1>
+    </div>
+  </header>
+
+  @if (!isLoading() && purchases().length > 0) {
+    <section aria-label="Resumen" class="grid grid-cols-3 gap-3">
+      <div class="rounded-2xl border border-border bg-surface p-4 text-center shadow-xs">
+        <p class="text-xs text-muted">Compras</p>
+        <p class="text-lg font-bold text-text">{{ purchases().length }}</p>
+      </div>
+      <div class="rounded-2xl border border-border bg-surface p-4 text-center shadow-xs">
+        <p class="text-xs text-muted">Gastado</p>
+        <p class="text-lg font-bold text-text">{{ totalSpent() | currency: 'ARS' : 'symbol' : '1.0-0' }}</p>
+      </div>
+      <div class="rounded-2xl border border-border bg-surface p-4 text-center shadow-xs">
+        <p class="text-xs text-muted">Puntos</p>
+        <p class="text-lg font-bold text-primary">{{ totalPoints() }}</p>
+      </div>
+    </section>
+  }
+
+  <section aria-label="Listado de compras" class="space-y-4">
+    @if (isLoading()) {
+      @for (item of [1, 2, 3]; track item) {
+        <div class="h-48 rounded-2xl bg-border/40 animate-pulse"></div>
+      }
+    } @else {
+      @for (purchase of sortedPurchases(); track purchase.externalId) {
+        <app-purchase-card [purchase]="purchase" />
+      } @empty {
+        <div class="rounded-2xl border border-dashed border-border bg-surface p-12 text-center">
+          <div class="mx-auto flex size-14 items-center justify-center rounded-full bg-accent-light text-primary">
+            <app-icon name="shopping-bag" [size]="28" />
+          </div>
+          <h3 class="mt-4 text-base font-bold text-text">Todavía no hiciste compras</h3>
+          <p class="mt-1.5 text-xs text-muted max-w-sm mx-auto">
+            Cuando compres en alguna cafetería, vas a ver acá el detalle y los puntos que ganaste.
+          </p>
+          <a
+            routerLink="/home"
+            class="mt-4 inline-block rounded-xl bg-primary px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-primary-dark"
+          >
+            Explorar cafeterías
+          </a>
+        </div>
+      }
+    }
+  </section>
+</div>

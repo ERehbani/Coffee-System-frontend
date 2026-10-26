@@ -83,6 +83,17 @@
 
         <app-quick-actions (actionSelected)="onQuickAction($event)" />
 
+        <a
+          routerLink="/purchases"
+          class="flex items-center justify-between gap-2 rounded-2xl border border-border bg-surface px-4 py-3 text-sm font-bold text-primary transition-colors hover:border-primary hover:bg-accent-light/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+        >
+          <span class="flex items-center gap-2">
+            <app-icon name="shopping-bag" [size]="18" />
+            Historial de compras
+          </span>
+          <app-icon name="chevron-right" [size]="18" />
+        </a>
+
         <section aria-labelledby="active-redemptions-heading" class="space-y-3">
           <app-section-header
             headingId="active-redemptions-heading"

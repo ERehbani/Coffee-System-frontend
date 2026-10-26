@@ -14,6 +14,10 @@ const adminSectionRoutes: Routes = [
     path: 'categories',
     loadChildren: () => import('../features/admin-categories/admin-categories.routes'),
   },
+  {
+    path: 'global-benefits',
+    loadChildren: () => import('../features/admin-global-benefits/admin-global-benefits.routes'),
+  },
 ];
 
 const adminPlaceholderRoutes: Routes = ADMIN_NAV_ITEMS.filter(
@@ -58,6 +62,10 @@ export const routes: Routes = [
       {
         path: 'orders',
         loadChildren: () => import('../features/orders/orders.routes'),
+      },
+      {
+        path: 'purchases',
+        loadChildren: () => import('../features/purchase-history/purchase-history.routes'),
       },
     ],
   },
