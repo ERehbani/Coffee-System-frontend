@@ -419,6 +419,22 @@ describe('AdminBenefitTypesPage', () => {
       expect(document.activeElement).toBe(trigger);
     });
 
+    it('keeps the focus on the page when registering the last format disables "Nuevo tipo"', async () => {
+      await render();
+      createFormat.mockReturnValue(of(porPuntos));
+      await click(button('Nuevo tipo'));
+      await choose('PRODUCTO_POR_PUNTOS');
+      await type(nameInput(), 'Por puntos');
+      await type(description(), 'Canje con puntos.');
+
+      await click(button('Guardar'));
+
+      expect(button('Nuevo tipo').disabled).toBe(true);
+      expect(document.activeElement).not.toBe(document.body);
+      expect(document.activeElement).toBe(element.querySelector('main'));
+      expect(element.querySelector('main')?.getAttribute('tabindex')).toBe('-1');
+    });
+
     it('closes with Escape and returns the focus to "Nuevo tipo"', async () => {
       await render();
       const trigger = button('Nuevo tipo');

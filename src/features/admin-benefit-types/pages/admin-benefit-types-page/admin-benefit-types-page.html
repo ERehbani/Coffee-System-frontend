@@ -1,4 +1,8 @@
-<main class="mx-auto w-full max-w-6xl space-y-6 px-4 py-8 lg:px-8">
+<main
+  #pageMain
+  tabindex="-1"
+  class="focus:outline-hidden mx-auto w-full max-w-6xl space-y-6 px-4 py-8 lg:px-8"
+>
   <app-admin-page-header
     title="Tipos de beneficio"
     subtitle="Define qué formatos de cupón pueden usar los beneficios."
@@ -97,6 +101,7 @@
       [isProcessing]="store.isProcessing()"
       [errors]="store.formErrors()"
       [returnFocusTo]="drawerTrigger()"
+      [fallbackFocus]="pageMain"
       (save)="store.saveFormat($event)"
       (cancel)="store.closeDrawer()"
       (fieldEdited)="store.clearFormError($event)"

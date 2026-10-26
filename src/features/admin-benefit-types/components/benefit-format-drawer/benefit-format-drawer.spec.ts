@@ -15,6 +15,7 @@ describe('BenefitFormatDrawer', () => {
     format?: BenefitFormat | null;
     availableCodes?: readonly string[];
     returnFocusTo?: HTMLElement | null;
+    fallbackFocus?: HTMLElement | null;
   }) {
     fixture = TestBed.createComponent(BenefitFormatDrawer);
     fixture.componentRef.setInput('format', inputs.format ?? null);
@@ -23,6 +24,7 @@ describe('BenefitFormatDrawer', () => {
       inputs.availableCodes ?? ['PRODUCTO_POR_PUNTOS'],
     );
     fixture.componentRef.setInput('returnFocusTo', inputs.returnFocusTo ?? null);
+    fixture.componentRef.setInput('fallbackFocus', inputs.fallbackFocus ?? null);
     saved = [];
     fixture.componentInstance.save.subscribe((value) => saved.push(value));
     // Attached to the document so focus can be observed.
@@ -115,6 +117,19 @@ describe('BenefitFormatDrawer', () => {
       );
       expect(description().getAttribute('aria-describedby')).toContain(
         'benefit-format-description-count',
+      );
+    });
+
+    it('counts the trimmed text, as the validation does', async () => {
+      await render({});
+
+      await type(description(), `${'y'.repeat(200)}   `);
+
+      expect(element.querySelector('#benefit-format-description-count')?.textContent?.trim()).toBe(
+        '200/200',
+      );
+      expect(element.querySelector('#benefit-format-description-count')?.className).not.toContain(
+        'text-rose-700',
       );
     });
 
@@ -323,6 +338,35 @@ describe('BenefitFormatDrawer', () => {
 
       expect(document.activeElement).toBe(trigger);
       trigger.remove();
+    });
+
+    it('falls back to the given element when the one to return to is disabled', async () => {
+      const trigger = document.createElement('button');
+      const fallback = document.createElement('main');
+      fallback.tabIndex = -1;
+      document.body.append(trigger, fallback);
+      await render({ returnFocusTo: trigger, fallbackFocus: fallback });
+      trigger.disabled = true;
+
+      fixture.destroy();
+
+      expect(document.activeElement).toBe(fallback);
+      trigger.remove();
+      fallback.remove();
+    });
+
+    it('falls back to the given element when the one to return to is gone', async () => {
+      const trigger = document.createElement('button');
+      const fallback = document.createElement('main');
+      fallback.tabIndex = -1;
+      document.body.append(trigger, fallback);
+      await render({ returnFocusTo: trigger, fallbackFocus: fallback });
+      trigger.remove();
+
+      fixture.destroy();
+
+      expect(document.activeElement).toBe(fallback);
+      fallback.remove();
     });
 
     it('does not fail when that element is gone', async () => {

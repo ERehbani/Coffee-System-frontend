@@ -27,6 +27,11 @@ const DESCRIPTION_MAX_LENGTH = 200;
 const FOCUSABLE =
   'button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled])';
 
+/** Whether the element is on the page and can take the focus. */
+function isFocusable(element: HTMLElement | null): element is HTMLElement {
+  return element !== null && element.isConnected && !(element as HTMLButtonElement).disabled;
+}
+
 type EditableField = 'code' | 'displayName' | 'description';
 
 @Component({
@@ -45,6 +50,8 @@ export class BenefitFormatDrawer {
   readonly errors = input<BenefitFormatFormErrors>({});
   /** The button that opened the drawer; it gets the focus back when the drawer goes away. */
   readonly returnFocusTo = input<HTMLElement | null>(null);
+  /** Gets the focus instead when that button is gone or disabled by the very change that closed the drawer. */
+  readonly fallbackFocus = input<HTMLElement | null>(null);
 
   readonly save = output<SaveBenefitFormatInput>();
   readonly cancel = output<void>();
@@ -69,8 +76,11 @@ export class BenefitFormatDrawer {
     return format !== null && format.usageCount > 0 && !this.active();
   });
 
+  /** Characters that count against the limit: the text is trimmed before it is validated. */
+  protected readonly descriptionLength = computed(() => this.description().trim().length);
+
   protected readonly descriptionTooLong = computed(
-    () => this.description().trim().length > DESCRIPTION_MAX_LENGTH,
+    () => this.descriptionLength() > DESCRIPTION_MAX_LENGTH,
   );
 
   private readonly clientCodeError = computed(() =>
@@ -86,11 +96,10 @@ export class BenefitFormatDrawer {
   });
 
   private readonly clientDescriptionError = computed(() => {
-    const description = this.description().trim();
-    if (!description) {
+    if (this.descriptionLength() === 0) {
       return 'La descripción es obligatoria.';
     }
-    return description.length > DESCRIPTION_MAX_LENGTH
+    return this.descriptionLength() > DESCRIPTION_MAX_LENGTH
       ? 'La descripción puede tener hasta 200 caracteres.'
       : null;
   });
@@ -114,10 +123,8 @@ export class BenefitFormatDrawer {
       this.panel().nativeElement.querySelector<HTMLElement>('[data-autofocus]')?.focus(),
     );
     inject(DestroyRef).onDestroy(() => {
-      const opener = this.returnFocusTo();
-      if (opener?.isConnected) {
-        opener.focus();
-      }
+      const target = [this.returnFocusTo(), this.fallbackFocus()].find(isFocusable);
+      target?.focus();
     });
   }
 
