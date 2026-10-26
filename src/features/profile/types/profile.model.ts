@@ -35,6 +35,7 @@ export interface TierLevel {
 
 export interface TierDetail {
   readonly tier: LoyaltyTier;
+  readonly availablePoints: number;
   readonly lifetimePoints: number;
   readonly currentTierThreshold: number;
   readonly nextTier: LoyaltyTier | null;
@@ -87,4 +88,27 @@ export interface UsedBenefit {
   readonly cafeName: string | null;
   readonly redeemedAt: Date;
   readonly usedPoints: number;
+}
+
+/** A benefit enabled for the client's tier that can be redeemed with points. */
+export interface TierBenefit {
+  readonly id: string;
+  readonly name: string;
+  readonly description: string;
+  readonly pointsCost: number;
+  /** null when the benefit never ends */
+  readonly expiresAt: Date | null;
+  /** null for global benefits that are valid in any cafe */
+  readonly cafeName: string | null;
+  readonly tier: LoyaltyTier;
+}
+
+/** Result of redeeming a benefit: the redemption to show at the cafe. */
+export interface RedeemedBenefit {
+  readonly id: string;
+  readonly validationCode: string;
+  readonly benefitName: string;
+  readonly cafeName: string | null;
+  readonly usedPoints: number;
+  readonly redeemedAt: Date;
 }

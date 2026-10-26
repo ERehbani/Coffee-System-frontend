@@ -1,9 +1,16 @@
 import { Service } from '@angular/core';
 import { defer, delay, map, Observable, of } from 'rxjs';
-import { ClientProfileDto, ProfileDashboardDto } from '../types/profile.dto';
+import {
+  ClientProfileDto,
+  ProfileDashboardDto,
+  RedemptionDto,
+  TierBenefitDto,
+} from '../types/profile.dto';
 import {
   ClientProfile,
   ProfileDashboard,
+  RedeemedBenefit,
+  TierBenefit,
   TierDetail,
   UpdateClientProfileInput,
   UsedBenefit,
@@ -11,11 +18,14 @@ import {
 import {
   buildProfileDashboardFixture,
   buildRedemptionHistoryFixture,
+  buildTierBenefitsFixture,
   buildTierDetailFixture,
 } from '../utils/profile.fixture';
 import {
   toClientProfile,
   toProfileDashboard,
+  toRedeemedBenefit,
+  toTierBenefits,
   toTierDetail,
   toUsedBenefits,
 } from '../utils/profile.mapper';
@@ -23,9 +33,15 @@ import { ProfileRepository } from './profile.repository';
 
 export const MOCK_LATENCY_MS = 400;
 
+/** A redeemed benefit without an end date stays valid this long. */
+const REDEMPTION_VALIDITY_DAYS = 30;
+const DAY_MS = 24 * 60 * 60 * 1000;
+
 @Service({ autoProvided: false })
 export class MockProfileRepository implements ProfileRepository {
   private currentDashboard: ProfileDashboardDto = buildProfileDashboardFixture(new Date());
+  private readonly tierBenefits: readonly TierBenefitDto[] = buildTierBenefitsFixture(new Date());
+  private redemptionCount = 0;
 
   getDashboard(): Observable<ProfileDashboard> {
     return defer(() => of(this.currentDashboard)).pipe(
@@ -35,9 +51,22 @@ export class MockProfileRepository implements ProfileRepository {
   }
 
   getTierDetail(): Observable<TierDetail> {
-    return defer(() => of(buildTierDetailFixture())).pipe(
+    return defer(() =>
+      of({
+        ...buildTierDetailFixture(),
+        availablePoints: this.currentDashboard.loyalty.availablePoints,
+      }),
+    ).pipe(delay(MOCK_LATENCY_MS), map(toTierDetail));
+  }
+
+  getTierBenefits(): Observable<readonly TierBenefit[]> {
+    return defer(() => of(this.tierBenefits)).pipe(delay(MOCK_LATENCY_MS), map(toTierBenefits));
+  }
+
+  redeemBenefit(benefitId: string): Observable<RedeemedBenefit> {
+    return defer(() => of(this.redeem(benefitId))).pipe(
       delay(MOCK_LATENCY_MS),
-      map(toTierDetail),
+      map(toRedeemedBenefit),
     );
   }
 
@@ -67,5 +96,61 @@ export class MockProfileRepository implements ProfileRepository {
       delay(MOCK_LATENCY_MS),
       map(toClientProfile),
     );
+  }
+
+  /** Spends the points and registers an active redemption, so the coupon detail can show it. */
+  private redeem(benefitId: string): RedemptionDto {
+    const benefit = this.tierBenefits.find(({ externalId }) => externalId === benefitId);
+    if (!benefit) {
+      throw new Error(`Beneficio no encontrado: ${benefitId}.`);
+    }
+
+    const { loyalty, activeRedemptions } = this.currentDashboard;
+    if (loyalty.availablePoints < benefit.pointsCost) {
+      throw new Error(
+        `Puntos insuficientes: ${benefit.name} cuesta ${benefit.pointsCost} pts y tienes ${loyalty.availablePoints} pts.`,
+      );
+    }
+
+    const now = new Date();
+    this.redemptionCount += 1;
+    const sequence = String(this.redemptionCount).padStart(4, '0');
+    const redemption: RedemptionDto = {
+      externalId: `redemption-mock-${sequence}`,
+      date: now.toISOString(),
+      usedPoints: benefit.pointsCost,
+      state: true,
+      validationCode: `VLD-${sequence}-MOCK`,
+      benefitName: benefit.name,
+      cafeName: benefit.cafeName,
+    };
+
+    const expiresAt =
+      benefit.endDate === null
+        ? new Date(now.getTime() + REDEMPTION_VALIDITY_DAYS * DAY_MS)
+        : new Date(`${benefit.endDate}T23:59:59`);
+    this.currentDashboard = {
+      ...this.currentDashboard,
+      loyalty: { ...loyalty, availablePoints: loyalty.availablePoints - benefit.pointsCost },
+      activeRedemptions: [
+        {
+          id: redemption.externalId,
+          title: benefit.name,
+          description: benefit.description,
+          code: redemption.validationCode,
+          expiresAt: expiresAt.toISOString(),
+          conditions: [
+            'Un solo uso por canje.',
+            benefit.cafeName === null
+              ? 'Válido en cualquier cafetería de la red.'
+              : `Válido solo en ${benefit.cafeName}.`,
+            'Presenta el código antes de pagar.',
+          ],
+        },
+        ...activeRedemptions,
+      ],
+    };
+
+    return redemption;
   }
 }
