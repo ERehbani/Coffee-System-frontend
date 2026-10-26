@@ -33,4 +33,34 @@
       {{ purchase().price | currency }}
     </p>
   </div>
+
+  @if (purchase().reviewed) {
+    <button
+      type="button"
+      disabled
+      class="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-border bg-bg px-4 py-2 text-sm font-bold text-muted"
+    >
+      <app-icon name="check" [size]="16" />
+      Reseña enviada
+    </button>
+  } @else if (canReview()) {
+    @if (isReviewing()) {
+      <app-review-form
+        [cafeName]="purchase().cafeName"
+        [isSubmitting]="isSubmitting()"
+        [errorMessage]="reviewError()"
+        (submitted)="reviewSubmitted.emit($event)"
+        (cancelled)="reviewCancelled.emit()"
+      />
+    } @else {
+      <button
+        type="button"
+        (click)="reviewRequested.emit()"
+        class="inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-primary px-4 py-2 text-sm font-bold text-primary transition hover:bg-accent-light/40"
+      >
+        <app-icon name="message-square-text" [size]="16" />
+        Dejar reseña
+      </button>
+    }
+  }
 </article>

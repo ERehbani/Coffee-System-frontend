@@ -16,6 +16,28 @@
     </div>
   </header>
 
+  @if (successMessage()) {
+    <div
+      role="status"
+      class="flex items-center justify-between gap-3 rounded-2xl border border-emerald-300 bg-emerald-50 px-5 py-4 text-emerald-800 shadow-xs"
+    >
+      <div class="flex items-center gap-3">
+        <span class="inline-flex size-8 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-white">
+          <app-icon name="check" [size]="16" />
+        </span>
+        <p class="text-sm font-bold text-emerald-950">{{ successMessage() }}</p>
+      </div>
+      <button
+        type="button"
+        (click)="dismissSuccess()"
+        aria-label="Cerrar notificación"
+        class="cursor-pointer rounded-lg p-1 text-emerald-800 transition-all hover:bg-emerald-100"
+      >
+        <app-icon name="x" [size]="16" />
+      </button>
+    </div>
+  }
+
   @if (!isLoading() && purchases().length > 0) {
     <section aria-label="Resumen" class="grid grid-cols-3 gap-3">
       <div class="rounded-2xl border border-border bg-surface p-4 text-center shadow-xs">
@@ -40,7 +62,15 @@
       }
     } @else {
       @for (purchase of sortedPurchases(); track purchase.externalId) {
-        <app-purchase-card [purchase]="purchase" />
+        <app-purchase-card
+          [purchase]="purchase"
+          [isReviewing]="reviewingPurchaseId() === purchase.externalId"
+          [isSubmitting]="isSubmitting() && reviewingPurchaseId() === purchase.externalId"
+          [reviewError]="reviewingPurchaseId() === purchase.externalId ? reviewError() : null"
+          (reviewRequested)="openReview(purchase.externalId)"
+          (reviewCancelled)="closeReview()"
+          (reviewSubmitted)="submitReview(purchase, $event)"
+        />
       } @empty {
         <div class="rounded-2xl border border-dashed border-border bg-surface p-12 text-center">
           <div class="mx-auto flex size-14 items-center justify-center rounded-full bg-accent-light text-primary">

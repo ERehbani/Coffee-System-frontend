@@ -42,7 +42,7 @@ export class ProfilePage {
   protected onViewCard(): void {}
   protected onQuickAction(action: QuickActionId): void {
     if (action === 'write-review') {
-      this.router.navigate(['/orders']);
+      this.router.navigate(['/purchases']);
     }
   }
   protected onShowQr(redemptionId: string): void {

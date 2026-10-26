@@ -15,6 +15,10 @@ const adminSectionRoutes: Routes = [
     loadChildren: () => import('../features/admin-categories/admin-categories.routes'),
   },
   {
+    path: 'global-benefits',
+    loadChildren: () => import('../features/admin-global-benefits/admin-global-benefits.routes'),
+  },
+  {
     path: 'purchases',
     loadChildren: () => import('../features/admin-purchases/admin-purchases.routes'),
   },
@@ -58,10 +62,6 @@ export const routes: Routes = [
       {
         path: 'profile',
         loadChildren: () => import('../features/profile/profile.routes'),
-      },
-      {
-        path: 'orders',
-        loadChildren: () => import('../features/orders/orders.routes'),
       },
       {
         path: 'purchases',
