@@ -354,6 +354,54 @@ describe('TierStore', () => {
     });
   });
 
+  describe('when the refresh after a redemption fails', () => {
+    function failSecondDetailLoad() {
+      let calls = 0;
+      getTierDetail = vi.fn(() =>
+        ++calls === 2 ? throwError(() => new Error('500')) : of(detailWith(points)),
+      );
+    }
+
+    it('keeps the last tier detail and the success, and flags the failed refresh', async () => {
+      failSecondDetailLoad();
+      const store = createStore();
+      store.requestRedeem('benefit-coffee');
+
+      store.confirmRedeem();
+      await settle();
+
+      expect(store.status()).toBe('ready');
+      expect(store.detail()).not.toBeNull();
+      expect(store.detailRefreshFailed()).toBe(true);
+      expect(store.redeemed()).toEqual(redeemed);
+    });
+
+    it('recovers when the refresh is retried', async () => {
+      failSecondDetailLoad();
+      const store = createStore();
+      store.requestRedeem('benefit-coffee');
+      store.confirmRedeem();
+      await settle();
+
+      store.reload();
+      await settle();
+
+      expect(store.detailRefreshFailed()).toBe(false);
+      expect(store.status()).toBe('ready');
+      expect(store.availablePoints()).toBe(550);
+      expect(store.redeemed()).toEqual(redeemed);
+    });
+
+    it('still reports an error when the first load fails', () => {
+      getTierDetail = vi.fn(() => throwError(() => new Error('500')));
+      const store = createStore();
+
+      expect(store.status()).toBe('error');
+      expect(store.detail()).toBeNull();
+      expect(store.detailRefreshFailed()).toBe(false);
+    });
+  });
+
   describe('leaving the page', () => {
     it('drops an open confirm step', () => {
       const store = createStore();

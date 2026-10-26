@@ -1,4 +1,12 @@
-import { computed, DestroyRef, inject, Injector, Service, signal } from '@angular/core';
+import {
+  computed,
+  DestroyRef,
+  inject,
+  Injector,
+  linkedSignal,
+  Service,
+  signal,
+} from '@angular/core';
 import { rxResource, takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RedeemedBenefit, TierBenefit, TierDetail, TierLevel } from '../types/profile.model';
 import { LoyaltyProgress, toLoyaltyProgress } from '../utils/loyalty-progress';
@@ -52,19 +60,26 @@ export class TierStore {
   /** The latest successful redemption, shown until it is dismissed or another one starts. */
   readonly redeemed = this.redeemedState.asReadonly();
 
-  readonly detail = computed<TierDetail | null>(() =>
-    this.resource.hasValue() ? this.resource.value() : null,
-  );
+  /** The last tier detail that loaded: a failed refresh must not take it away. */
+  readonly detail = linkedSignal<TierDetail | null, TierDetail | null>({
+    source: () => (this.resource.hasValue() ? this.resource.value() : null),
+    computation: (loaded, previous) => loaded ?? previous?.value ?? null,
+  });
 
   readonly status = computed<TierDetailStatus>(() => {
-    if (this.resource.isLoading() && !this.resource.hasValue()) {
-      return 'loading';
+    if (this.detail()) {
+      return 'ready';
     }
     if (this.resource.error()) {
       return 'error';
     }
-    return this.resource.hasValue() ? 'ready' : 'loading';
+    return 'loading';
   });
+
+  /** A refresh failed while a previous detail is still on screen: show it, without blocking. */
+  readonly detailRefreshFailed = computed(
+    () => this.detail() !== null && this.resource.error() !== undefined,
+  );
 
   readonly availablePoints = computed(() => this.detail()?.availablePoints ?? 0);
 

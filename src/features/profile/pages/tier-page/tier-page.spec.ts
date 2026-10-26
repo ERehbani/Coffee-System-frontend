@@ -312,6 +312,66 @@ describe('TierPage', () => {
     });
   });
 
+  describe('when the refresh after a redemption fails', () => {
+    async function redeemCoffee() {
+      buttonByText('Activar', itemByName('Café de cortesía'))!.click();
+      await settle();
+      buttonByText('Confirmar')!.click();
+      await settle();
+    }
+
+    beforeEach(() => {
+      let calls = 0;
+      getTierDetail = vi.fn(() =>
+        ++calls === 2
+          ? throwError(() => new Error('500'))
+          : of(toTierDetail({ ...buildTierDetailFixture(), availablePoints: points })),
+      );
+    });
+
+    it('keeps the code and the coupon link visible with a non-blocking notice', async () => {
+      await render();
+
+      await redeemCoffee();
+
+      const success = element.querySelector('[data-testid="redeem-success"]')!;
+      expect(success.querySelector('[data-testid="redeem-code"]')?.textContent?.trim()).toBe(
+        'VLD-0009-MOCK',
+      );
+      expect(success.querySelector('a')?.getAttribute('href')).toBe(
+        '/profile/redemptions/redemption-9',
+      );
+      expect(element.querySelector('[data-testid="refresh-error"]')?.textContent).toContain(
+        'No pudimos actualizar',
+      );
+      expect(element.textContent).not.toContain('No pudimos cargar tu nivel');
+      expect(element.querySelectorAll('app-tier-level-item').length).toBe(4);
+    });
+
+    it('retries the refresh from the notice', async () => {
+      await render();
+      await redeemCoffee();
+
+      buttonByText('Reintentar', element.querySelector('[data-testid="refresh-error"]')!)!.click();
+      await settle();
+
+      expect(element.querySelector('[data-testid="refresh-error"]')).toBeNull();
+      expect(benefitsSection().textContent).toContain('Tienes 550 pts disponibles');
+      expect(element.querySelector('[data-testid="redeem-success"]')).not.toBeNull();
+    });
+  });
+
+  it('keeps the blocking error when the first load of the tier fails', async () => {
+    getTierDetail = vi.fn(() => throwError(() => new Error('500')));
+    await render();
+
+    expect(element.querySelector('[role="alert"]')?.textContent).toContain(
+      'No pudimos cargar tu nivel',
+    );
+    expect(element.querySelector('[data-testid="refresh-error"]')).toBeNull();
+    expect(element.querySelector('app-tier-benefit-item')).toBeNull();
+  });
+
   describe('returning to the page', () => {
     /** The store lives in the route injector: the same instance serves the next visit. */
     async function revisit() {
