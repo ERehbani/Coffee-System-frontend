@@ -89,7 +89,7 @@ export interface GlobalBenefitDto {
   readonly tierName?: string;
   readonly currentRedemptions?: number;
   readonly discountPercent?: number;
-  readonly termsAndConditions?: string;
+  readonly conditions?: string | null;
   readonly createdAt?: string;
 }
 
@@ -103,6 +103,7 @@ export interface BenefitCreateRequestDto {
   readonly typeId: string;
   readonly cafeId: null;
   readonly tierId: string;
+  readonly conditions: string | null;
 }
 
 export interface BenefitUpdateRequestDto {
@@ -115,6 +116,7 @@ export interface BenefitUpdateRequestDto {
   readonly typeId: string;
   readonly cafeId: null;
   readonly tierId: string;
+  readonly conditions: string | null;
 }
 
 export interface NewEndDateRequestDto {

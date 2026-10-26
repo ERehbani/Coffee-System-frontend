@@ -56,6 +56,17 @@
                   [class.border-red-400]="submitted() && form().description.trim().length < 5"
                 ></textarea>
               </div>
+
+              <div>
+                <label class="block text-xs font-bold text-text mb-1">Condiciones de uso</label>
+                <textarea
+                  [ngModel]="form().termsAndConditions"
+                  (ngModelChange)="updateField('termsAndConditions', $event)"
+                  rows="3"
+                  placeholder="Una condición por renglón. Ej: Un solo uso por cliente."
+                  class="w-full rounded-xl border border-border bg-surface px-3 py-2 text-xs text-text focus:border-primary focus:outline-none resize-none"
+                ></textarea>
+              </div>
             </div>
 
             <div class="space-y-3 rounded-2xl border border-border bg-bg/30 p-4">

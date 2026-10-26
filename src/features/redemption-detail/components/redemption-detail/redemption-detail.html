@@ -1,0 +1,117 @@
+<header class="mb-6 flex items-center gap-3">
+  <a
+    routerLink="/profile"
+    class="flex size-10 shrink-0 items-center justify-center rounded-full border border-border bg-surface text-text transition-colors hover:bg-accent-light"
+  >
+    <app-icon name="arrow-left" [size]="20" label="Volver al perfil" />
+  </a>
+  <h1 class="text-xl font-extrabold tracking-tight text-text">Tu código de canje</h1>
+</header>
+
+@if (isLoading()) {
+  <div class="space-y-4 animate-pulse">
+    <div class="mx-auto size-64 rounded-2xl bg-border/40"></div>
+    <div class="h-28 rounded-2xl bg-border/40"></div>
+  </div>
+} @else if (hasError()) {
+  <section
+    role="alert"
+    class="flex flex-col items-center gap-3 rounded-2xl border border-border bg-surface p-6 text-center"
+  >
+    <h2 class="text-lg font-bold text-text">No pudimos cargar tu canje</h2>
+    <p class="text-sm text-muted">Revisá tu conexión e intentalo de nuevo.</p>
+    <button
+      type="button"
+      (click)="loadRedemption()"
+      class="mt-2 inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-primary-dark cursor-pointer"
+    >
+      <app-icon name="refresh-cw" [size]="16" />
+      Reintentar
+    </button>
+  </section>
+} @else if (redemption(); as redemption) {
+  @if (isReadyToUse()) {
+    <article class="space-y-4">
+      <section class="rounded-3xl border border-border bg-surface p-5 text-center shadow-sm">
+        <p class="text-xs font-bold uppercase tracking-wide text-success">Listo para canje</p>
+        <h2 class="mt-1.5 text-lg font-bold text-text">{{ redemption.benefitName }}</h2>
+        @if (redemption.description) {
+          <p class="mt-0.5 text-sm text-muted">{{ redemption.description }}</p>
+        }
+        <p class="mt-1 flex items-center justify-center gap-1.5 text-sm text-muted">
+          <app-icon name="store" [size]="14" />
+          {{ cafeLabel() }}
+        </p>
+
+        <div class="mt-5">
+          <div class="qr-box border border-border">
+            <app-qr-code
+              [value]="redemption.validationCode"
+              [size]="240"
+              [label]="'Código QR del canje ' + redemption.validationCode"
+            />
+          </div>
+        </div>
+
+        <p class="mt-4 text-text">
+          <code class="redemption-code">{{ redemption.validationCode }}</code>
+        </p>
+        <p class="mt-2 text-sm text-muted">Mostrá este código al personal de la cafetería.</p>
+      </section>
+
+      <section class="flex items-start gap-3 rounded-2xl border border-border bg-surface p-4">
+        <app-icon name="clock" [size]="18" class="mt-0.5 text-muted" />
+        <div>
+          <h3 class="text-sm font-bold text-text">Vencimiento</h3>
+          @if (expiryDate(); as expiryDate) {
+            <p class="text-sm text-text">{{ expiryDate | date: 'd MMM y' }}</p>
+            <p class="text-xs text-muted">{{ expiryLabel() }}</p>
+          } @else {
+            <p class="text-sm text-text">Sin fecha de vencimiento</p>
+          }
+        </div>
+      </section>
+
+      <section class="rounded-2xl border border-border bg-surface p-4">
+        <h3 class="text-sm font-bold text-text">Condiciones</h3>
+        @if (conditions().length > 0) {
+          <ul class="mt-2 list-disc space-y-1 pl-5 text-sm text-text">
+            @for (condition of conditions(); track $index) {
+              <li>{{ condition }}</li>
+            }
+          </ul>
+        } @else {
+          <p class="mt-2 text-sm text-muted">Este beneficio no tiene condiciones adicionales.</p>
+        }
+      </section>
+    </article>
+  } @else {
+    <section
+      role="alert"
+      class="flex flex-col items-center gap-3 rounded-2xl border border-border bg-surface p-6 text-center"
+    >
+      <h2 class="text-lg font-bold text-text">Este canje ya fue usado</h2>
+      <p class="text-sm text-muted">{{ redemption.benefitName }} ya no está disponible para presentar.</p>
+      <a
+        routerLink="/profile"
+        class="mt-2 inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-primary-dark"
+      >
+        Volver al perfil
+      </a>
+    </section>
+  }
+} @else {
+  <section
+    role="alert"
+    class="flex flex-col items-center gap-3 rounded-2xl border border-border bg-surface p-6 text-center"
+  >
+    <h2 class="text-lg font-bold text-text">No encontramos este canje</h2>
+    <p class="text-sm text-muted">Puede que ya se haya usado o que haya vencido.</p>
+    <a
+      routerLink="/profile"
+      class="mt-2 inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-primary-dark"
+    >
+      Volver al perfil
+    </a>
+  </section>
+}

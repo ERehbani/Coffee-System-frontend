@@ -48,7 +48,7 @@ export class GlobalBenefitFormModal {
     discountPercent: 15,
     status: true,
     isPublic: true,
-    termsAndConditions: 'Válido en todas las cafeterías asociadas.',
+    termsAndConditions: '',
   });
 
   protected readonly submitted = signal(false);
@@ -74,7 +74,7 @@ export class GlobalBenefitFormModal {
         discountPercent: b.discountPercent ?? 15,
         status: b.status,
         isPublic: b.isPublic,
-        termsAndConditions: b.termsAndConditions || 'Válido en toda la red.',
+        termsAndConditions: b.termsAndConditions ?? '',
       } : {
         name: '',
         description: '',
@@ -87,7 +87,7 @@ export class GlobalBenefitFormModal {
         discountPercent: 15,
         status: true,
         isPublic: true,
-        termsAndConditions: 'Válido en todas las cafeterías asociadas a la red.',
+        termsAndConditions: '',
       });
       this.submitted.set(false);
     });
