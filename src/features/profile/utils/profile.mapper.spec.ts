@@ -66,7 +66,7 @@ describe('toProfileDashboard', () => {
       const { conditions: _omitted, ...redemption } = dto.activeRedemptions[0];
       return {
         ...dto,
-        client: { ...dto.client, lastName: null, avatarUrl: null },
+        client: { ...dto.client, lastName: null, email: null, phoneNumber: null, avatarUrl: null },
         activeRedemptions: [{ ...redemption, expiresAt: null }],
         nearbyCafes: [
           {
@@ -85,6 +85,13 @@ describe('toProfileDashboard', () => {
 
       expect(profile.lastName).toBe('');
       expect(profile.avatarUrl).toBeNull();
+    });
+
+    it('maps a null email and phone number to empty strings', () => {
+      const { profile } = toProfileDashboard(sparseDto());
+
+      expect(profile.email).toBe('');
+      expect(profile.phoneNumber).toBe('');
     });
 
     it('keeps an active redemption without expiry date', () => {

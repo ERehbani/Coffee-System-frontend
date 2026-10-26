@@ -13,8 +13,10 @@ export interface ClientProfileDto {
   readonly firstName: string;
   /** null when the backend keeps a single name field */
   readonly lastName?: string | null;
-  readonly email?: string;
-  readonly phoneNumber?: string;
+  /** null when the client has none on file */
+  readonly email?: string | null;
+  /** null when the client has none on file */
+  readonly phoneNumber?: string | null;
   readonly avatarUrl?: string | null;
 }
 
