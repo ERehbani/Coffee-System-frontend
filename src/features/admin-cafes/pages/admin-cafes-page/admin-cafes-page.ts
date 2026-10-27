@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Icon } from '../../../../shared/components/icon/icon';
@@ -125,11 +126,21 @@ export class AdminCafesPage implements OnInit {
         });
         this.loadCafes();
       },
-      error: (error) => {
+      error: (error: HttpErrorResponse) => {
         this.isSubmitting.set(false);
-        const errorMsg =
-          error?.error?.message ||
+        let errorMsg =
           'No se pudo registrar la cafetería. Verificá que los datos sean correctos.';
+
+        if (error.status === 409) {
+          errorMsg = 'Ya existe una cuenta registrada con ese correo.';
+        } else if (error.status === 400) {
+          const errors = error.error?.errors;
+          const firstMessage =
+            errors && typeof errors === 'object' ? Object.values(errors)[0] : null;
+          errorMsg =
+            typeof firstMessage === 'string' ? firstMessage : 'Revisá los datos ingresados.';
+        }
+
         this.registerError.set(errorMsg);
       },
     });

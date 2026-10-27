@@ -17,9 +17,9 @@ export interface CreateCafeAccountRequest {
   password: string;
   name: string;
   address: string;
-  description: string;
-  phoneNumber: string;
-  schedule: string;
+  description?: string | null;
+  phoneNumber?: string | null;
+  schedule?: string | null;
 }
 
 export interface UserResponse {
@@ -27,4 +27,3 @@ export interface UserResponse {
   email: string;
   state: boolean;
 }
-

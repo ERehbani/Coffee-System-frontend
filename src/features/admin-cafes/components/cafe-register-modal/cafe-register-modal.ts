@@ -1,7 +1,17 @@
-import { Component, computed, input, output, signal } from '@angular/core';
+import { Component, computed, effect, input, output, signal } from '@angular/core';
 import { FormField, email, form, maxLength, minLength, pattern, required } from '@angular/forms/signals';
 import { Icon } from '../../../../shared/components/icon/icon';
 import { CreateCafeAccountRequest } from '../../../home/model/cafe.model';
+
+interface CafeRegisterFormModel {
+  email: string;
+  password: string;
+  name: string;
+  address: string;
+  phoneNumber: string;
+  schedule: string;
+  description: string;
+}
 
 @Component({
   selector: 'app-cafe-register-modal',
@@ -9,7 +19,7 @@ import { CreateCafeAccountRequest } from '../../../home/model/cafe.model';
   templateUrl: './cafe-register-modal.html',
   styleUrl: './cafe-register-modal.css',
   host: {
-    '(document:keydown.escape)': 'onCancel()',
+    '(document:keydown.escape)': 'onEscape()',
   },
 })
 export class CafeRegisterModal {
@@ -44,7 +54,7 @@ export class CafeRegisterModal {
   openingTime = signal('08:00');
   closingTime = signal('20:00');
 
-  cafeModel = signal<CreateCafeAccountRequest>({
+  cafeModel = signal<CafeRegisterFormModel>({
     email: '',
     password: '',
     name: '',
@@ -56,6 +66,14 @@ export class CafeRegisterModal {
 
   attemptedSubmit = signal(false);
   showPassword = signal(false);
+
+  constructor() {
+    effect(() => {
+      if (!this.isOpen() && !this.isSubmitting()) {
+        this.reset();
+      }
+    });
+  }
 
   cafeForm = form(this.cafeModel, (field) => {
     required(field.email, { message: 'El correo electrónico es obligatorio.' });
@@ -221,9 +239,9 @@ export class CafeRegisterModal {
       password: current.password,
       name: current.name.trim(),
       address: current.address.trim(),
-      phoneNumber: current.phoneNumber.trim(),
-      schedule: current.schedule.trim(),
-      description: current.description.trim(),
+      phoneNumber: current.phoneNumber.trim() || null,
+      schedule: current.schedule.trim() || null,
+      description: current.description.trim() || null,
     });
   }
 
@@ -245,8 +263,19 @@ export class CafeRegisterModal {
     this.showPassword.set(false);
   }
 
+  onEscape(): void {
+    if (!this.isOpen() || this.isSubmitting()) {
+      return;
+    }
+    if (this.isDaysDropdownOpen()) {
+      this.closeDaysDropdown();
+      return;
+    }
+    this.onCancel();
+  }
+
   onCancel(): void {
-    if (this.isSubmitting()) {
+    if (!this.isOpen() || this.isSubmitting()) {
       return;
     }
     this.reset();

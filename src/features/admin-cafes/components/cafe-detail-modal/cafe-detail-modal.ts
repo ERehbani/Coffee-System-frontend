@@ -8,7 +8,7 @@ import { Cafe } from '../../../home/model/cafe.model';
   templateUrl: './cafe-detail-modal.html',
   styleUrl: './cafe-detail-modal.css',
   host: {
-    '(document:keydown.escape)': 'onClose()',
+    '(document:keydown.escape)': 'onEscape()',
   },
 })
 export class CafeDetailModal {
@@ -16,6 +16,12 @@ export class CafeDetailModal {
   readonly close = output<void>();
 
   isActive = computed(() => Boolean(this.cafe()?.state));
+
+  onEscape(): void {
+    if (this.cafe() !== null) {
+      this.close.emit();
+    }
+  }
 
   onClose(): void {
     this.close.emit();
