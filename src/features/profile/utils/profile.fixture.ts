@@ -133,10 +133,6 @@ function toIsoDay(date: Date): string {
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
 }
 
-/**
- * Benefits enabled for the mock client (tier PLATA, 850 points): the BRONCE and PLATA ones, ordered
- * by tier and name like the backend does. Tier names are the backend ones.
- */
 export function buildTierBenefitsFixture(now: Date): TierBenefitDto[] {
   const endsIn = (days: number) => toIsoDay(new Date(now.getTime() + days * DAY_MS));
   return [

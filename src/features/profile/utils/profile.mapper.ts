@@ -17,7 +17,6 @@ import {
   UpdateClientProfileInput,
 } from '../types/profile.model';
 
-/** Accepts the backend tier names (Spanish) and the English codes, in any letter case. */
 const LOYALTY_TIERS_BY_CODE: ReadonlyMap<string, LoyaltyTier> = new Map<string, LoyaltyTier>([
   ['bronce', 'bronze'],
   ['plata', 'silver'],
@@ -47,7 +46,6 @@ function toDate(isoDate: string): Date {
 
 const CALENDAR_DAY = /^(\d{4})-(\d{2})-(\d{2})$/;
 
-/** A yyyy-MM-dd day is read in local time: `new Date('2026-12-31')` would be UTC midnight. */
 function toCalendarDay(isoDay: string): Date {
   const match = CALENDAR_DAY.exec(isoDay);
   if (!match) {
@@ -65,7 +63,6 @@ function isCalendarDay(isoDate: string): boolean {
   return CALENDAR_DAY.test(isoDate);
 }
 
-/** The end of a calendar day: a benefit ending on a day is valid through that whole day. */
 function toEndOfDay(isoDay: string): Date {
   const match = CALENDAR_DAY.exec(isoDay);
   if (!match) {

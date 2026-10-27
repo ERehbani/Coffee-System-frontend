@@ -32,11 +32,9 @@ import { ProfileRepository } from './profile.repository';
 
 export const MOCK_LATENCY_MS = 400;
 
-/** A redeemed benefit without an end date stays valid this long. */
 const REDEMPTION_VALIDITY_DAYS = 30;
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-/** A rejection shaped like the backend's: 404 plain-text body, 400 `{ error, status }`. */
 function rejection(
   status: number,
   body: string | { error: string; status: number },
@@ -96,7 +94,6 @@ export class MockProfileRepository implements ProfileRepository {
     return defer(() => of(updatedClientDto)).pipe(delay(MOCK_LATENCY_MS), map(toClientProfile));
   }
 
-  /** Spends the points and registers an active redemption, so the coupon detail can show it. */
   private redeem(benefitId: string): RedemptionDto {
     const benefit = this.tierBenefits.find(({ externalId }) => externalId === benefitId);
     if (!benefit) {
@@ -121,7 +118,6 @@ export class MockProfileRepository implements ProfileRepository {
       cafeName: benefit.cafeName,
     };
 
-    // Like the backend: a dated benefit expires on a calendar day, an open one on a date-time.
     const expiresAt =
       benefit.endDate ?? new Date(now.getTime() + REDEMPTION_VALIDITY_DAYS * DAY_MS).toISOString();
     const conditions = [
