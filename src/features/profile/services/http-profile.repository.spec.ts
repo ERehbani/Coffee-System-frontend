@@ -20,15 +20,6 @@ describe('HttpProfileRepository', () => {
 
   afterEach(() => http.verify());
 
-  it('getUsedBenefits requests redemptions with state=false', () => {
-    repository.getUsedBenefits().subscribe();
-
-    const request = http.expectOne((req) => req.url === `${environment.apiBaseUrl}/redemption`);
-    expect(request.request.method).toBe('GET');
-    expect(request.request.params.get('state')).toBe('false');
-    request.flush([]);
-  });
-
   it('getTierDetail maps the available points and the Spanish tier names', () => {
     let detail: TierDetail | undefined;
     repository.getTierDetail().subscribe((value) => (detail = value));

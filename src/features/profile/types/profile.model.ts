@@ -50,11 +50,8 @@ export interface ActiveRedemption {
   readonly title: string;
   readonly description: string;
   readonly code: string;
-  /** null when the redeemed benefit never ends */
   readonly expiresAt: Date | null;
-  /** false when the backend sent a calendar day only: `expiresAt` is then its end, not a time */
   readonly expiresAtHasTime: boolean;
-  /** null for global benefits that are valid in any cafe */
   readonly cafeName: string | null;
   readonly conditions: readonly string[];
 }
@@ -62,7 +59,6 @@ export interface ActiveRedemption {
 export interface NearbyCafe {
   readonly id: string;
   readonly name: string;
-  /** null when the cafe has no photo */
   readonly imageUrl: string | null;
   readonly rating: number;
   readonly reviewCount: number;
@@ -76,7 +72,6 @@ export interface FeaturedBenefit {
   readonly id: string;
   readonly title: string;
   readonly description: string;
-  /** null when the benefit has no photo */
   readonly imageUrl: string | null;
   readonly pointsCost: number;
 }
@@ -89,28 +84,16 @@ export interface ProfileDashboard {
   readonly featuredBenefits: readonly FeaturedBenefit[];
 }
 
-export interface UsedBenefit {
-  readonly id: string;
-  readonly benefitName: string;
-  readonly cafeName: string | null;
-  readonly redeemedAt: Date;
-  readonly usedPoints: number;
-}
-
-/** A benefit enabled for the client's tier that can be redeemed with points. */
 export interface TierBenefit {
   readonly id: string;
   readonly name: string;
   readonly description: string;
   readonly pointsCost: number;
-  /** null when the benefit never ends */
   readonly expiresAt: Date | null;
-  /** null for global benefits that are valid in any cafe */
   readonly cafeName: string | null;
   readonly tier: LoyaltyTier;
 }
 
-/** Result of redeeming a benefit: the redemption to show at the cafe. */
 export interface RedeemedBenefit {
   readonly id: string;
   readonly validationCode: string;

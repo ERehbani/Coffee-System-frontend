@@ -1,6 +1,5 @@
 import {
   ProfileDashboardDto,
-  RedemptionDto,
   TierBenefitDto,
   TierDetailDto,
 } from '../types/profile.dto';
@@ -134,10 +133,6 @@ function toIsoDay(date: Date): string {
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
 }
 
-/**
- * Benefits enabled for the mock client (tier PLATA, 850 points): the BRONCE and PLATA ones, ordered
- * by tier and name like the backend does. Tier names are the backend ones.
- */
 export function buildTierBenefitsFixture(now: Date): TierBenefitDto[] {
   const endsIn = (days: number) => toIsoDay(new Date(now.getTime() + days * DAY_MS));
   return [
@@ -180,57 +175,6 @@ export function buildTierBenefitsFixture(now: Date): TierBenefitDto[] {
       cafeName: 'Cafe Central',
       tierName: 'PLATA',
       benefitType: 'PRODUCTO_GRATIS_SOCIO',
-    },
-  ];
-}
-
-export function buildRedemptionHistoryFixture(now: Date): RedemptionDto[] {
-  const daysAgo = (days: number) => new Date(now.getTime() - days * DAY_MS).toISOString();
-  return [
-    {
-      externalId: 'redemption-active',
-      date: now.toISOString(),
-      usedPoints: 300,
-      state: true,
-      validationCode: 'VLD-8492-C0FF',
-      benefitName: 'Descuento 15% bienvenida',
-      cafeName: null,
-    },
-    {
-      externalId: 'redemption-104',
-      date: daysAgo(3),
-      usedPoints: 450,
-      state: false,
-      validationCode: 'VLD-1104-USED',
-      benefitName: 'Cappuccino gratis',
-      cafeName: 'Cafe Central',
-    },
-    {
-      externalId: 'redemption-103',
-      date: daysAgo(12),
-      usedPoints: 200,
-      state: false,
-      validationCode: 'VLD-1103-USED',
-      benefitName: '2x1 en medialunas',
-      cafeName: 'Cafe Norte',
-    },
-    {
-      externalId: 'redemption-102',
-      date: daysAgo(27),
-      usedPoints: 300,
-      state: false,
-      validationCode: 'VLD-1102-USED',
-      benefitName: 'Descuento 10% en tu pedido',
-      cafeName: null,
-    },
-    {
-      externalId: 'redemption-101',
-      date: daysAgo(48),
-      usedPoints: 600,
-      state: false,
-      validationCode: 'VLD-1101-USED',
-      benefitName: 'Filtrado V60 de especialidad',
-      cafeName: 'Cafe Norte',
     },
   ];
 }

@@ -6,7 +6,6 @@ import {
   TierBenefit,
   TierDetail,
   UpdateClientProfileInput,
-  UsedBenefit,
 } from '../types/profile.model';
 
 export abstract class ProfileRepository {
@@ -14,6 +13,5 @@ export abstract class ProfileRepository {
   abstract getTierDetail(): Observable<TierDetail>;
   abstract getTierBenefits(): Observable<readonly TierBenefit[]>;
   abstract redeemBenefit(benefitId: string): Observable<RedeemedBenefit>;
-  abstract getUsedBenefits(): Observable<readonly UsedBenefit[]>;
   abstract updateProfile(clientId: string, input: UpdateClientProfileInput): Observable<ClientProfile>;
 }

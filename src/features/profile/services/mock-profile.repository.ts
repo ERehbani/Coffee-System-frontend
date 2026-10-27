@@ -14,11 +14,9 @@ import {
   TierBenefit,
   TierDetail,
   UpdateClientProfileInput,
-  UsedBenefit,
 } from '../types/profile.model';
 import {
   buildProfileDashboardFixture,
-  buildRedemptionHistoryFixture,
   buildTierBenefitsFixture,
   buildTierDetailFixture,
 } from '../utils/profile.fixture';
@@ -28,18 +26,15 @@ import {
   toRedeemedBenefit,
   toTierBenefits,
   toTierDetail,
-  toUsedBenefits,
 } from '../utils/profile.mapper';
 import { MOCK_REDEMPTIONS } from '../../redemption-detail/data/redemptions.mock';
 import { ProfileRepository } from './profile.repository';
 
 export const MOCK_LATENCY_MS = 400;
 
-/** A redeemed benefit without an end date stays valid this long. */
 const REDEMPTION_VALIDITY_DAYS = 30;
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-/** A rejection shaped like the backend's: 404 plain-text body, 400 `{ error, status }`. */
 function rejection(
   status: number,
   body: string | { error: string; status: number },
@@ -80,13 +75,6 @@ export class MockProfileRepository implements ProfileRepository {
     );
   }
 
-  getUsedBenefits(): Observable<readonly UsedBenefit[]> {
-    return defer(() => of(buildRedemptionHistoryFixture(new Date()))).pipe(
-      delay(MOCK_LATENCY_MS),
-      map(toUsedBenefits),
-    );
-  }
-
   updateProfile(clientId: string, input: UpdateClientProfileInput): Observable<ClientProfile> {
     const updatedClientDto: ClientProfileDto = {
       id: clientId,
@@ -105,7 +93,6 @@ export class MockProfileRepository implements ProfileRepository {
     return defer(() => of(updatedClientDto)).pipe(delay(MOCK_LATENCY_MS), map(toClientProfile));
   }
 
-  /** Spends the points and registers an active redemption, so the coupon detail can show it. */
   private redeem(benefitId: string): RedemptionDto {
     const benefit = this.tierBenefits.find(({ externalId }) => externalId === benefitId);
     if (!benefit) {
@@ -130,7 +117,6 @@ export class MockProfileRepository implements ProfileRepository {
       cafeName: benefit.cafeName,
     };
 
-    // Like the backend: a dated benefit expires on a calendar day, an open one on a date-time.
     const expiresAt =
       benefit.endDate ?? new Date(now.getTime() + REDEMPTION_VALIDITY_DAYS * DAY_MS).toISOString();
     const conditions = [
@@ -162,6 +148,7 @@ export class MockProfileRepository implements ProfileRepository {
       description: benefit.description,
       expiresAt: expiresAt.slice(0, 10),
       conditions: conditions.join('\n'),
+      usedDate: null,
     });
 
     return redemption;
