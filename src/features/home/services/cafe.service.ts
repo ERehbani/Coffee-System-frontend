@@ -4,7 +4,7 @@ import { Observable, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { MOCK_CAFES } from '../data/cafes.mock';
-import { Cafe } from '../model/cafe.model';
+import { Cafe, CreateCafeAccountRequest, UserResponse } from '../model/cafe.model';
 
 @Injectable({
   providedIn: 'root',
@@ -32,5 +32,28 @@ export class CafeService {
     return this.http.get<Cafe>(`${this.url}/${externalId}`).pipe(
       catchError(() => of(MOCK_CAFES.find((c) => c.externalId === externalId)))
     );
+  }
+
+  register(request: CreateCafeAccountRequest): Observable<UserResponse> {
+    if (environment.useMockApi) {
+      const newCafe: Cafe = {
+        externalId: `cafe-${Date.now()}`,
+        name: request.name,
+        address: request.address,
+        email: request.email,
+        phoneNumber: request.phoneNumber || null,
+        description: request.description || null,
+        schedule: request.schedule || null,
+        state: true,
+      };
+      MOCK_CAFES.unshift(newCafe);
+      return of({
+        externalId: newCafe.externalId,
+        email: newCafe.email,
+        state: true,
+      });
+    }
+
+    return this.http.post<UserResponse>(`${this.url}/register`, request);
   }
 }
