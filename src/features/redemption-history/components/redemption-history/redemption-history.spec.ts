@@ -39,6 +39,13 @@ describe('RedemptionHistory', () => {
     expect(items[2].textContent).toContain('Todas las cafeterías');
   });
 
+  it('should show the most recently used benefit first', async () => {
+    const fixture = await createComponent();
+    const usedDates = fixture.componentInstance.redemptions().map((r) => new Date(r.usedDate!).getTime());
+
+    expect(usedDates).toEqual([...usedDates].sort((a, b) => b - a));
+  });
+
   it('should show an empty message when there are no used benefits', async () => {
     const fixture = await createComponent();
     fixture.componentInstance.redemptions.set([]);

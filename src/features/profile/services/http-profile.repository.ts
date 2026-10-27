@@ -1,4 +1,4 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { inject, Service } from '@angular/core';
 import { map, Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
@@ -54,7 +54,6 @@ export class HttpProfileRepository implements ProfileRepository {
       .post<RedemptionDto>(`${environment.apiBaseUrl}/redemption`, { benefitId })
       .pipe(map(toRedeemedBenefit));
   }
-
 
   updateProfile(clientId: string, input: UpdateClientProfileInput): Observable<ClientProfile> {
     const payload = toUpdateClientProfileDto(input);

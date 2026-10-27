@@ -75,7 +75,6 @@ export class MockProfileRepository implements ProfileRepository {
     );
   }
 
-
   updateProfile(clientId: string, input: UpdateClientProfileInput): Observable<ClientProfile> {
     const updatedClientDto: ClientProfileDto = {
       id: clientId,

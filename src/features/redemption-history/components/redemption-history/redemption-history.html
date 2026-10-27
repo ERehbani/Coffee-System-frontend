@@ -1,7 +1,7 @@
 <header class="mb-6 flex items-center gap-3">
   <a
     routerLink="/profile"
-    class="flex size-10 shrink-0 items-center justify-center rounded-full border border-border bg-surface text-text transition-colors hover:bg-accent-light"
+    class="flex size-10 shrink-0 items-center justify-center rounded-full border border-border bg-surface text-text transition-colors hover:bg-accent-light focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
   >
     <app-icon name="arrow-left" [size]="20" label="Volver al perfil" />
   </a>
@@ -9,10 +9,13 @@
 </header>
 
 @if (isLoading()) {
-  <div class="space-y-3 animate-pulse">
-    @for (item of [1, 2, 3]; track item) {
-      <div class="h-24 rounded-2xl bg-border/40"></div>
-    }
+  <div aria-busy="true">
+    <p role="status" class="sr-only">Cargando tu historial…</p>
+    <div aria-hidden="true" class="space-y-3 motion-safe:animate-pulse">
+      @for (item of [1, 2, 3]; track item) {
+        <div class="h-24 rounded-2xl bg-border/40"></div>
+      }
+    </div>
   </div>
 } @else if (hasError()) {
   <section
@@ -24,7 +27,7 @@
     <button
       type="button"
       (click)="loadRedemptions()"
-      class="mt-2 inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-primary-dark cursor-pointer"
+      class="mt-2 inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-primary-dark cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
     >
       <app-icon name="refresh-cw" [size]="16" />
       Reintentar

@@ -35,11 +35,10 @@ export class RedemptionHistory implements OnInit {
 
     this.redemptionService.getUsedRedemptions().subscribe({
       next: (data) => {
-        this.redemptions.set(data);
+        this.redemptions.set(this.sortNewestFirst(data));
         this.isLoading.set(false);
       },
-      error: (error) => {
-        console.error('error loading redemption history:', error);
+      error: () => {
         this.hasError.set(true);
         this.isLoading.set(false);
       },
@@ -51,5 +50,10 @@ export class RedemptionHistory implements OnInit {
       return 'Todas las cafeterías';
     }
     return cafeName;
+  }
+
+  private sortNewestFirst(redemptions: Redemption[]): Redemption[] {
+    const time = (redemption: Redemption) => new Date(redemption.usedDate ?? redemption.date).getTime();
+    return [...redemptions].sort((a, b) => time(b) - time(a));
   }
 }

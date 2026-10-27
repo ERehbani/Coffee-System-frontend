@@ -84,7 +84,6 @@ export interface ProfileDashboard {
   readonly featuredBenefits: readonly FeaturedBenefit[];
 }
 
-
 export interface TierBenefit {
   readonly id: string;
   readonly name: string;
