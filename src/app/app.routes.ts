@@ -79,6 +79,10 @@ export const routes: Routes = [
         path: 'purchases',
         loadChildren: () => import('../features/purchase-history/purchase-history.routes'),
       },
+      {
+        path: 'rewards',
+        loadChildren: () => import('../features/available-benefits/available-benefits.routes'),
+      },
     ],
   },
   { path: '**', redirectTo: 'home' },
