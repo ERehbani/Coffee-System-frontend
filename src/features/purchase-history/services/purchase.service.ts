@@ -1,7 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, of } from 'rxjs';
-import { catchError } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { MOCK_PURCHASES } from '../data/purchases.mock';
 import { Purchase, Review, ReviewRequest } from '../model/purchase.model';
@@ -19,9 +18,7 @@ export class PurchaseService {
       return of(MOCK_PURCHASES);
     }
 
-    return this.http.get<Purchase[]>(`${this.url}/me`).pipe(
-      catchError(() => of(MOCK_PURCHASES))
-    );
+    return this.http.get<Purchase[]>(`${this.url}/me`);
   }
 
   getAll(): Observable<Purchase[]> {
@@ -29,9 +26,7 @@ export class PurchaseService {
       return of(MOCK_PURCHASES);
     }
 
-    return this.http.get<Purchase[]>(this.url).pipe(
-      catchError(() => of(MOCK_PURCHASES))
-    );
+    return this.http.get<Purchase[]>(this.url);
   }
 
   createReview(request: ReviewRequest): Observable<Review> {

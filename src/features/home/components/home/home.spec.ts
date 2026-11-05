@@ -2,10 +2,18 @@ import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { environment } from '../../../../environments/environment';
 import { Home } from './home';
 
 describe('Home', () => {
+  const originalUseMockApi = environment.useMockApi;
+
+  afterEach(() => {
+    environment.useMockApi = originalUseMockApi;
+  });
+
   beforeEach(async () => {
+    environment.useMockApi = true;
     await TestBed.configureTestingModule({
       imports: [Home],
       providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting()],

@@ -2,10 +2,18 @@ import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
+import { environment } from '../../../../environments/environment';
 import { RedemptionDetail } from './redemption-detail';
 
 describe('RedemptionDetail', () => {
+  const originalUseMockApi = environment.useMockApi;
+
+  afterEach(() => {
+    environment.useMockApi = originalUseMockApi;
+  });
+
   async function createComponent(id: string) {
+    environment.useMockApi = true;
     await TestBed.configureTestingModule({
       imports: [RedemptionDetail],
       providers: [

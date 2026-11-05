@@ -3,8 +3,8 @@ import { AdminLayout } from '../shared/components/admin-layout/admin-layout';
 import { ADMIN_NAV_ITEMS } from '../shared/components/admin-layout/admin-nav';
 import { AdminPlaceholderPage } from '../shared/components/admin-placeholder-page/admin-placeholder-page';
 import { ClientLayout } from '../shared/components/client-layout/client-layout';
+import { roleGuard } from '../features/auth/guards/auth.guard';
 
-/** Admin sections that already have a page. Add new ones here to replace their placeholder. */
 const adminSectionRoutes: Routes = [
   {
     path: 'users',
@@ -46,8 +46,13 @@ const adminPlaceholderRoutes: Routes = ADMIN_NAV_ITEMS.filter(
 
 export const routes: Routes = [
   {
+    path: 'login',
+    loadChildren: () => import('../features/auth/auth.routes'),
+  },
+  {
     path: 'admin',
     component: AdminLayout,
+    canActivate: [roleGuard('ROLE_SUPERADMIN')],
     children: [
       { path: '', pathMatch: 'full', redirectTo: 'users' },
       ...adminSectionRoutes,
@@ -56,11 +61,13 @@ export const routes: Routes = [
   },
   {
     path: 'cafe/profile',
+    canActivate: [roleGuard('ROLE_CAFETERIA')],
     loadChildren: () => import('../features/cafe-profile/cafe-profile.routes'),
   },
   {
     path: '',
     component: ClientLayout,
+    canActivate: [roleGuard('ROLE_CLIENTE')],
     children: [
       { path: '', pathMatch: 'full', redirectTo: 'home' },
       {
