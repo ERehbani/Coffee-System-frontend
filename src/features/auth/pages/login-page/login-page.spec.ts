@@ -3,7 +3,6 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router, convertToParamMap, provideRouter } from '@angular/router';
 import { environment } from '../../../../environments/environment';
-import { clearTestSession, createTestToken } from '../../utils/auth.fixture';
 import { LoginPage } from './login-page';
 
 describe('LoginPage', () => {
@@ -49,10 +48,7 @@ describe('LoginPage', () => {
     submit();
   }
 
-  afterEach(() => {
-    http.verify();
-    clearTestSession();
-  });
+  afterEach(() => http.verify());
 
   it('shows the errors and does not call the back when the form is empty', async () => {
     await setup();
@@ -79,9 +75,23 @@ describe('LoginPage', () => {
     fillAndSubmit('admin@test.com', 'Secret123');
     const req = http.expectOne(loginUrl);
     expect(req.request.body).toEqual({ email: 'admin@test.com', password: 'Secret123' });
-    req.flush({ token: createTestToken({ roles: ['ROLE_SUPERADMIN'] }) });
+    req.flush({ email: 'admin@test.com', roles: ['ROLE_SUPERADMIN'] });
 
     expect(router.navigateByUrl).toHaveBeenCalledWith('/admin');
+  });
+
+  it('closes the session and shows a message when the user has no known role', async () => {
+    await setup();
+
+    fillAndSubmit('raro@test.com', 'Secret123');
+    http.expectOne(loginUrl).flush({ email: 'raro@test.com', roles: ['READ_PRODUCTS'] });
+    http.expectOne(`${environment.apiBaseUrl}/auth/logout`).flush(null);
+    fixture.detectChanges();
+
+    expect(element.querySelector('[role="alert"]')?.textContent).toContain(
+      'Tu usuario no tiene un rol habilitado para ingresar.',
+    );
+    expect(router.navigateByUrl).not.toHaveBeenCalled();
   });
 
   it('shows invalid credentials when the back answers 401', async () => {
@@ -125,7 +135,7 @@ describe('LoginPage', () => {
 
     expect(button.disabled).toBe(true);
     expect(button.textContent).toContain('Iniciando sesión...');
-    http.expectOne(loginUrl).flush({ token: createTestToken() });
+    http.expectOne(loginUrl).flush({ email: 'user@test.com', roles: ['ROLE_CLIENTE'] });
   });
 
   it('shows the reason when the session expired', async () => {

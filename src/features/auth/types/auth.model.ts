@@ -5,12 +5,7 @@ export interface LoginCredentials {
   password: string;
 }
 
-export interface AuthResponse {
-  token: string;
-}
-
-export interface TokenPayload {
-  sub: string;
+export interface SessionUser {
+  email: string;
   roles: string[];
-  exp: number;
 }

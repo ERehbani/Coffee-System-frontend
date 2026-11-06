@@ -34,7 +34,19 @@ export const serverRoutes: ServerRoute[] = [
     renderMode: RenderMode.Client,
   },
   {
+    path: 'profile/edit',
+    renderMode: RenderMode.Client,
+  },
+  {
+    path: 'profile/redemptions',
+    renderMode: RenderMode.Client,
+  },
+  {
     path: 'profile/redemptions/:id',
+    renderMode: RenderMode.Client,
+  },
+  {
+    path: 'purchases',
     renderMode: RenderMode.Client,
   },
   {

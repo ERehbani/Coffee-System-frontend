@@ -1,28 +1,12 @@
-import { TOKEN_KEY } from '../services/auth.service';
-import { TokenPayload } from '../types/auth.model';
+import { TestBed } from '@angular/core/testing';
+import { AuthService } from '../services/auth.service';
 
-const ONE_HOUR_IN_SECONDS = 60 * 60;
+export const TEST_EMAIL = 'user@test.com';
 
-function toBase64Url(value: object): string {
-  const bytes = new TextEncoder().encode(JSON.stringify(value));
-  const binary = Array.from(bytes, (byte) => String.fromCharCode(byte)).join('');
-  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+export function signInForTest(roles: string[]): void {
+  TestBed.inject(AuthService).startSession({ email: TEST_EMAIL, roles });
 }
 
-export function createTestToken(overrides: Partial<TokenPayload> = {}): string {
-  const payload: TokenPayload = {
-    sub: 'user@test.com',
-    roles: ['ROLE_CLIENTE'],
-    exp: Math.floor(Date.now() / 1000) + ONE_HOUR_IN_SECONDS,
-    ...overrides,
-  };
-  return `${toBase64Url({ alg: 'HS256' })}.${toBase64Url(payload)}.signature`;
-}
-
-export function storeTestSession(roles: string[]): void {
-  localStorage.setItem(TOKEN_KEY, createTestToken({ roles }));
-}
-
-export function clearTestSession(): void {
-  localStorage.removeItem(TOKEN_KEY);
+export function signOutForTest(): void {
+  TestBed.inject(AuthService).clearSession();
 }

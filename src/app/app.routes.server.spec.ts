@@ -13,6 +13,13 @@ describe('server routes', () => {
     expect(find('profile/coupons')?.renderMode).toBe(RenderMode.Client);
   });
 
+  it.each(['purchases', 'profile/edit', 'profile/redemptions'])(
+    'renders /%s on the client so the guard sees the session after a reload',
+    (path) => {
+      expect(find(path)?.renderMode).toBe(RenderMode.Client);
+    },
+  );
+
   it('declares the admin wildcard before the catch-all prerender route', () => {
     const paths = serverRoutes.map((route) => route.path);
 

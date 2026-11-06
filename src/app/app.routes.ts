@@ -5,6 +5,7 @@ import { AdminPlaceholderPage } from '../shared/components/admin-placeholder-pag
 import { ClientLayout } from '../shared/components/client-layout/client-layout';
 import { roleGuard } from '../features/auth/guards/auth.guard';
 
+/** Admin sections that already have a page. Add new ones here to replace their placeholder. */
 const adminSectionRoutes: Routes = [
   {
     path: 'users',

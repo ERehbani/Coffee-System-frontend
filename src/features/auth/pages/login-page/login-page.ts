@@ -5,10 +5,11 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Icon } from '../../../../shared/components/icon/icon';
 import { AuthService } from '../../services/auth.service';
 import { LoginCredentials } from '../../types/auth.model';
-import { getHomeForRoles } from '../../utils/role-home';
+import { LOGIN_PATH, getHomeForRoles } from '../../utils/role-home';
 
 const INVALID_CREDENTIALS_MESSAGE = 'El correo o la contraseña son incorrectos.';
 const SERVER_ERROR_MESSAGE = 'No pudimos conectar con el servidor. Probá de nuevo en unos minutos.';
+const NO_ROLE_MESSAGE = 'Tu usuario no tiene un rol habilitado para ingresar.';
 
 @Component({
   selector: 'app-login-page',
@@ -49,10 +50,7 @@ export class LoginPage {
     this.errorMessage.set(null);
 
     this.auth.login(this.credentials()).subscribe({
-      next: () => {
-        this.isSubmitting.set(false);
-        this.router.navigateByUrl(getHomeForRoles(this.auth.roles()));
-      },
+      next: () => this.goToRoleHome(),
       error: (error: unknown) => {
         this.isSubmitting.set(false);
         this.errorMessage.set(this.toErrorMessage(error));
@@ -62,6 +60,17 @@ export class LoginPage {
 
   toggleShowPassword(): void {
     this.showPassword.update((visible) => !visible);
+  }
+
+  private goToRoleHome(): void {
+    this.isSubmitting.set(false);
+    const home = getHomeForRoles(this.auth.roles());
+    if (home === LOGIN_PATH) {
+      this.auth.logout().subscribe();
+      this.errorMessage.set(NO_ROLE_MESSAGE);
+      return;
+    }
+    this.router.navigateByUrl(home);
   }
 
   private toErrorMessage(error: unknown): string {

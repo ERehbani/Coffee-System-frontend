@@ -2,105 +2,113 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { environment } from '../../../environments/environment';
-import { clearTestSession, createTestToken, storeTestSession } from '../utils/auth.fixture';
-import { AuthService, TOKEN_KEY } from './auth.service';
+import { SessionUser } from '../types/auth.model';
+import { AuthService } from './auth.service';
 
 describe('AuthService', () => {
+  const authUrl = `${environment.apiBaseUrl}/auth`;
   let http: HttpTestingController;
+  let service: AuthService;
 
-  function createService(): AuthService {
+  beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [provideHttpClient(), provideHttpClientTesting()],
     });
     http = TestBed.inject(HttpTestingController);
-    return TestBed.inject(AuthService);
-  }
-
-  afterEach(() => {
-    http.verify();
-    clearTestSession();
+    service = TestBed.inject(AuthService);
   });
 
-  it('starts without a session when nothing is stored', () => {
-    const service = createService();
+  afterEach(() => http.verify());
 
+  it('starts without a session', () => {
     expect(service.isAuthenticated()).toBe(false);
-    expect(service.token()).toBeNull();
+    expect(service.email()).toBeNull();
     expect(service.roles()).toEqual([]);
   });
 
-  it('restores a valid stored session', () => {
-    storeTestSession(['ROLE_CAFETERIA']);
+  it('login() sends the credentials and keeps the user of the response', () => {
+    service.login({ email: 'admin@test.com', password: 'Secret123' }).subscribe();
 
-    const service = createService();
+    const req = http.expectOne(`${authUrl}/login`);
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual({ email: 'admin@test.com', password: 'Secret123' });
+    req.flush({ email: 'admin@test.com', roles: ['ROLE_SUPERADMIN'] });
 
-    expect(service.isAuthenticated()).toBe(true);
-    expect(service.email()).toBe('user@test.com');
-    expect(service.hasRole('ROLE_CAFETERIA')).toBe(true);
+    expect(service.email()).toBe('admin@test.com');
+    expect(service.hasRole('ROLE_SUPERADMIN')).toBe(true);
   });
 
-  it('discards an expired stored token', () => {
-    localStorage.setItem(TOKEN_KEY, createTestToken({ exp: Math.floor(Date.now() / 1000) - 60 }));
+  it('login() leaves no session when the back rejects the credentials', () => {
+    service.login({ email: 'admin@test.com', password: 'wrong' }).subscribe({ error: () => undefined });
 
-    const service = createService();
-
-    expect(service.isAuthenticated()).toBe(false);
-    expect(localStorage.getItem(TOKEN_KEY)).toBeNull();
-  });
-
-  it('discards an invalid stored token', () => {
-    localStorage.setItem(TOKEN_KEY, 'not-a-token');
-
-    const service = createService();
+    http.expectOne(`${authUrl}/login`).flush(null, { status: 401, statusText: 'Unauthorized' });
 
     expect(service.isAuthenticated()).toBe(false);
-    expect(localStorage.getItem(TOKEN_KEY)).toBeNull();
   });
 
   it('ignores roles that the app does not know', () => {
-    storeTestSession(['ROLE_CLIENTE', 'READ_PRODUCTS']);
-
-    const service = createService();
+    service.startSession({ email: 'user@test.com', roles: ['ROLE_CLIENTE', 'READ_PRODUCTS'] });
 
     expect(service.roles()).toEqual(['ROLE_CLIENTE']);
   });
 
-  it('login() sends the email and password and saves the token', () => {
-    const service = createService();
-    const token = createTestToken({ roles: ['ROLE_SUPERADMIN'] });
+  it('loadSession() restores the session from /auth/me', () => {
+    let loaded: SessionUser | null = null;
 
-    service.login({ email: 'admin@test.com', password: 'Secret123' }).subscribe();
+    service.loadSession().subscribe((user) => (loaded = user));
+    http.expectOne(`${authUrl}/me`).flush({ email: 'cafe.central@test.com', roles: ['ROLE_CAFETERIA'] });
 
-    const req = http.expectOne(`${environment.apiBaseUrl}/auth/login`);
+    expect(loaded).toEqual({ email: 'cafe.central@test.com', roles: ['ROLE_CAFETERIA'] });
+    expect(service.hasRole('ROLE_CAFETERIA')).toBe(true);
+  });
+
+  it('loadSession() asks the back only once', () => {
+    service.loadSession().subscribe();
+    service.loadSession().subscribe();
+    http.expectOne(`${authUrl}/me`).flush({ email: 'user@test.com', roles: ['ROLE_CLIENTE'] });
+
+    service.loadSession().subscribe();
+
+    http.expectNone(`${authUrl}/me`);
+  });
+
+  it('loadSession() leaves no session when /auth/me answers 401', () => {
+    let loaded: SessionUser | null | undefined;
+
+    service.loadSession().subscribe((user) => (loaded = user));
+    http.expectOne(`${authUrl}/me`).flush(null, { status: 401, statusText: 'Unauthorized' });
+
+    expect(loaded).toBeNull();
+    expect(service.isAuthenticated()).toBe(false);
+  });
+
+  it('loadSession() does not ask the back after a login', () => {
+    service.startSession({ email: 'user@test.com', roles: ['ROLE_CLIENTE'] });
+
+    service.loadSession().subscribe();
+
+    http.expectNone(`${authUrl}/me`);
+  });
+
+  it('logout() clears the session and asks the back to remove the cookie', () => {
+    service.startSession({ email: 'user@test.com', roles: ['ROLE_CLIENTE'] });
+
+    service.logout().subscribe();
+
+    const req = http.expectOne(`${authUrl}/logout`);
     expect(req.request.method).toBe('POST');
-    expect(req.request.body).toEqual({ email: 'admin@test.com', password: 'Secret123' });
-    req.flush({ token });
-
-    expect(service.token()).toBe(token);
-    expect(service.hasRole('ROLE_SUPERADMIN')).toBe(true);
-    expect(localStorage.getItem(TOKEN_KEY)).toBe(token);
+    req.flush(null, { status: 204, statusText: 'No Content' });
+    expect(service.isAuthenticated()).toBe(false);
   });
 
-  it('login() does not save anything when the back rejects the credentials', () => {
-    const service = createService();
+  it('logout() completes even when the back fails', () => {
+    service.startSession({ email: 'user@test.com', roles: ['ROLE_CLIENTE'] });
+    let completed = false;
 
-    service.login({ email: 'admin@test.com', password: 'wrong' }).subscribe({ error: () => undefined });
+    service.logout().subscribe({ complete: () => (completed = true) });
+    http.expectOne(`${authUrl}/logout`).flush(null, { status: 500, statusText: 'Server Error' });
 
-    http
-      .expectOne(`${environment.apiBaseUrl}/auth/login`)
-      .flush(null, { status: 401, statusText: 'Unauthorized' });
-
+    expect(completed).toBe(true);
     expect(service.isAuthenticated()).toBe(false);
-    expect(localStorage.getItem(TOKEN_KEY)).toBeNull();
-  });
-
-  it('logout() removes the token from memory and storage', () => {
-    storeTestSession(['ROLE_CLIENTE']);
-    const service = createService();
-
-    service.logout();
-
-    expect(service.isAuthenticated()).toBe(false);
-    expect(localStorage.getItem(TOKEN_KEY)).toBeNull();
   });
 });

@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Icon } from '../../../../shared/components/icon/icon';
+import { LogoutButton } from '../../../auth/components/logout-button/logout-button';
 import { CafeEditForm } from '../../components/cafe-edit-form/cafe-edit-form';
 import { CafeHeader } from '../../components/cafe-header/cafe-header';
 import { CafeInfoCard } from '../../components/cafe-info-card/cafe-info-card';
@@ -9,7 +10,7 @@ import { UpdateCafeProfileInput } from '../../types/cafe-profile.model';
 
 @Component({
   selector: 'app-cafe-profile-page',
-  imports: [RouterLink, Icon, CafeHeader, CafeInfoCard, CafeEditForm],
+  imports: [RouterLink, Icon, CafeHeader, CafeInfoCard, CafeEditForm, LogoutButton],
   templateUrl: './cafe-profile-page.html',
   host: { class: 'block' },
 })

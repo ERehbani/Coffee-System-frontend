@@ -1,21 +1,28 @@
+import { provideHttpClient } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
-import { TOKEN_KEY } from '../services/auth.service';
-import { clearTestSession, storeTestSession } from '../utils/auth.fixture';
+import { environment } from '../../../environments/environment';
+import { AuthService } from '../services/auth.service';
+import { signInForTest, signOutForTest } from '../utils/auth.fixture';
 import { guestGuard, roleGuard } from './auth.guard';
 
 @Component({ template: '' })
 class EmptyPage {}
 
 describe('auth guards', () => {
+  const authUrl = `${environment.apiBaseUrl}/auth`;
   let harness: RouterTestingHarness;
   let router: Router;
+  let http: HttpTestingController;
 
-  async function setup(): Promise<void> {
+  async function createHarness(): Promise<void> {
     TestBed.configureTestingModule({
       providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
         provideRouter([
           { path: 'login', component: EmptyPage, canActivate: [guestGuard] },
           { path: 'admin', component: EmptyPage, canActivate: [roleGuard('ROLE_SUPERADMIN')] },
@@ -24,15 +31,26 @@ describe('auth guards', () => {
         ]),
       ],
     });
-    harness = await RouterTestingHarness.create();
+    http = TestBed.inject(HttpTestingController);
     router = TestBed.inject(Router);
+    harness = await RouterTestingHarness.create();
   }
 
-  afterEach(() => clearTestSession());
+  async function setupSignedIn(roles: string[]): Promise<void> {
+    await createHarness();
+    signInForTest(roles);
+  }
+
+  async function setupSignedOut(): Promise<void> {
+    await createHarness();
+    signOutForTest();
+  }
+
+  afterEach(() => http.verify());
 
   describe('roleGuard', () => {
     it('sends to the login when there is no session', async () => {
-      await setup();
+      await setupSignedOut();
 
       await harness.navigateByUrl('/admin');
 
@@ -40,8 +58,7 @@ describe('auth guards', () => {
     });
 
     it('lets in a user with the required role', async () => {
-      storeTestSession(['ROLE_SUPERADMIN']);
-      await setup();
+      await setupSignedIn(['ROLE_SUPERADMIN']);
 
       await harness.navigateByUrl('/admin');
 
@@ -49,8 +66,7 @@ describe('auth guards', () => {
     });
 
     it('sends a client that opens the admin panel to the home', async () => {
-      storeTestSession(['ROLE_CLIENTE']);
-      await setup();
+      await setupSignedIn(['ROLE_CLIENTE']);
 
       await harness.navigateByUrl('/admin');
 
@@ -58,28 +74,38 @@ describe('auth guards', () => {
     });
 
     it('sends a cafe that opens the home to its profile', async () => {
-      storeTestSession(['ROLE_CAFETERIA']);
-      await setup();
+      await setupSignedIn(['ROLE_CAFETERIA']);
 
       await harness.navigateByUrl('/home');
 
       expect(router.url).toBe('/cafe/profile');
     });
 
-    it('closes the session when the token has no known role', async () => {
-      storeTestSession(['READ_PRODUCTS']);
-      await setup();
+    it('closes the session when the user has no known role', async () => {
+      await setupSignedIn(['READ_PRODUCTS']);
 
       await harness.navigateByUrl('/home');
 
       expect(router.url).toBe('/login');
-      expect(localStorage.getItem(TOKEN_KEY)).toBeNull();
+      expect(TestBed.inject(AuthService).isAuthenticated()).toBe(false);
+      http.expectOne(`${authUrl}/logout`).flush(null);
+    });
+
+    it('waits for /auth/me before deciding after a reload', async () => {
+      await createHarness();
+
+      const navigation = harness.navigateByUrl('/home');
+      await new Promise((resolve) => setTimeout(resolve));
+      http.expectOne(`${authUrl}/me`).flush({ email: 'cliente@test.com', roles: ['ROLE_CLIENTE'] });
+      await navigation;
+
+      expect(router.url).toBe('/home');
     });
   });
 
   describe('guestGuard', () => {
     it('shows the login when there is no session', async () => {
-      await setup();
+      await setupSignedOut();
 
       await harness.navigateByUrl('/login');
 
@@ -87,8 +113,7 @@ describe('auth guards', () => {
     });
 
     it('sends a logged in user to the page of their role', async () => {
-      storeTestSession(['ROLE_SUPERADMIN']);
-      await setup();
+      await setupSignedIn(['ROLE_SUPERADMIN']);
 
       await harness.navigateByUrl('/login');
 
