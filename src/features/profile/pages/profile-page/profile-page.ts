@@ -1,6 +1,7 @@
 import { Component, computed, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { Icon } from '../../../../shared/components/icon/icon';
+import { LogoutButton } from '../../../auth/components/logout-button/logout-button';
 import { ActiveRedemptionCard } from '../../components/active-redemption-card/active-redemption-card';
 import { DashboardHeader } from '../../components/dashboard-header/dashboard-header';
 import { FeaturedBenefitCard } from '../../components/featured-benefit-card/featured-benefit-card';
@@ -21,6 +22,7 @@ import { ProfileStore } from '../../services/profile.store';
     ActiveRedemptionCard,
     NearbyCafeCard,
     FeaturedBenefitCard,
+    LogoutButton,
   ],
   selector: 'app-profile-page',
   templateUrl: './profile-page.html',

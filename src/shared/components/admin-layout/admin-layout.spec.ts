@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
+import { signInForTest } from '../../../features/auth/utils/auth.fixture';
 import { AdminLayout } from './admin-layout';
 
 const EXPECTED_ITEMS = [
@@ -50,11 +51,20 @@ describe('AdminLayout', () => {
     );
   });
 
-  it('shows the role caption and a link back to the client app in the footer', () => {
+  it('shows the role caption and hides the link to the client app for a superadmin only', async () => {
+    signInForTest(['ROLE_SUPERADMIN']);
+    await fixture.whenStable();
     const footer = root.querySelector('aside footer');
-    const backLink = footer?.querySelector<HTMLAnchorElement>('a');
 
     expect(footer?.textContent).toContain('Superadmin');
+    expect(footer?.querySelector('a')).toBeNull();
+  });
+
+  it('shows a link back to the client app when the user is also a client', async () => {
+    signInForTest(['ROLE_SUPERADMIN', 'ROLE_CLIENTE']);
+    await fixture.whenStable();
+    const backLink = root.querySelector<HTMLAnchorElement>('aside footer a');
+
     expect(backLink?.textContent?.trim()).toBe('Volver a la app');
     expect(backLink?.getAttribute('href')).toBe('/home');
   });

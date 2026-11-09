@@ -1,19 +1,28 @@
 import { TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
+import { environment } from '../environments/environment';
+import { signInForTest } from '../features/auth/utils/auth.fixture';
 import { ADMIN_NAV_ITEMS } from '../shared/components/admin-layout/admin-nav';
 import { routes } from './app.routes';
 
 describe('admin routes', () => {
   let harness: RouterTestingHarness;
   let router: Router;
+  const originalUseMockApi = environment.useMockApi;
 
   const page = () => harness.fixture.nativeElement as HTMLElement;
 
+  afterEach(() => {
+    environment.useMockApi = originalUseMockApi;
+  });
+
   beforeEach(async () => {
+    environment.useMockApi = true;
     await TestBed.configureTestingModule({
       providers: [provideRouter(routes)],
     }).compileComponents();
+    signInForTest(['ROLE_SUPERADMIN']);
 
     harness = await RouterTestingHarness.create();
     router = TestBed.inject(Router);
