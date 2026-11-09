@@ -8,7 +8,7 @@ import { LOGIN_PATH } from '../utils/role-home';
 
 const API_PREFIX = environment.apiBaseUrl;
 const AUTH_PREFIX = `${environment.apiBaseUrl}/auth/`;
-export const SESSION_EXPIRED_REASON = 'Tu sesión expiró, volvé a iniciar sesión.';
+export const SESSION_EXPIRED_REASON = 'expired';
 
 function isUnauthorized(error: unknown): boolean {
   return error instanceof HttpErrorResponse && error.status === HttpStatusCode.Unauthorized;

@@ -3,6 +3,18 @@ import type { IncomingHttpHeaders } from 'node:http';
 
 const SKIPPED_HEADERS = ['host', 'connection', 'content-length', 'transfer-encoding', 'content-encoding'];
 const BAD_GATEWAY = 502;
+const LOCAL_API_URL = 'http://localhost:8080';
+
+export function resolveApiUrl(env: NodeJS.ProcessEnv): string {
+  const apiUrl = env['API_URL'];
+  if (apiUrl) {
+    return apiUrl;
+  }
+  if (env['NODE_ENV'] === 'production') {
+    throw new Error('API_URL is required in production');
+  }
+  return LOCAL_API_URL;
+}
 
 export function createApiProxy(apiUrl: string) {
   return (req: ExpressRequest, res: ExpressResponse): void => {

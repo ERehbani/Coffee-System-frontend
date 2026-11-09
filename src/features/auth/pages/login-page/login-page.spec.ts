@@ -139,9 +139,16 @@ describe('LoginPage', () => {
   });
 
   it('shows the reason when the session expired', async () => {
-    await setup({ reason: 'Tu sesión expiró, volvé a iniciar sesión.' });
+    await setup({ reason: 'expired' });
 
     expect(element.querySelector('[role="status"]')?.textContent).toContain('Tu sesión expiró');
+  });
+
+  it('ignores a reason it does not know', async () => {
+    await setup({ reason: 'Tu cuenta fue suspendida, escribí a soporte.' });
+
+    expect(element.querySelector('[role="status"]')).toBeNull();
+    expect(element.textContent).not.toContain('suspendida');
   });
 
   it('toggles the password visibility', async () => {

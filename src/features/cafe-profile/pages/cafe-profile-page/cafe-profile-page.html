@@ -10,13 +10,15 @@
       </div>
     </div>
     <div class="flex items-center gap-2">
-      <a
-        routerLink="/profile"
-        class="cursor-pointer inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface px-3 py-1.5 text-xs font-bold text-muted transition-all hover:bg-bg hover:text-text active:scale-95 select-none"
-      >
-        <app-icon name="coffee" [size]="14" />
-        Vista Cliente
-      </a>
+      @if (canOpenClientView()) {
+        <a
+          routerLink="/profile"
+          class="cursor-pointer inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface px-3 py-1.5 text-xs font-bold text-muted transition-all hover:bg-bg hover:text-text active:scale-95 select-none"
+        >
+          <app-icon name="coffee" [size]="14" />
+          Vista Cliente
+        </a>
+      }
       <app-logout-button />
     </div>
   </div>

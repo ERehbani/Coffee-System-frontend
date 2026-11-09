@@ -5,7 +5,7 @@ import { Router, provideRouter } from '@angular/router';
 import { environment } from '../../../environments/environment';
 import { AuthService } from '../services/auth.service';
 import { signInForTest } from '../utils/auth.fixture';
-import { SESSION_EXPIRED_REASON, authInterceptor } from './auth.interceptor';
+import { authInterceptor } from './auth.interceptor';
 
 describe('authInterceptor', () => {
   const api = environment.apiBaseUrl;
@@ -51,7 +51,7 @@ describe('authInterceptor', () => {
     expect(receivedStatus).toBe(401);
     expect(auth.isAuthenticated()).toBe(false);
     expect(router.navigate).toHaveBeenCalledWith(['/login'], {
-      queryParams: { reason: SESSION_EXPIRED_REASON },
+      queryParams: { reason: 'expired' },
     });
   });
 

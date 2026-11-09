@@ -9,6 +9,6 @@ const HOME_BY_ROLE: Record<UserRole, string> = {
 };
 
 export function getHomeForRoles(roles: readonly UserRole[]): string {
-  const role = roles.find((item) => item in HOME_BY_ROLE);
+  const role = roles[0];
   return role ? HOME_BY_ROLE[role] : LOGIN_PATH;
 }
