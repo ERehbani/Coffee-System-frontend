@@ -29,7 +29,15 @@
       <span>¡Listo! Tu pago fue confirmado.</span>
     </div>
   } @else if (store.summary(); as summary) {
-    <app-checkout-summary [summary]="summary" />
+    <app-checkout-summary [summary]="summary" [preview]="store.couponPreview()" />
+
+    <app-coupon-selector
+      [coupons]="store.applicableCoupons()"
+      [status]="store.couponsStatus()"
+      [selectedId]="store.selectedCoupon()?.id ?? null"
+      [disabled]="store.isConfirming()"
+      (couponSelected)="store.selectCoupon($event)"
+    />
 
     @if (store.errorMessage(); as message) {
       <div

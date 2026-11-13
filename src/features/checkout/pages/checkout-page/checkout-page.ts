@@ -2,12 +2,13 @@ import { Component, computed, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { Icon } from '../../../../shared/components/icon/icon';
 import { CheckoutSummaryCard } from '../../components/checkout-summary/checkout-summary';
+import { CouponSelector } from '../../components/coupon-selector/coupon-selector';
 import { CheckoutStore } from '../../services/checkout.store';
 import { CHECKOUT_SUCCESS_PATH } from '../../utils/checkout-paths';
 
 @Component({
   selector: 'app-checkout-page',
-  imports: [RouterLink, Icon, CheckoutSummaryCard],
+  imports: [RouterLink, Icon, CheckoutSummaryCard, CouponSelector],
   templateUrl: './checkout-page.html',
   host: { class: 'block' },
 })
