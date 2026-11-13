@@ -1,3 +1,5 @@
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
@@ -100,4 +102,42 @@ describe('admin routes', () => {
       });
     },
   );
+});
+
+describe('checkout route', () => {
+  let harness: RouterTestingHarness;
+  let router: Router;
+  const originalUseMockApi = environment.useMockApi;
+
+  const page = () => harness.fixture.nativeElement as HTMLElement;
+
+  afterEach(() => {
+    environment.useMockApi = originalUseMockApi;
+  });
+
+  async function openCheckoutAs(roles: string[]): Promise<void> {
+    environment.useMockApi = true;
+    await TestBed.configureTestingModule({
+      providers: [provideRouter(routes), provideHttpClient(), provideHttpClientTesting()],
+    }).compileComponents();
+    signInForTest(roles);
+
+    harness = await RouterTestingHarness.create();
+    router = TestBed.inject(Router);
+    await harness.navigateByUrl('/checkout');
+  }
+
+  it('renders the checkout page inside the client layout for a client', async () => {
+    await openCheckoutAs(['ROLE_CLIENTE']);
+
+    expect(router.url).toBe('/checkout');
+    expect(page().querySelector('app-client-layout app-checkout-page')).not.toBeNull();
+  });
+
+  it('keeps any other role out of the checkout', async () => {
+    await openCheckoutAs(['ROLE_SUPERADMIN']);
+
+    expect(router.url).not.toBe('/checkout');
+    expect(page().querySelector('app-checkout-page')).toBeNull();
+  });
 });

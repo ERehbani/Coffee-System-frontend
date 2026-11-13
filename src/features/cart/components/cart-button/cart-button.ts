@@ -1,6 +1,8 @@
 import { CurrencyPipe } from '@angular/common';
 import { Component, HostListener, computed, inject, signal } from '@angular/core';
+import { Router } from '@angular/router';
 import { Icon } from '../../../../shared/components/icon/icon';
+import { CHECKOUT_PATH } from '../../../checkout/utils/checkout-paths';
 import { CartService } from '../../services/cart.service';
 
 @Component({
@@ -11,10 +13,10 @@ import { CartService } from '../../services/cart.service';
 })
 export class CartButton {
   readonly cartService = inject(CartService);
+  private readonly router = inject(Router);
 
   isOpen = signal(false);
   productToRemove = signal<string | null>(null);
-  paymentSuccess = signal(false);
 
   canCheckout = computed(() => {
     return this.cartService.totalItems() > 0;
@@ -31,7 +33,6 @@ export class CartButton {
   closeCart(): void {
     this.isOpen.set(false);
     this.productToRemove.set(null);
-    this.paymentSuccess.set(false);
   }
 
   increase(productId: string): void {
@@ -60,8 +61,8 @@ export class CartButton {
       return;
     }
 
-    this.cartService.clear();
-    this.paymentSuccess.set(true);
+    this.closeCart();
+    this.router.navigateByUrl(CHECKOUT_PATH);
   }
 
   @HostListener('document:keydown.escape')

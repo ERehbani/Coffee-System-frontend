@@ -1,0 +1,35 @@
+<section
+  aria-labelledby="checkout-summary-heading"
+  class="space-y-4 rounded-2xl border border-border bg-surface p-5 shadow-xs"
+>
+  <header>
+    <h2 id="checkout-summary-heading" class="text-base font-bold text-text">Resumen del pedido</h2>
+    <p class="mt-0.5 flex items-center gap-1 text-xs text-muted">
+      <app-icon name="store" [size]="12" />
+      <span data-testid="checkout-cafe">{{ summary().cafeName }}</span>
+    </p>
+  </header>
+
+  <ul class="divide-y divide-border/60">
+    @for (line of summary().lines; track line.productId) {
+      <li class="flex items-center justify-between gap-3 py-3">
+        <div class="min-w-0">
+          <p class="truncate text-sm font-semibold text-text">{{ line.productName }}</p>
+          <p class="text-xs text-muted">
+            {{ line.quantity }} × {{ line.unitPrice | currency:'ARS':'$ ':'1.0-0' }}
+          </p>
+        </div>
+        <span class="shrink-0 text-sm font-bold text-text">
+          {{ line.subtotal | currency:'ARS':'$ ':'1.0-0' }}
+        </span>
+      </li>
+    }
+  </ul>
+
+  <div class="flex items-center justify-between border-t border-border/60 pt-4">
+    <span class="text-sm font-semibold text-muted">Total</span>
+    <span data-testid="checkout-total" class="text-lg font-extrabold text-text">
+      {{ summary().total | currency:'ARS':'$ ':'1.0-0' }}
+    </span>
+  </div>
+</section>
