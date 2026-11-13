@@ -9,3 +9,15 @@ export interface SessionUser {
   email: string;
   roles: string[];
 }
+
+export interface RegisterRequest {
+  name: string;
+  email: string;
+  password: string;
+}
+
+export interface RegisteredUser {
+  externalId: string;
+  email: string;
+  state: boolean;
+}

@@ -4,9 +4,39 @@ import { TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { environment } from '../environments/environment';
-import { signInForTest } from '../features/auth/utils/auth.fixture';
+import { signInForTest, signOutForTest } from '../features/auth/utils/auth.fixture';
 import { ADMIN_NAV_ITEMS } from '../shared/components/admin-layout/admin-nav';
 import { routes } from './app.routes';
+
+describe('register route', () => {
+  let harness: RouterTestingHarness;
+  let router: Router;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      providers: [provideRouter(routes), provideHttpClient(), provideHttpClientTesting()],
+    }).compileComponents();
+    harness = await RouterTestingHarness.create();
+    router = TestBed.inject(Router);
+  });
+
+  it('renders the register page without a session', async () => {
+    signOutForTest();
+
+    await harness.navigateByUrl('/register');
+
+    expect(router.url).toBe('/register');
+    expect(harness.fixture.nativeElement.querySelector('app-register-page')).not.toBeNull();
+  });
+
+  it('sends a signed-in user to their home', async () => {
+    signInForTest(['ROLE_CLIENTE']);
+
+    await harness.navigateByUrl('/register');
+
+    expect(router.url).toBe('/home');
+  });
+});
 
 describe('admin routes', () => {
   let harness: RouterTestingHarness;
