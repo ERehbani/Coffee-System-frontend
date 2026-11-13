@@ -134,6 +134,46 @@ describe('admin routes', () => {
   );
 });
 
+describe('cafe routes', () => {
+  let harness: RouterTestingHarness;
+  let router: Router;
+  const originalUseMockApi = environment.useMockApi;
+
+  const page = () => harness.fixture.nativeElement as HTMLElement;
+
+  async function navigateAs(roles: string[], url: string): Promise<void> {
+    signInForTest(roles);
+    harness = await RouterTestingHarness.create();
+    router = TestBed.inject(Router);
+    await harness.navigateByUrl(url);
+  }
+
+  beforeEach(async () => {
+    environment.useMockApi = true;
+    await TestBed.configureTestingModule({
+      providers: [provideRouter(routes)],
+    }).compileComponents();
+  });
+
+  afterEach(() => {
+    environment.useMockApi = originalUseMockApi;
+  });
+
+  it('renders the coupon validator for a cafe', async () => {
+    await navigateAs(['ROLE_CAFETERIA'], '/cafe/validate');
+
+    expect(router.url).toBe('/cafe/validate');
+    expect(page().querySelector('app-coupon-validation-page')).not.toBeNull();
+  });
+
+  it('keeps a client out of the coupon validator', async () => {
+    await navigateAs(['ROLE_CLIENTE'], '/cafe/validate');
+
+    expect(router.url).toBe('/home');
+    expect(page().querySelector('app-coupon-validation-page')).toBeNull();
+  });
+});
+
 describe('checkout route', () => {
   let harness: RouterTestingHarness;
   let router: Router;

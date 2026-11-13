@@ -24,6 +24,10 @@ describe('server routes', () => {
     },
   );
 
+  it('renders the coupon validator only on the client, where the camera is', () => {
+    expect(find('cafe/validate')?.renderMode).toBe(RenderMode.Client);
+  });
+
   it('declares the admin wildcard before the catch-all prerender route', () => {
     const paths = serverRoutes.map((route) => route.path);
 

@@ -43,6 +43,16 @@ describe('CafeProfilePage', () => {
     expect(clientViewLink()?.getAttribute('href')).toBe('/profile');
   });
 
+  it('links to the coupon validator', async () => {
+    await setup(['ROLE_CAFETERIA']);
+
+    const validatorLink = Array.from(root.querySelectorAll<HTMLAnchorElement>('a')).find((link) =>
+      link.textContent?.includes('Validar cupones'),
+    );
+
+    expect(validatorLink?.getAttribute('href')).toBe('/cafe/validate');
+  });
+
   it('shows the logout button', async () => {
     await setup(['ROLE_CAFETERIA']);
 

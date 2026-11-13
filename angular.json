@@ -43,7 +43,7 @@
           "builder": "@angular/build:application",
           "options": {
             "browser": "src/main.ts",
-            "allowedCommonJsDependencies": ["qrcode"],
+            "allowedCommonJsDependencies": ["qrcode", "jsqr"],
             "tsConfig": "tsconfig.app.json",
             "assets": [
               {

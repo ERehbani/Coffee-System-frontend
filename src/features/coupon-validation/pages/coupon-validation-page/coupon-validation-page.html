@@ -1,0 +1,67 @@
+<main class="mx-auto max-w-4xl px-4 py-8 space-y-6">
+  <div class="flex flex-wrap items-center justify-between gap-3 pb-2 border-b border-border">
+    <div class="flex items-center gap-2">
+      <span class="inline-flex size-8 items-center justify-center rounded-lg bg-primary text-white">
+        <app-icon name="scan-qr-code" [size]="18" />
+      </span>
+      <div>
+        <h1 class="text-lg font-extrabold text-text">Validar cupones</h1>
+        <p class="text-xs text-muted">Escaneá el QR del cliente o escribí el código</p>
+      </div>
+    </div>
+    <div class="flex flex-wrap items-center gap-2">
+      <a
+        routerLink="/cafe/profile"
+        class="cursor-pointer inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface px-3 py-1.5 text-xs font-bold text-muted transition-all hover:bg-bg hover:text-text active:scale-95 select-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+      >
+        <app-icon name="arrow-left" [size]="14" />
+        Panel del comercio
+      </a>
+      <app-logout-button />
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 gap-6 md:grid-cols-2 md:items-start">
+    <section aria-label="Resultado de la validación" class="md:order-last">
+      @if (store.status() === 'validating') {
+        <div
+          role="status"
+          class="flex items-center gap-3 rounded-3xl border border-border bg-surface p-5 shadow-xs"
+        >
+          <span
+            class="size-6 shrink-0 animate-spin rounded-full border-4 border-primary border-t-transparent"
+          ></span>
+          <p class="text-sm font-bold text-text">Validando cupón...</p>
+        </div>
+      } @else if (store.outcome(); as outcome) {
+        <app-validation-result [outcome]="outcome" (next)="onValidateAnother()" />
+      } @else {
+        <div
+          class="hidden flex-col items-center gap-2 rounded-3xl border border-dashed border-border bg-surface p-8 text-center md:flex"
+        >
+          <span
+            class="inline-flex size-12 items-center justify-center rounded-2xl bg-accent-light text-primary"
+          >
+            <app-icon name="ticket" [size]="24" />
+          </span>
+          <p class="text-sm font-bold text-text">Todavía no validaste ningún cupón</p>
+          <p class="text-xs text-muted">
+            Acá vas a ver si el cupón es válido, ya se usó o no existe.
+          </p>
+        </div>
+      }
+    </section>
+
+    <div class="space-y-6">
+      <app-qr-scanner [enabled]="store.canValidate()" (scanned)="onCodeReceived($event)" />
+      <app-manual-code-form
+        [disabled]="!store.canValidate()"
+        (submitted)="onCodeReceived($event)"
+      />
+      <p class="flex items-start gap-2 text-xs text-muted">
+        <app-icon name="alert-circle" [size]="14" class="mt-0.5" />
+        Validar un cupón lo marca como usado: hacelo cuando vayas a entregar el beneficio.
+      </p>
+    </div>
+  </div>
+</main>

@@ -70,6 +70,11 @@ export const routes: Routes = [
     loadChildren: () => import('../features/cafe-profile/cafe-profile.routes'),
   },
   {
+    path: 'cafe/validate',
+    canActivate: [roleGuard('ROLE_CAFETERIA')],
+    loadChildren: () => import('../features/coupon-validation/coupon-validation.routes'),
+  },
+  {
     path: '',
     component: ClientLayout,
     canActivate: [roleGuard('ROLE_CLIENTE')],
