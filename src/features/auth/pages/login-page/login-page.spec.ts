@@ -144,6 +144,21 @@ describe('LoginPage', () => {
     expect(element.querySelector('[role="status"]')?.textContent).toContain('Tu sesión expiró');
   });
 
+  it('shows a success notice when the account was just created', async () => {
+    await setup({ reason: 'registered' });
+
+    const notice = element.querySelector('[role="status"]');
+
+    expect(notice?.textContent).toContain('Tu cuenta se creó correctamente.');
+    expect(notice?.classList).toContain('bg-emerald-50');
+  });
+
+  it('links to the register page', async () => {
+    await setup();
+
+    expect(element.querySelector('a[href="/register"]')?.textContent).toContain('Registrate');
+  });
+
   it('ignores a reason it does not know', async () => {
     await setup({ reason: 'Tu cuenta fue suspendida, escribí a soporte.' });
 

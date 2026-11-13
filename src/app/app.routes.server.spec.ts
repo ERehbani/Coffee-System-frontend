@@ -9,6 +9,10 @@ describe('server routes', () => {
     expect(find('admin')?.renderMode).toBe(RenderMode.Client);
   });
 
+  it('renders the register page on the client', () => {
+    expect(find('register')?.renderMode).toBe(RenderMode.Client);
+  });
+
   it('renders the my coupons page on the client', () => {
     expect(find('profile/coupons')?.renderMode).toBe(RenderMode.Client);
   });
