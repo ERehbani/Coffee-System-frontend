@@ -1,10 +1,42 @@
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { environment } from '../environments/environment';
-import { signInForTest } from '../features/auth/utils/auth.fixture';
+import { signInForTest, signOutForTest } from '../features/auth/utils/auth.fixture';
 import { ADMIN_NAV_ITEMS } from '../shared/components/admin-layout/admin-nav';
 import { routes } from './app.routes';
+
+describe('register route', () => {
+  let harness: RouterTestingHarness;
+  let router: Router;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      providers: [provideRouter(routes), provideHttpClient(), provideHttpClientTesting()],
+    }).compileComponents();
+    harness = await RouterTestingHarness.create();
+    router = TestBed.inject(Router);
+  });
+
+  it('renders the register page without a session', async () => {
+    signOutForTest();
+
+    await harness.navigateByUrl('/register');
+
+    expect(router.url).toBe('/register');
+    expect(harness.fixture.nativeElement.querySelector('app-register-page')).not.toBeNull();
+  });
+
+  it('sends a signed-in user to their home', async () => {
+    signInForTest(['ROLE_CLIENTE']);
+
+    await harness.navigateByUrl('/register');
+
+    expect(router.url).toBe('/home');
+  });
+});
 
 describe('admin routes', () => {
   let harness: RouterTestingHarness;
@@ -139,5 +171,43 @@ describe('cafe routes', () => {
 
     expect(router.url).toBe('/home');
     expect(page().querySelector('app-coupon-validation-page')).toBeNull();
+  });
+});
+
+describe('checkout route', () => {
+  let harness: RouterTestingHarness;
+  let router: Router;
+  const originalUseMockApi = environment.useMockApi;
+
+  const page = () => harness.fixture.nativeElement as HTMLElement;
+
+  afterEach(() => {
+    environment.useMockApi = originalUseMockApi;
+  });
+
+  async function openCheckoutAs(roles: string[]): Promise<void> {
+    environment.useMockApi = true;
+    await TestBed.configureTestingModule({
+      providers: [provideRouter(routes), provideHttpClient(), provideHttpClientTesting()],
+    }).compileComponents();
+    signInForTest(roles);
+
+    harness = await RouterTestingHarness.create();
+    router = TestBed.inject(Router);
+    await harness.navigateByUrl('/checkout');
+  }
+
+  it('renders the checkout page inside the client layout for a client', async () => {
+    await openCheckoutAs(['ROLE_CLIENTE']);
+
+    expect(router.url).toBe('/checkout');
+    expect(page().querySelector('app-client-layout app-checkout-page')).not.toBeNull();
+  });
+
+  it('keeps any other role out of the checkout', async () => {
+    await openCheckoutAs(['ROLE_SUPERADMIN']);
+
+    expect(router.url).not.toBe('/checkout');
+    expect(page().querySelector('app-checkout-page')).toBeNull();
   });
 });

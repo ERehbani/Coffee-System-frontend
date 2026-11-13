@@ -2,7 +2,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { environment } from '../../../environments/environment';
-import { SessionUser } from '../types/auth.model';
+import { RegisteredUser, SessionUser } from '../types/auth.model';
 import { AuthService } from './auth.service';
 
 describe('AuthService', () => {
@@ -88,6 +88,34 @@ describe('AuthService', () => {
     service.loadSession().subscribe();
 
     http.expectNone(`${authUrl}/me`);
+  });
+
+  it('register() sends name, email and password without starting a session', () => {
+    let registered: RegisteredUser | null = null;
+
+    service
+      .register({ name: 'Ana', email: 'ana@test.com', password: 'Secret123' })
+      .subscribe((user) => (registered = user));
+
+    const req = http.expectOne(`${authUrl}/register`);
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual({ name: 'Ana', email: 'ana@test.com', password: 'Secret123' });
+    req.flush({ externalId: 'abc', email: 'ana@test.com', state: true });
+
+    expect(registered).toEqual({ externalId: 'abc', email: 'ana@test.com', state: true });
+    expect(service.isAuthenticated()).toBe(false);
+  });
+
+  it('register() propagates the error when the back rejects the account', () => {
+    let status = 0;
+
+    service
+      .register({ name: 'Ana', email: 'ana@test.com', password: 'Secret123' })
+      .subscribe({ error: (error) => (status = error.status) });
+
+    http.expectOne(`${authUrl}/register`).flush('Email already exists', { status: 409, statusText: 'Conflict' });
+
+    expect(status).toBe(409);
   });
 
   it('logout() clears the session and asks the back to remove the cookie', () => {

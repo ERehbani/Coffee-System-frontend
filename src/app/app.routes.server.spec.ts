@@ -9,11 +9,15 @@ describe('server routes', () => {
     expect(find('admin')?.renderMode).toBe(RenderMode.Client);
   });
 
+  it('renders the register page on the client', () => {
+    expect(find('register')?.renderMode).toBe(RenderMode.Client);
+  });
+
   it('renders the my coupons page on the client', () => {
     expect(find('profile/coupons')?.renderMode).toBe(RenderMode.Client);
   });
 
-  it.each(['purchases', 'profile/edit', 'profile/redemptions'])(
+  it.each(['purchases', 'profile/edit', 'profile/redemptions', 'checkout'])(
     'renders /%s on the client so the guard sees the session after a reload',
     (path) => {
       expect(find(path)?.renderMode).toBe(RenderMode.Client);

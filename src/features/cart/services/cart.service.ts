@@ -148,10 +148,14 @@ export class CartService {
     });
   }
 
-  clear(): void {
+  clearLocal(): void {
     this.items.set([]);
     this.cafe.set(null);
     this.saveToStorage();
+  }
+
+  clear(): void {
+    this.clearLocal();
 
     if (environment.useMockApi) {
       return;

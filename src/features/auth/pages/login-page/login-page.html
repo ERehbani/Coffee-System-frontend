@@ -9,13 +9,19 @@
       <p class="text-sm text-muted">Ingresá con tu correo y tu contraseña.</p>
     </header>
 
-    @if (reason) {
+    @if (notice) {
       <div
         role="status"
-        class="flex items-center gap-2 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs font-bold text-amber-800"
+        class="flex items-center gap-2 rounded-2xl border px-4 py-3 text-xs font-bold"
+        [class.border-emerald-200]="notice.isSuccess"
+        [class.bg-emerald-50]="notice.isSuccess"
+        [class.text-emerald-800]="notice.isSuccess"
+        [class.border-amber-200]="!notice.isSuccess"
+        [class.bg-amber-50]="!notice.isSuccess"
+        [class.text-amber-800]="!notice.isSuccess"
       >
-        <app-icon name="clock" [size]="16" />
-        <span>{{ reason }}</span>
+        <app-icon [name]="notice.isSuccess ? 'check-circle' : 'clock'" [size]="16" />
+        <span>{{ notice.message }}</span>
       </div>
     }
 
@@ -85,5 +91,10 @@
         {{ isSubmitting() ? 'Iniciando sesión...' : 'Iniciar sesión' }}
       </button>
     </form>
+
+    <p class="text-center text-xs text-muted">
+      ¿No tenés cuenta?
+      <a [routerLink]="registerPath" class="font-semibold text-primary hover:underline">Registrate</a>
+    </p>
   </div>
 </main>

@@ -6,6 +6,10 @@ export const serverRoutes: ServerRoute[] = [
     renderMode: RenderMode.Client,
   },
   {
+    path: 'register',
+    renderMode: RenderMode.Client,
+  },
+  {
     path: 'admin',
     renderMode: RenderMode.Client,
   },
@@ -47,6 +51,10 @@ export const serverRoutes: ServerRoute[] = [
   },
   {
     path: 'purchases',
+    renderMode: RenderMode.Client,
+  },
+  {
+    path: 'checkout',
     renderMode: RenderMode.Client,
   },
   {

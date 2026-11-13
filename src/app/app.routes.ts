@@ -51,6 +51,10 @@ export const routes: Routes = [
     loadChildren: () => import('../features/auth/auth.routes'),
   },
   {
+    path: 'register',
+    loadChildren: () => import('../features/auth/register.routes'),
+  },
+  {
     path: 'admin',
     component: AdminLayout,
     canActivate: [roleGuard('ROLE_SUPERADMIN')],
@@ -91,6 +95,10 @@ export const routes: Routes = [
       {
         path: 'purchases',
         loadChildren: () => import('../features/purchase-history/purchase-history.routes'),
+      },
+      {
+        path: 'checkout',
+        loadChildren: () => import('../features/checkout/checkout.routes'),
       },
     ],
   },
