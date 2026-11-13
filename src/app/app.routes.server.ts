@@ -58,6 +58,10 @@ export const serverRoutes: ServerRoute[] = [
     renderMode: RenderMode.Client,
   },
   {
+    path: 'checkout/success',
+    renderMode: RenderMode.Client,
+  },
+  {
     path: 'cafe/profile',
     renderMode: RenderMode.Client,
   },
