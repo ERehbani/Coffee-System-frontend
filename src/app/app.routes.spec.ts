@@ -170,4 +170,12 @@ describe('checkout route', () => {
     expect(router.url).not.toBe('/checkout');
     expect(page().querySelector('app-checkout-page')).toBeNull();
   });
+
+  it('sends the client to the purchase history when opening the success screen directly', async () => {
+    await openCheckoutAs(['ROLE_CLIENTE']);
+
+    await harness.navigateByUrl('/checkout/success');
+
+    expect(router.url).toBe('/purchases');
+  });
 });
