@@ -18,14 +18,10 @@ export class PurchaseService {
       return of(MOCK_PURCHASES);
     }
 
-    return this.http.get<Purchase[]>(`${this.url}/me`);
+    return this.http.get<Purchase[]>(this.url);
   }
 
   getAll(): Observable<Purchase[]> {
-    if (environment.useMockApi) {
-      return of(MOCK_PURCHASES);
-    }
-
     return this.http.get<Purchase[]>(this.url);
   }
 

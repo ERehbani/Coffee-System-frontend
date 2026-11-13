@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { Icon } from '../../../../shared/components/icon/icon';
@@ -11,8 +11,12 @@ import { AdminCategoryService } from '../../services/admin-category.service';
   templateUrl: './admin-categories-page.html',
   host: { class: 'block' },
 })
-export class AdminCategoriesPage {
+export class AdminCategoriesPage implements OnInit {
   protected readonly service = inject(AdminCategoryService);
+
+  ngOnInit(): void {
+    this.service.load();
+  }
 
   readonly isFormOpen = signal(false);
   readonly editingCategory = signal<AdminCategory | null>(null);
