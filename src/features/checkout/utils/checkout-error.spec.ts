@@ -20,10 +20,57 @@ describe('toCheckoutErrorMessage', () => {
   it('falls back for a 400 with an unknown message in the { error, status } shape', () => {
     const error = new HttpErrorResponse({
       status: 400,
-      error: { error: 'Code already used', status: 400 },
+      error: { error: 'Something else', status: 400 },
     });
 
     expect(toCheckoutErrorMessage(error)).toBe(CHECKOUT_ERROR_MESSAGE);
+  });
+
+  describe('coupon rejections', () => {
+    const retryHint = 'Quitalo para pagar sin cupón o elegí otro.';
+
+    it('explains a code the backend does not know, sent as a 404 with plain text', () => {
+      const error = new HttpErrorResponse({ status: 404, error: 'Invalid code' });
+
+      expect(toCheckoutErrorMessage(error)).toBe(`No encontramos ese cupón. ${retryHint}`);
+    });
+
+    it('does not mistake an invalid code for a missing cart', () => {
+      const error = new HttpErrorResponse({ status: 404, error: 'Invalid code' });
+
+      expect(toCheckoutErrorMessage(error)).not.toContain('carrito');
+    });
+
+    it('explains a coupon that was already used', () => {
+      const error = new HttpErrorResponse({
+        status: 400,
+        error: { error: 'Code already used', status: 400 },
+      });
+
+      expect(toCheckoutErrorMessage(error)).toBe(`Ese cupón ya fue usado. ${retryHint}`);
+    });
+
+    it('explains a coupon of another cafe', () => {
+      const error = new HttpErrorResponse({
+        status: 400,
+        error: { error: 'This code does not belong to this cafe', status: 400 },
+      });
+
+      expect(toCheckoutErrorMessage(error)).toBe(
+        `Ese cupón es de otra cafetería y no se puede usar acá. ${retryHint}`,
+      );
+    });
+
+    it('explains a coupon type that cannot be applied to a purchase', () => {
+      const error = new HttpErrorResponse({
+        status: 400,
+        error: { error: 'This benefit type cannot be applied to a purchase', status: 400 },
+      });
+
+      expect(toCheckoutErrorMessage(error)).toBe(
+        `Ese tipo de cupón no se puede aplicar a una compra. ${retryHint}`,
+      );
+    });
   });
 
   it('falls back for a 400 without a readable body', () => {

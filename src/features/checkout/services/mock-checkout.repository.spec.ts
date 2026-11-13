@@ -5,6 +5,13 @@ import { firstValueFrom, Observable } from 'rxjs';
 import { CartService } from '../../cart/services/cart.service';
 import { MOCK_PURCHASES } from '../../purchase-history/data/purchases.mock';
 import { CHECKOUT_CAFE_FIXTURE, CHECKOUT_ITEMS_FIXTURE } from '../utils/checkout.fixture';
+import {
+  DISCOUNT_COUPON_DTO,
+  MEMBER_PRODUCT_COUPON_DTO,
+  OTHER_CAFE_COUPON_DTO,
+  TWO_FOR_ONE_COUPON_DTO,
+  USED_COUPON_DTO,
+} from '../utils/coupon.fixture';
 import { MOCK_LATENCY_MS, MockCheckoutRepository } from './mock-checkout.repository';
 
 describe('MockCheckoutRepository', () => {
@@ -78,5 +85,91 @@ describe('MockCheckoutRepository', () => {
     expect(error).toBeInstanceOf(HttpErrorResponse);
     expect((error as HttpErrorResponse).status).toBe(400);
     expect((error as HttpErrorResponse).error).toBe('Cart cannot be empty');
+  });
+
+  describe('coupons', () => {
+    async function rejectionOf(code: string): Promise<HttpErrorResponse> {
+      const rejection = await settle(
+        repository.createPurchase({ cartId: 'cart', validationCode: code }),
+      ).catch((error: unknown) => error);
+      return rejection as HttpErrorResponse;
+    }
+
+    it('lists only the active redemptions, like the state filter of the backend', async () => {
+      const coupons = await settle(repository.findCoupons());
+
+      expect(coupons.every((coupon) => coupon.isActive)).toBe(true);
+      expect(coupons.map((coupon) => coupon.id)).not.toContain(USED_COUPON_DTO.externalId);
+      expect(coupons.map((coupon) => coupon.id)).toContain(DISCOUNT_COUPON_DTO.externalId);
+    });
+
+    it('applies a percentage coupon to the total of the order', async () => {
+      const order = await settle(
+        repository.createPurchase({
+          cartId: 'cart',
+          validationCode: DISCOUNT_COUPON_DTO.validationCode,
+        }),
+      );
+
+      expect(order.total).toBe(7820);
+      expect(order.redemptionId).toBe(DISCOUNT_COUPON_DTO.externalId);
+    });
+
+    it('applies a two for one to the units of the product', async () => {
+      const order = await settle(
+        repository.createPurchase({
+          cartId: 'cart',
+          validationCode: TWO_FOR_ONE_COUPON_DTO.validationCode,
+        }),
+      );
+
+      expect(order.total).toBe(6400);
+    });
+
+    it('adds the gift product to the order without changing the total', async () => {
+      const order = await settle(
+        repository.createPurchase({
+          cartId: 'cart',
+          validationCode: MEMBER_PRODUCT_COUPON_DTO.validationCode,
+        }),
+      );
+
+      expect(order.total).toBe(9200);
+      expect(order.lines.map((line) => line.productName)).toContain('Croissant de Almendras');
+    });
+
+    it('does not offer a coupon again after using it', async () => {
+      await settle(
+        repository.createPurchase({
+          cartId: 'cart',
+          validationCode: DISCOUNT_COUPON_DTO.validationCode,
+        }),
+      );
+
+      const coupons = await settle(repository.findCoupons());
+
+      expect(coupons.map((coupon) => coupon.id)).not.toContain(DISCOUNT_COUPON_DTO.externalId);
+    });
+
+    it('rejects an unknown code with a 404 like the backend', async () => {
+      const error = await rejectionOf('nope');
+
+      expect(error.status).toBe(404);
+      expect(error.error).toBe('Invalid code');
+    });
+
+    it('rejects a code that was already used', async () => {
+      const error = await rejectionOf(USED_COUPON_DTO.validationCode);
+
+      expect(error.status).toBe(400);
+      expect(error.error).toEqual({ error: 'Code already used', status: 400 });
+    });
+
+    it('rejects a code of another cafe', async () => {
+      const error = await rejectionOf(OTHER_CAFE_COUPON_DTO.validationCode);
+
+      expect(error.status).toBe(400);
+      expect(error.error.error).toBe('This code does not belong to this cafe');
+    });
   });
 });

@@ -26,10 +26,46 @@
     }
   </ul>
 
+  @if (preview(); as preview) {
+    <dl class="space-y-2 border-t border-border/60 pt-4 text-sm">
+      <div class="flex items-center justify-between gap-3">
+        <dt class="text-muted">Subtotal</dt>
+        <dd data-testid="checkout-subtotal" class="font-semibold text-text">
+          {{ preview.subtotal | currency:'ARS':'$ ':'1.0-0' }}
+        </dd>
+      </div>
+      @if (preview.discount > 0) {
+        <div class="flex items-center justify-between gap-3 text-success">
+          <dt class="flex min-w-0 items-center gap-1.5">
+            <app-icon name="ticket" [size]="14" />
+            <span class="truncate">{{ preview.couponName }}</span>
+          </dt>
+          <dd data-testid="checkout-discount" class="shrink-0 font-semibold">
+            - {{ preview.discount | currency:'ARS':'$ ':'1.0-2' }}
+          </dd>
+        </div>
+      }
+      @if (preview.gift; as gift) {
+        <div class="flex items-center justify-between gap-3 text-success">
+          <dt class="flex min-w-0 items-center gap-1.5">
+            <app-icon name="gift" [size]="14" />
+            <span data-testid="checkout-gift" class="truncate">1 × {{ gift.name }} de regalo</span>
+          </dt>
+          <dd class="shrink-0 font-semibold">Gratis</dd>
+        </div>
+      }
+      @if (preview.discount === 0 && !preview.gift) {
+        <p data-testid="checkout-no-effect" class="text-xs text-muted">
+          Este cupón no tiene efecto sobre los productos de tu pedido.
+        </p>
+      }
+    </dl>
+  }
+
   <div class="flex items-center justify-between border-t border-border/60 pt-4">
     <span class="text-sm font-semibold text-muted">Total</span>
     <span data-testid="checkout-total" class="text-lg font-extrabold text-text">
-      {{ summary().total | currency:'ARS':'$ ':'1.0-0' }}
+      {{ total() | currency:'ARS':'$ ':'1.0-2' }}
     </span>
   </div>
 </section>

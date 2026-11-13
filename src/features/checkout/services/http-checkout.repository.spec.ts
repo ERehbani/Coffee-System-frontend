@@ -4,11 +4,13 @@ import { TestBed } from '@angular/core/testing';
 import { environment } from '../../../environments/environment';
 import { CartResponse } from '../../cart/model/cart.model';
 import { ConfirmedOrder } from '../types/checkout.model';
+import { CheckoutCoupon } from '../types/coupon.model';
 import {
   buildPurchaseResponse,
   CHECKOUT_CAFE_FIXTURE,
   CHECKOUT_ITEMS_FIXTURE,
 } from '../utils/checkout.fixture';
+import { CHECKOUT_COUPON_DTOS_FIXTURE } from '../utils/coupon.fixture';
 import { HttpCheckoutRepository } from './http-checkout.repository';
 
 function cartFor(cafeId: string, externalId: string): CartResponse {
@@ -48,6 +50,34 @@ describe('HttpCheckoutRepository', () => {
       http.expectOne(`${environment.apiBaseUrl}/carts/myCart`).flush([cartFor('cafe-a', 'cart-a')]);
 
       expect(status).toBe(404);
+    });
+  });
+
+  describe('findCoupons', () => {
+    it('asks for the active redemptions of the client and maps them', () => {
+      let coupons: readonly CheckoutCoupon[] | undefined;
+      repository.findCoupons().subscribe((value) => (coupons = value));
+
+      const request = http.expectOne(
+        (candidate) => candidate.url === `${environment.apiBaseUrl}/redemption`,
+      );
+      expect(request.request.method).toBe('GET');
+      expect(request.request.params.get('state')).toBe('true');
+      request.flush(CHECKOUT_COUPON_DTOS_FIXTURE);
+
+      expect(coupons?.length).toBe(CHECKOUT_COUPON_DTOS_FIXTURE.length);
+      expect(coupons?.[0].benefit).toEqual({ kind: 'percentage-discount', percentage: 15 });
+    });
+
+    it('propagates a backend failure', () => {
+      let status: number | undefined;
+      repository.findCoupons().subscribe({ error: (error) => (status = error.status) });
+
+      http
+        .expectOne((candidate) => candidate.url === `${environment.apiBaseUrl}/redemption`)
+        .flush('error', { status: 500, statusText: 'Server Error' });
+
+      expect(status).toBe(500);
     });
   });
 

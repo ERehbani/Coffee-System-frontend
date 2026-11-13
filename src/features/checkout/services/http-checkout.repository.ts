@@ -5,7 +5,10 @@ import { environment } from '../../../environments/environment';
 import { CartResponse } from '../../cart/model/cart.model';
 import { PurchaseResponseDto } from '../types/checkout.dto';
 import { ConfirmedOrder, CreatePurchaseInput } from '../types/checkout.model';
+import { CheckoutCouponDto } from '../types/coupon.dto';
+import { CheckoutCoupon } from '../types/coupon.model';
 import { toConfirmedOrder, toCreatePurchaseRequestDto } from '../utils/checkout.mapper';
+import { toCheckoutCoupons } from '../utils/coupon.mapper';
 import { CheckoutRepository } from './checkout.repository';
 
 function cartNotFound(): HttpErrorResponse {
@@ -29,6 +32,12 @@ export class HttpCheckoutRepository implements CheckoutRepository {
     return this.http
       .get<CartResponse[]>(`${this.baseUrl}/carts/myCart`)
       .pipe(map((carts) => pickCartId(carts, cafeId)));
+  }
+
+  findCoupons(): Observable<readonly CheckoutCoupon[]> {
+    return this.http
+      .get<CheckoutCouponDto[]>(`${this.baseUrl}/redemption`, { params: { state: true } })
+      .pipe(map(toCheckoutCoupons));
   }
 
   createPurchase(input: CreatePurchaseInput): Observable<ConfirmedOrder> {

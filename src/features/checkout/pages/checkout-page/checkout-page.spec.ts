@@ -10,13 +10,16 @@ import type { Mock } from 'vitest';
 import { CartService } from '../../../cart/services/cart.service';
 import { CheckoutRepository } from '../../services/checkout.repository';
 import { CheckoutStore } from '../../services/checkout.store';
-import { ConfirmedOrder } from '../../types/checkout.model';
+import { ConfirmedOrder, CreatePurchaseInput } from '../../types/checkout.model';
+import { CheckoutCoupon } from '../../types/coupon.model';
 import {
   buildPurchaseResponse,
   CHECKOUT_CAFE_FIXTURE,
   CHECKOUT_ITEMS_FIXTURE,
 } from '../../utils/checkout.fixture';
 import { toConfirmedOrder } from '../../utils/checkout.mapper';
+import { CHECKOUT_COUPON_DTOS_FIXTURE, DISCOUNT_COUPON_DTO } from '../../utils/coupon.fixture';
+import { toCheckoutCoupons } from '../../utils/coupon.mapper';
 import { CHECKOUT_SUCCESS_PATH } from '../../utils/checkout-paths';
 import { CheckoutPage } from './checkout-page';
 
@@ -31,7 +34,8 @@ describe('CheckoutPage', () => {
   let element: HTMLElement;
   let cart: CartService;
   let navigateByUrl: Mock;
-  let createPurchase: Mock<() => Observable<ConfirmedOrder>>;
+  let createPurchase: Mock<(input: CreatePurchaseInput) => Observable<ConfirmedOrder>>;
+  let findCoupons: Mock<() => Observable<readonly CheckoutCoupon[]>>;
 
   async function render(withProducts = true) {
     await TestBed.configureTestingModule({
@@ -44,7 +48,7 @@ describe('CheckoutPage', () => {
         { provide: LOCALE_ID, useValue: 'es-AR' },
         {
           provide: CheckoutRepository,
-          useValue: { findCartId: () => of('cart-1'), createPurchase },
+          useValue: { findCartId: () => of('cart-1'), findCoupons, createPurchase },
         },
       ],
     }).compileComponents();
@@ -72,8 +76,19 @@ describe('CheckoutPage', () => {
     fixture.detectChanges();
   }
 
+  const couponOptions = () =>
+    Array.from(element.querySelectorAll<HTMLButtonElement>('[data-testid="coupon-option"]'));
+
+  function chooseCoupon(name: string) {
+    couponOptions()
+      .find((option) => option.textContent?.includes(name))!
+      .click();
+    fixture.detectChanges();
+  }
+
   beforeEach(() => {
     createPurchase = vi.fn(() => of(order));
+    findCoupons = vi.fn(() => of(toCheckoutCoupons(CHECKOUT_COUPON_DTOS_FIXTURE)));
   });
 
   afterEach(() => localStorage.clear());
@@ -171,5 +186,138 @@ describe('CheckoutPage', () => {
 
     expect(store.status()).toBe('idle');
     expect(store.canConfirm()).toBe(true);
+  });
+
+  describe('coupons', () => {
+    it('lists the coupons that can be used in the cafe of the cart', async () => {
+      await render();
+
+      expect(couponOptions().length).toBe(4);
+      expect(couponOptions()[0].textContent).toContain('15% de descuento');
+      expect(couponOptions().every((option) => option.getAttribute('aria-pressed') === 'false')).toBe(
+        true,
+      );
+    });
+
+    it('shows a loading state while the coupons arrive and lets the order be confirmed', async () => {
+      findCoupons.mockReturnValue(new Subject<readonly CheckoutCoupon[]>());
+      await render();
+
+      expect(element.querySelector('[data-testid="coupons-loading"]')).not.toBeNull();
+      expect(confirmButton()?.disabled).toBe(false);
+    });
+
+    it('shows a discreet message when the coupons fail to load and keeps paying possible', async () => {
+      findCoupons.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 500 })));
+      await render();
+
+      expect(element.querySelector('[data-testid="coupons-error"]')?.textContent).toContain(
+        'sin cupón',
+      );
+      expect(confirmButton()?.disabled).toBe(false);
+    });
+
+    it('shows a message when there are no coupons to apply', async () => {
+      findCoupons.mockReturnValue(of(toCheckoutCoupons([])));
+      await render();
+
+      expect(element.querySelector('[data-testid="coupons-empty"]')?.textContent).toContain(
+        'No tenés cupones disponibles',
+      );
+      expect(confirmButton()?.disabled).toBe(false);
+    });
+
+    it('shows the discount and the final total when a coupon is chosen', async () => {
+      await render();
+
+      chooseCoupon('15% de descuento');
+
+      expect(element.querySelector('[data-testid="checkout-subtotal"]')?.textContent).toContain(
+        '9.200',
+      );
+      expect(element.querySelector('[data-testid="checkout-discount"]')?.textContent).toContain(
+        '1.380',
+      );
+      expect(element.querySelector('[data-testid="checkout-total"]')?.textContent).toContain('7.820');
+      expect(couponOptions()[0].getAttribute('aria-pressed')).toBe('true');
+    });
+
+    it('shows the gift product instead of a discount for a free product coupon', async () => {
+      await render();
+
+      chooseCoupon('Croissant gratis para socios');
+
+      expect(element.querySelector('[data-testid="checkout-gift"]')?.textContent).toContain(
+        'Croissant de Almendras',
+      );
+      expect(element.querySelector('[data-testid="checkout-discount"]')).toBeNull();
+      expect(element.querySelector('[data-testid="checkout-total"]')?.textContent).toContain('9.200');
+    });
+
+    it('goes back to the plain total when the coupon is removed', async () => {
+      await render();
+      chooseCoupon('15% de descuento');
+
+      element.querySelector<HTMLButtonElement>('[data-testid="coupon-clear"]')!.click();
+      fixture.detectChanges();
+
+      expect(element.querySelector('[data-testid="checkout-subtotal"]')).toBeNull();
+      expect(element.querySelector('[data-testid="checkout-total"]')?.textContent).toContain('9.200');
+    });
+
+    it('sends the validation code of the chosen coupon when paying', async () => {
+      await render();
+      chooseCoupon('15% de descuento');
+
+      clickConfirm();
+
+      expect(createPurchase).toHaveBeenCalledWith({
+        cartId: 'cart-1',
+        validationCode: DISCOUNT_COUPON_DTO.validationCode,
+      });
+    });
+
+    it('pays without code when no coupon is chosen', async () => {
+      await render();
+
+      clickConfirm();
+
+      expect(createPurchase).toHaveBeenCalledWith({ cartId: 'cart-1', validationCode: undefined });
+    });
+
+    it('explains a rejected coupon and lets the client remove it and pay again', async () => {
+      createPurchase.mockReturnValueOnce(
+        throwError(() => new HttpErrorResponse({ status: 404, error: 'Invalid code' })),
+      );
+      await render();
+      chooseCoupon('15% de descuento');
+
+      clickConfirm();
+
+      expect(element.querySelector('[role="alert"]')?.textContent).toContain(
+        'No encontramos ese cupón',
+      );
+      expect(navigateByUrl).not.toHaveBeenCalled();
+      expect(couponOptions()[0].getAttribute('aria-pressed')).toBe('true');
+
+      element.querySelector<HTMLButtonElement>('[data-testid="coupon-clear"]')!.click();
+      fixture.detectChanges();
+      expect(element.querySelector('[role="alert"]')).toBeNull();
+
+      clickConfirm();
+
+      expect(createPurchase).toHaveBeenLastCalledWith({ cartId: 'cart-1', validationCode: undefined });
+      expect(navigateByUrl).toHaveBeenCalledWith(CHECKOUT_SUCCESS_PATH);
+    });
+
+    it('blocks the coupon controls while the payment is in flight', async () => {
+      createPurchase.mockReturnValue(new Subject<ConfirmedOrder>());
+      await render();
+      chooseCoupon('15% de descuento');
+
+      clickConfirm();
+
+      expect(couponOptions().every((option) => option.disabled)).toBe(true);
+    });
   });
 });
