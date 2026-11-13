@@ -13,7 +13,7 @@ describe('server routes', () => {
     expect(find('profile/coupons')?.renderMode).toBe(RenderMode.Client);
   });
 
-  it.each(['purchases', 'profile/edit', 'profile/redemptions'])(
+  it.each(['purchases', 'profile/edit', 'profile/redemptions', 'checkout'])(
     'renders /%s on the client so the guard sees the session after a reload',
     (path) => {
       expect(find(path)?.renderMode).toBe(RenderMode.Client);

@@ -26,17 +26,13 @@ const FOCUSABLE = 'button:not([disabled]), input:not([disabled])';
   host: { '(document:keydown.escape)': 'onEscape()' },
 })
 export class TierFormDrawer {
-  /** The tier being edited; `null` to create one. */
   readonly tier = input<Tier | null>(null);
-  /** The base tier keeps its points at 0, so they are shown but cannot be changed. */
   readonly isBaseTier = input(false);
   readonly isProcessing = input(false);
-  /** Errors the server answered the last save with. */
   readonly errors = input<TierFormErrors>({});
 
   readonly save = output<SaveTierInput>();
   readonly cancel = output<void>();
-  /** Fires when the user edits a field, so its server error can be dropped. */
   readonly fieldEdited = output<'name' | 'minPoints'>();
 
   protected readonly name = linkedSignal(() => this.tier()?.name ?? '');
@@ -123,7 +119,6 @@ export class TierFormDrawer {
     this.onCancel();
   }
 
-  /** Keeps Tab inside the drawer while it is open. */
   protected onKeydown(event: KeyboardEvent): void {
     if (event.key !== 'Tab') {
       return;

@@ -1,13 +1,10 @@
 import { Component, computed, input } from '@angular/core';
 import { create } from 'qrcode/lib/core/qrcode';
 
-/** Blank border (in modules) required around the symbol so scanners can find it. */
 const QUIET_ZONE = 4;
 
 export interface QrSymbol {
-  /** Side of the square, quiet zone included, in modules. */
   readonly dimension: number;
-  /** SVG path with one rectangle per horizontal run of dark modules. */
   readonly path: string;
 }
 
