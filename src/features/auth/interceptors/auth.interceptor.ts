@@ -23,8 +23,13 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   const auth = inject(AuthService);
   const router = inject(Router);
+  const token = auth.getToken();
 
-  return next(req).pipe(
+  const authorizedReq = token
+    ? req.clone({ setHeaders: { Authorization: `Bearer ${token}` } })
+    : req;
+
+  return next(authorizedReq).pipe(
     catchError((error: unknown) => {
       if (isUnauthorized(error) && auth.isAuthenticated()) {
         auth.clearSession();

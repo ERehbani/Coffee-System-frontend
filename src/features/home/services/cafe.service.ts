@@ -30,25 +30,6 @@ export class CafeService {
   }
 
   register(request: CreateCafeAccountRequest): Observable<UserResponse> {
-    if (environment.useMockApi) {
-      const newCafe: Cafe = {
-        externalId: `cafe-${Date.now()}`,
-        name: request.name,
-        address: request.address,
-        email: request.email,
-        phoneNumber: request.phoneNumber || null,
-        description: request.description || null,
-        schedule: request.schedule || null,
-        state: true,
-      };
-      MOCK_CAFES.unshift(newCafe);
-      return of({
-        externalId: newCafe.externalId,
-        email: newCafe.email,
-        state: true,
-      });
-    }
-
     return this.http.post<UserResponse>(`${this.url}/register`, request);
   }
 }
