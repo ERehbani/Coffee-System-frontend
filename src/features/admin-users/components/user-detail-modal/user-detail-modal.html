@@ -187,7 +187,7 @@
           <div>
             <span class="text-xs text-muted block">Fecha de Registro</span>
             <span class="text-sm font-bold text-text">
-              {{ user().createdAt | date: 'dd/MM/yyyy HH:mm' }}
+              {{ (user().createdAt | date: 'dd/MM/yyyy HH:mm') ?? '—' }}
             </span>
           </div>
 

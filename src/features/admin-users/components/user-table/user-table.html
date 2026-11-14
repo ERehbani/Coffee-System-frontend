@@ -149,7 +149,7 @@
 
               <!-- Fecha Registro -->
               <td class="py-3.5 px-4 text-muted hidden lg:table-cell whitespace-nowrap">
-                {{ user.createdAt | date: 'dd/MM/yyyy' }}
+                {{ (user.createdAt | date: 'dd/MM/yyyy') ?? '—' }}
               </td>
 
               <!-- Último Acceso -->
