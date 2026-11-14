@@ -1,0 +1,64 @@
+<article class="flex flex-col justify-between rounded-3xl border border-border bg-surface p-5 shadow-xs transition hover:border-primary/40 hover:shadow-md">
+  <div class="space-y-3">
+    <div class="flex items-start justify-between gap-3">
+      <div class="space-y-1">
+        <div class="flex flex-wrap items-center gap-2">
+          @if (benefit().pointsCost > 0) {
+            <span class="inline-flex items-center gap-1 rounded-full bg-accent/10 px-2.5 py-0.5 text-xs font-bold text-accent">
+              <app-icon name="coffee" [size]="12" />
+              {{ benefit().pointsCost }} pts
+            </span>
+          } @else {
+            <span class="inline-flex items-center gap-1 rounded-full bg-accent/10 px-2.5 py-0.5 text-xs font-bold text-accent">
+              <app-icon name="tag" [size]="12" />
+              @if (benefit().discountPercentage) {
+                {{ benefit().discountPercentage }}% OFF
+              } @else {
+                Descuento directo
+              }
+            </span>
+          }
+          @if (benefit().status) {
+            <span class="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-700 border border-emerald-200">
+              <span class="size-1.5 rounded-full bg-emerald-500"></span>
+              Activo
+            </span>
+          } @else {
+            <span class="inline-flex items-center gap-1 rounded-full bg-stone-100 px-2 py-0.5 text-[11px] font-semibold text-stone-600 border border-stone-200">
+              Pausado
+            </span>
+          }
+          @if (benefit().tierName) {
+            <span class="rounded-full px-2 py-0.5 text-[11px] font-semibold border" [class]="tierBadgeClass()">
+              Nivel {{ tierDisplayName() }}
+            </span>
+          }
+        </div>
+        <h3 class="text-base font-bold text-text">{{ benefit().name }}</h3>
+      </div>
+    </div>
+
+    <p class="text-xs text-muted leading-relaxed">{{ benefit().description }}</p>
+
+    @if (benefit().conditions) {
+      <div class="rounded-xl border border-border/80 bg-bg/50 p-2.5">
+        <p class="text-[11px] font-bold text-text">Condiciones y reglas:</p>
+        <p class="text-[11px] text-muted">{{ benefit().conditions }}</p>
+      </div>
+    }
+  </div>
+
+  <div class="mt-4 pt-3 border-t border-border flex flex-wrap items-center justify-between gap-2 text-[11px] text-muted">
+    @if (benefit().startDate || benefit().endDate) {
+      <div class="flex items-center gap-1.5 font-medium">
+        <app-icon name="calendar" [size]="13" />
+        <span>Vigencia: {{ benefit().startDate ?? 'Sin inicio' }} al {{ benefit().endDate ?? 'Sin límite' }}</span>
+      </div>
+    }
+    <div class="flex items-center gap-1.5">
+      <app-icon name="ticket" [size]="13" />
+      <span>Cupo: {{ benefit().maxRedemptions }} canjes</span>
+    </div>
+  </div>
+</article>
+
