@@ -1,0 +1,219 @@
+<form (submit)="onSubmit($event)" novalidate class="space-y-5 rounded-3xl border border-border bg-surface p-6 shadow-xs">
+  <div class="flex items-center justify-between pb-3 border-b border-border">
+    <div class="flex items-center gap-2.5">
+      <span class="inline-flex size-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
+        <app-icon name="plus" [size]="18" />
+      </span>
+      <div>
+        <h2 class="text-base font-bold text-text">Nueva Promoción Propia</h2>
+        <p class="text-xs text-muted">Completá los datos para publicar un beneficio para tu local</p>
+      </div>
+    </div>
+    <button
+      type="button"
+      (click)="onCancel()"
+      class="cursor-pointer rounded-lg p-1.5 text-muted hover:bg-bg hover:text-text transition select-none"
+      aria-label="Cerrar formulario"
+    >
+      <app-icon name="x" [size]="16" />
+    </button>
+  </div>
+
+  <div class="space-y-4">
+    <div class="space-y-1.5">
+      <label for="benefit-name" class="block text-xs font-bold text-text">
+        Nombre de la promoción <span class="text-rose-500">*</span>
+      </label>
+      <input
+        id="benefit-name"
+        type="text"
+        [formField]="benefitForm.name"
+        placeholder="Ej: 2x1 en Medialunas de la tarde"
+        class="w-full rounded-xl border border-border bg-bg px-3.5 py-2.5 text-sm text-text placeholder:text-muted/60 transition focus:border-primary focus:bg-surface focus:outline-hidden focus:ring-2 focus:ring-primary/20"
+      />
+      @if (attemptedSubmit() && nameError()) {
+        <p role="alert" class="text-xs font-semibold text-rose-600">{{ nameError() }}</p>
+      }
+    </div>
+
+    <div class="space-y-1.5">
+      <label for="benefit-description" class="block text-xs font-bold text-text">
+        Descripción detallada <span class="text-rose-500">*</span>
+      </label>
+      <textarea
+        id="benefit-description"
+        rows="3"
+        [formField]="benefitForm.description"
+        placeholder="Describí en qué consiste el beneficio para que los clientes lo entiendan con claridad..."
+        class="w-full resize-none rounded-xl border border-border bg-bg px-3.5 py-2.5 text-sm text-text placeholder:text-muted/60 transition focus:border-primary focus:bg-surface focus:outline-hidden focus:ring-2 focus:ring-primary/20"
+      ></textarea>
+      @if (attemptedSubmit() && descriptionError()) {
+        <p role="alert" class="text-xs font-semibold text-rose-600">{{ descriptionError() }}</p>
+      }
+    </div>
+
+    <div class="space-y-1.5">
+      <label for="benefit-conditions" class="block text-xs font-bold text-text">
+        Reglas y condiciones de uso
+      </label>
+      <textarea
+        id="benefit-conditions"
+        rows="2"
+        [formField]="benefitForm.conditions"
+        placeholder="Ej: Válido únicamente de lunes a viernes en salón. No acumulable con otras promos."
+        class="w-full resize-none rounded-xl border border-border bg-bg px-3.5 py-2.5 text-sm text-text placeholder:text-muted/60 transition focus:border-primary focus:bg-surface focus:outline-hidden focus:ring-2 focus:ring-primary/20"
+      ></textarea>
+      @if (attemptedSubmit() && conditionsError()) {
+        <p role="alert" class="text-xs font-semibold text-rose-600">{{ conditionsError() }}</p>
+      }
+    </div>
+
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div class="space-y-1.5">
+        <label for="benefit-type-select" class="block text-xs font-bold text-text">
+          Tipo de formato <span class="text-rose-500">*</span>
+        </label>
+        <select
+          id="benefit-type-select"
+          [value]="formModel().typeId"
+          (change)="onTypeChange($any($event.target).value)"
+          class="w-full rounded-xl border border-border bg-bg px-3.5 py-2 text-sm text-text transition focus:border-primary focus:bg-surface focus:outline-hidden focus:ring-2 focus:ring-primary/20"
+        >
+          @for (type of benefitTypes(); track type.id) {
+            <option [value]="type.id" [selected]="type.id === formModel().typeId">{{ type.displayName }}</option>
+          }
+        </select>
+        @if (attemptedSubmit() && typeError()) {
+          <p role="alert" class="text-xs font-semibold text-rose-600">{{ typeError() }}</p>
+        }
+      </div>
+
+      <div class="space-y-1.5">
+        <label for="benefit-tier-select" class="block text-xs font-bold text-text">
+          Nivel mínimo requerido <span class="text-rose-500">*</span>
+        </label>
+        <select
+          id="benefit-tier-select"
+          [value]="formModel().tierId"
+          (change)="onTierChange($any($event.target).value)"
+          class="w-full rounded-xl border border-border bg-bg px-3.5 py-2 text-sm text-text transition focus:border-primary focus:bg-surface focus:outline-hidden focus:ring-2 focus:ring-primary/20"
+        >
+          @for (tier of tiers(); track tier.id) {
+            <option [value]="tier.id" [selected]="tier.id === formModel().tierId">{{ tier.displayName }}</option>
+          }
+        </select>
+        @if (attemptedSubmit() && tierError()) {
+          <p role="alert" class="text-xs font-semibold text-rose-600">{{ tierError() }}</p>
+        }
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div class="space-y-1.5">
+        <label for="benefit-start-date" class="block text-xs font-bold text-text">
+          Vigencia desde <span class="text-rose-500">*</span>
+        </label>
+        <input
+          id="benefit-start-date"
+          type="date"
+          [formField]="benefitForm.startDate"
+          class="w-full rounded-xl border border-border bg-bg px-3.5 py-2 text-sm text-text transition focus:border-primary focus:bg-surface focus:outline-hidden focus:ring-2 focus:ring-primary/20"
+        />
+        @if (attemptedSubmit() && startDateError()) {
+          <p role="alert" class="text-xs font-semibold text-rose-600">{{ startDateError() }}</p>
+        }
+      </div>
+
+      <div class="space-y-1.5">
+        <label for="benefit-end-date" class="block text-xs font-bold text-text">
+          Vigencia hasta <span class="text-rose-500">*</span>
+        </label>
+        <input
+          id="benefit-end-date"
+          type="date"
+          [formField]="benefitForm.endDate"
+          class="w-full rounded-xl border border-border bg-bg px-3.5 py-2 text-sm text-text transition focus:border-primary focus:bg-surface focus:outline-hidden focus:ring-2 focus:ring-primary/20"
+        />
+        @if (attemptedSubmit() && endDateError()) {
+          <p role="alert" class="text-xs font-semibold text-rose-600">{{ endDateError() }}</p>
+        }
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      @if (isDiscountCode()) {
+        <div class="space-y-1.5">
+          <label for="benefit-discount-percentage" class="block text-xs font-bold text-text">
+            Porcentaje de descuento (%) <span class="text-rose-500">*</span>
+          </label>
+          <input
+            id="benefit-discount-percentage"
+            type="number"
+            [formField]="benefitForm.discountPercentage"
+            placeholder="15"
+            class="w-full rounded-xl border border-border bg-bg px-3.5 py-2 text-sm text-text transition focus:border-primary focus:bg-surface focus:outline-hidden focus:ring-2 focus:ring-primary/20"
+          />
+          @if (attemptedSubmit() && discountPercentageError()) {
+            <p role="alert" class="text-xs font-semibold text-rose-600">{{ discountPercentageError() }}</p>
+          }
+        </div>
+      } @else {
+        <div class="space-y-1.5">
+          <label for="benefit-points-cost" class="block text-xs font-bold text-text">
+            Costo en puntos <span class="text-rose-500">*</span>
+          </label>
+          <input
+            id="benefit-points-cost"
+            type="number"
+            [formField]="benefitForm.pointsCost"
+            placeholder="100"
+            class="w-full rounded-xl border border-border bg-bg px-3.5 py-2 text-sm text-text transition focus:border-primary focus:bg-surface focus:outline-hidden focus:ring-2 focus:ring-primary/20"
+          />
+          @if (attemptedSubmit() && pointsCostError()) {
+            <p role="alert" class="text-xs font-semibold text-rose-600">{{ pointsCostError() }}</p>
+          }
+        </div>
+      }
+
+      <div class="space-y-1.5">
+        <label for="benefit-max-redemptions" class="block text-xs font-bold text-text">
+          Cupo total de canjes <span class="text-rose-500">*</span>
+        </label>
+        <input
+          id="benefit-max-redemptions"
+          type="number"
+          [formField]="benefitForm.maxRedemptions"
+          placeholder="50"
+          class="w-full rounded-xl border border-border bg-bg px-3.5 py-2 text-sm text-text transition focus:border-primary focus:bg-surface focus:outline-hidden focus:ring-2 focus:ring-primary/20"
+        />
+        @if (attemptedSubmit() && maxRedemptionsError()) {
+          <p role="alert" class="text-xs font-semibold text-rose-600">{{ maxRedemptionsError() }}</p>
+        }
+      </div>
+    </div>
+  </div>
+
+  <div class="flex items-center justify-end gap-3 pt-3 border-t border-border">
+    <button
+      type="button"
+      (click)="onCancel()"
+      [disabled]="isSaving()"
+      class="cursor-pointer rounded-xl border border-border bg-surface px-4 py-2 text-xs font-bold text-muted transition hover:bg-bg hover:text-text active:scale-95 disabled:pointer-events-none"
+    >
+      Cancelar
+    </button>
+    <button
+      type="submit"
+      [disabled]="isSaving()"
+      class="cursor-pointer inline-flex items-center gap-1.5 rounded-xl bg-primary px-5 py-2 text-xs font-bold text-white transition hover:bg-primary-dark active:scale-95 disabled:pointer-events-none disabled:opacity-50"
+    >
+      @if (isSaving()) {
+        <span class="size-3.5 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
+        <span>Guardando...</span>
+      } @else {
+        <app-icon name="check" [size]="14" />
+        <span>Publicar Promoción</span>
+      }
+    </button>
+  </div>
+</form>
