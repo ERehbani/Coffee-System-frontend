@@ -8,6 +8,18 @@
       <p class="text-sm text-muted">Tu compra fue confirmada y ya sumaste tus puntos.</p>
     </header>
 
+    <p
+      data-testid="success-email-notice"
+      class="flex items-center justify-center gap-2 rounded-2xl border border-border bg-surface px-4 py-3 text-sm text-muted"
+    >
+      <app-icon name="mail" [size]="16" />
+      @if (email(); as email) {
+        <span>Te enviamos el comprobante de la compra a <strong class="text-text">{{ email }}</strong></span>
+      } @else {
+        <span>Te enviamos el comprobante de la compra a tu email</span>
+      }
+    </p>
+
     <section
       aria-labelledby="checkout-success-heading"
       class="space-y-4 rounded-2xl border border-border bg-surface p-5 shadow-xs"

@@ -2,9 +2,10 @@ import { registerLocaleData } from '@angular/common';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import localeEsAr from '@angular/common/locales/es-AR';
-import { LOCALE_ID } from '@angular/core';
+import { LOCALE_ID, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { AuthService } from '../../../auth/services/auth.service';
 import { CheckoutRepository } from '../../services/checkout.repository';
 import { CheckoutStore } from '../../services/checkout.store';
 import { ConfirmedOrder } from '../../types/checkout.model';
@@ -29,7 +30,10 @@ describe('CheckoutSuccessPage', () => {
   const text = (testId: string) =>
     element.querySelector(`[data-testid="${testId}"]`)?.textContent?.replace(/\s+/g, ' ').trim();
 
-  async function render(confirmedOrder: ConfirmedOrder | null = order) {
+  async function render(
+    confirmedOrder: ConfirmedOrder | null = order,
+    email: string | null = 'cliente@cafe.com',
+  ) {
     await TestBed.configureTestingModule({
       imports: [CheckoutSuccessPage],
       providers: [
@@ -39,6 +43,7 @@ describe('CheckoutSuccessPage', () => {
         CheckoutStore,
         { provide: LOCALE_ID, useValue: 'es-AR' },
         { provide: CheckoutRepository, useValue: {} },
+        { provide: AuthService, useValue: { email: signal(email) } },
       ],
     }).compileComponents();
 
@@ -86,6 +91,20 @@ describe('CheckoutSuccessPage', () => {
     await render({ ...order, status: 'cancelled' });
 
     expect(text('success-status')).toBe('Cancelada');
+  });
+
+  it('tells that the receipt was sent to the email of the logged user', async () => {
+    await render();
+
+    expect(text('success-email-notice')).toBe(
+      'Te enviamos el comprobante de la compra a cliente@cafe.com',
+    );
+  });
+
+  it('tells that the receipt was sent to the email when the session has no email', async () => {
+    await render(order, null);
+
+    expect(text('success-email-notice')).toBe('Te enviamos el comprobante de la compra a tu email');
   });
 
   it('renders nothing when there is no confirmed order', async () => {
