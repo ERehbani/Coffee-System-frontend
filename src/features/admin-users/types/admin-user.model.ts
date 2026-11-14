@@ -37,7 +37,7 @@ export interface AdminUser {
   readonly avatarUrl: string | null;
   readonly role: UserRole;
   readonly status: UserStatus;
-  readonly createdAt: Date;
+  readonly createdAt: Date | null;
   readonly lastLoginAt: Date | null;
   readonly emailVerified: boolean;
   readonly twoFactorEnabled: boolean;

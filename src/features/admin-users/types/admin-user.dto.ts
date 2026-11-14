@@ -32,7 +32,8 @@ export interface AdminUserDto {
   readonly avatarUrl: string | null;
   readonly role: UserRole;
   readonly status: UserStatus;
-  readonly createdAt: string;
+  readonly createdAt?: string;
+  readonly creationDate?: string;
   readonly lastLoginAt: string | null;
   readonly emailVerified: boolean;
   readonly twoFactorEnabled: boolean;
