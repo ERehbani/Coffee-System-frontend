@@ -110,6 +110,10 @@ export const routes: Routes = [
         path: 'checkout',
         loadChildren: () => import('../features/checkout/checkout.routes'),
       },
+      {
+        path: 'rewards',
+        loadChildren: () => import('../features/available-benefits/available-benefits.routes'),
+      },
     ],
   },
   { path: '**', redirectTo: 'home' },
