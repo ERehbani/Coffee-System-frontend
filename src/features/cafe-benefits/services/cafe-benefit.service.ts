@@ -3,6 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
+  BenefitType,
   BenefitTypeOption,
   CafeBenefit,
   CreateCafeBenefitRequest,
@@ -15,7 +16,7 @@ import {
 export class CafeBenefitService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = `${environment.apiBaseUrl}/benefits`;
-  private readonly typesUrl = `${environment.apiBaseUrl}/benefittypes`;
+  private readonly formatsUrl = `${environment.apiBaseUrl}/benefit-formats`;
   private readonly tiersUrl = `${environment.apiBaseUrl}/tiers`;
 
   getAll(): Observable<CafeBenefit[]> {
@@ -31,23 +32,25 @@ export class CafeBenefitService {
       startDate: request.startDate,
       endDate: request.endDate,
       maxRedemptions: request.maxRedemptions,
-      typeId: request.typeId,
+      type: request.type,
+      discountPercentage: request.discountPercentage ?? null,
+      productId: request.productId ?? null,
       tierId: request.tierId,
-      ...(request.cafeId ? { cafeId: request.cafeId } : {}),
     };
 
     return this.http.post<CafeBenefit>(this.baseUrl, payload);
   }
 
   getBenefitTypes(): Observable<BenefitTypeOption[]> {
-    return this.http.get<{ externalId: string; name: string; porcentajeDescuento?: number }[]>(this.typesUrl).pipe(
-      map((types) =>
-        types.map((t) => ({
-          id: t.externalId,
-          name: t.name,
-          displayName: this.formatTypeName(t.name),
-          porcentajeDescuento: t.porcentajeDescuento,
-        })),
+    return this.http.get<{ code: BenefitType; active: boolean }[]>(this.formatsUrl).pipe(
+      map((formats) =>
+        formats
+          .filter((format) => format.active)
+          .map((format) => ({
+            id: format.code,
+            name: format.code,
+            displayName: this.formatTypeName(format.code),
+          })),
       ),
     );
   }

@@ -8,14 +8,15 @@ import {
   GlobalBenefitTierOption,
   GlobalBenefitType,
   GlobalBenefitTypeOption,
+  PRODUCT_TYPES,
   UpdateGlobalBenefitInput,
 } from '../types/global-benefit.model';
 
 export const BENEFIT_TYPE_OPTIONS: readonly GlobalBenefitTypeOption[] = [
-  { value: 'CODIGO_DESCUENTO', label: 'Código de Descuento', shortLabel: 'Descuento %', description: 'Porcentaje de descuento en el ticket final', icon: 'tag', defaultTypeId: '00000000-0000-0000-0000-000000000001' },
-  { value: 'DOS_POR_UNO', label: 'Promoción 2x1', shortLabel: '2x1', description: 'Llevá 2 productos y pagá solo 1 en toda la red', icon: 'ticket', defaultTypeId: '00000000-0000-0000-0000-000000000002' },
-  { value: 'PRODUCTO_POR_PUNTOS', label: 'Producto por Puntos', shortLabel: 'Por Puntos', description: 'Canje directo de productos usando saldo de puntos', icon: 'coffee', defaultTypeId: '00000000-0000-0000-0000-000000000003' },
-  { value: 'PRODUCTO_GRATIS_SOCIO', label: 'Cortesía Gratis Socio', shortLabel: 'Gratis Socio', description: 'Bebida sin costo por categoría de fidelidad', icon: 'gift', defaultTypeId: '00000000-0000-0000-0000-000000000004' },
+  { value: 'CODIGO_DESCUENTO', label: 'Código de Descuento', shortLabel: 'Descuento %', description: 'Porcentaje de descuento en el ticket final', icon: 'tag' },
+  { value: 'DOS_POR_UNO', label: 'Promoción 2x1', shortLabel: '2x1', description: 'Llevá 2 productos y pagá solo 1 en toda la red', icon: 'ticket' },
+  { value: 'PRODUCTO_POR_PUNTOS', label: 'Producto por Puntos', shortLabel: 'Por Puntos', description: 'Canje directo de productos usando saldo de puntos', icon: 'coffee' },
+  { value: 'PRODUCTO_GRATIS_SOCIO', label: 'Cortesía Gratis Socio', shortLabel: 'Gratis Socio', description: 'Bebida sin costo por categoría de fidelidad', icon: 'gift' },
 ];
 
 export const BENEFIT_TIER_OPTIONS: readonly GlobalBenefitTierOption[] = [
@@ -32,16 +33,13 @@ export const getBenefitTypeMeta = (type: GlobalBenefitType): GlobalBenefitTypeOp
 export const getTierMeta = (tier: GlobalBenefitTier): GlobalBenefitTierOption =>
   BENEFIT_TIER_OPTIONS.find((t) => t.value === tier) ?? BENEFIT_TIER_OPTIONS[0];
 
-export const resolveTypeId = (type: GlobalBenefitType, id?: string): string => id || getBenefitTypeMeta(type).defaultTypeId;
 export const resolveTierId = (tier: GlobalBenefitTier, id?: string): string => id || getTierMeta(tier).defaultTierId;
 
 export function toGlobalBenefit(dto: GlobalBenefitDto): GlobalBenefit {
-  const t = dto.benefitType?.toUpperCase() || '';
-  const type: GlobalBenefitType = t.includes('2X1') || t.includes('DOS') ? 'DOS_POR_UNO' : t.includes('PUNTOS') ? 'PRODUCTO_POR_PUNTOS' : t.includes('GRATIS') ? 'PRODUCTO_GRATIS_SOCIO' : 'CODIGO_DESCUENTO';
+  const type: GlobalBenefitType = dto.benefitType ?? 'CODIGO_DESCUENTO';
   const r = dto.tierName?.toUpperCase() || '';
   const tier: GlobalBenefitTier = r.includes('DIAMANTE') ? 'DIAMANTE' : r.includes('ORO') ? 'ORO' : r.includes('PLATA') ? 'PLATA' : r.includes('BRONCE') ? 'BRONCE' : 'ALL';
   const today = new Date().toISOString().slice(0, 10);
-  const parsedDiscount = dto.discountPercent ?? (dto.description?.match(/(\d+)%\s*OFF/i)?.[1] ? Number(dto.description.match(/(\d+)%\s*OFF/i)?.[1]) : undefined);
 
   return {
     id: dto.externalId,
@@ -49,61 +47,43 @@ export function toGlobalBenefit(dto: GlobalBenefitDto): GlobalBenefit {
     description: dto.description || '',
     pointsCost: dto.pointsCost ?? 0,
     type,
-    typeId: dto.typeId || resolveTypeId(type),
     tier,
     tierId: dto.tierId || resolveTierId(tier),
     startDate: dto.startDate || today,
     endDate: dto.endDate || today,
     maxRedemptions: dto.maxRedemptions ?? 100,
-    currentRedemptions: dto.currentRedemptions ?? 0,
+    currentRedemptions: dto.redeemedCount ?? 0,
+    soldOut: dto.soldOut ?? false,
     status: dto.status ?? true,
     isPublic: dto.isPublic ?? true,
-    isGlobal: 'GLOBAL_BENEFIT',
-    discountPercent: parsedDiscount,
+    discountPercent: dto.discountPercentage ?? undefined,
+    catalogProductId: dto.catalogProductId ?? undefined,
+    productName: dto.productName ?? undefined,
     termsAndConditions: dto.conditions ?? '',
-    createdAt: dto.createdAt || today,
+    createdAt: today,
   };
 }
 
 export const toGlobalBenefitList = (dtos: readonly GlobalBenefitDto[]): readonly GlobalBenefit[] =>
-  dtos.filter((d) => d.isGlobal === 'GLOBAL_BENEFIT' || !d.cafeEntity).map(toGlobalBenefit);
+  dtos.filter((d) => d.global).map(toGlobalBenefit);
 
-export function toCreateRequestDto(input: CreateGlobalBenefitInput): BenefitCreateRequestDto {
-  let description = input.description.trim();
-  if (input.discountPercent && !description.includes(`${input.discountPercent}%`)) {
-    description = `${description} (${input.discountPercent}% OFF)`;
-  }
-
+function toRequestDto(input: CreateGlobalBenefitInput): BenefitCreateRequestDto {
   return {
     name: input.name.trim(),
-    description,
+    description: input.description.trim(),
     pointsCost: Number(input.pointsCost),
     startDate: input.startDate,
     endDate: input.endDate,
     maxRedemptions: Number(input.maxRedemptions),
-    typeId: resolveTypeId(input.type, input.typeId),
+    type: input.type,
+    discountPercentage: input.type === 'CODIGO_DESCUENTO' ? Number(input.discountPercent ?? 15) : null,
+    catalogProductId: PRODUCT_TYPES.includes(input.type) ? input.catalogProductId ?? null : null,
     cafeId: null,
     tierId: resolveTierId(input.tier, input.tierId),
     conditions: input.termsAndConditions?.trim() || null,
   };
 }
 
-export function toUpdateRequestDto(input: UpdateGlobalBenefitInput): BenefitUpdateRequestDto {
-  let description = input.description.trim();
-  if (input.discountPercent && !description.includes(`${input.discountPercent}%`)) {
-    description = `${description} (${input.discountPercent}% OFF)`;
-  }
+export const toCreateRequestDto = (input: CreateGlobalBenefitInput): BenefitCreateRequestDto => toRequestDto(input);
 
-  return {
-    name: input.name.trim(),
-    description,
-    pointsCost: Number(input.pointsCost),
-    startDate: input.startDate,
-    endDate: input.endDate,
-    maxRedemptions: Number(input.maxRedemptions),
-    typeId: resolveTypeId(input.type, input.typeId),
-    cafeId: null,
-    tierId: resolveTierId(input.tier, input.tierId),
-    conditions: input.termsAndConditions?.trim() || null,
-  };
-}
+export const toUpdateRequestDto = (input: UpdateGlobalBenefitInput): BenefitUpdateRequestDto => toRequestDto(input);

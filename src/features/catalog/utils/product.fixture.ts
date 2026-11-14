@@ -83,4 +83,6 @@ export const ESPRESSO_DTO_FIXTURE: ProductDto = {
   image: null,
   state: true,
   tags: ['café', 'intenso'],
+  catalogProductId: 'catalog-espresso',
+  available: true,
 };

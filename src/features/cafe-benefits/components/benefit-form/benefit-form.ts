@@ -2,8 +2,11 @@ import { Component, computed, effect, input, output, signal } from '@angular/cor
 import { FormField, form, max, maxLength, min, minLength, required } from '@angular/forms/signals';
 import { Icon } from '../../../../shared/components/icon/icon';
 import {
+  BenefitType,
   BenefitTypeOption,
   CreateCafeBenefitRequest,
+  PRODUCT_BENEFIT_TYPES,
+  ProductOption,
   TierOption,
 } from '../../model/cafe-benefit.model';
 
@@ -16,7 +19,8 @@ interface BenefitFormModel {
   pointsCost: number;
   discountPercentage: number;
   maxRedemptions: number;
-  typeId: string;
+  type: BenefitType | '';
+  productId: string;
   tierId: string;
 }
 
@@ -31,6 +35,7 @@ export class BenefitForm {
   readonly isSaving = input<boolean>(false);
   readonly benefitTypes = input<BenefitTypeOption[]>([]);
   readonly tiers = input<TierOption[]>([]);
+  readonly products = input<ProductOption[]>([]);
 
   readonly save = output<CreateCafeBenefitRequest>();
   readonly cancel = output<void>();
@@ -46,7 +51,8 @@ export class BenefitForm {
     pointsCost: 100,
     discountPercentage: 15,
     maxRedemptions: 50,
-    typeId: '',
+    type: '',
+    productId: '',
     tierId: '',
   });
 
@@ -77,12 +83,11 @@ export class BenefitForm {
     min(f.maxRedemptions, 1, { message: 'Debe permitir al menos 1 canje.' });
   });
 
-  selectedBenefitType = computed(() => {
-    return this.benefitTypes().find((t) => t.id === this.formModel().typeId);
-  });
+  isDiscountCode = computed(() => this.formModel().type === 'CODIGO_DESCUENTO');
 
-  isDiscountCode = computed(() => {
-    return this.selectedBenefitType()?.name === 'CODIGO_DESCUENTO';
+  needsProduct = computed(() => {
+    const type = this.formModel().type;
+    return type !== '' && PRODUCT_BENEFIT_TYPES.includes(type);
   });
 
   nameError = computed(() => this.benefitForm.name().errors()[0]?.message ?? null);
@@ -116,8 +121,15 @@ export class BenefitForm {
   maxRedemptionsError = computed(() => this.benefitForm.maxRedemptions().errors()[0]?.message ?? null);
 
   typeError = computed(() => {
-    if (!this.formModel().typeId) {
+    if (!this.formModel().type) {
       return 'Debes seleccionar un tipo de beneficio.';
+    }
+    return null;
+  });
+
+  productError = computed(() => {
+    if (this.needsProduct() && !this.formModel().productId) {
+      return 'Elegí el producto del beneficio.';
     }
     return null;
   });
@@ -142,6 +154,7 @@ export class BenefitForm {
       !this.maxRedemptionsError() &&
       costOrDiscountValid &&
       !this.typeError() &&
+      !this.productError() &&
       !this.tierError()
     );
   });
@@ -149,15 +162,8 @@ export class BenefitForm {
   constructor() {
     effect(() => {
       const types = this.benefitTypes();
-      if (types.length > 0 && !this.formModel().typeId) {
-        const first = types[0];
-        const isDiscount = first.name === 'CODIGO_DESCUENTO';
-        this.formModel.update((m) => ({
-          ...m,
-          typeId: first.id,
-          pointsCost: isDiscount ? 0 : m.pointsCost,
-          discountPercentage: isDiscount ? (first.porcentajeDescuento || 15) : m.discountPercentage,
-        }));
+      if (types.length > 0 && !this.formModel().type) {
+        this.onTypeChange(types[0].id);
       }
     });
 
@@ -173,15 +179,19 @@ export class BenefitForm {
     });
   }
 
-  onTypeChange(value: string): void {
-    const selected = this.benefitTypes().find((t) => t.id === value);
-    const isDiscount = selected?.name === 'CODIGO_DESCUENTO';
+  onTypeChange(value: BenefitType): void {
+    const isDiscount = value === 'CODIGO_DESCUENTO';
     this.formModel.update((m) => ({
       ...m,
-      typeId: value,
-      pointsCost: isDiscount ? 0 : (m.pointsCost || 100),
-      discountPercentage: isDiscount ? (selected?.porcentajeDescuento || m.discountPercentage || 15) : m.discountPercentage,
+      type: value,
+      productId: PRODUCT_BENEFIT_TYPES.includes(value) ? m.productId : '',
+      pointsCost: isDiscount ? 0 : m.pointsCost || 100,
+      discountPercentage: m.discountPercentage || 15,
     }));
+  }
+
+  onProductChange(value: string): void {
+    this.formModel.update((m) => ({ ...m, productId: value }));
   }
 
   onTierChange(value: string): void {
@@ -197,6 +207,9 @@ export class BenefitForm {
     }
 
     const model = this.formModel();
+    if (!model.type) {
+      return;
+    }
     const isDiscount = this.isDiscountCode();
     this.save.emit({
       name: model.name.trim(),
@@ -207,7 +220,8 @@ export class BenefitForm {
       pointsCost: isDiscount ? 0 : Number(model.pointsCost),
       discountPercentage: isDiscount ? Number(model.discountPercentage) : null,
       maxRedemptions: Number(model.maxRedemptions),
-      typeId: model.typeId,
+      type: model.type,
+      productId: this.needsProduct() ? model.productId : null,
       tierId: model.tierId,
     });
   }

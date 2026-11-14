@@ -27,7 +27,7 @@ describe('AdminTierStore', () => {
     return TestBed.inject(AdminTierStore);
   }
 
-  const conflict = (message: string) => new HttpErrorResponse({ status: 409, error: message });
+  const conflict = (message: string) => new HttpErrorResponse({ status: 409, error: { detail: message } });
 
   it('loads the tiers on creation, sorted from the fewest points to the most', () => {
     const store = create();

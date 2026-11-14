@@ -10,6 +10,7 @@ import {
   ProductDto,
   UpdateProductRequest,
 } from '../../../catalog/types/product.dto';
+import { backendErrorMessage } from '../../../../shared/utils/backend-error';
 import { ProductForm } from '../product-form/product-form';
 import { ProductItemCard } from '../product-item-card/product-item-card';
 
@@ -34,6 +35,7 @@ function normalizeText(text: string | null | undefined): string {
 export class CafeProducts implements OnInit {
   private readonly productService = inject(ProductService);
 
+  cafeId = signal<string | null>(null);
   products = signal<ProductDto[]>([]);
   categories = signal<CategoryOption[]>([]);
 
@@ -110,22 +112,39 @@ export class CafeProducts implements OnInit {
   });
 
   ngOnInit(): void {
-    this.loadProducts();
+    this.loadMyCafe();
     this.loadCategories();
   }
 
-  loadProducts(): void {
+  loadMyCafe(): void {
     this.isLoading.set(true);
-    this.productService.getAll().subscribe({
+    this.productService.getMyCafeId().subscribe({
+      next: (cafeId) => {
+        this.cafeId.set(cafeId);
+        this.loadProducts();
+      },
+      error: () => this.failLoading(),
+    });
+  }
+
+  loadProducts(): void {
+    const cafeId = this.cafeId();
+    if (!cafeId) {
+      return;
+    }
+    this.isLoading.set(true);
+    this.productService.listByCafe(cafeId).subscribe({
       next: (data) => {
         this.products.set(data);
         this.isLoading.set(false);
       },
-      error: () => {
-        this.isLoading.set(false);
-        this.errorMessage.set('No se pudieron cargar los productos del local.');
-      },
+      error: () => this.failLoading(),
     });
+  }
+
+  private failLoading(): void {
+    this.isLoading.set(false);
+    this.errorMessage.set('No se pudieron cargar los productos del local.');
   }
 
   loadCategories(): void {
@@ -166,6 +185,10 @@ export class CafeProducts implements OnInit {
   }
 
   onSaveProduct(payload: { request: CreateProductRequest & { state?: boolean }; id?: string }): void {
+    const cafeId = this.cafeId();
+    if (!cafeId) {
+      return;
+    }
     this.isSaving.set(true);
     this.errorMessage.set(null);
     this.successMessage.set(null);
@@ -176,13 +199,11 @@ export class CafeProducts implements OnInit {
         description: payload.request.description,
         price: payload.request.price,
         awardedPoints: payload.request.awardedPoints,
-        categoryId: payload.request.categoryId,
         image: payload.request.image,
         tags: payload.request.tags,
-        state: payload.request.state,
       };
 
-      this.productService.update(payload.id, updatePayload).subscribe({
+      this.productService.update(cafeId, payload.id, updatePayload).subscribe({
         next: (updatedProduct) => {
           this.products.update((list) =>
             list.map((item) => (item.externalId === updatedProduct.externalId ? updatedProduct : item)),
@@ -193,12 +214,12 @@ export class CafeProducts implements OnInit {
         },
         error: (err) => {
           this.isSaving.set(false);
-          const serverError = this.getErrorMessage(err);
+          const serverError = backendErrorMessage(err);
           this.errorMessage.set(serverError || 'Ocurrió un error al actualizar el producto.');
         },
       });
     } else {
-      this.productService.create(payload.request).subscribe({
+      this.productService.create(cafeId, payload.request).subscribe({
         next: (newProduct) => {
           this.products.update((list) => [newProduct, ...list]);
           this.isSaving.set(false);
@@ -207,7 +228,7 @@ export class CafeProducts implements OnInit {
         },
         error: (err) => {
           this.isSaving.set(false);
-          const serverError = this.getErrorMessage(err);
+          const serverError = backendErrorMessage(err);
           this.errorMessage.set(serverError || 'Ocurrió un error al crear el producto.');
         },
       });
@@ -215,21 +236,53 @@ export class CafeProducts implements OnInit {
   }
 
   onActivateProduct(product: ProductDto): void {
+    const cafeId = this.cafeId();
+    if (!cafeId) {
+      return;
+    }
     this.errorMessage.set(null);
     this.successMessage.set(null);
 
-    this.productService.activate(product.externalId).subscribe({
+    this.productService.activate(cafeId, product.externalId).subscribe({
       next: (updatedProduct) => {
-        this.products.update((list) =>
-          list.map((item) => (item.externalId === updatedProduct.externalId ? updatedProduct : item)),
-        );
+        this.replaceProduct(updatedProduct);
         this.successMessage.set(`El producto "${product.name}" fue reactivado exitosamente.`);
       },
       error: (err) => {
-        const serverError = this.getErrorMessage(err);
+        const serverError = backendErrorMessage(err);
         this.errorMessage.set(serverError || 'Ocurrió un error al activar el producto.');
       },
     });
+  }
+
+  onToggleAvailability(product: ProductDto): void {
+    const cafeId = this.cafeId();
+    if (!cafeId) {
+      return;
+    }
+    this.errorMessage.set(null);
+    this.successMessage.set(null);
+
+    this.productService.changeAvailability(cafeId, product.externalId, !product.available).subscribe({
+      next: (updatedProduct) => {
+        this.replaceProduct(updatedProduct);
+        this.successMessage.set(
+          updatedProduct.available
+            ? `"${product.name}" está disponible de nuevo.`
+            : `"${product.name}" quedó marcado como agotado hoy.`,
+        );
+      },
+      error: (err) => {
+        const serverError = backendErrorMessage(err);
+        this.errorMessage.set(serverError || 'Ocurrió un error al cambiar la disponibilidad del producto.');
+      },
+    });
+  }
+
+  private replaceProduct(updatedProduct: ProductDto): void {
+    this.products.update((list) =>
+      list.map((item) => (item.externalId === updatedProduct.externalId ? updatedProduct : item)),
+    );
   }
 
   confirmDelete(product: ProductDto): void {
@@ -242,7 +295,8 @@ export class CafeProducts implements OnInit {
 
   onDeleteProduct(): void {
     const toDelete = this.deletingProduct();
-    if (!toDelete) {
+    const cafeId = this.cafeId();
+    if (!toDelete || !cafeId) {
       return;
     }
 
@@ -250,7 +304,7 @@ export class CafeProducts implements OnInit {
     this.errorMessage.set(null);
     this.successMessage.set(null);
 
-    this.productService.delete(toDelete.externalId).subscribe({
+    this.productService.delete(cafeId, toDelete.externalId).subscribe({
       next: () => {
         this.products.update((list) =>
           list.map((item) => (item.externalId === toDelete.externalId ? { ...item, state: false } : item)),
@@ -261,7 +315,7 @@ export class CafeProducts implements OnInit {
       },
       error: (err) => {
         this.isDeleting.set(false);
-        const serverError = this.getErrorMessage(err);
+        const serverError = backendErrorMessage(err);
         this.errorMessage.set(serverError || 'Ocurrió un error al dar de baja el producto.');
       },
     });
@@ -289,31 +343,5 @@ export class CafeProducts implements OnInit {
 
   dismissError(): void {
     this.errorMessage.set(null);
-  }
-
-  private getErrorMessage(err: unknown): string | null {
-    if (!err || typeof err !== 'object') {
-      return null;
-    }
-    const httpErr = err as { error?: unknown };
-    if (typeof httpErr.error === 'string') {
-      return httpErr.error;
-    }
-    if (httpErr.error && typeof httpErr.error === 'object') {
-      const body = httpErr.error as { error?: string; message?: string; errors?: Record<string, string> };
-      if (body.error && typeof body.error === 'string') {
-        return body.error;
-      }
-      if (body.message && typeof body.message === 'string') {
-        return body.message;
-      }
-      if (body.errors && typeof body.errors === 'object') {
-        const msgs = Object.values(body.errors).filter((m) => typeof m === 'string');
-        if (msgs.length > 0) {
-          return msgs.join('. ');
-        }
-      }
-    }
-    return null;
   }
 }

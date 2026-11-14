@@ -2,6 +2,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { environment } from '../../../environments/environment';
+import { pageOf } from '../../../shared/types/page.fixture';
 import {
   ProfileDashboard,
   RedeemedBenefit,
@@ -129,13 +130,14 @@ describe('HttpProfileRepository', () => {
     expect(status).toBe(403);
   });
 
-  it('getUsedBenefits requests redemptions with state=false', () => {
+  it('getUsedBenefits requests the used redemptions of the client', () => {
     repository.getUsedBenefits().subscribe();
 
     const request = http.expectOne((req) => req.url === `${environment.apiBaseUrl}/redemption`);
     expect(request.request.method).toBe('GET');
-    expect(request.request.params.get('state')).toBe('false');
-    request.flush([]);
+    expect(request.request.params.get('status')).toBe('USED');
+    expect(request.request.params.get('size')).toBe('100');
+    request.flush(pageOf([]));
   });
 
   it('getTierDetail maps the available points and the Spanish tier names', () => {

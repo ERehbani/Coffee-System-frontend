@@ -1,5 +1,7 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
+import { backendErrorMessage } from '../../../shared/utils/backend-error';
 import {
+  CatalogProductOption,
   CreateGlobalBenefitInput,
   GlobalBenefit,
   GlobalBenefitStatsSummary,
@@ -25,6 +27,7 @@ export class GlobalBenefitStore {
   private readonly repository = inject(GlobalBenefitRepository);
 
   readonly benefits = signal<readonly GlobalBenefit[]>([]);
+  readonly catalogProducts = signal<readonly CatalogProductOption[]>([]);
   readonly status = signal<'loading' | 'ready' | 'error'>('loading');
   readonly errorMessage = signal<string | null>(null);
   readonly isProcessing = signal<boolean>(false);
@@ -80,6 +83,13 @@ export class GlobalBenefitStore {
 
   constructor() {
     this.loadBenefits();
+    this.loadCatalogProducts();
+  }
+
+  loadCatalogProducts(): void {
+    this.repository.getCatalogProducts().subscribe({
+      next: (products) => this.catalogProducts.set(products),
+    });
   }
 
   loadBenefits(): void {
@@ -124,7 +134,7 @@ export class GlobalBenefitStore {
       },
       error: (err) => {
         this.isProcessing.set(false);
-        this.actionMessage.set({ type: 'error', text: err?.message || 'Error al guardar el beneficio.' });
+        this.actionMessage.set({ type: 'error', text: backendErrorMessage(err) || 'Error al guardar el beneficio.' });
       },
     });
   }

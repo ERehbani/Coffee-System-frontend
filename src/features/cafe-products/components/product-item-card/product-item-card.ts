@@ -16,6 +16,7 @@ export class ProductItemCard {
   readonly edit = output<ProductDto>();
   readonly delete = output<ProductDto>();
   readonly activate = output<ProductDto>();
+  readonly toggleAvailability = output<ProductDto>();
 
   onEdit(): void {
     this.edit.emit(this.product());
@@ -27,5 +28,9 @@ export class ProductItemCard {
 
   onActivate(): void {
     this.activate.emit(this.product());
+  }
+
+  onToggleAvailability(): void {
+    this.toggleAvailability.emit(this.product());
   }
 }

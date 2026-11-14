@@ -64,7 +64,7 @@ describe('toBenefitFormatFormErrors', () => {
   it('puts a format already in the catalog on the code field', () => {
     const error = new HttpErrorResponse({
       status: 409,
-      error: 'The format DOS_POR_UNO is already in the catalog',
+      error: { detail: 'The format DOS_POR_UNO is already in the catalog' },
     });
 
     expect(toBenefitFormatFormErrors(error)).toEqual({
@@ -75,7 +75,7 @@ describe('toBenefitFormatFormErrors', () => {
   it('puts a duplicate name on the name field', () => {
     const error = new HttpErrorResponse({
       status: 409,
-      error: 'A benefit type named Descuento already exists',
+      error: { detail: 'A benefit type named Descuento already exists' },
     });
 
     expect(toBenefitFormatFormErrors(error)).toEqual({
@@ -86,7 +86,7 @@ describe('toBenefitFormatFormErrors', () => {
   it('ignores the letter case and the spacing of a conflict message', () => {
     const error = new HttpErrorResponse({
       status: 409,
-      error: '  A BENEFIT TYPE NAMED 2x1 ALREADY EXISTS ',
+      error: { detail: '  A BENEFIT TYPE NAMED 2x1 ALREADY EXISTS ' },
     });
 
     expect(toBenefitFormatFormErrors(error)).toEqual({
@@ -98,11 +98,11 @@ describe('toBenefitFormatFormErrors', () => {
     const generic = { form: 'No pudimos guardar el tipo de beneficio. Inténtalo de nuevo.' };
 
     expect(
-      toBenefitFormatFormErrors(new HttpErrorResponse({ status: 409, error: 'Something new' })),
+      toBenefitFormatFormErrors(new HttpErrorResponse({ status: 409, error: { detail: 'Something new' } })),
     ).toEqual(generic);
     expect(
       toBenefitFormatFormErrors(
-        new HttpErrorResponse({ status: 404, error: 'Benefit format not found' }),
+        new HttpErrorResponse({ status: 404, error: { detail: 'Benefit format not found' } }),
       ),
     ).toEqual(generic);
     expect(toBenefitFormatFormErrors(new HttpErrorResponse({ status: 400, error: null }))).toEqual(

@@ -103,6 +103,25 @@
                 </div>
               }
 
+              @if (needsProduct()) {
+                <div>
+                  <label class="block text-xs font-bold text-text mb-1">Producto del catálogo</label>
+                  <select
+                    [ngModel]="form().catalogProductId ?? ''"
+                    (ngModelChange)="updateField('catalogProductId', $event || undefined)"
+                    class="cursor-pointer w-full rounded-xl border border-border bg-surface px-3 py-2 text-xs font-semibold text-text focus:border-primary focus:outline-none"
+                  >
+                    <option value="">Elegí un producto</option>
+                    @for (p of catalogProducts(); track p.id) {
+                      <option [value]="p.id">{{ p.name }}</option>
+                    }
+                  </select>
+                  @if (submitted() && !form().catalogProductId) {
+                    <p role="alert" class="mt-1 text-xs font-semibold text-rose-600">Elegí el producto del beneficio.</p>
+                  }
+                </div>
+              }
+
               <div>
                 <label class="block text-xs font-bold text-text mb-1">Nivel de Socio Requerido</label>
                 <select

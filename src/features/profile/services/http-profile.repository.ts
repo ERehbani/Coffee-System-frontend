@@ -1,7 +1,8 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { inject, Service } from '@angular/core';
 import { map, Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { ALL_ITEMS, Page } from '../../../shared/types/page';
 import {
   ProfileDashboardDto,
   RedemptionDto,
@@ -58,10 +59,10 @@ export class HttpProfileRepository implements ProfileRepository {
   }
 
   getUsedBenefits(): Observable<readonly UsedBenefit[]> {
-    const params = new HttpParams().set('state', false);
+    const params = { ...ALL_ITEMS, status: 'USED' };
     return this.http
-      .get<RedemptionDto[]>(`${environment.apiBaseUrl}/redemption`, { params })
-      .pipe(map(toUsedBenefits));
+      .get<Page<RedemptionDto>>(`${environment.apiBaseUrl}/redemption`, { params })
+      .pipe(map((page) => toUsedBenefits(page.content)));
   }
 
   updateProfile(

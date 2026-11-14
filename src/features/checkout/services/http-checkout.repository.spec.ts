@@ -2,6 +2,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { environment } from '../../../environments/environment';
+import { pageOf } from '../../../shared/types/page.fixture';
 import { CartResponse } from '../../cart/model/cart.model';
 import { ConfirmedOrder, ServerCart } from '../types/checkout.model';
 import { CheckoutCoupon } from '../types/coupon.model';
@@ -81,8 +82,9 @@ describe('HttpCheckoutRepository', () => {
         (candidate) => candidate.url === `${environment.apiBaseUrl}/redemption`,
       );
       expect(request.request.method).toBe('GET');
-      expect(request.request.params.get('state')).toBe('true');
-      request.flush(CHECKOUT_COUPON_DTOS_FIXTURE);
+      expect(request.request.params.get('status')).toBe('ACTIVE');
+      expect(request.request.params.get('size')).toBe('100');
+      request.flush(pageOf(CHECKOUT_COUPON_DTOS_FIXTURE));
 
       expect(coupons?.length).toBe(CHECKOUT_COUPON_DTOS_FIXTURE.length);
       expect(coupons?.[0].benefit).toEqual({ kind: 'percentage-discount', percentage: 15 });

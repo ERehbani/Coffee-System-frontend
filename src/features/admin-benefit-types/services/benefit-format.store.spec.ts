@@ -45,7 +45,7 @@ describe('AdminBenefitFormatStore', () => {
     return TestBed.inject(AdminBenefitFormatStore);
   }
 
-  const conflict = (message: string) => new HttpErrorResponse({ status: 409, error: message });
+  const conflict = (message: string) => new HttpErrorResponse({ status: 409, error: { detail: message } });
 
   it('loads the formats on creation, ordered by name', () => {
     const store = create();

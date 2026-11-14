@@ -10,6 +10,8 @@ export interface ProductDto {
   readonly image: string | null;
   readonly state: boolean;
   readonly tags: readonly string[] | null;
+  readonly catalogProductId: string | null;
+  readonly available: boolean;
 }
 
 export interface CreateProductRequest {
@@ -27,10 +29,8 @@ export interface UpdateProductRequest {
   description?: string | null;
   price?: number;
   awardedPoints?: number;
-  categoryId?: string;
   image?: string | null;
   tags?: string[];
-  state?: boolean;
 }
 
 export interface CategoryOption {

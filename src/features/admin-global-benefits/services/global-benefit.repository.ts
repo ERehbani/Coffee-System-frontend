@@ -1,5 +1,6 @@
 import { Observable } from 'rxjs';
 import {
+  CatalogProductOption,
   CreateGlobalBenefitInput,
   GlobalBenefit,
   UpdateGlobalBenefitInput,
@@ -14,4 +15,5 @@ export abstract class GlobalBenefitRepository {
   abstract togglePublish(id: string, isPublic: boolean): Observable<GlobalBenefit>;
   abstract toggleStatus(id: string, status: boolean): Observable<GlobalBenefit>;
   abstract changeEndDate(id: string, endDate: string): Observable<GlobalBenefit>;
+  abstract getCatalogProducts(): Observable<readonly CatalogProductOption[]>;
 }

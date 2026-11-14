@@ -3,7 +3,7 @@ import { ValidationFailure } from '../types/coupon-validation.model';
 
 export const VALIDATION_ERROR_MESSAGE = 'No pudimos validar el cupón. Probá de nuevo.';
 
-const ALREADY_USED = 'this code has already been used';
+const ALREADY_USED = 'a redemption cannot go from used to used';
 const NOT_FOUND = 'redemption not found';
 const SERVER_ERROR_MESSAGE =
   'El servidor no pudo validar el cupón. Probá de nuevo en unos minutos.';
@@ -13,11 +13,12 @@ const MESSAGES_BY_BACKEND_ERROR: ReadonlyMap<string, string> = new Map([
     'this redemption does not belong to your cafe',
     'Este cupón es de otra cafetería, no se puede canjear en este local.',
   ],
+  ['a redemption cannot go from cancelled to used', 'Este cupón fue cancelado y ya no se puede canjear.'],
   [
-    'only admin can validate global benefits',
-    'Este cupón es de un beneficio global y solo lo puede validar un administrador.',
+    'the product of this benefit is sold out for today, cancel the redemption to give the points back',
+    'El producto de este cupón está agotado hoy. Podés cancelar el canje para devolverle los puntos al cliente.',
   ],
-  ['cafe not found', 'Tu usuario no tiene una cafetería asociada. Consultá con el administrador.'],
+  ['the current user has no cafe', 'Tu usuario no tiene una cafetería asociada. Consultá con el administrador.'],
 ]);
 
 const MESSAGES_BY_STATUS: ReadonlyMap<number, string> = new Map([
@@ -33,10 +34,10 @@ function backendMessage(body: unknown): string | null {
   if (typeof body === 'string') {
     return body.trim().toLowerCase();
   }
-  if (typeof body !== 'object' || body === null || !('error' in body)) {
+  if (typeof body !== 'object' || body === null || !('detail' in body)) {
     return null;
   }
-  return typeof body.error === 'string' ? body.error.trim().toLowerCase() : null;
+  return typeof body.detail === 'string' ? body.detail.trim().toLowerCase() : null;
 }
 
 function rejectionMessage(status: number, message: string | null): string {
@@ -54,7 +55,7 @@ export function toValidationFailure(error: unknown): ValidationFailure {
   if (error.status === HttpStatusCode.NotFound && message === NOT_FOUND) {
     return { kind: 'not-found' };
   }
-  if (error.status === HttpStatusCode.BadRequest && message === ALREADY_USED) {
+  if (error.status === HttpStatusCode.Conflict && message === ALREADY_USED) {
     return { kind: 'used' };
   }
   return { kind: 'rejected', message: rejectionMessage(error.status, message) };

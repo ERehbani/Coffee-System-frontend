@@ -34,7 +34,7 @@ describe('toTierFormErrors', () => {
   });
 
   it('puts a duplicate name on the name field', () => {
-    const error = new HttpErrorResponse({ status: 409, error: 'A tier named Oro already exists' });
+    const error = new HttpErrorResponse({ status: 409, error: { detail: 'A tier named Oro already exists' } });
 
     expect(toTierFormErrors(error)).toEqual({ name: 'Ya existe un tier con ese nombre.' });
   });
@@ -42,7 +42,7 @@ describe('toTierFormErrors', () => {
   it('puts duplicate points on the points field', () => {
     const error = new HttpErrorResponse({
       status: 409,
-      error: 'A tier with 3000 points already exists',
+      error: { detail: 'A tier with 3000 points already exists' },
     });
 
     expect(toTierFormErrors(error)).toEqual({
@@ -53,7 +53,7 @@ describe('toTierFormErrors', () => {
   it('ignores the letter case and the spacing of a conflict message', () => {
     const error = new HttpErrorResponse({
       status: 409,
-      error: '  A TIER NAMED oro ALREADY EXISTS ',
+      error: { detail: '  A TIER NAMED oro ALREADY EXISTS ' },
     });
 
     expect(toTierFormErrors(error)).toEqual({ name: 'Ya existe un tier con ese nombre.' });
@@ -61,8 +61,8 @@ describe('toTierFormErrors', () => {
 
   it('explains that the base tier keeps 0 points', () => {
     const error = new HttpErrorResponse({
-      status: 400,
-      error: { error: 'The base tier must keep 0 points', status: 400 },
+      status: 422,
+      error: { title: 'Business rule violated', detail: 'The base tier must keep 0 points' },
     });
 
     expect(toTierFormErrors(error)).toEqual({ form: 'El tier base debe mantener 0 puntos.' });
@@ -70,13 +70,13 @@ describe('toTierFormErrors', () => {
 
   it('falls back for an unknown conflict or bad request', () => {
     expect(
-      toTierFormErrors(new HttpErrorResponse({ status: 409, error: 'Something new' })),
+      toTierFormErrors(new HttpErrorResponse({ status: 409, error: { detail: 'Something new' } })),
     ).toEqual({
       form: TIER_SAVE_ERROR_MESSAGE,
     });
     expect(
       toTierFormErrors(
-        new HttpErrorResponse({ status: 400, error: { error: 'Other', status: 400 } }),
+        new HttpErrorResponse({ status: 422, error: { detail: 'Other' } }),
       ),
     ).toEqual({ form: TIER_SAVE_ERROR_MESSAGE });
     expect(toTierFormErrors(new HttpErrorResponse({ status: 400, error: null }))).toEqual({

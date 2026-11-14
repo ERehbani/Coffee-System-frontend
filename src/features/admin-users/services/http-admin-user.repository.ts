@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { ALL_ITEMS, Page } from '../../../shared/types/page';
 import { AdminUser, UserStatus } from '../types/admin-user.model';
 import { toAdminUser, toAdminUserList } from '../utils/admin-user.mapper';
 import { AdminUserRepository } from './admin-user.repository';
@@ -12,7 +13,9 @@ export class HttpAdminUserRepository implements AdminUserRepository {
   private readonly baseUrl = `${environment.apiBaseUrl}/users`;
 
   getUsers(): Observable<readonly AdminUser[]> {
-    return this.http.get<readonly any[]>(this.baseUrl).pipe(map(toAdminUserList));
+    return this.http
+      .get<Page<any>>(this.baseUrl, { params: ALL_ITEMS })
+      .pipe(map((page) => toAdminUserList(page.content)));
   }
 
   getUserById(id: string): Observable<AdminUser | null> {

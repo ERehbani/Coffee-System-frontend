@@ -40,7 +40,6 @@ describe('AdminBenefitTypesPage', () => {
     }).compileComponents();
 
     fixture = TestBed.createComponent(AdminBenefitTypesPage);
-    // Attached to the document so focus can be observed.
     document.body.appendChild(fixture.nativeElement);
     element = fixture.nativeElement;
     await settle();
@@ -85,7 +84,7 @@ describe('AdminBenefitTypesPage', () => {
     await settle();
   }
 
-  const conflict = (message: string) => new HttpErrorResponse({ status: 409, error: message });
+  const conflict = (message: string) => new HttpErrorResponse({ status: 409, error: { detail: message } });
 
   describe('page', () => {
     it('titles the page "Tipos de beneficio" with a description and the "Nuevo tipo" action', async () => {
@@ -409,7 +408,6 @@ describe('AdminBenefitTypesPage', () => {
     it('returns the focus to the button that opened it even if the click did not focus it', async () => {
       await render();
       const trigger = button('Editar 2x1');
-      // A click does not focus a button in Safari: nothing is focused on the trigger here.
       expect(document.activeElement).not.toBe(trigger);
       await click(trigger);
 

@@ -3,10 +3,12 @@ import { Component, effect, HostListener, input, output, signal } from '@angular
 import { FormsModule } from '@angular/forms';
 import { Icon } from '../../../../shared/components/icon/icon';
 import {
+  CatalogProductOption,
   CreateGlobalBenefitInput,
   GlobalBenefit,
   GlobalBenefitTier,
   GlobalBenefitType,
+  PRODUCT_TYPES,
   UpdateGlobalBenefitInput,
 } from '../../types/global-benefit.model';
 import {
@@ -15,7 +17,6 @@ import {
   getBenefitTypeMeta,
   getTierMeta,
   resolveTierId,
-  resolveTypeId,
 } from '../../utils/global-benefit.mapper';
 
 @Component({
@@ -29,6 +30,7 @@ export class GlobalBenefitFormModal {
   readonly mode = input<'create' | 'edit'>('create');
   readonly benefit = input<GlobalBenefit | null>(null);
   readonly isProcessing = input(false);
+  readonly catalogProducts = input<readonly CatalogProductOption[]>([]);
 
   readonly save = output<CreateGlobalBenefitInput | UpdateGlobalBenefitInput>();
   readonly close = output<void>();
@@ -65,7 +67,7 @@ export class GlobalBenefitFormModal {
         description: b.description,
         pointsCost: b.pointsCost,
         type: b.type,
-        typeId: b.typeId,
+        catalogProductId: b.catalogProductId,
         tier: b.tier,
         tierId: b.tierId,
         startDate: b.startDate,
@@ -110,10 +112,15 @@ export class GlobalBenefitFormModal {
   protected getTypeMeta = getBenefitTypeMeta;
   protected getTierMeta = getTierMeta;
 
+  protected needsProduct(): boolean {
+    return PRODUCT_TYPES.includes(this.form().type);
+  }
+
   protected isValid(): boolean {
     const f = this.form();
     const hasValidDates = Boolean(f.startDate && f.endDate && f.startDate <= f.endDate);
-    return f.name.trim().length >= 3 && f.description.trim().length >= 5 && f.pointsCost >= 0 && f.maxRedemptions > 0 && hasValidDates;
+    const hasProduct = !this.needsProduct() || Boolean(f.catalogProductId);
+    return f.name.trim().length >= 3 && f.description.trim().length >= 5 && f.pointsCost >= 0 && f.maxRedemptions > 0 && hasValidDates && hasProduct;
   }
 
   protected onSubmit(): void {
@@ -123,7 +130,6 @@ export class GlobalBenefitFormModal {
     const f = this.form();
     const payload = {
       ...f,
-      typeId: resolveTypeId(f.type, f.typeId),
       tierId: resolveTierId(f.tier, f.tierId),
       pointsCost: Number(f.pointsCost),
       maxRedemptions: Number(f.maxRedemptions),

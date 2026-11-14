@@ -14,6 +14,13 @@ const DUPLICATE_NAME = 'Ya existe un tipo con ese nombre.';
 
 const GENERIC: BenefitFormatFormErrors = { form: BENEFIT_FORMAT_SAVE_ERROR_MESSAGE };
 
+function detailOf(body: unknown): string | null {
+  if (typeof body !== 'object' || body === null || !('detail' in body)) {
+    return null;
+  }
+  return typeof body.detail === 'string' ? body.detail.trim().toLowerCase() : null;
+}
+
 function fieldErrorsOf(body: unknown): Record<string, unknown> | null {
   if (typeof body !== 'object' || body === null || !('errors' in body)) {
     return null;
@@ -22,12 +29,10 @@ function fieldErrorsOf(body: unknown): Record<string, unknown> | null {
   return typeof errors === 'object' && errors !== null ? (errors as Record<string, unknown>) : null;
 }
 
-/** Whether a Bean Validation message is about a missing value rather than a length limit. */
 function isMissing(message: string): boolean {
   return /blank|empty|null|required/.test(message);
 }
 
-/** Picks the Spanish copy of a field error, or `null` when the response has none for it. */
 function fieldError(
   errors: Record<string, unknown>,
   field: string,
@@ -60,12 +65,6 @@ function validationErrors(body: unknown): BenefitFormatFormErrors | null {
   };
 }
 
-/**
- * Maps a failed `POST /benefit-formats` or `PUT /benefit-formats/{id}` to Spanish copy placed on
- * the field it is about: 400 `{ errors: { code | displayName | description } }`, 409 plain text for
- * a format already in the catalog or a duplicate name. Anything unrecognised gets the generic form
- * message.
- */
 export function toBenefitFormatFormErrors(error: unknown): BenefitFormatFormErrors {
   if (!(error instanceof HttpErrorResponse)) {
     return GENERIC;
@@ -73,8 +72,8 @@ export function toBenefitFormatFormErrors(error: unknown): BenefitFormatFormErro
   if (error.status === 400) {
     return validationErrors(error.error) ?? GENERIC;
   }
-  if (error.status === 409 && typeof error.error === 'string') {
-    const message = error.error.trim().toLowerCase();
+  const message = detailOf(error.error);
+  if (error.status === 409 && message) {
     if (/^the format .+ is already in the catalog$/.test(message)) {
       return { code: CODE_TAKEN };
     }

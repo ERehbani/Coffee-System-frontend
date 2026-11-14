@@ -27,7 +27,6 @@ describe('AdminTiersPage', () => {
     }).compileComponents();
 
     fixture = TestBed.createComponent(AdminTiersPage);
-    // Attached to the document so focus can be observed.
     document.body.appendChild(fixture.nativeElement);
     element = fixture.nativeElement;
     await settle();
@@ -62,7 +61,7 @@ describe('AdminTiersPage', () => {
     await settle();
   }
 
-  const conflict = (message: string) => new HttpErrorResponse({ status: 409, error: message });
+  const conflict = (message: string) => new HttpErrorResponse({ status: 409, error: { detail: message } });
 
   describe('page', () => {
     it('titles the page "Tiers" with a description and the "Nuevo tier" action', async () => {

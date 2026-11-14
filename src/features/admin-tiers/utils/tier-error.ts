@@ -13,7 +13,6 @@ const BASE_TIER_POINTS = 'El tier base debe mantener 0 puntos.';
 
 const GENERIC: TierFormErrors = { form: TIER_SAVE_ERROR_MESSAGE };
 
-/** Reads a string property of an error body, trimmed and lower-cased. */
 function stringOf(body: unknown, key: string): string | null {
   if (typeof body !== 'object' || body === null || !(key in body)) {
     return null;
@@ -30,15 +29,10 @@ function fieldErrorsOf(body: unknown): Record<string, unknown> | null {
   return typeof errors === 'object' && errors !== null ? (errors as Record<string, unknown>) : null;
 }
 
-/**
- * Bean Validation messages of `name` (`@NotBlank`, `@Size(max = 50)`): anything that is not about
- * a missing value is the length limit.
- */
 function nameError(message: string): string {
   return /blank|empty|null|required/.test(message) ? NAME_REQUIRED : NAME_TOO_LONG;
 }
 
-/** Bean Validation messages of `minPoints` (`@NotNull`, `@Min(0)`): anything not null is negative. */
 function pointsError(message: string): string {
   return /null|required|blank|empty/.test(message) ? POINTS_REQUIRED : POINTS_NEGATIVE;
 }
@@ -57,23 +51,18 @@ function validationErrors(body: unknown): TierFormErrors | null {
   return { ...(name && { name }), ...(points && { minPoints: points }) };
 }
 
-/**
- * Maps a failed `POST /tiers` or `PUT /tiers/{id}` to Spanish copy placed on the field it is
- * about: 400 `{ errors: { name | minPoints } }`, 409 plain text for a duplicate name or points,
- * 400 `{ error }` for the base tier. Anything unrecognised gets the generic form message.
- */
 export function toTierFormErrors(error: unknown): TierFormErrors {
   if (!(error instanceof HttpErrorResponse)) {
     return GENERIC;
   }
+  if (error.status === 422 && stringOf(error.error, 'detail') === 'the base tier must keep 0 points') {
+    return { form: BASE_TIER_POINTS };
+  }
   if (error.status === 400) {
-    if (stringOf(error.error, 'error') === 'the base tier must keep 0 points') {
-      return { form: BASE_TIER_POINTS };
-    }
     return validationErrors(error.error) ?? GENERIC;
   }
-  if (error.status === 409 && typeof error.error === 'string') {
-    const message = error.error.trim().toLowerCase();
+  const message = stringOf(error.error, 'detail');
+  if (error.status === 409 && message) {
     if (/^a tier named .+ already exists$/.test(message)) {
       return { name: DUPLICATE_NAME };
     }

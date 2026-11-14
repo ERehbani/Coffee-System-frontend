@@ -2,6 +2,7 @@ import { HttpClient, HttpErrorResponse, HttpStatusCode } from '@angular/common/h
 import { inject, Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { ALL_ITEMS, Page } from '../../../shared/types/page';
 import { CartResponse } from '../../cart/model/cart.model';
 import { PurchaseResponseDto } from '../types/checkout.dto';
 import { ConfirmedOrder, CreatePurchaseInput, ServerCart } from '../types/checkout.model';
@@ -40,8 +41,8 @@ export class HttpCheckoutRepository implements CheckoutRepository {
 
   findCoupons(): Observable<readonly CheckoutCoupon[]> {
     return this.http
-      .get<CheckoutCouponDto[]>(`${this.baseUrl}/redemption`, { params: { state: true } })
-      .pipe(map(toCheckoutCoupons));
+      .get<Page<CheckoutCouponDto>>(`${this.baseUrl}/redemption`, { params: { ...ALL_ITEMS, status: 'ACTIVE' } })
+      .pipe(map((page) => toCheckoutCoupons(page.content)));
   }
 
   createPurchase(input: CreatePurchaseInput): Observable<ConfirmedOrder> {

@@ -3,6 +3,7 @@ import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
+import { ALL_ITEMS, Page } from '../../../shared/types/page';
 import { Product } from '../model/product.model';
 import {
   CategoryOption,
@@ -17,31 +18,41 @@ import { toProducts } from '../utils/product.mapper';
 })
 export class ProductService {
   private readonly http = inject(HttpClient);
-  private readonly url = `${environment.apiBaseUrl}/products`;
+  private readonly cafesUrl = `${environment.apiBaseUrl}/cafes`;
   private readonly categoryUrl = `${environment.apiBaseUrl}/category`;
 
-  getProductsByCafe(cafeExternalId: string): Observable<Product[]> {
-    return this.http.get<ProductDto[]>(`${this.url}/cafes/${cafeExternalId}`).pipe(map(toProducts));
+  getMyCafeId(): Observable<string> {
+    return this.http.get<{ externalId: string }>(`${this.cafesUrl}/me`).pipe(map((cafe) => cafe.externalId));
   }
 
-  getAll(): Observable<ProductDto[]> {
-    return this.http.get<ProductDto[]>(this.url);
+  getProductsByCafe(cafeId: string): Observable<Product[]> {
+    return this.listByCafe(cafeId).pipe(map(toProducts));
   }
 
-  create(request: CreateProductRequest): Observable<ProductDto> {
-    return this.http.post<ProductDto>(this.url, request);
+  listByCafe(cafeId: string): Observable<ProductDto[]> {
+    return this.http
+      .get<Page<ProductDto>>(this.productsUrl(cafeId), { params: ALL_ITEMS })
+      .pipe(map((page) => [...page.content]));
   }
 
-  update(productId: string, request: UpdateProductRequest): Observable<ProductDto> {
-    return this.http.put<ProductDto>(`${this.url}/${productId}`, request);
+  create(cafeId: string, request: CreateProductRequest): Observable<ProductDto> {
+    return this.http.post<ProductDto>(this.productsUrl(cafeId), request);
   }
 
-  activate(productId: string): Observable<ProductDto> {
-    return this.http.put<ProductDto>(`${this.url}/${productId}/activate`, {});
+  update(cafeId: string, productId: string, request: UpdateProductRequest): Observable<ProductDto> {
+    return this.http.put<ProductDto>(`${this.productsUrl(cafeId)}/${productId}`, request);
   }
 
-  delete(productId: string): Observable<void> {
-    return this.http.delete<void>(`${this.url}/${productId}`);
+  activate(cafeId: string, productId: string): Observable<ProductDto> {
+    return this.http.patch<ProductDto>(`${this.productsUrl(cafeId)}/${productId}/activate`, {});
+  }
+
+  changeAvailability(cafeId: string, productId: string, available: boolean): Observable<ProductDto> {
+    return this.http.patch<ProductDto>(`${this.productsUrl(cafeId)}/${productId}/availability`, { available });
+  }
+
+  delete(cafeId: string, productId: string): Observable<void> {
+    return this.http.delete<void>(`${this.productsUrl(cafeId)}/${productId}`);
   }
 
   getCategories(): Observable<CategoryOption[]> {
@@ -55,5 +66,9 @@ export class ProductService {
           })),
         ),
       );
+  }
+
+  private productsUrl(cafeId: string): string {
+    return `${this.cafesUrl}/${cafeId}/products`;
   }
 }

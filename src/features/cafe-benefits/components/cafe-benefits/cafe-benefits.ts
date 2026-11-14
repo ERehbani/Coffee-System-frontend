@@ -1,17 +1,26 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { switchMap } from 'rxjs';
 import { Icon } from '../../../../shared/components/icon/icon';
+import { backendErrorMessage } from '../../../../shared/utils/backend-error';
 import { LogoutButton } from '../../../auth/components/logout-button/logout-button';
+import { ProductService } from '../../../catalog/services/product.service';
+import { ProductDto } from '../../../catalog/types/product.dto';
 import {
   BenefitTypeOption,
   CafeBenefit,
   CreateCafeBenefitRequest,
+  ProductOption,
   TierOption,
 } from '../../model/cafe-benefit.model';
 import { CafeBenefitService } from '../../services/cafe-benefit.service';
 import { BenefitCard } from '../benefit-card/benefit-card';
 import { BenefitForm } from '../benefit-form/benefit-form';
+
+function toProductOptions(products: ProductDto[]): ProductOption[] {
+  return products.filter((product) => product.state).map((product) => ({ id: product.externalId, name: product.name }));
+}
 
 @Component({
   selector: 'app-cafe-benefits',
@@ -22,10 +31,12 @@ import { BenefitForm } from '../benefit-form/benefit-form';
 })
 export class CafeBenefits implements OnInit {
   private readonly cafeBenefitService = inject(CafeBenefitService);
+  private readonly productService = inject(ProductService);
 
   benefits = signal<CafeBenefit[]>([]);
   benefitTypes = signal<BenefitTypeOption[]>([]);
   tiers = signal<TierOption[]>([]);
+  products = signal<ProductOption[]>([]);
 
   isLoading = signal(true);
   isSaving = signal(false);
@@ -64,6 +75,7 @@ export class CafeBenefits implements OnInit {
   ngOnInit(): void {
     this.loadBenefits();
     this.loadTypesAndTiers();
+    this.loadProducts();
   }
 
   loadBenefits(): void {
@@ -90,6 +102,15 @@ export class CafeBenefits implements OnInit {
     });
   }
 
+  loadProducts(): void {
+    this.productService
+      .getMyCafeId()
+      .pipe(switchMap((cafeId) => this.productService.listByCafe(cafeId)))
+      .subscribe({
+        next: (products) => this.products.set(toProductOptions(products)),
+      });
+  }
+
   onSaveBenefit(request: CreateCafeBenefitRequest): void {
     this.isSaving.set(true);
     this.errorMessage.set(null);
@@ -104,36 +125,10 @@ export class CafeBenefits implements OnInit {
       },
       error: (err) => {
         this.isSaving.set(false);
-        const serverError = this.getErrorMessage(err);
+        const serverError = backendErrorMessage(err);
         this.errorMessage.set(serverError || 'Ocurrió un error al crear la promoción. Verificá los datos ingresados.');
       },
     });
-  }
-
-  private getErrorMessage(err: unknown): string | null {
-    if (!err || typeof err !== 'object') {
-      return null;
-    }
-    const httpErr = err as { error?: unknown };
-    if (typeof httpErr.error === 'string') {
-      return httpErr.error;
-    }
-    if (httpErr.error && typeof httpErr.error === 'object') {
-      const body = httpErr.error as { error?: string; message?: string; errors?: Record<string, string> };
-      if (body.error && typeof body.error === 'string') {
-        return body.error;
-      }
-      if (body.message && typeof body.message === 'string') {
-        return body.message;
-      }
-      if (body.errors && typeof body.errors === 'object') {
-        const msgs = Object.values(body.errors).filter((m) => typeof m === 'string');
-        if (msgs.length > 0) {
-          return msgs.join('. ');
-        }
-      }
-    }
-    return null;
   }
 
   toggleForm(): void {

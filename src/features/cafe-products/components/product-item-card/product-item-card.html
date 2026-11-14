@@ -21,8 +21,13 @@
         </span>
       </div>
 
-      <div class="absolute top-3 right-3">
+      <div class="absolute top-3 right-3 flex items-center gap-1.5">
         @if (product().state) {
+          @if (!product().available) {
+            <span class="inline-flex items-center gap-1.5 rounded-full bg-amber-500/90 px-2.5 py-1 text-[11px] font-bold text-white backdrop-blur-xs shadow-xs">
+              Agotado hoy
+            </span>
+          }
           <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/90 px-2.5 py-1 text-[11px] font-bold text-white backdrop-blur-xs shadow-xs">
             <span class="size-1.5 rounded-full bg-white animate-pulse"></span>
             Activo
@@ -78,6 +83,13 @@
     </button>
 
     @if (product().state) {
+      <button
+        type="button"
+        (click)="onToggleAvailability()"
+        class="cursor-pointer inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface px-3 py-1.5 text-xs font-bold text-text transition hover:border-primary hover:text-primary active:scale-95 select-none"
+      >
+        {{ product().available ? 'Agotado hoy' : 'Disponible' }}
+      </button>
       <button
         type="button"
         (click)="onDelete()"

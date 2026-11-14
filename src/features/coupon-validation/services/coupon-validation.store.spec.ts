@@ -116,8 +116,8 @@ describe('CouponValidationStore', () => {
     const store = create(
       failWith(
         new HttpErrorResponse({
-          status: 400,
-          error: { error: 'This code has already been used', status: 400 },
+          status: 409,
+          error: { detail: 'A redemption cannot go from USED to USED', status: 409 },
         }),
       ),
     );
@@ -129,7 +129,7 @@ describe('CouponValidationStore', () => {
 
   it('shows a missing coupon', () => {
     const store = create(
-      failWith(new HttpErrorResponse({ status: 404, error: 'Redemption not found' })),
+      failWith(new HttpErrorResponse({ status: 404, error: { detail: 'Redemption not found' } })),
     );
 
     store.validate('code-1');
@@ -141,8 +141,8 @@ describe('CouponValidationStore', () => {
     const store = create(
       failWith(
         new HttpErrorResponse({
-          status: 400,
-          error: { error: 'This redemption does not belong to your cafe', status: 400 },
+          status: 403,
+          error: { detail: 'This redemption does not belong to your cafe', status: 403 },
         }),
       ),
     );

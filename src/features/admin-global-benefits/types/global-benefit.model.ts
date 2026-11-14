@@ -3,13 +3,19 @@ import { IconName } from '../../../shared/components/icon/icon-registry';
 export type GlobalBenefitType = 'CODIGO_DESCUENTO' | 'DOS_POR_UNO' | 'PRODUCTO_POR_PUNTOS' | 'PRODUCTO_GRATIS_SOCIO';
 export type GlobalBenefitTier = 'ALL' | 'BRONCE' | 'PLATA' | 'ORO' | 'DIAMANTE';
 
+export const PRODUCT_TYPES: readonly GlobalBenefitType[] = ['DOS_POR_UNO', 'PRODUCTO_POR_PUNTOS', 'PRODUCTO_GRATIS_SOCIO'];
+
+export interface CatalogProductOption {
+  readonly id: string;
+  readonly name: string;
+}
+
 export interface GlobalBenefitTypeOption {
   readonly value: GlobalBenefitType;
   readonly label: string;
   readonly shortLabel: string;
   readonly description: string;
   readonly icon: IconName;
-  readonly defaultTypeId: string;
 }
 
 export interface GlobalBenefitTierOption {
@@ -26,17 +32,18 @@ export interface GlobalBenefit {
   readonly description: string;
   readonly pointsCost: number;
   readonly type: GlobalBenefitType;
-  readonly typeId: string;
   readonly tier: GlobalBenefitTier;
   readonly tierId: string;
   readonly startDate: string;
   readonly endDate: string;
   readonly maxRedemptions: number;
   readonly currentRedemptions: number;
+  readonly soldOut: boolean;
   readonly status: boolean;
   readonly isPublic: boolean;
-  readonly isGlobal: 'GLOBAL_BENEFIT';
   readonly discountPercent?: number;
+  readonly catalogProductId?: string;
+  readonly productName?: string;
   readonly termsAndConditions?: string;
   readonly createdAt: string;
   readonly updatedAt?: string;
@@ -47,13 +54,13 @@ export interface CreateGlobalBenefitInput {
   readonly description: string;
   readonly pointsCost: number;
   readonly type: GlobalBenefitType;
-  readonly typeId?: string;
   readonly tier: GlobalBenefitTier;
   readonly tierId?: string;
   readonly startDate: string;
   readonly endDate: string;
   readonly maxRedemptions: number;
   readonly discountPercent?: number;
+  readonly catalogProductId?: string;
   readonly status: boolean;
   readonly isPublic: boolean;
   readonly termsAndConditions?: string;
@@ -80,17 +87,18 @@ export interface GlobalBenefitDto {
   readonly maxRedemptions: number;
   readonly description: string;
   readonly cafeEntity?: string | null;
-  readonly isGlobal: 'GLOBAL_BENEFIT' | 'CAFFETERIA_BENEFIT';
+  readonly global: boolean;
   readonly startDate?: string;
   readonly endDate?: string;
-  readonly typeId?: string;
-  readonly benefitType?: string;
+  readonly benefitType?: GlobalBenefitType | null;
   readonly tierId?: string;
   readonly tierName?: string;
-  readonly currentRedemptions?: number;
-  readonly discountPercent?: number;
+  readonly redeemedCount?: number;
+  readonly soldOut?: boolean;
+  readonly discountPercentage?: number | null;
+  readonly catalogProductId?: string | null;
+  readonly productName?: string | null;
   readonly conditions?: string | null;
-  readonly createdAt?: string;
 }
 
 export interface BenefitCreateRequestDto {
@@ -100,7 +108,9 @@ export interface BenefitCreateRequestDto {
   readonly startDate: string;
   readonly endDate: string;
   readonly maxRedemptions: number;
-  readonly typeId: string;
+  readonly type: GlobalBenefitType;
+  readonly discountPercentage: number | null;
+  readonly catalogProductId: string | null;
   readonly cafeId: null;
   readonly tierId: string;
   readonly conditions: string | null;
@@ -113,7 +123,9 @@ export interface BenefitUpdateRequestDto {
   readonly startDate: string;
   readonly endDate: string;
   readonly maxRedemptions: number;
-  readonly typeId: string;
+  readonly type: GlobalBenefitType;
+  readonly discountPercentage: number | null;
+  readonly catalogProductId: string | null;
   readonly cafeId: null;
   readonly tierId: string;
   readonly conditions: string | null;

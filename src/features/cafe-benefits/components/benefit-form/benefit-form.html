@@ -75,12 +75,12 @@
         </label>
         <select
           id="benefit-type-select"
-          [value]="formModel().typeId"
+          [value]="formModel().type"
           (change)="onTypeChange($any($event.target).value)"
           class="w-full rounded-xl border border-border bg-bg px-3.5 py-2 text-sm text-text transition focus:border-primary focus:bg-surface focus:outline-hidden focus:ring-2 focus:ring-primary/20"
         >
           @for (type of benefitTypes(); track type.id) {
-            <option [value]="type.id" [selected]="type.id === formModel().typeId">{{ type.displayName }}</option>
+            <option [value]="type.id" [selected]="type.id === formModel().type">{{ type.displayName }}</option>
           }
         </select>
         @if (attemptedSubmit() && typeError()) {
@@ -107,6 +107,32 @@
         }
       </div>
     </div>
+
+    @if (needsProduct()) {
+      <div class="space-y-1.5">
+        <label for="benefit-product-select" class="block text-xs font-bold text-text">
+          Producto <span class="text-rose-500">*</span>
+        </label>
+        @if (products().length > 0) {
+          <select
+            id="benefit-product-select"
+            [value]="formModel().productId"
+            (change)="onProductChange($any($event.target).value)"
+            class="w-full rounded-xl border border-border bg-bg px-3.5 py-2 text-sm text-text transition focus:border-primary focus:bg-surface focus:outline-hidden focus:ring-2 focus:ring-primary/20"
+          >
+            <option value="" [selected]="!formModel().productId">Elegí un producto</option>
+            @for (product of products(); track product.id) {
+              <option [value]="product.id" [selected]="product.id === formModel().productId">{{ product.name }}</option>
+            }
+          </select>
+        } @else {
+          <p class="text-xs font-semibold text-amber-700">Primero publicá un producto para usar este tipo de beneficio.</p>
+        }
+        @if (attemptedSubmit() && productError()) {
+          <p role="alert" class="text-xs font-semibold text-rose-600">{{ productError() }}</p>
+        }
+      </div>
+    }
 
     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
       <div class="space-y-1.5">
