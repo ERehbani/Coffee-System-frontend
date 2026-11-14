@@ -7,7 +7,6 @@ import { ProfileDashboard, RedeemedBenefit, TierBenefit, TierDetail } from '../t
 import { buildProfileDashboardFixture, buildTierDetailFixture } from '../utils/profile.fixture';
 import { toProfileDashboard, toTierDetail } from '../utils/profile.mapper';
 import { REDEEM_ERROR_MESSAGE } from '../utils/redeem-error';
-import { MOCK_LATENCY_MS, MockProfileRepository } from './mock-profile.repository';
 import { ProfileRepository } from './profile.repository';
 import { ProfileStore } from './profile.store';
 import { TierStore } from './tier.store';
@@ -69,7 +68,6 @@ describe('TierStore', () => {
     return store;
   }
 
-  /** Lets the resources triggered by a reload run and settle. */
   async function settle(): Promise<void> {
     TestBed.flushEffects();
     await Promise.resolve();
@@ -508,43 +506,5 @@ describe('TierStore', () => {
 
       expect(store.benefits()[0].errorMessage).toBe(REDEEM_ERROR_MESSAGE);
     });
-  });
-});
-
-describe('TierStore with the mock repository', () => {
-  beforeEach(() => vi.useFakeTimers());
-  afterEach(() => vi.useRealTimers());
-
-  async function elapse(): Promise<void> {
-    TestBed.flushEffects();
-    await vi.advanceTimersByTimeAsync(MOCK_LATENCY_MS);
-    TestBed.flushEffects();
-  }
-
-  it('makes the redeemed benefit available to the coupon detail of an already loaded profile', async () => {
-    TestBed.configureTestingModule({
-      providers: [
-        TierStore,
-        ProfileStore,
-        { provide: ProfileRepository, useClass: MockProfileRepository },
-      ],
-    });
-    const store = TestBed.inject(TierStore);
-    const profileStore = TestBed.inject(ProfileStore);
-    await elapse();
-    const pointsBefore = store.availablePoints();
-    const activeBefore = profileStore.activeRedemptions().length;
-    const coffee = store.benefits().find((benefit) => benefit.missingPoints === 0)!;
-    store.requestRedeem(coffee.id);
-
-    store.confirmRedeem();
-    await elapse();
-    await elapse();
-
-    const redeemedId = store.redeemed()!.id;
-    expect(store.availablePoints()).toBe(pointsBefore - coffee.pointsCost);
-    expect(profileStore.activeRedemptions().length).toBe(activeBefore + 1);
-    expect(profileStore.activeRedemptions().some(({ id }) => id === redeemedId)).toBe(true);
-    expect(profileStore.dashboard()?.loyalty.availablePoints).toBe(store.availablePoints());
   });
 });

@@ -16,6 +16,7 @@ import {
   buildPurchaseResponse,
   CHECKOUT_CAFE_FIXTURE,
   CHECKOUT_ITEMS_FIXTURE,
+  CHECKOUT_SERVER_CART_FIXTURE,
 } from '../../utils/checkout.fixture';
 import { toConfirmedOrder } from '../../utils/checkout.mapper';
 import { CHECKOUT_COUPON_DTOS_FIXTURE, DISCOUNT_COUPON_DTO } from '../../utils/coupon.fixture';
@@ -48,7 +49,11 @@ describe('CheckoutPage', () => {
         { provide: LOCALE_ID, useValue: 'es-AR' },
         {
           provide: CheckoutRepository,
-          useValue: { findCartId: () => of('cart-1'), findCoupons, createPurchase },
+          useValue: {
+            findCart: () => of(CHECKOUT_SERVER_CART_FIXTURE),
+            findCoupons,
+            createPurchase,
+          },
         },
       ],
     }).compileComponents();

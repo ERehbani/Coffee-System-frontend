@@ -64,7 +64,7 @@ export function toAdminUser(dto: AdminUserDto | any): AdminUser {
     avatarUrl: dto.avatarUrl || null,
     role,
     status,
-    createdAt: dto.createdAt ? new Date(dto.createdAt) : new Date(),
+    createdAt: toCreatedAt(dto.creationDate ?? dto.createdAt),
     lastLoginAt: dto.lastLoginAt ? new Date(dto.lastLoginAt) : null,
     emailVerified: dto.emailVerified ?? true,
     twoFactorEnabled: dto.twoFactorEnabled ?? false,
@@ -74,6 +74,10 @@ export function toAdminUser(dto: AdminUserDto | any): AdminUser {
     cafeAdminDetails,
     superadminDetails,
   };
+}
+
+function toCreatedAt(value?: string): Date | null {
+  return value ? new Date(value) : null;
 }
 
 export function toAdminUserList(dtos: readonly (AdminUserDto | any)[]): readonly AdminUser[] {

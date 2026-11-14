@@ -11,21 +11,25 @@ export type LoyaltyTierCodeDto = string;
 export interface ClientProfileDto {
   readonly id: string;
   readonly firstName: string;
-  /** null when the backend keeps a single name field */
   readonly lastName?: string | null;
-  /** null when the client has none on file */
   readonly email?: string | null;
-  /** null when the client has none on file */
   readonly phoneNumber?: string | null;
   readonly avatarUrl?: string | null;
 }
 
 export interface UpdateClientProfileDto {
-  readonly firstName: string;
+  readonly name: string;
   readonly lastName: string;
-  readonly email: string;
-  readonly phoneNumber: string;
-  readonly avatarUrl?: string | null;
+  readonly phone: string;
+  readonly profilePhoto: string;
+}
+
+export interface UpdatedClientDto {
+  readonly externalId: string;
+  readonly name: string;
+  readonly lastName: string | null;
+  readonly phone: string | null;
+  readonly profilePhoto: string | null;
 }
 
 export interface LoyaltyStatusDto {
@@ -61,11 +65,8 @@ export interface ActiveRedemptionDto {
   readonly title: string;
   readonly description: string;
   readonly code: string;
-  /** ISO date or date-time; null when the benefit never ends */
   readonly expiresAt: string | null;
-  /** Cafe the coupon is valid in; null for global benefits. Missing in older payloads. */
   readonly cafeName?: string | null;
-  /** Usage conditions. Not in the backend contract yet; treated as empty when missing. */
   readonly conditions?: readonly string[];
 }
 
@@ -85,12 +86,10 @@ export interface FeaturedBenefitDto {
   readonly id: string;
   readonly title: string;
   readonly description: string;
-  /** Benefits have no image in the backend yet */
   readonly imageUrl: string | null;
   readonly pointsCost: number;
 }
 
-/** Backend RedemptionResponse (GET /redemption). `state: false` means it was already used. */
 export interface RedemptionDto {
   readonly externalId: string;
   readonly date: string;
@@ -98,21 +97,17 @@ export interface RedemptionDto {
   readonly state: boolean;
   readonly validationCode: string;
   readonly benefitName: string;
-  /** null for global benefits that are valid in any cafe */
   readonly cafeName: string | null;
+  readonly cafeId: string | null;
 }
 
-/** Backend TierBenefitResponse (GET /clients/me/benefits): a benefit the client can redeem. */
 export interface TierBenefitDto {
   readonly externalId: string;
   readonly name: string;
   readonly description: string;
   readonly pointsCost: number;
-  /** ISO calendar day (yyyy-MM-dd); null when the benefit never ends */
   readonly endDate: string | null;
-  /** null for global benefits that are valid in any cafe */
   readonly cafeName: string | null;
-  /** Backend tier name (BRONCE, PLATA, ORO, DIAMANTE) the benefit belongs to */
   readonly tierName: LoyaltyTierCodeDto;
   readonly benefitType: string;
 }

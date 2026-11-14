@@ -9,6 +9,7 @@ import { CartService } from '../../services/cart.service';
   selector: 'app-cart-button',
   imports: [CurrencyPipe, Icon],
   templateUrl: './cart-button.html',
+  styleUrl: './cart-button.css',
   host: { class: 'block' },
 })
 export class CartButton {

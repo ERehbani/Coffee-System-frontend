@@ -1,10 +1,10 @@
-import { MOCK_PRODUCTS } from '../../catalog/data/products.mock';
+import {
+  COOKIE_FIXTURE as COOKIE,
+  CROISSANT_FIXTURE as CROISSANT,
+  ESPRESSO_FIXTURE as ESPRESSO,
+} from '../../catalog/utils/product.fixture';
 import { CheckoutCouponDto } from '../types/coupon.dto';
 import { CHECKOUT_CAFE_FIXTURE } from './checkout.fixture';
-
-const ESPRESSO = MOCK_PRODUCTS[0];
-const COOKIE = MOCK_PRODUCTS[4];
-const CROISSANT = MOCK_PRODUCTS[3];
 
 export const OTHER_CAFE_ID = 'cafe-norte-002';
 

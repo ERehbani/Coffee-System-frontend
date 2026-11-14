@@ -2,8 +2,14 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { environment } from '../../../environments/environment';
-import { buildTierDetailFixture } from '../utils/profile.fixture';
-import { RedeemedBenefit, TierBenefit, TierDetail } from '../types/profile.model';
+import {
+  ProfileDashboard,
+  RedeemedBenefit,
+  SavedClientProfile,
+  TierBenefit,
+  TierDetail,
+} from '../types/profile.model';
+import { buildProfileDashboardFixture, buildTierDetailFixture } from '../utils/profile.fixture';
 import { HttpProfileRepository } from './http-profile.repository';
 
 describe('HttpProfileRepository', () => {
@@ -19,6 +25,109 @@ describe('HttpProfileRepository', () => {
   });
 
   afterEach(() => http.verify());
+
+  it('getDashboard requests the dashboard of the signed-in client and maps it', () => {
+    let dashboard: ProfileDashboard | undefined;
+    repository.getDashboard().subscribe((value) => (dashboard = value));
+
+    const request = http.expectOne(`${environment.apiBaseUrl}/clients/me/dashboard`);
+    expect(request.request.method).toBe('GET');
+    request.flush(buildProfileDashboardFixture(new Date()));
+
+    expect(dashboard?.profile).toEqual({
+      id: 'client-001',
+      firstName: 'Juan',
+      lastName: 'Pérez',
+      email: 'juan.perez@example.com',
+      phoneNumber: '1145238890',
+      avatarUrl: expect.stringContaining('https://'),
+    });
+    expect(dashboard?.loyalty.tier).toBe('silver');
+    expect(dashboard?.activeRedemptions.length).toBe(2);
+  });
+
+  it('getDashboard keeps a tier created by the admin instead of failing', () => {
+    const dto = buildProfileDashboardFixture(new Date());
+    let dashboard: ProfileDashboard | undefined;
+    repository.getDashboard().subscribe((value) => (dashboard = value));
+
+    http
+      .expectOne(`${environment.apiBaseUrl}/clients/me/dashboard`)
+      .flush({ ...dto, loyalty: { ...dto.loyalty, tier: 'Platino', nextTier: null } });
+
+    expect(dashboard?.loyalty.tier).toBe('Platino');
+  });
+
+  it('updateProfile sends the field names of the backend, without the email', () => {
+    repository
+      .updateProfile('client-001', {
+        firstName: 'Mateo',
+        lastName: 'Gómez',
+        phoneNumber: '1199887766',
+        avatarUrl: 'https://example.com/avatar.jpg',
+      })
+      .subscribe();
+
+    const request = http.expectOne(`${environment.apiBaseUrl}/clients/client-001`);
+    expect(request.request.method).toBe('PUT');
+    expect(request.request.body).toEqual({
+      name: 'Mateo',
+      lastName: 'Gómez',
+      phone: '1199887766',
+      profilePhoto: 'https://example.com/avatar.jpg',
+    });
+    request.flush({});
+  });
+
+  it('updateProfile maps the client the backend returns', () => {
+    let saved: SavedClientProfile | undefined;
+    repository
+      .updateProfile('client-001', {
+        firstName: 'Mateo',
+        lastName: 'Gómez',
+        phoneNumber: '1199887766',
+        avatarUrl: null,
+      })
+      .subscribe((value) => (saved = value));
+
+    http.expectOne(`${environment.apiBaseUrl}/clients/client-001`).flush({
+      externalId: 'client-001',
+      name: 'Mateo',
+      lastName: 'Gómez',
+      phone: '1199887766',
+      profilePhoto: '',
+      currentPoints: 850,
+      historicalPoints: 1420,
+      tierName: 'PLATA',
+      state: true,
+    });
+
+    expect(saved).toEqual({
+      id: 'client-001',
+      firstName: 'Mateo',
+      lastName: 'Gómez',
+      phoneNumber: '1199887766',
+      avatarUrl: null,
+    });
+  });
+
+  it('updateProfile propagates a backend rejection', () => {
+    let status: number | undefined;
+    repository
+      .updateProfile('client-001', {
+        firstName: 'Mateo',
+        lastName: 'Gómez',
+        phoneNumber: '1199887766',
+        avatarUrl: null,
+      })
+      .subscribe({ error: (error) => (status = error.status) });
+
+    http
+      .expectOne(`${environment.apiBaseUrl}/clients/client-001`)
+      .flush({ error: 'Access denied' }, { status: 403, statusText: 'Forbidden' });
+
+    expect(status).toBe(403);
+  });
 
   it('getUsedBenefits requests redemptions with state=false', () => {
     repository.getUsedBenefits().subscribe();
@@ -87,10 +196,12 @@ describe('HttpProfileRepository', () => {
       state: true,
       validationCode: 'VLD-0009-ABCD',
       benefitName: 'Café de cortesía',
-      cafeName: null,
+      cafeName: 'Global',
+      cafeId: null,
     });
 
     expect(redeemed?.id).toBe('redemption-9');
+    expect(redeemed?.cafeName).toBeNull();
     expect(redeemed?.validationCode).toBe('VLD-0009-ABCD');
     expect(redeemed?.usedPoints).toBe(300);
   });

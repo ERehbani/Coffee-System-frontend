@@ -17,6 +17,7 @@ export class PurchaseHistory implements OnInit {
 
   purchases = signal<Purchase[]>([]);
   isLoading = signal(true);
+  hasError = signal(false);
   reviewingPurchaseId = signal<string | null>(null);
   isSubmitting = signal(false);
   reviewError = signal<string | null>(null);
@@ -41,6 +42,13 @@ export class PurchaseHistory implements OnInit {
   });
 
   ngOnInit(): void {
+    this.loadPurchases();
+  }
+
+  loadPurchases(): void {
+    this.isLoading.set(true);
+    this.hasError.set(false);
+
     this.purchaseService.getMyPurchases().subscribe({
       next: (data) => {
         this.purchases.set(data);
@@ -48,6 +56,7 @@ export class PurchaseHistory implements OnInit {
       },
       error: (error) => {
         console.error('error loading purchases:', error);
+        this.hasError.set(true);
         this.isLoading.set(false);
       },
     });

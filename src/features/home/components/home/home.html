@@ -64,7 +64,10 @@
           [class.border-border]="filterState() !== 'all'"
           [class.hover:border-primary/50]="filterState() !== 'all'"
         >
-          Todas ({{ cafes().length }})
+          Todas
+          @if (!isLoading()) {
+            ({{ cafes().length }})
+          }
         </button>
 
         <button
@@ -81,12 +84,19 @@
           [class.hover:border-primary/50]="filterState() !== 'open'"
         >
           <span class="size-2 rounded-full bg-emerald-500"></span>
-          Abiertas ahora ({{ openCafesCount() }})
+          Abiertas ahora
+          @if (!isLoading()) {
+            ({{ openCafesCount() }})
+          }
         </button>
       </div>
 
       <div class="text-xs text-muted">
-        <span>Mostrando {{ filteredCafes().length }} de {{ cafes().length }} cafeterías</span>
+        @if (isLoading()) {
+          <span>Cargando cafeterías…</span>
+        } @else {
+          <span>Mostrando {{ filteredCafes().length }} de {{ cafes().length }} cafeterías</span>
+        }
         @if (searchQuery() || filterState() !== 'all') {
           <button
             type="button"
@@ -106,6 +116,22 @@
         @for (item of [1, 2, 3, 4]; track item) {
           <div class="h-96 rounded-2xl bg-border/40 animate-pulse"></div>
         }
+      </div>
+    } @else if (hasError()) {
+      <div
+        role="alert"
+        class="col-span-full flex flex-col items-center gap-3 rounded-2xl border border-border bg-surface p-10 text-center"
+      >
+        <h3 class="text-base font-bold text-text">No pudimos cargar las cafeterías</h3>
+        <p class="text-xs text-muted">Revisá tu conexión e intentalo de nuevo.</p>
+        <button
+          type="button"
+          (click)="loadCafes()"
+          class="mt-1 inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-primary-dark cursor-pointer"
+        >
+          <app-icon name="refresh-cw" [size]="14" />
+          Reintentar
+        </button>
       </div>
     } @else {
       <div class="grid grid-cols-1 gap-6 md:grid-cols-2">

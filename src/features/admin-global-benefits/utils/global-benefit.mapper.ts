@@ -36,7 +36,7 @@ export const resolveTypeId = (type: GlobalBenefitType, id?: string): string => i
 export const resolveTierId = (tier: GlobalBenefitTier, id?: string): string => id || getTierMeta(tier).defaultTierId;
 
 export function toGlobalBenefit(dto: GlobalBenefitDto): GlobalBenefit {
-  const t = dto.typeName?.toUpperCase() || '';
+  const t = dto.benefitType?.toUpperCase() || '';
   const type: GlobalBenefitType = t.includes('2X1') || t.includes('DOS') ? 'DOS_POR_UNO' : t.includes('PUNTOS') ? 'PRODUCTO_POR_PUNTOS' : t.includes('GRATIS') ? 'PRODUCTO_GRATIS_SOCIO' : 'CODIGO_DESCUENTO';
   const r = dto.tierName?.toUpperCase() || '';
   const tier: GlobalBenefitTier = r.includes('DIAMANTE') ? 'DIAMANTE' : r.includes('ORO') ? 'ORO' : r.includes('PLATA') ? 'PLATA' : r.includes('BRONCE') ? 'BRONCE' : 'ALL';

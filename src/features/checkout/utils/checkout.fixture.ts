@@ -1,6 +1,7 @@
 import { CartCafe, CartItem } from '../../cart/model/cart.model';
-import { MOCK_PRODUCTS } from '../../catalog/data/products.mock';
+import { ESPRESSO_FIXTURE, FLAT_WHITE_FIXTURE } from '../../catalog/utils/product.fixture';
 import { PurchaseDetailResponseDto, PurchaseResponseDto } from '../types/checkout.dto';
+import { ServerCart } from '../types/checkout.model';
 
 export const CHECKOUT_CLIENT_ID = 'client-001';
 export const CHECKOUT_CLIENT_NAME = 'Juan Pérez';
@@ -11,9 +12,18 @@ export const CHECKOUT_CAFE_FIXTURE: CartCafe = {
 };
 
 export const CHECKOUT_ITEMS_FIXTURE: readonly CartItem[] = [
-  { product: MOCK_PRODUCTS[0], quantity: 2 },
-  { product: MOCK_PRODUCTS[1], quantity: 1 },
+  { product: ESPRESSO_FIXTURE, quantity: 2 },
+  { product: FLAT_WHITE_FIXTURE, quantity: 1 },
 ];
+
+export const CHECKOUT_SERVER_CART_FIXTURE: ServerCart = {
+  id: 'cart-1',
+  total: 9200,
+  lines: [
+    { productId: ESPRESSO_FIXTURE.externalId, quantity: 2 },
+    { productId: FLAT_WHITE_FIXTURE.externalId, quantity: 1 },
+  ],
+};
 
 function toDetail(orderNumber: string, item: CartItem, index: number): PurchaseDetailResponseDto {
   return {

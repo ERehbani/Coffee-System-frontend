@@ -1,8 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { MOCK_PURCHASES } from '../data/purchases.mock';
 import { Purchase, Review, ReviewRequest } from '../model/purchase.model';
 
 @Injectable({
@@ -14,10 +13,6 @@ export class PurchaseService {
   private readonly reviewsUrl = `${environment.apiBaseUrl}/reviews`;
 
   getMyPurchases(): Observable<Purchase[]> {
-    if (environment.useMockApi) {
-      return of(MOCK_PURCHASES);
-    }
-
     return this.http.get<Purchase[]>(this.url);
   }
 
@@ -26,18 +21,6 @@ export class PurchaseService {
   }
 
   createReview(request: ReviewRequest): Observable<Review> {
-    if (environment.useMockApi) {
-      return of({
-        externalId: `review-${request.purchaseId}`,
-        message: request.message,
-        rating: request.rating,
-        date: new Date().toISOString(),
-        clientId: 'client-001',
-        cafeId: request.cafeId,
-        purchaseId: request.purchaseId,
-      });
-    }
-
     return this.http.post<Review>(this.reviewsUrl, request);
   }
 }

@@ -15,6 +15,17 @@ export interface CheckoutSummary {
   readonly total: number;
 }
 
+export interface ServerCartLine {
+  readonly productId: string;
+  readonly quantity: number;
+}
+
+export interface ServerCart {
+  readonly id: string;
+  readonly total: number;
+  readonly lines: readonly ServerCartLine[];
+}
+
 export interface CreatePurchaseInput {
   readonly cartId: string;
   readonly validationCode?: string;
