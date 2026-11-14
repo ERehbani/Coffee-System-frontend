@@ -80,6 +80,11 @@ export const routes: Routes = [
     loadChildren: () => import('../features/cafe-benefits/cafe-benefits.routes'),
   },
   {
+    path: 'cafe/products',
+    canActivate: [roleGuard('ROLE_CAFETERIA')],
+    loadChildren: () => import('../features/cafe-products/cafe-products.routes'),
+  },
+  {
     path: '',
     component: ClientLayout,
     canActivate: [roleGuard('ROLE_CLIENTE')],
