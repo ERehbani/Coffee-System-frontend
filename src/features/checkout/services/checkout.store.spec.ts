@@ -4,12 +4,13 @@ import { TestBed } from '@angular/core/testing';
 import { Observable, of, Subject, throwError } from 'rxjs';
 import type { Mock } from 'vitest';
 import { CartService } from '../../cart/services/cart.service';
-import { ConfirmedOrder, CreatePurchaseInput } from '../types/checkout.model';
+import { ConfirmedOrder, CreatePurchaseInput, ServerCart } from '../types/checkout.model';
 import { CheckoutCoupon } from '../types/coupon.model';
 import {
   buildPurchaseResponse,
   CHECKOUT_CAFE_FIXTURE,
   CHECKOUT_ITEMS_FIXTURE,
+  CHECKOUT_SERVER_CART_FIXTURE,
 } from '../utils/checkout.fixture';
 import { toConfirmedOrder } from '../utils/checkout.mapper';
 import {
@@ -29,14 +30,14 @@ const order: ConfirmedOrder = toConfirmedOrder(
 describe('CheckoutStore', () => {
   let store: CheckoutStore;
   let cart: CartService;
-  let findCartId: Mock<(cafeId: string) => ReturnType<CheckoutRepository['findCartId']>>;
+  let findCart: Mock<(cafeId: string) => Observable<ServerCart>>;
   let findCoupons: Mock<() => Observable<readonly CheckoutCoupon[]>>;
   let createPurchase: Mock<
     (input: CreatePurchaseInput) => ReturnType<CheckoutRepository['createPurchase']>
   >;
 
   beforeEach(() => {
-    findCartId = vi.fn(() => of('cart-1'));
+    findCart = vi.fn(() => of(CHECKOUT_SERVER_CART_FIXTURE));
     findCoupons = vi.fn(() => of(toCheckoutCoupons(CHECKOUT_COUPON_DTOS_FIXTURE)));
     createPurchase = vi.fn(() => of(order));
 
@@ -45,7 +46,7 @@ describe('CheckoutStore', () => {
         CheckoutStore,
         provideHttpClient(),
         provideHttpClientTesting(),
-        { provide: CheckoutRepository, useValue: { findCartId, findCoupons, createPurchase } },
+        { provide: CheckoutRepository, useValue: { findCart, findCoupons, createPurchase } },
       ],
     });
 
@@ -72,14 +73,14 @@ describe('CheckoutStore', () => {
 
     expect(store.summary()).toBeNull();
     expect(store.canConfirm()).toBe(false);
-    expect(findCartId).not.toHaveBeenCalled();
+    expect(findCart).not.toHaveBeenCalled();
     expect(onSuccess).not.toHaveBeenCalled();
   });
 
   it('creates the purchase from the cart of the cafe', () => {
     store.confirm(vi.fn());
 
-    expect(findCartId).toHaveBeenCalledWith('cafe-central-001');
+    expect(findCart).toHaveBeenCalledWith('cafe-central-001');
     expect(createPurchase).toHaveBeenCalledWith({ cartId: 'cart-1', validationCode: undefined });
   });
 
@@ -113,7 +114,7 @@ describe('CheckoutStore', () => {
 
     expect(store.isConfirming()).toBe(true);
     expect(store.canConfirm()).toBe(false);
-    expect(findCartId).toHaveBeenCalledOnce();
+    expect(findCart).toHaveBeenCalledOnce();
     expect(createPurchase).toHaveBeenCalledOnce();
 
     purchase.next(order);
@@ -139,7 +140,7 @@ describe('CheckoutStore', () => {
   });
 
   it('shows the error when the cart cannot be found', () => {
-    findCartId.mockReturnValue(
+    findCart.mockReturnValue(
       throwError(() => new HttpErrorResponse({ status: 404, error: 'Cart not found' })),
     );
 
@@ -148,6 +149,43 @@ describe('CheckoutStore', () => {
     expect(store.errorMessage()).toContain('No encontramos tu carrito');
     expect(createPurchase).not.toHaveBeenCalled();
     expect(cart.items().length).toBe(2);
+  });
+
+  describe('when the cart of the backend differs from the local one', () => {
+    function confirmAgainst(serverCart: ServerCart): Mock {
+      findCart.mockReturnValue(of(serverCart));
+      const onSuccess = vi.fn();
+      store.confirm(onSuccess);
+      return onSuccess;
+    }
+
+    it('does not pay when the backend has other quantities', () => {
+      const [espresso, flatWhite] = CHECKOUT_SERVER_CART_FIXTURE.lines;
+
+      const onSuccess = confirmAgainst({
+        ...CHECKOUT_SERVER_CART_FIXTURE,
+        lines: [{ ...espresso, quantity: 5 }, flatWhite],
+      });
+
+      expect(createPurchase).not.toHaveBeenCalled();
+      expect(onSuccess).not.toHaveBeenCalled();
+      expect(store.errorMessage()).toContain('Tu carrito cambió');
+    });
+
+    it('does not pay when the backend has another total', () => {
+      confirmAgainst({ ...CHECKOUT_SERVER_CART_FIXTURE, total: 9900 });
+
+      expect(createPurchase).not.toHaveBeenCalled();
+      expect(store.errorMessage()).toContain('Tu carrito cambió');
+    });
+
+    it('keeps the cart and lets the client try again', () => {
+      confirmAgainst({ ...CHECKOUT_SERVER_CART_FIXTURE, total: 9900 });
+
+      expect(store.status()).toBe('idle');
+      expect(store.canConfirm()).toBe(true);
+      expect(cart.items().length).toBe(2);
+    });
   });
 
   it('clears the previous error when confirming again', () => {

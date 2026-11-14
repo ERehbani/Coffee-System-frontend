@@ -1,53 +1,113 @@
-import { provideHttpClient } from '@angular/common/http';
-import { provideHttpClientTesting } from '@angular/common/http/testing';
-import { TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { environment } from '../../../../environments/environment';
+import { Observable, of, throwError } from 'rxjs';
+import type { Mock } from 'vitest';
+import { Purchase, Review, ReviewRequest } from '../../model/purchase.model';
+import { PurchaseService } from '../../services/purchase.service';
+import {
+  PENDING_REVIEW_PURCHASE_FIXTURE,
+  PURCHASES_FIXTURE,
+  REVIEW_FIXTURE,
+} from '../../utils/purchase.fixture';
 import { PurchaseHistory } from './purchase-history';
 
 describe('PurchaseHistory', () => {
-  const originalUseMockApi = environment.useMockApi;
+  let getMyPurchases: Mock<() => Observable<Purchase[]>>;
+  let createReview: Mock<(request: ReviewRequest) => Observable<Review>>;
 
-  afterEach(() => {
-    environment.useMockApi = originalUseMockApi;
-  });
+  function render(): ComponentFixture<PurchaseHistory> {
+    const fixture = TestBed.createComponent(PurchaseHistory);
+    fixture.detectChanges();
+    return fixture;
+  }
 
   beforeEach(async () => {
-    environment.useMockApi = true;
+    getMyPurchases = vi.fn(() => of(PURCHASES_FIXTURE));
+    createReview = vi.fn(() => of(REVIEW_FIXTURE));
     await TestBed.configureTestingModule({
       imports: [PurchaseHistory],
-      providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting()],
+      providers: [
+        provideRouter([]),
+        { provide: PurchaseService, useValue: { getMyPurchases, createReview } },
+      ],
     }).compileComponents();
   });
 
-  it('should create the purchase history component', () => {
-    const fixture = TestBed.createComponent(PurchaseHistory);
-    expect(fixture.componentInstance).toBeTruthy();
-  });
+  it('should load purchases on init', () => {
+    const component = render().componentInstance;
 
-  it('should load purchases on init', async () => {
-    const fixture = TestBed.createComponent(PurchaseHistory);
-    const component = fixture.componentInstance;
-    fixture.detectChanges();
-    await fixture.whenStable();
-
-    expect(component.purchases().length).toBeGreaterThan(0);
+    expect(component.purchases()).toEqual(PURCHASES_FIXTURE);
     expect(component.isLoading()).toBe(false);
+    expect(component.hasError()).toBe(false);
   });
 
-  it('should mark the purchase as reviewed after sending the review', async () => {
-    const fixture = TestBed.createComponent(PurchaseHistory);
-    const component = fixture.componentInstance;
-    fixture.detectChanges();
-    await fixture.whenStable();
+  it('lists the newest purchase first and adds up the totals', () => {
+    const component = render().componentInstance;
 
-    const purchase = component.purchases().find((o) => o.status === 'CONFIRMED' && !o.reviewed)!;
+    expect(component.sortedPurchases().map((purchase) => purchase.externalId)).toEqual([
+      'purchase-002',
+      'purchase-001',
+    ]);
+    expect(component.totalSpent()).toBe(10600);
+    expect(component.totalPoints()).toBe(100);
+  });
+
+  it('should mark the purchase as reviewed after sending the review', () => {
+    const component = render().componentInstance;
+    const purchase = PENDING_REVIEW_PURCHASE_FIXTURE;
+
     component.openReview(purchase.externalId);
     component.submitReview(purchase, { rating: 5, message: 'Excelente atención' });
 
-    const updated = component.purchases().find((o) => o.externalId === purchase.externalId)!;
-    expect(updated.reviewed).toBe(true);
+    const updated = component.purchases().find((p) => p.externalId === purchase.externalId);
+    expect(createReview).toHaveBeenCalledWith({
+      cafeId: purchase.cafeId,
+      purchaseId: purchase.externalId,
+      rating: 5,
+      message: 'Excelente atención',
+    });
+    expect(updated?.reviewed).toBe(true);
     expect(component.reviewingPurchaseId()).toBeNull();
     expect(component.successMessage()).toContain(purchase.cafeName);
+  });
+
+  it('keeps the review open and explains it when the backend rejects it', () => {
+    createReview.mockReturnValueOnce(throwError(() => new Error('400')));
+    const component = render().componentInstance;
+    const purchase = PENDING_REVIEW_PURCHASE_FIXTURE;
+
+    component.openReview(purchase.externalId);
+    component.submitReview(purchase, { rating: 5, message: 'Excelente atención' });
+
+    expect(component.reviewError()).toBe('No pudimos enviar tu reseña. Intentá de nuevo.');
+    expect(component.reviewingPurchaseId()).toBe(purchase.externalId);
+    expect(component.isSubmitting()).toBe(false);
+  });
+
+  describe('when the purchases fail to load', () => {
+    beforeEach(() => getMyPurchases.mockReturnValueOnce(throwError(() => new Error('500'))));
+
+    it('shows an error instead of the empty history', () => {
+      const fixture = render();
+      const element: HTMLElement = fixture.nativeElement;
+
+      expect(fixture.componentInstance.hasError()).toBe(true);
+      expect(element.querySelector('[role="alert"]')?.textContent).toContain(
+        'No pudimos cargar tus compras',
+      );
+      expect(element.textContent).not.toContain('Todavía no hiciste compras');
+    });
+
+    it('loads the purchases when the client retries', () => {
+      const fixture = render();
+      const element: HTMLElement = fixture.nativeElement;
+
+      element.querySelector<HTMLButtonElement>('[role="alert"] button')!.click();
+      fixture.detectChanges();
+
+      expect(getMyPurchases).toHaveBeenCalledTimes(2);
+      expect(fixture.componentInstance.hasError()).toBe(false);
+      expect(element.querySelectorAll('app-purchase-card').length).toBe(PURCHASES_FIXTURE.length);
+    });
   });
 });

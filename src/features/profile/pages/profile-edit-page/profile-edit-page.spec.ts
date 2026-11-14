@@ -74,7 +74,6 @@ describe('ProfileEditPage', () => {
       firstName: 'Ana',
       lastName: 'Silva',
       phoneNumber: '1198765432',
-      email: 'ana.silva@example.com',
       avatarUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330',
     };
 

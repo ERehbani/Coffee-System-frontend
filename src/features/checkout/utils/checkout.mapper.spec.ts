@@ -4,9 +4,38 @@ import {
   CHECKOUT_CAFE_FIXTURE,
   CHECKOUT_ITEMS_FIXTURE,
 } from './checkout.fixture';
-import { toCheckoutSummary, toConfirmedOrder, toCreatePurchaseRequestDto } from './checkout.mapper';
+import {
+  toCheckoutSummary,
+  toConfirmedOrder,
+  toCreatePurchaseRequestDto,
+  toServerCart,
+} from './checkout.mapper';
 
 describe('checkout mapper', () => {
+  describe('toServerCart', () => {
+    it('keeps the id, the total and the quantity of each product', () => {
+      const cart = toServerCart({
+        externalId: 'cart-1',
+        clientid: 'client-001',
+        cafeid: 'cafe-central-001',
+        totalPrice: 9200,
+        products: [
+          { productId: 'prod-central-001', productName: 'Espresso Doble', quantity: 2 },
+          { productId: 'prod-central-002', productName: 'Flat White', quantity: 1 },
+        ],
+      });
+
+      expect(cart).toEqual({
+        id: 'cart-1',
+        total: 9200,
+        lines: [
+          { productId: 'prod-central-001', quantity: 2 },
+          { productId: 'prod-central-002', quantity: 1 },
+        ],
+      });
+    });
+  });
+
   describe('toCheckoutSummary', () => {
     it('lists each product with its quantity, unit price and subtotal', () => {
       const summary = toCheckoutSummary(CHECKOUT_CAFE_FIXTURE, CHECKOUT_ITEMS_FIXTURE);

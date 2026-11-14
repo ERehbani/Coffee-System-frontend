@@ -8,8 +8,10 @@ import { buildProfileDashboardFixture, buildTierDetailFixture } from './profile.
 import {
   toProfileDashboard,
   toRedeemedBenefit,
+  toSavedClientProfile,
   toTierBenefits,
   toTierDetail,
+  toUpdateClientProfileDto,
   toUsedBenefits,
 } from './profile.mapper';
 
@@ -21,6 +23,7 @@ const redemption = (overrides: Partial<RedemptionDto>): RedemptionDto => ({
   validationCode: 'CODE',
   benefitName: 'Beneficio',
   cafeName: 'Cafe Central',
+  cafeId: 'cafe-central-001',
   ...overrides,
 });
 
@@ -29,12 +32,74 @@ describe('toUsedBenefits', () => {
     const result = toUsedBenefits([
       redemption({ externalId: 'old', date: '2026-09-01T10:00:00' }),
       redemption({ externalId: 'active', state: true }),
-      redemption({ externalId: 'new', date: '2026-10-10T10:00:00', cafeName: null }),
+      redemption({ externalId: 'new', date: '2026-10-10T10:00:00' }),
     ]);
 
     expect(result.map((benefit) => benefit.id)).toEqual(['new', 'old']);
-    expect(result[0].cafeName).toBeNull();
+    expect(result[0].cafeName).toBe('Cafe Central');
     expect(result[0].redeemedAt).toEqual(new Date('2026-10-10T10:00:00'));
+  });
+
+  it('has no cafe for a global benefit, which the backend names "Global" without a cafe id', () => {
+    const [result] = toUsedBenefits([redemption({ cafeName: 'Global', cafeId: null })]);
+
+    expect(result.cafeName).toBeNull();
+  });
+});
+
+describe('toSavedClientProfile', () => {
+  it('maps the field names of the backend client to the profile', () => {
+    const saved = toSavedClientProfile({
+      externalId: 'client-001',
+      name: 'Mateo',
+      lastName: 'Gómez',
+      phone: '1199887766',
+      profilePhoto: 'https://example.com/avatar.jpg',
+    });
+
+    expect(saved).toEqual({
+      id: 'client-001',
+      firstName: 'Mateo',
+      lastName: 'Gómez',
+      phoneNumber: '1199887766',
+      avatarUrl: 'https://example.com/avatar.jpg',
+    });
+  });
+
+  it('maps the missing fields to empty values', () => {
+    const saved = toSavedClientProfile({
+      externalId: 'client-001',
+      name: 'Mateo',
+      lastName: null,
+      phone: null,
+      profilePhoto: '',
+    });
+
+    expect(saved.lastName).toBe('');
+    expect(saved.phoneNumber).toBe('');
+    expect(saved.avatarUrl).toBeNull();
+  });
+});
+
+describe('toUpdateClientProfileDto', () => {
+  const input = {
+    firstName: 'Mateo',
+    lastName: 'Gómez',
+    phoneNumber: '1199887766',
+    avatarUrl: 'https://example.com/avatar.jpg',
+  };
+
+  it('sends the field names the backend expects, without the email', () => {
+    expect(toUpdateClientProfileDto(input)).toEqual({
+      name: 'Mateo',
+      lastName: 'Gómez',
+      phone: '1199887766',
+      profilePhoto: 'https://example.com/avatar.jpg',
+    });
+  });
+
+  it('sends an empty photo to remove it, because the backend ignores a null one', () => {
+    expect(toUpdateClientProfileDto({ ...input, avatarUrl: null }).profilePhoto).toBe('');
   });
 });
 
@@ -237,10 +302,18 @@ describe('toTierDetail', () => {
     expect(detail.nextTier).toBeNull();
   });
 
-  it('rejects an unknown tier name', () => {
-    expect(() => toTierDetail(detailDto({ tier: 'PLATINO' }))).toThrowError(
-      'Unknown loyalty tier code: PLATINO',
+  it('keeps the name of a tier created by the admin', () => {
+    const detail = toTierDetail(
+      detailDto({
+        tier: ' Platino ',
+        nextTier: 'Leyenda',
+        levels: [{ tier: 'Platino', threshold: 9000, benefits: [] }],
+      }),
     );
+
+    expect(detail.tier).toBe('Platino');
+    expect(detail.nextTier).toBe('Leyenda');
+    expect(detail.levels[0].tier).toBe('Platino');
   });
 });
 
@@ -320,7 +393,8 @@ describe('toRedeemedBenefit', () => {
       state: true,
       validationCode: 'VLD-0009-ABCD',
       benefitName: 'Café de cortesía',
-      cafeName: null,
+      cafeName: 'Global',
+      cafeId: null,
     });
 
     expect(result).toEqual({

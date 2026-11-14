@@ -2,7 +2,7 @@ import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angula
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { Subject, merge, of } from 'rxjs';
+import { Subject, Subscription, merge, of } from 'rxjs';
 import { catchError, distinctUntilChanged, map, switchMap, tap } from 'rxjs/operators';
 import { Icon } from '../../../../shared/components/icon/icon';
 import { CartButton } from '../../../cart/components/cart-button/cart-button';
@@ -29,13 +29,19 @@ export class CatalogPage implements OnInit {
   readonly cartService = inject(CartService);
 
   private readonly manualCafeId$ = new Subject<string>();
+  private catalogSubscription?: Subscription;
 
   cafes = signal<Cafe[]>([]);
   selectedCafe = signal<Cafe | null>(null);
   isLoadingCafes = signal(true);
+  hasCafesError = signal(false);
 
   products = signal<Product[]>([]);
   isLoadingProducts = signal(false);
+  hasProductsError = signal(false);
+
+  isLoadingMenu = computed(() => this.isLoadingCafes() || this.isLoadingProducts());
+  showCafeSkeletons = computed(() => this.isLoadingCafes() && this.cafes().length === 0);
 
   selectedCategory = signal('Todas');
   productSearchQuery = signal('');
@@ -77,7 +83,16 @@ export class CatalogPage implements OnInit {
   });
 
   ngOnInit(): void {
-    this.cafeService
+    this.loadCatalog();
+  }
+
+  loadCatalog(): void {
+    this.catalogSubscription?.unsubscribe();
+    this.isLoadingCafes.set(true);
+    this.hasCafesError.set(false);
+    this.hasProductsError.set(false);
+
+    this.catalogSubscription = this.cafeService
       .getAll()
       .pipe(
         tap((cafes) => {
@@ -99,7 +114,9 @@ export class CatalogPage implements OnInit {
                 this.selectedCafe.set(cafe);
                 this.selectedCategory.set('Todas');
                 this.productSearchQuery.set('');
+                this.products.set([]);
                 this.isLoadingProducts.set(true);
+                this.hasProductsError.set(false);
               }
             }),
             switchMap((cafe) => {
@@ -109,6 +126,7 @@ export class CatalogPage implements OnInit {
               return this.productService.getProductsByCafe(cafe.externalId).pipe(
                 catchError((error) => {
                   console.error('Error loading products:', error);
+                  this.hasProductsError.set(true);
                   return of([]);
                 })
               );
@@ -124,6 +142,7 @@ export class CatalogPage implements OnInit {
         },
         error: (err) => {
           console.error('Error loading catalog data:', err);
+          this.hasCafesError.set(true);
           this.isLoadingCafes.set(false);
           this.isLoadingProducts.set(false);
         },

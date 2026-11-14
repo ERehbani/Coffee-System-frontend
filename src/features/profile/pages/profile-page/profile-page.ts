@@ -32,6 +32,10 @@ export class ProfilePage {
   protected readonly store = inject(ProfileStore);
   private readonly router = inject(Router);
 
+  constructor() {
+    this.store.reload();
+  }
+
   protected readonly activeRedemptionsBadge = computed(() => {
     const count = this.store.activeRedemptions().length;
     if (count === 0) {

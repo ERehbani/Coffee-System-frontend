@@ -1,10 +1,14 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { of } from 'rxjs';
 import { signInForTest } from '../../../auth/utils/auth.fixture';
 import { CafeProfileRepository } from '../../services/cafe-profile.repository';
 import { CafeProfileStore } from '../../services/cafe-profile.store';
-import { MockCafeProfileRepository } from '../../services/mock-cafe-profile.repository';
+import { CAFE_PROFILE_FIXTURE } from '../../utils/cafe-profile.fixture';
+import { toCafeProfile } from '../../utils/cafe-profile.mapper';
 import { CafeProfilePage } from './cafe-profile-page';
+
+const cafeProfile = toCafeProfile(CAFE_PROFILE_FIXTURE);
 
 describe('CafeProfilePage', () => {
   let fixture: ComponentFixture<CafeProfilePage>;
@@ -20,7 +24,10 @@ describe('CafeProfilePage', () => {
       imports: [CafeProfilePage],
       providers: [
         provideRouter([]),
-        { provide: CafeProfileRepository, useClass: MockCafeProfileRepository },
+        {
+          provide: CafeProfileRepository,
+          useValue: { getProfile: () => of(cafeProfile), updateProfile: () => of(cafeProfile) },
+        },
         CafeProfileStore,
       ],
     }).compileComponents();
@@ -51,6 +58,13 @@ describe('CafeProfilePage', () => {
     );
 
     expect(validatorLink?.getAttribute('href')).toBe('/cafe/validate');
+  });
+
+  it('shows the profile of the cafe once it is loaded', async () => {
+    await setup(['ROLE_CAFETERIA']);
+
+    expect(root.textContent).toContain(cafeProfile.name);
+    expect(root.textContent).toContain(cafeProfile.address);
   });
 
   it('shows the logout button', async () => {

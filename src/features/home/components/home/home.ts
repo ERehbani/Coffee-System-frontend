@@ -1,4 +1,4 @@
-import { Component, OnInit, computed, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { Icon } from '../../../../shared/components/icon/icon';
@@ -14,8 +14,11 @@ import { CafeCard } from '../cafe-card/cafe-card';
   host: { class: 'block' },
 })
 export class Home implements OnInit {
+  private readonly cafeService = inject(CafeService);
+
   cafes = signal<Cafe[]>([]);
   isLoading = signal(true);
+  hasError = signal(false);
   searchQuery = signal('');
   filterState = signal<'all' | 'open'>('all');
 
@@ -43,9 +46,14 @@ export class Home implements OnInit {
     return this.cafes().filter((c) => c.state).length;
   });
 
-  constructor(private cafeService: CafeService) {}
-
   ngOnInit(): void {
+    this.loadCafes();
+  }
+
+  loadCafes(): void {
+    this.isLoading.set(true);
+    this.hasError.set(false);
+
     this.cafeService.getAll().subscribe({
       next: (data) => {
         this.cafes.set(data);
@@ -53,6 +61,7 @@ export class Home implements OnInit {
       },
       error: (error) => {
         console.error('error loading cafes:', error);
+        this.hasError.set(true);
         this.isLoading.set(false);
       },
     });

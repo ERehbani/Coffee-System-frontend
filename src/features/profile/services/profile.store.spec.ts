@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { of, throwError } from 'rxjs';
+import { of, Subject, throwError } from 'rxjs';
 import {
   ActiveRedemption,
   ClientProfile,
@@ -43,15 +43,7 @@ describe('ProfileStore', () => {
   beforeEach(() => {
     mockRepository = {
       getDashboard: () => of(mockDashboard),
-      updateProfile: (id: string, input: UpdateClientProfileInput) =>
-        of({
-          id,
-          firstName: input.firstName,
-          lastName: input.lastName,
-          email: input.email,
-          phoneNumber: input.phoneNumber,
-          avatarUrl: input.avatarUrl,
-        }),
+      updateProfile: vi.fn((id: string, input: UpdateClientProfileInput) => of({ id, ...input })),
     };
 
     TestBed.configureTestingModule({
@@ -72,13 +64,13 @@ describe('ProfileStore', () => {
     const updateInput: UpdateClientProfileInput = {
       firstName: 'Mateo',
       lastName: 'Gómez',
-      email: 'mateo.gomez@test.com',
       phoneNumber: '1199887766',
       avatarUrl: 'https://example.com/new-avatar.jpg',
     };
 
     store.saveProfile(updateInput);
 
+    expect(mockRepository.updateProfile).toHaveBeenCalledWith('client-001', updateInput);
     expect(store.isSaving()).toBe(false);
     expect(store.successMessage()).toBe('¡Tus datos personales se han actualizado correctamente!');
     expect(store.errorMessage()).toBeNull();
@@ -88,11 +80,42 @@ describe('ProfileStore', () => {
     expect(store.dashboard()?.profile.firstName).toBe('Mateo');
   });
 
+  it('keeps the email of the account after saving, since the backend does not return it', () => {
+    store.saveProfile({
+      firstName: 'Mateo',
+      lastName: 'Gómez',
+      phoneNumber: '1199887766',
+      avatarUrl: null,
+    });
+
+    expect(store.profile()?.email).toBe('juan.perez@example.com');
+    expect(store.dashboard()?.profile.email).toBe('juan.perez@example.com');
+  });
+
+  it('does not save with an invented client id while the profile is not loaded', () => {
+    mockRepository.getDashboard = () => throwError(() => new Error('500'));
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [ProfileStore, { provide: ProfileRepository, useValue: mockRepository }],
+    });
+    store = TestBed.inject(ProfileStore);
+    TestBed.flushEffects();
+
+    store.saveProfile({
+      firstName: 'Mateo',
+      lastName: 'Gómez',
+      phoneNumber: '1199887766',
+      avatarUrl: null,
+    });
+
+    expect(mockRepository.updateProfile).not.toHaveBeenCalled();
+    expect(store.isSaving()).toBe(false);
+  });
+
   it('should dismiss successMessage', () => {
     store.saveProfile({
       firstName: 'Mateo',
       lastName: 'Gómez',
-      email: 'mateo@test.com',
       phoneNumber: '1199887766',
       avatarUrl: null,
     });
@@ -108,7 +131,6 @@ describe('ProfileStore', () => {
     store.saveProfile({
       firstName: 'Error',
       lastName: 'User',
-      email: 'err@test.com',
       phoneNumber: '1100000000',
       avatarUrl: null,
     });
@@ -116,6 +138,43 @@ describe('ProfileStore', () => {
     expect(store.isSaving()).toBe(false);
     expect(store.errorMessage()).toBe('Ocurrió un error al intentar guardar los cambios.');
     expect(store.successMessage()).toBeNull();
+  });
+
+  describe('reloading the dashboard', () => {
+    async function settle(): Promise<void> {
+      TestBed.flushEffects();
+      await Promise.resolve();
+      TestBed.flushEffects();
+    }
+
+    it('reports loading again until the fresh dashboard arrives', async () => {
+      const freshDashboard = new Subject<ProfileDashboard>();
+      mockRepository.getDashboard = () => freshDashboard;
+      expect(store.status()).toBe('ready');
+
+      store.reload();
+      await settle();
+      expect(store.status()).toBe('loading');
+
+      freshDashboard.next({
+        ...mockDashboard,
+        loyalty: { ...mockDashboard.loyalty, availablePoints: 990 },
+      });
+      freshDashboard.complete();
+      await settle();
+
+      expect(store.status()).toBe('ready');
+      expect(store.dashboard()?.loyalty.availablePoints).toBe(990);
+    });
+
+    it('reports an error when the reload fails', async () => {
+      mockRepository.getDashboard = () => throwError(() => new Error('500'));
+
+      store.reload();
+      await settle();
+
+      expect(store.status()).toBe('error');
+    });
   });
 
   it('reports no days until expiry for a redemption that never expires', () => {

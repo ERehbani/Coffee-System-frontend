@@ -1,0 +1,9 @@
+<div
+  class="navigation-progress"
+  [class.is-loading]="isLoading()"
+  role="progressbar"
+  aria-label="Cargando"
+  [attr.aria-hidden]="isLoading() ? null : 'true'"
+>
+  <span class="navigation-progress-bar"></span>
+</div>

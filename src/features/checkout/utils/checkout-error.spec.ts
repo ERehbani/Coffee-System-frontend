@@ -1,5 +1,9 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { CHECKOUT_ERROR_MESSAGE, toCheckoutErrorMessage } from './checkout-error';
+import {
+  CartMismatchError,
+  CHECKOUT_ERROR_MESSAGE,
+  toCheckoutErrorMessage,
+} from './checkout-error';
 
 describe('toCheckoutErrorMessage', () => {
   const emptyCartMessage =
@@ -104,6 +108,12 @@ describe('toCheckoutErrorMessage', () => {
     );
     expect(toCheckoutErrorMessage(new HttpErrorResponse({ status: 500 }))).toBe(
       CHECKOUT_ERROR_MESSAGE,
+    );
+  });
+
+  it('explains a local cart that no longer matches the cart of the backend', () => {
+    expect(toCheckoutErrorMessage(new CartMismatchError())).toBe(
+      'Tu carrito cambió desde que lo armaste. Vacialo y volvé a agregar los productos para ver el total actualizado.',
     );
   });
 

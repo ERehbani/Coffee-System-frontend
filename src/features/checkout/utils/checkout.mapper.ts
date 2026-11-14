@@ -1,4 +1,4 @@
-import { CartCafe, CartItem } from '../../cart/model/cart.model';
+import { CartCafe, CartItem, CartResponse } from '../../cart/model/cart.model';
 import {
   CreatePurchaseRequestDto,
   PurchaseDetailResponseDto,
@@ -12,6 +12,7 @@ import {
   CreatePurchaseInput,
   OrderLine,
   OrderStatus,
+  ServerCart,
 } from '../types/checkout.model';
 
 const ORDER_STATUS_BY_DTO: Record<PurchaseStatusDto, OrderStatus> = {
@@ -44,6 +45,14 @@ export function toCheckoutSummary(
     cafeName: cafe.name,
     lines,
     total: lines.reduce((total, line) => total + line.subtotal, 0),
+  };
+}
+
+export function toServerCart(dto: CartResponse): ServerCart {
+  return {
+    id: dto.externalId,
+    total: dto.totalPrice,
+    lines: dto.products.map((item) => ({ productId: item.productId, quantity: item.quantity })),
   };
 }
 

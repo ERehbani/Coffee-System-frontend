@@ -91,7 +91,13 @@
   </div>
 
   <div class="overflow-hidden rounded-3xl border border-border bg-surface shadow-xs">
-    @if (service.filteredCategories().length === 0) {
+    @if (service.loading() && service.categories().length === 0) {
+      <div class="space-y-3 p-6" aria-busy="true">
+        @for (item of [1, 2, 3, 4]; track item) {
+          <div class="h-10 rounded-xl bg-border/40 animate-pulse"></div>
+        }
+      </div>
+    } @else if (service.filteredCategories().length === 0) {
       <div class="flex flex-col items-center justify-center p-12 text-center">
         <div class="flex size-14 items-center justify-center rounded-2xl bg-primary/10 text-primary mb-3">
           <app-icon name="tag" [size]="24" />

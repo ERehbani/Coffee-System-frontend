@@ -3,7 +3,6 @@ import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
-import { environment } from '../environments/environment';
 import { signInForTest, signOutForTest } from '../features/auth/utils/auth.fixture';
 import { ADMIN_NAV_ITEMS } from '../shared/components/admin-layout/admin-nav';
 import { routes } from './app.routes';
@@ -41,18 +40,12 @@ describe('register route', () => {
 describe('admin routes', () => {
   let harness: RouterTestingHarness;
   let router: Router;
-  const originalUseMockApi = environment.useMockApi;
 
   const page = () => harness.fixture.nativeElement as HTMLElement;
 
-  afterEach(() => {
-    environment.useMockApi = originalUseMockApi;
-  });
-
   beforeEach(async () => {
-    environment.useMockApi = true;
     await TestBed.configureTestingModule({
-      providers: [provideRouter(routes)],
+      providers: [provideRouter(routes), provideHttpClient(), provideHttpClientTesting()],
     }).compileComponents();
     signInForTest(['ROLE_SUPERADMIN']);
 
@@ -137,7 +130,6 @@ describe('admin routes', () => {
 describe('cafe routes', () => {
   let harness: RouterTestingHarness;
   let router: Router;
-  const originalUseMockApi = environment.useMockApi;
 
   const page = () => harness.fixture.nativeElement as HTMLElement;
 
@@ -149,14 +141,9 @@ describe('cafe routes', () => {
   }
 
   beforeEach(async () => {
-    environment.useMockApi = true;
     await TestBed.configureTestingModule({
-      providers: [provideRouter(routes)],
+      providers: [provideRouter(routes), provideHttpClient(), provideHttpClientTesting()],
     }).compileComponents();
-  });
-
-  afterEach(() => {
-    environment.useMockApi = originalUseMockApi;
   });
 
   it('renders the coupon validator for a cafe', async () => {
@@ -177,16 +164,10 @@ describe('cafe routes', () => {
 describe('checkout route', () => {
   let harness: RouterTestingHarness;
   let router: Router;
-  const originalUseMockApi = environment.useMockApi;
 
   const page = () => harness.fixture.nativeElement as HTMLElement;
 
-  afterEach(() => {
-    environment.useMockApi = originalUseMockApi;
-  });
-
   async function openCheckoutAs(roles: string[]): Promise<void> {
-    environment.useMockApi = true;
     await TestBed.configureTestingModule({
       providers: [provideRouter(routes), provideHttpClient(), provideHttpClientTesting()],
     }).compileComponents();

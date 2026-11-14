@@ -69,19 +69,17 @@ export class CartService {
     this.cafe.set({ externalId: cafe.externalId, name: cafe.name });
     this.saveToStorage();
 
-    if (!environment.useMockApi) {
-      this.http
-        .post<CartResponse>(`${this.url}/${cafe.externalId}/items`, {
-          productId: product.externalId,
-          quantity: 1,
-        })
-        .subscribe({
-          error: (error) => {
-            console.error('error adding product to cart:', error);
-            this.restore(previousItems, previousCafe);
-          },
-        });
-    }
+    this.http
+      .post<CartResponse>(`${this.url}/${cafe.externalId}/items`, {
+        productId: product.externalId,
+        quantity: 1,
+      })
+      .subscribe({
+        error: (error) => {
+          console.error('error adding product to cart:', error);
+          this.restore(previousItems, previousCafe);
+        },
+      });
 
     return true;
   }
@@ -91,13 +89,7 @@ export class CartService {
       return false;
     }
 
-    this.items.set([]);
-    this.cafe.set(null);
-    this.saveToStorage();
-
-    if (environment.useMockApi) {
-      return this.addProduct(product, cafe);
-    }
+    this.clearLocal();
 
     this.http.delete<void>(`${this.url}/clear`).subscribe({
       next: () => this.addProduct(product, cafe),
@@ -136,10 +128,6 @@ export class CartService {
     }
     this.saveToStorage();
 
-    if (environment.useMockApi) {
-      return;
-    }
-
     this.http.delete<CartResponse>(`${this.url}/items/${productId}`).subscribe({
       error: (error) => {
         console.error('error removing product from cart:', error);
@@ -157,10 +145,6 @@ export class CartService {
   clear(): void {
     this.clearLocal();
 
-    if (environment.useMockApi) {
-      return;
-    }
-
     this.http.delete<void>(`${this.url}/clear`).subscribe({
       error: (error) => console.error('error clearing cart:', error),
     });
@@ -174,10 +158,6 @@ export class CartService {
 
     this.items.set(list);
     this.saveToStorage();
-
-    if (environment.useMockApi) {
-      return;
-    }
 
     this.http.put<CartResponse>(`${this.url}/items/${productId}`, { quantity: quantity }).subscribe({
       error: (error) => {
