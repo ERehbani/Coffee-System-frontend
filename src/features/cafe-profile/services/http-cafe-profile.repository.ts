@@ -12,9 +12,10 @@ export class HttpCafeProfileRepository implements CafeProfileRepository {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = environment.apiBaseUrl;
 
-  getProfile(externalId = 'cafe-central-001'): Observable<CafeProfile> {
+  getProfile(externalId?: string): Observable<CafeProfile> {
+    const url = externalId ? `${this.baseUrl}/cafes/${externalId}` : `${this.baseUrl}/cafes/me`;
     return this.http
-      .get<CafeResponseDto>(`${this.baseUrl}/cafes/${externalId}`)
+      .get<CafeResponseDto>(url)
       .pipe(map(toCafeProfile));
   }
 
