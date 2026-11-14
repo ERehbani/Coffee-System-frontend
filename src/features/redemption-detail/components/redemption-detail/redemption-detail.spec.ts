@@ -1,26 +1,24 @@
-import { provideHttpClient } from '@angular/common/http';
-import { provideHttpClientTesting } from '@angular/common/http/testing';
-import { TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
-import { environment } from '../../../../environments/environment';
+import { Observable, of, throwError } from 'rxjs';
+import { Redemption } from '../../model/redemption.model';
+import { RedemptionService } from '../../services/redemption.service';
+import { READY_REDEMPTION_FIXTURE, USED_REDEMPTION_FIXTURE } from '../../utils/redemption.fixture';
 import { RedemptionDetail } from './redemption-detail';
 
 describe('RedemptionDetail', () => {
-  const originalUseMockApi = environment.useMockApi;
-
-  afterEach(() => {
-    environment.useMockApi = originalUseMockApi;
-  });
-
-  async function createComponent(id: string) {
-    environment.useMockApi = true;
+  async function createComponent(
+    result: Observable<Redemption | undefined>,
+  ): Promise<ComponentFixture<RedemptionDetail>> {
     await TestBed.configureTestingModule({
       imports: [RedemptionDetail],
       providers: [
         provideRouter([]),
-        provideHttpClient(),
-        provideHttpClientTesting(),
-        { provide: ActivatedRoute, useValue: { snapshot: { paramMap: convertToParamMap({ id }) } } },
+        { provide: RedemptionService, useValue: { getById: () => result } },
+        {
+          provide: ActivatedRoute,
+          useValue: { snapshot: { paramMap: convertToParamMap({ id: 'redemption-001' }) } },
+        },
       ],
     }).compileComponents();
 
@@ -32,7 +30,7 @@ describe('RedemptionDetail', () => {
   }
 
   it('should show the qr, the code, the conditions and the expiry date', async () => {
-    const fixture = await createComponent('redemption-001');
+    const fixture = await createComponent(of(READY_REDEMPTION_FIXTURE));
     const component = fixture.componentInstance;
     const element: HTMLElement = fixture.nativeElement;
 
@@ -47,7 +45,7 @@ describe('RedemptionDetail', () => {
   });
 
   it('should not show the qr when the redemption was already used', async () => {
-    const fixture = await createComponent('redemption-104');
+    const fixture = await createComponent(of(USED_REDEMPTION_FIXTURE));
     const element: HTMLElement = fixture.nativeElement;
 
     expect(fixture.componentInstance.isReadyToUse()).toBe(false);
@@ -56,10 +54,19 @@ describe('RedemptionDetail', () => {
   });
 
   it('should show a not found message when the redemption does not exist', async () => {
-    const fixture = await createComponent('missing');
+    const fixture = await createComponent(of(undefined));
     const element: HTMLElement = fixture.nativeElement;
 
     expect(fixture.componentInstance.redemption()).toBeNull();
     expect(element.textContent).toContain('No encontramos este canje');
+  });
+
+  it('should offer to retry when the redemption cannot be loaded', async () => {
+    const fixture = await createComponent(throwError(() => new Error('500')));
+    const element: HTMLElement = fixture.nativeElement;
+
+    expect(fixture.componentInstance.hasError()).toBe(true);
+    expect(element.textContent).toContain('No pudimos cargar tu canje');
+    expect(element.textContent).toContain('Reintentar');
   });
 });

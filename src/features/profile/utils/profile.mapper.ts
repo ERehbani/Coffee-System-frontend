@@ -6,20 +6,21 @@ import {
   TierBenefitDto,
   TierDetailDto,
   UpdateClientProfileDto,
+  UpdatedClientDto,
 } from '../types/profile.dto';
 import {
   ClientProfile,
   LoyaltyTier,
   ProfileDashboard,
   RedeemedBenefit,
+  SavedClientProfile,
   TierBenefit,
   TierDetail,
   UpdateClientProfileInput,
   UsedBenefit,
 } from '../types/profile.model';
 
-/** Accepts the backend tier names (Spanish) and the English codes, in any letter case. */
-const LOYALTY_TIERS_BY_CODE: ReadonlyMap<string, LoyaltyTier> = new Map<string, LoyaltyTier>([
+const KNOWN_TIERS_BY_CODE: ReadonlyMap<string, LoyaltyTier> = new Map<string, LoyaltyTier>([
   ['bronce', 'bronze'],
   ['plata', 'silver'],
   ['oro', 'gold'],
@@ -31,11 +32,8 @@ const LOYALTY_TIERS_BY_CODE: ReadonlyMap<string, LoyaltyTier> = new Map<string, 
 ]);
 
 function toLoyaltyTier(code: LoyaltyTierCodeDto): LoyaltyTier {
-  const tier = LOYALTY_TIERS_BY_CODE.get(code.toLowerCase());
-  if (!tier) {
-    throw new Error(`Unknown loyalty tier code: ${code}`);
-  }
-  return tier;
+  const name = code.trim();
+  return KNOWN_TIERS_BY_CODE.get(name.toLowerCase()) ?? name;
 }
 
 function toDate(isoDate: string): Date {
@@ -48,7 +46,6 @@ function toDate(isoDate: string): Date {
 
 const CALENDAR_DAY = /^(\d{4})-(\d{2})-(\d{2})$/;
 
-/** A yyyy-MM-dd day is read in local time: `new Date('2026-12-31')` would be UTC midnight. */
 function toCalendarDay(isoDay: string): Date {
   const match = CALENDAR_DAY.exec(isoDay);
   if (!match) {
@@ -66,7 +63,6 @@ function isCalendarDay(isoDate: string): boolean {
   return CALENDAR_DAY.test(isoDate);
 }
 
-/** The end of a calendar day: a benefit ending on a day is valid through that whole day. */
 function toEndOfDay(isoDay: string): Date {
   const match = CALENDAR_DAY.exec(isoDay);
   if (!match) {
@@ -85,7 +81,7 @@ function toOptionalUrl(url: string | null | undefined): string | null {
   return trimmed ? trimmed : null;
 }
 
-export function toClientProfile(dto: ClientProfileDto): ClientProfile {
+function toClientProfile(dto: ClientProfileDto): ClientProfile {
   return {
     id: dto.id,
     firstName: dto.firstName,
@@ -96,14 +92,27 @@ export function toClientProfile(dto: ClientProfileDto): ClientProfile {
   };
 }
 
+export function toSavedClientProfile(dto: UpdatedClientDto): SavedClientProfile {
+  return {
+    id: dto.externalId,
+    firstName: dto.name,
+    lastName: dto.lastName ?? '',
+    phoneNumber: dto.phone ?? '',
+    avatarUrl: toOptionalUrl(dto.profilePhoto),
+  };
+}
+
 export function toUpdateClientProfileDto(input: UpdateClientProfileInput): UpdateClientProfileDto {
   return {
-    firstName: input.firstName,
+    name: input.firstName,
     lastName: input.lastName,
-    email: input.email,
-    phoneNumber: input.phoneNumber,
-    avatarUrl: input.avatarUrl,
+    phone: input.phoneNumber,
+    profilePhoto: input.avatarUrl ?? '',
   };
+}
+
+function toRedemptionCafeName(dto: RedemptionDto): string | null {
+  return dto.cafeId ? dto.cafeName : null;
 }
 
 export function toProfileDashboard(dto: ProfileDashboardDto): ProfileDashboard {
@@ -176,7 +185,7 @@ export function toUsedBenefits(dtos: readonly RedemptionDto[]): readonly UsedBen
     .map((dto) => ({
       id: dto.externalId,
       benefitName: dto.benefitName,
-      cafeName: dto.cafeName,
+      cafeName: toRedemptionCafeName(dto),
       redeemedAt: toDate(dto.date),
       usedPoints: dto.usedPoints,
     }))
@@ -200,7 +209,7 @@ export function toRedeemedBenefit(dto: RedemptionDto): RedeemedBenefit {
     id: dto.externalId,
     validationCode: dto.validationCode,
     benefitName: dto.benefitName,
-    cafeName: dto.cafeName,
+    cafeName: toRedemptionCafeName(dto),
     usedPoints: dto.usedPoints,
     redeemedAt: toDate(dto.date),
   };

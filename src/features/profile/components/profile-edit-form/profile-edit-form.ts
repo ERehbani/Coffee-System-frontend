@@ -23,13 +23,11 @@ export class ProfileEditForm {
   readonly firstName = linkedSignal(() => this.profile().firstName);
   readonly lastName = linkedSignal(() => this.profile().lastName);
   readonly phoneNumber = linkedSignal(() => this.profile().phoneNumber);
-  readonly email = linkedSignal(() => this.profile().email);
   readonly avatarUrl = linkedSignal(() => this.profile().avatarUrl ?? '');
 
   readonly firstNameTouched = signal(false);
   readonly lastNameTouched = signal(false);
   readonly phoneTouched = signal(false);
-  readonly emailTouched = signal(false);
   readonly avatarUrlTouched = signal(false);
   readonly attemptedSubmit = signal(false);
 
@@ -98,17 +96,6 @@ export class ProfileEditForm {
     return null;
   });
 
-  readonly emailError = computed(() => {
-    const val = this.email().trim();
-    if (!val) {
-      return 'El correo electrónico es obligatorio.';
-    }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
-      return 'Ingresá un correo electrónico válido (ej: usuario@ejemplo.com).';
-    }
-    return null;
-  });
-
   readonly avatarUrlError = computed(() => {
     const val = this.avatarUrl().trim();
     if (!val) {
@@ -125,7 +112,6 @@ export class ProfileEditForm {
       !this.firstNameError() &&
       !this.lastNameError() &&
       !this.phoneError() &&
-      !this.emailError() &&
       !this.avatarUrlError(),
   );
 
@@ -135,7 +121,6 @@ export class ProfileEditForm {
     this.firstNameTouched.set(true);
     this.lastNameTouched.set(true);
     this.phoneTouched.set(true);
-    this.emailTouched.set(true);
     this.avatarUrlTouched.set(true);
 
     if (!this.isFormValid()) {
@@ -146,7 +131,6 @@ export class ProfileEditForm {
       firstName: this.firstName().trim(),
       lastName: this.lastName().trim(),
       phoneNumber: this.phoneNumber().trim(),
-      email: this.email().trim(),
       avatarUrl: this.avatarUrl().trim() || null,
     });
   }

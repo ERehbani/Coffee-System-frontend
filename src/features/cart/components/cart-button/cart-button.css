@@ -1,0 +1,42 @@
+.cart-backdrop-enter {
+  animation: cart-backdrop-fade 300ms ease-out;
+}
+
+.cart-backdrop-leave {
+  animation: cart-backdrop-fade 300ms ease-in reverse forwards;
+}
+
+.cart-panel-enter {
+  animation: cart-panel-slide 300ms ease-out;
+}
+
+.cart-panel-leave {
+  animation: cart-panel-slide 300ms ease-in reverse forwards;
+}
+
+@keyframes cart-backdrop-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes cart-panel-slide {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cart-backdrop-enter,
+  .cart-backdrop-leave,
+  .cart-panel-enter,
+  .cart-panel-leave {
+    animation-duration: 1ms;
+  }
+}

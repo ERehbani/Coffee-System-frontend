@@ -29,7 +29,6 @@ describe('ProfileEditForm', () => {
   it('should initialize fields with profile values', () => {
     expect(component.firstName()).toBe('Juan');
     expect(component.lastName()).toBe('Pérez');
-    expect(component.email()).toBe('juan.perez@example.com');
     expect(component.phoneNumber()).toBe('1145238890');
     expect(component.avatarUrl()).toBe(
       'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d',
@@ -42,7 +41,6 @@ describe('ProfileEditForm', () => {
       let savedData = null;
       component.save.subscribe((data) => (savedData = data));
 
-      // Test empty name
       component.firstName.set('   ');
       fixture.detectChanges();
 
@@ -54,7 +52,6 @@ describe('ProfileEditForm', () => {
       expect(component.firstNameError()).toBe('El nombre es obligatorio.');
       expect(component.isFormValid()).toBe(false);
 
-      // Test invalid characters (numbers in name)
       component.firstName.set('Juan123');
       fixture.detectChanges();
       form.dispatchEvent(new Event('submit'));
@@ -80,22 +77,6 @@ describe('ProfileEditForm', () => {
       expect(component.isFormValid()).toBe(false);
     });
 
-    it('should block save and indicate error when email format is invalid', () => {
-      let savedData = null;
-      component.save.subscribe((data) => (savedData = data));
-
-      component.email.set('correo-invalido');
-      fixture.detectChanges();
-
-      const form = fixture.nativeElement.querySelector('form') as HTMLFormElement;
-      form.dispatchEvent(new Event('submit'));
-      fixture.detectChanges();
-
-      expect(savedData).toBeNull();
-      expect(component.emailError()).toContain('correo electrónico válido');
-      expect(component.isFormValid()).toBe(false);
-    });
-
     it('should block save and indicate error when avatar URL is invalid format', () => {
       let savedData = null;
       component.save.subscribe((data) => (savedData = data));
@@ -113,7 +94,6 @@ describe('ProfileEditForm', () => {
     });
 
     it('should show error messages in the DOM when fields are touched with invalid formats', () => {
-      component.email.set('bad-email');
       component.phoneNumber.set('123');
       fixture.detectChanges();
 
@@ -134,7 +114,6 @@ describe('ProfileEditForm', () => {
       component.firstName.set('Carlos');
       component.lastName.set('Gómez');
       component.phoneNumber.set('1133445566');
-      component.email.set('carlos.gomez@gmail.com');
       component.avatarUrl.set('https://images.unsplash.com/photo-1534528741775-53994a69daeb');
       fixture.detectChanges();
 
@@ -148,9 +127,22 @@ describe('ProfileEditForm', () => {
         firstName: 'Carlos',
         lastName: 'Gómez',
         phoneNumber: '1133445566',
-        email: 'carlos.gomez@gmail.com',
         avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb',
       });
+    });
+
+    it('should show the email of the account as read only and leave it out of the saved data', () => {
+      const emailInput = fixture.nativeElement.querySelector('#email') as HTMLInputElement;
+      let emittedData: object | null = null;
+      component.save.subscribe((data) => (emittedData = data));
+
+      const form = fixture.nativeElement.querySelector('form') as HTMLFormElement;
+      form.dispatchEvent(new Event('submit'));
+
+      expect(emailInput.value).toBe('juan.perez@example.com');
+      expect(emailInput.readOnly).toBe(true);
+      expect(emittedData).not.toBeNull();
+      expect(emittedData).not.toHaveProperty('email');
     });
 
     it('should emit cancel when Cancelar button is clicked', () => {

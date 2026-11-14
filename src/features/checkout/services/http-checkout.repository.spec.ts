@@ -3,7 +3,7 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { TestBed } from '@angular/core/testing';
 import { environment } from '../../../environments/environment';
 import { CartResponse } from '../../cart/model/cart.model';
-import { ConfirmedOrder } from '../types/checkout.model';
+import { ConfirmedOrder, ServerCart } from '../types/checkout.model';
 import { CheckoutCoupon } from '../types/coupon.model';
 import {
   buildPurchaseResponse,
@@ -31,21 +31,40 @@ describe('HttpCheckoutRepository', () => {
 
   afterEach(() => http.verify());
 
-  describe('findCartId', () => {
+  describe('findCart', () => {
     it('picks the cart of the cafe among all the carts of the client', () => {
-      let cartId: string | undefined;
-      repository.findCartId('cafe-b').subscribe((value) => (cartId = value));
+      let cart: ServerCart | undefined;
+      repository.findCart('cafe-b').subscribe((value) => (cart = value));
 
       const request = http.expectOne(`${environment.apiBaseUrl}/carts/myCart`);
       expect(request.request.method).toBe('GET');
       request.flush([cartFor('cafe-a', 'cart-a'), cartFor('cafe-b', 'cart-b')]);
 
-      expect(cartId).toBe('cart-b');
+      expect(cart?.id).toBe('cart-b');
+    });
+
+    it('maps the total and the quantity of each product of the cart', () => {
+      let cart: ServerCart | undefined;
+      repository.findCart('cafe-b').subscribe((value) => (cart = value));
+
+      http.expectOne(`${environment.apiBaseUrl}/carts/myCart`).flush([
+        {
+          ...cartFor('cafe-b', 'cart-b'),
+          totalPrice: 5600,
+          products: [{ productId: 'prod-1', productName: 'Espresso Doble', quantity: 2 }],
+        },
+      ]);
+
+      expect(cart).toEqual({
+        id: 'cart-b',
+        total: 5600,
+        lines: [{ productId: 'prod-1', quantity: 2 }],
+      });
     });
 
     it('fails with a 404 when the client has no cart for that cafe', () => {
       let status: number | undefined;
-      repository.findCartId('cafe-c').subscribe({ error: (error) => (status = error.status) });
+      repository.findCart('cafe-c').subscribe({ error: (error) => (status = error.status) });
 
       http.expectOne(`${environment.apiBaseUrl}/carts/myCart`).flush([cartFor('cafe-a', 'cart-a')]);
 

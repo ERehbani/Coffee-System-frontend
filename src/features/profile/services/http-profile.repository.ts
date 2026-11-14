@@ -3,25 +3,25 @@ import { inject, Service } from '@angular/core';
 import { map, Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
-  ClientProfileDto,
   ProfileDashboardDto,
   RedemptionDto,
   TierBenefitDto,
   TierDetailDto,
+  UpdatedClientDto,
 } from '../types/profile.dto';
 import {
-  ClientProfile,
   ProfileDashboard,
   RedeemedBenefit,
+  SavedClientProfile,
   TierBenefit,
   TierDetail,
   UpdateClientProfileInput,
   UsedBenefit,
 } from '../types/profile.model';
 import {
-  toClientProfile,
   toProfileDashboard,
   toRedeemedBenefit,
+  toSavedClientProfile,
   toTierBenefits,
   toTierDetail,
   toUpdateClientProfileDto,
@@ -64,10 +64,13 @@ export class HttpProfileRepository implements ProfileRepository {
       .pipe(map(toUsedBenefits));
   }
 
-  updateProfile(clientId: string, input: UpdateClientProfileInput): Observable<ClientProfile> {
+  updateProfile(
+    clientId: string,
+    input: UpdateClientProfileInput,
+  ): Observable<SavedClientProfile> {
     const payload = toUpdateClientProfileDto(input);
     return this.http
-      .put<ClientProfileDto>(`${environment.apiBaseUrl}/clients/${clientId}`, payload)
-      .pipe(map(toClientProfile));
+      .put<UpdatedClientDto>(`${environment.apiBaseUrl}/clients/${clientId}`, payload)
+      .pipe(map(toSavedClientProfile));
   }
 }

@@ -1,8 +1,8 @@
 import { Observable } from 'rxjs';
 import {
-  ClientProfile,
   ProfileDashboard,
   RedeemedBenefit,
+  SavedClientProfile,
   TierBenefit,
   TierDetail,
   UpdateClientProfileInput,
@@ -15,5 +15,8 @@ export abstract class ProfileRepository {
   abstract getTierBenefits(): Observable<readonly TierBenefit[]>;
   abstract redeemBenefit(benefitId: string): Observable<RedeemedBenefit>;
   abstract getUsedBenefits(): Observable<readonly UsedBenefit[]>;
-  abstract updateProfile(clientId: string, input: UpdateClientProfileInput): Observable<ClientProfile>;
+  abstract updateProfile(
+    clientId: string,
+    input: UpdateClientProfileInput,
+  ): Observable<SavedClientProfile>;
 }

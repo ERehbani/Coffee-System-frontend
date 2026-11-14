@@ -15,7 +15,7 @@ import { TierBenefitItem } from '../../components/tier-benefit-item/tier-benefit
 import { TierLevelItem } from '../../components/tier-level-item/tier-level-item';
 import { TierProgress } from '../../components/tier-progress/tier-progress';
 import { TierStore } from '../../services/tier.store';
-import { TIER_LABELS, TIER_TEXT_CLASSES } from '../../utils/loyalty-tier';
+import { toTierLabel, toTierTextClass } from '../../utils/loyalty-tier';
 
 @Component({
   imports: [
@@ -38,20 +38,17 @@ export class TierPage {
 
   protected readonly tierLabel = computed(() => {
     const detail = this.store.detail();
-    return detail ? TIER_LABELS[detail.tier] : '';
+    return detail ? toTierLabel(detail.tier) : '';
   });
   protected readonly tierClass = computed(() => {
     const detail = this.store.detail();
-    return detail ? TIER_TEXT_CLASSES[detail.tier] : '';
+    return detail ? toTierTextClass(detail.tier) : '';
   });
 
   constructor() {
-    // The store lives in the route injector and survives navigation: hand the redeem flow back
-    // clean each time the page goes away, so a stale confirm step or success never reappears.
     this.store.enter();
     inject(DestroyRef).onDestroy(() => this.store.leave());
 
-    // The benefit that was just activated may be far down the list: bring the result into view.
     afterRenderEffect(() => {
       if (this.store.redeemed()) {
         this.redeemedPanel()?.nativeElement.focus();

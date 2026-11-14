@@ -1,20 +1,28 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
-import { Subscription, switchMap } from 'rxjs';
+import { map, Subscription, switchMap } from 'rxjs';
 import { CartService } from '../../cart/services/cart.service';
-import { CheckoutSummary, ConfirmedOrder } from '../types/checkout.model';
+import { CheckoutSummary, ConfirmedOrder, ServerCart } from '../types/checkout.model';
 import {
   ApplicableCoupon,
   CheckoutCoupon,
   CouponPreview,
   CouponsStatus,
 } from '../types/coupon.model';
-import { toCheckoutErrorMessage } from '../utils/checkout-error';
+import { matchesServerCart } from '../utils/cart-match';
+import { CartMismatchError, toCheckoutErrorMessage } from '../utils/checkout-error';
 import { toCheckoutSummary } from '../utils/checkout.mapper';
 import { toCouponPreview } from '../utils/coupon-discount';
 import { findApplicableCoupons } from '../utils/coupon-eligibility';
 import { CheckoutRepository } from './checkout.repository';
 
 export type CheckoutStatus = 'idle' | 'confirming' | 'confirmed';
+
+function toMatchingCartId(summary: CheckoutSummary, cart: ServerCart): string {
+  if (!matchesServerCart(summary, cart)) {
+    throw new CartMismatchError();
+  }
+  return cart.id;
+}
 
 @Injectable()
 export class CheckoutStore {
@@ -79,8 +87,9 @@ export class CheckoutStore {
     this.errorMessage.set(null);
 
     this.repository
-      .findCartId(summary.cafeId)
+      .findCart(summary.cafeId)
       .pipe(
+        map((cart) => toMatchingCartId(summary, cart)),
         switchMap((cartId) =>
           this.repository.createPurchase({ cartId, validationCode: couponCode }),
         ),

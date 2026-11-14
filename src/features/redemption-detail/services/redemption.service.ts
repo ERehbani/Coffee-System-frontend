@@ -1,9 +1,12 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { Observable, catchError, of, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { MOCK_REDEMPTIONS } from '../data/redemptions.mock';
 import { Redemption } from '../model/redemption.model';
+
+function isNotFound(error: unknown): boolean {
+  return error instanceof HttpErrorResponse && error.status === HttpStatusCode.NotFound;
+}
 
 @Injectable({
   providedIn: 'root',
@@ -13,10 +16,8 @@ export class RedemptionService {
   private readonly url = `${environment.apiBaseUrl}/redemption`;
 
   getById(externalId: string): Observable<Redemption | undefined> {
-    if (environment.useMockApi) {
-      return of(MOCK_REDEMPTIONS.find((r) => r.externalId === externalId));
-    }
-
-    return this.http.get<Redemption>(`${this.url}/${externalId}`);
+    return this.http
+      .get<Redemption>(`${this.url}/${externalId}`)
+      .pipe(catchError((error) => (isNotFound(error) ? of(undefined) : throwError(() => error))));
   }
 }

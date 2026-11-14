@@ -84,7 +84,7 @@ export interface GlobalBenefitDto {
   readonly startDate?: string;
   readonly endDate?: string;
   readonly typeId?: string;
-  readonly typeName?: string;
+  readonly benefitType?: string;
   readonly tierId?: string;
   readonly tierName?: string;
   readonly currentRedemptions?: number;

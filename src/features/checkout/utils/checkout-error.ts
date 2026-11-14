@@ -10,6 +10,11 @@ const NOT_FOUND_MESSAGE =
 const FORBIDDEN_MESSAGE =
   'Este carrito no pertenece a tu cuenta. Volvé a iniciar sesión e intentá de nuevo.';
 
+const CART_MISMATCH_MESSAGE =
+  'Tu carrito cambió desde que lo armaste. Vacialo y volvé a agregar los productos para ver el total actualizado.';
+
+export class CartMismatchError extends Error {}
+
 const COUPON_RETRY_HINT = 'Quitalo para pagar sin cupón o elegí otro.';
 const INVALID_COUPON_MESSAGE = `No encontramos ese cupón. ${COUPON_RETRY_HINT}`;
 const USED_COUPON_MESSAGE = `Ese cupón ya fue usado. ${COUPON_RETRY_HINT}`;
@@ -50,6 +55,9 @@ function messageForStatus(status: number): string {
 }
 
 export function toCheckoutErrorMessage(error: unknown): string {
+  if (error instanceof CartMismatchError) {
+    return CART_MISMATCH_MESSAGE;
+  }
   if (!(error instanceof HttpErrorResponse)) {
     return CHECKOUT_ERROR_MESSAGE;
   }
