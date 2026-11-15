@@ -65,10 +65,15 @@
       <button
         type="button"
         (click)="onAddClick()"
-        class="flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-white shadow-xs transition-colors hover:bg-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary cursor-pointer"
+        [disabled]="!product().available"
+        class="flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-white shadow-xs transition-colors hover:bg-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary cursor-pointer disabled:pointer-events-none disabled:opacity-50"
       >
-        <app-icon name="plus" [size]="16" />
-        Agregar al carrito
+        @if (product().available) {
+          <app-icon name="plus" [size]="16" />
+          Agregar al carrito
+        } @else {
+          Agotado por hoy
+        }
       </button>
     </div>
   </div>

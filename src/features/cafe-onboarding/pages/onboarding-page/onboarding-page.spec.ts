@@ -3,7 +3,10 @@ import { Router, provideRouter } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { of, throwError } from 'rxjs';
 import { CafeProfileRepository } from '../../../cafe-profile/services/cafe-profile.repository';
+import { CafeBenefitService } from '../../../cafe-benefits/services/cafe-benefit.service';
 import { CafeProfile } from '../../../cafe-profile/types/cafe-profile.model';
+import { ProductService } from '../../../catalog/services/product.service';
+import { ImageUpload } from '../../../../shared/services/image-upload';
 import { OnboardingPage } from './onboarding-page';
 
 const NEW_CAFE: CafeProfile = {
@@ -32,6 +35,9 @@ describe('OnboardingPage', () => {
       providers: [
         provideRouter([]),
         { provide: CafeProfileRepository, useValue: { getProfile: () => of(NEW_CAFE), updateProfile } },
+        { provide: ProductService, useValue: { getCategories: () => of([]) } },
+        { provide: CafeBenefitService, useValue: { getBenefitTypes: () => of([]), getTiers: () => of([]) } },
+        { provide: ImageUpload, useValue: { upload: () => of('') } },
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(OnboardingPage);
@@ -39,17 +45,20 @@ describe('OnboardingPage', () => {
     fixture.detectChanges();
   }
 
-  function fillEverything(): void {
+  function fillCafeStep(): void {
     page.phoneNumber.set('1145238890');
-    page.next();
-    page.openingHours.set([{ day: 'MONDAY', opensAt: '08:00', closesAt: '20:00' }]);
-    page.next();
     page.logo.set('https://img/logo.png');
     page.image.set('https://img/cover.png');
     page.next();
   }
 
-  it('starts with the contact step prefilled with what the cafe already has', async () => {
+  function fillEverything(): void {
+    fillCafeStep();
+    page.openingHours.set([{ day: 'MONDAY', opensAt: '08:00', closesAt: '20:00' }]);
+    page.next();
+  }
+
+  it('starts with the cafe step prefilled with what the cafe already has', async () => {
     await render();
 
     expect(page.step()).toBe(0);
@@ -69,8 +78,7 @@ describe('OnboardingPage', () => {
 
   it('asks for at least one day of opening hours', async () => {
     await render();
-    page.phoneNumber.set('1145238890');
-    page.next();
+    fillCafeStep();
 
     page.next();
 
@@ -78,25 +86,23 @@ describe('OnboardingPage', () => {
     expect(page.hoursError()).not.toBeNull();
   });
 
-  it('asks for the logo and the cover before the summary', async () => {
+  it('lets the cafe reach the opening hours without a logo or a cover', async () => {
     await render();
     page.phoneNumber.set('1145238890');
-    page.next();
-    page.openingHours.set([{ day: 'MONDAY', opensAt: '08:00', closesAt: '20:00' }]);
-    page.next();
 
     page.next();
 
-    expect(page.step()).toBe(2);
-    expect(page.logoError()).toBe('El logo es obligatorio.');
-    expect(page.imageError()).toBe('La portada es obligatoria.');
+    expect(page.step()).toBe(1);
   });
 
-  it('saves every required field and opens the dashboard', async () => {
+  it('saves every required field before the optional steps and opens the dashboard at the end', async () => {
     await render();
     const navigate = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
     fillEverything();
 
+    expect(page.step()).toBe(2);
+    page.next();
+    page.next();
     expect(page.isLastStep()).toBe(true);
     page.finish();
 
@@ -111,15 +117,15 @@ describe('OnboardingPage', () => {
     expect(navigate).toHaveBeenCalledWith('/cafe/dashboard');
   });
 
-  it('keeps the cafe in the summary with the error of the backend', async () => {
+  it('keeps the cafe in the opening hours step with the error of the backend', async () => {
     await render();
-    fillEverything();
     updateProfile.mockReturnValue(
       throwError(() => new HttpErrorResponse({ status: 422, error: { detail: 'The cafe must open before it closes on MONDAY' } })),
     );
 
-    page.finish();
+    fillEverything();
 
+    expect(page.step()).toBe(1);
     expect(page.status()).toBe('ready');
     expect(page.errorMessage()).toBe('The cafe must open before it closes on MONDAY');
   });

@@ -57,6 +57,10 @@ describe('CafeBenefitService', () => {
       }),
     );
     expect(req.request.body.typeId).toBeUndefined();
-    req.flush({});
+    req.flush({ externalId: 'benefit-1' });
+
+    const publish = http.expectOne(`${environment.apiBaseUrl}/benefits/benefit-1/publish`);
+    expect(publish.request.method).toBe('POST');
+    publish.flush({ externalId: 'benefit-1' });
   });
 });

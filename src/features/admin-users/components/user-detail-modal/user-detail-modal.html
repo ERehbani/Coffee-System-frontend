@@ -12,28 +12,21 @@
     <!-- Header Modal -->
     <div class="flex items-start justify-between border-b border-border bg-bg/50 px-6 py-5">
       <div class="flex items-center gap-4">
-        <!-- Avatar / Initials -->
-        @if (user().avatarUrl) {
-          <img
-            [src]="user().avatarUrl"
-            [alt]="user().fullName"
-            class="size-16 rounded-2xl object-cover ring-2 ring-primary/20 shadow-sm"
-          />
-        } @else {
-          <div
-            class="flex size-16 items-center justify-center rounded-2xl text-xl font-black text-white shadow-sm ring-2 ring-border"
-            [class.bg-purple-600]="user().role === 'superadmin'"
-            [class.bg-primary]="user().role === 'cafe_admin'"
-            [class.bg-accent]="user().role === 'client'"
-          >
-            {{ getInitials(user().fullName) }}
-          </div>
-        }
+        <!-- Initial -->
+        <div
+          class="flex size-16 items-center justify-center rounded-2xl text-xl font-black text-white shadow-sm ring-2 ring-border"
+          [class.bg-muted]="!user().role"
+          [class.bg-purple-600]="user().role === 'superadmin'"
+          [class.bg-primary]="user().role === 'cafe_admin'"
+          [class.bg-accent]="user().role === 'client'"
+        >
+          {{ getInitials(user().email) }}
+        </div>
 
-        <div>
+        <div class="min-w-0">
           <div class="flex items-center gap-2 flex-wrap">
-            <h2 [id]="'modal-title-' + user().id" class="text-xl font-black text-text">
-              {{ user().fullName }}
+            <h2 [id]="'modal-title-' + user().id" class="text-xl font-black text-text break-all">
+              {{ user().email }}
             </h2>
           </div>
 
@@ -65,17 +58,11 @@
               [class.text-emerald-800]="user().status === 'active'"
               [class.bg-slate-100]="user().status === 'inactive'"
               [class.text-slate-700]="user().status === 'inactive'"
-              [class.bg-rose-100]="user().status === 'suspended'"
-              [class.text-rose-800]="user().status === 'suspended'"
-              [class.bg-amber-100]="user().status === 'pending'"
-              [class.text-amber-800]="user().status === 'pending'"
             >
               <span
                 class="size-1.5 rounded-full"
                 [class.bg-emerald-500]="user().status === 'active'"
                 [class.bg-slate-400]="user().status === 'inactive'"
-                [class.bg-rose-500]="user().status === 'suspended'"
-                [class.bg-amber-500]="user().status === 'pending'"
               ></span>
               {{ getStatusLabel(user().status) }}
             </span>
@@ -161,27 +148,17 @@
       }
 
 
-      <!-- Personal & Contact Info -->
+      <!-- Account Info: only what the backend sends -->
       <section class="space-y-3">
         <h3 class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted">
           <app-icon name="user" [size]="14" />
-          Información Personal y Contacto
+          Información de la Cuenta
         </h3>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 rounded-2xl border border-border bg-surface p-4">
           <div>
-            <span class="text-xs text-muted block">Nombre Completo</span>
-            <span class="text-sm font-bold text-text">{{ user().fullName }}</span>
-          </div>
-
-          <div>
             <span class="text-xs text-muted block">Correo Electrónico</span>
             <span class="text-sm font-bold text-text break-all">{{ user().email }}</span>
-          </div>
-
-          <div>
-            <span class="text-xs text-muted block">Teléfono / WhatsApp</span>
-            <span class="text-sm font-bold text-text">{{ user().phoneNumber || 'No especificado' }}</span>
           </div>
 
           <div>
@@ -190,116 +167,8 @@
               {{ (user().createdAt | date: 'dd/MM/yyyy HH:mm') ?? '—' }}
             </span>
           </div>
-
-          <div class="sm:col-span-2">
-            <span class="text-xs text-muted block">Último Inicio de Sesión</span>
-            <span class="text-sm font-bold text-text">
-              @if (user().lastLoginAt) {
-                {{ user().lastLoginAt | date: 'dd/MM/yyyy HH:mm' }}
-              } @else {
-                <span class="text-muted italic">Nunca ha iniciado sesión</span>
-              }
-            </span>
-          </div>
         </div>
       </section>
-
-      <!-- Role-Specific Attributes -->
-      @if (user().role === 'client' && user().clientDetails; as client) {
-        <section class="space-y-3">
-          <h3 class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted">
-            <app-icon name="star" [size]="14" />
-            Auditoría de Programa de Fidelización (Cliente)
-          </h3>
-
-          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <div class="rounded-2xl border border-border bg-bg/30 p-3.5">
-              <span class="text-xs text-muted block">Nivel de Lealtad</span>
-              <span
-                class="inline-block mt-1 font-extrabold text-sm capitalize"
-                [class.text-bronze]="client.loyaltyTier === 'bronze'"
-                [class.text-silver]="client.loyaltyTier === 'silver'"
-                [class.text-gold]="client.loyaltyTier === 'gold'"
-                [class.text-cyan-600]="client.loyaltyTier === 'diamond'"
-              >
-                {{ getLoyaltyLabel(client.loyaltyTier) }}
-              </span>
-            </div>
-
-            <div class="rounded-2xl border border-border bg-bg/30 p-3.5">
-              <span class="text-xs text-muted block">Puntos Disponibles</span>
-              <span class="block mt-1 text-base font-black text-primary">
-                {{ client.availablePoints }} pts
-              </span>
-            </div>
-
-            <div class="rounded-2xl border border-border bg-bg/30 p-3.5">
-              <span class="text-xs text-muted block">Puntos Históricos</span>
-              <span class="block mt-1 text-base font-bold text-text">
-                {{ client.lifetimePoints }} pts
-              </span>
-            </div>
-
-            <div class="rounded-2xl border border-border bg-bg/30 p-3.5">
-              <span class="text-xs text-muted block">Canjes Realizados</span>
-              <span class="block mt-1 text-base font-bold text-text">
-                {{ client.redemptionsCount }}
-              </span>
-            </div>
-          </div>
-
-          @if (client.preferredCafe) {
-            <div class="flex items-center gap-2 rounded-2xl border border-border bg-surface px-4 py-3 text-xs text-muted">
-              <app-icon name="coffee" [size]="16" class="text-primary" />
-              <span>Cafetería habitual preferida: <strong class="text-text">{{ client.preferredCafe }}</strong></span>
-            </div>
-          }
-        </section>
-      }
-
-      @if (user().role === 'cafe_admin' && user().cafeAdminDetails; as cafe) {
-        <section class="space-y-3">
-          <h3 class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted">
-            <app-icon name="store" [size]="14" />
-            Auditoría de Cafetería / Comercio Asociado
-          </h3>
-
-          <div class="rounded-2xl border border-border bg-surface p-4 space-y-3">
-            <div class="flex items-center justify-between pb-3 border-b border-border">
-              <div>
-                <p class="text-base font-extrabold text-text">{{ cafe.cafeName }}</p>
-              </div>
-              <span class="rounded-xl bg-amber-100 px-3 py-1 text-xs font-bold text-amber-900">
-                {{ cafe.cafeRole }}
-              </span>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-              <div>
-                <span class="text-muted block">Dirección Principal</span>
-                <span class="font-bold text-text">{{ cafe.cafeAddress }}</span>
-              </div>
-              <div>
-                <span class="text-muted block">Sucursales Habilitadas</span>
-                <span class="font-bold text-text">{{ cafe.branchCount }} local(es)</span>
-              </div>
-            </div>
-          </div>
-        </section>
-      }
-
-      <!-- Audit Notes (Client & Cafe) -->
-      @if (user().role !== 'superadmin') {
-        <section class="space-y-2">
-          <h3 class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted">
-            <app-icon name="message-square-text" [size]="14" />
-            Notas de Auditoría y Observaciones
-          </h3>
-          <div class="rounded-2xl border border-border bg-bg/40 p-4 text-xs text-text leading-relaxed">
-            {{ user().notes || 'Sin observaciones registradas para este perfil de usuario.' }}
-          </div>
-        </section>
-      }
     </div>
 
     <!-- Modal Footer Actions -->
@@ -307,7 +176,7 @@
       <!-- Left side: Administrative Actions (Dar de baja, Activar, etc.) -->
       <div class="flex items-center gap-2 flex-wrap">
 
-        @if (user().status === 'active' || user().status === 'pending') {
+        @if (user().status === 'active') {
           @if (!confirmingDeactivate()) {
             <button
               type="button"

@@ -86,6 +86,10 @@ export class ProductForm {
   awardedPointsError = computed(() => this.productForm.awardedPoints().errors()[0]?.message ?? null);
 
   categoryError = computed(() => {
+    // The category cannot change after creation, so it only needs a value when creating.
+    if (this.isEditing()) {
+      return null;
+    }
     if (!this.formModel().categoryId) {
       return 'Debes seleccionar una categoría.';
     }
@@ -175,7 +179,8 @@ export class ProductForm {
       awardedPoints: Number(model.awardedPoints),
       categoryId: model.categoryId,
       image: model.image.trim(),
-      tags: rawTags.length > 0 ? rawTags : undefined,
+      // An empty list clears the tags; the backend keeps them when the field is missing.
+      tags: rawTags,
       state: model.state,
     };
 

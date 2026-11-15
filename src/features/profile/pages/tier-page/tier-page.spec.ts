@@ -306,8 +306,8 @@ describe('TierPage', () => {
         throwError(
           () =>
             new HttpErrorResponse({
-              status: 400,
-              error: { error: 'Benefit has no available redemptions', status: 400 },
+              status: 409,
+              error: { title: 'Benefit sold out', status: 409, detail: 'Benefit is sold out' },
             }),
         ),
       );

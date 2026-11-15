@@ -1,4 +1,5 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
+import { backendErrorMessage } from '../../../shared/utils/backend-error';
 import { AdminUser, UserRole, UserStatsSummary, UserStatus } from '../types/admin-user.model';
 import { AdminUserRepository } from './admin-user.repository';
 
@@ -55,13 +56,7 @@ export class AdminUserStore {
         return true;
       }
 
-      const matchesId = user.id.toLowerCase().includes(query);
-      const matchesName = user.fullName.toLowerCase().includes(query);
-      const matchesEmail = user.email.toLowerCase().includes(query);
-      const matchesPhone = user.phoneNumber.toLowerCase().includes(query);
-      const matchesCafe = user.cafeAdminDetails?.cafeName.toLowerCase().includes(query) ?? false;
-
-      return matchesId || matchesName || matchesEmail || matchesPhone || matchesCafe;
+      return user.id.toLowerCase().includes(query) || user.email.toLowerCase().includes(query);
     });
   });
 
@@ -119,11 +114,11 @@ export class AdminUserStore {
 
         let msg = '¡Estado del usuario actualizado exitosamente!';
         if (status === 'active' && updatedUser.role === 'cafe_admin') {
-          msg = `¡La cafetería "${updatedUser.cafeAdminDetails?.cafeName || updatedUser.fullName}" ha sido activada con éxito!`;
+          msg = `¡La cuenta de comercio ${updatedUser.email} ha sido activada con éxito!`;
         } else if (status === 'active') {
-          msg = `¡El usuario ${updatedUser.fullName} ha sido reactivado exitosamente!`;
+          msg = `¡El usuario ${updatedUser.email} ha sido reactivado exitosamente!`;
         } else if (status === 'inactive') {
-          msg = `¡El usuario ${updatedUser.fullName} ha sido dado de baja exitosamente!`;
+          msg = `¡El usuario ${updatedUser.email} ha sido dado de baja exitosamente!`;
         }
 
         this.actionMessage.set({ type: 'success', text: msg });
@@ -133,11 +128,11 @@ export class AdminUserStore {
           onSuccess();
         }
       },
-      error: (err) => {
+      error: (err: unknown) => {
         this.isProcessing.set(false);
         this.actionMessage.set({
           type: 'error',
-          text: err?.message || 'Ocurrió un error al intentar actualizar el estado del usuario.',
+          text: backendErrorMessage(err) ?? 'Ocurrió un error al intentar actualizar el estado del usuario.',
         });
       },
     });

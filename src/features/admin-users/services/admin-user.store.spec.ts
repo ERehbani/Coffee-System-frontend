@@ -11,74 +11,24 @@ describe('AdminUserStore', () => {
   const mockUsers: readonly AdminUser[] = [
     {
       id: 'USR-101',
-      firstName: 'Elena',
-      lastName: 'Rostova',
-      fullName: 'Elena Rostova',
       email: 'elena@admin.com',
-      phoneNumber: '+54 11 1111-2222',
-      avatarUrl: null,
       role: 'superadmin',
       status: 'active',
       createdAt: new Date('2023-01-01'),
-      lastLoginAt: new Date('2026-10-20'),
-      emailVerified: true,
-      twoFactorEnabled: true,
-      authProvider: 'email_password',
-      notes: 'Superadmin root',
-      superadminDetails: {
-        accessLevel: 'Control Total',
-        department: 'Seguridad',
-        lastAuditAction: 'Audit log check',
-        ipAddressLastLogin: '190.1.2.3',
-      },
     },
     {
       id: 'USR-201',
-      firstName: 'Mateo',
-      lastName: 'Valenzuela',
-      fullName: 'Mateo Valenzuela',
       email: 'mateo@grano.com',
-      phoneNumber: '+54 11 3333-4444',
-      avatarUrl: null,
       role: 'cafe_admin',
-      status: 'pending',
+      status: 'inactive',
       createdAt: new Date('2023-05-01'),
-      lastLoginAt: new Date('2026-10-19'),
-      emailVerified: true,
-      twoFactorEnabled: true,
-      authProvider: 'google',
-      notes: 'Solicitud pendiente',
-      cafeAdminDetails: {
-        cafeId: 'cafe-1',
-        cafeName: 'Grano Dorado',
-        cafeRole: 'Dueño',
-        cafeAddress: 'Calle Falsa 123',
-        branchCount: 2,
-      },
     },
     {
       id: 'USR-301',
-      firstName: 'Sofía',
-      lastName: 'Martínez',
-      fullName: 'Sofía Martínez',
       email: 'sofia@client.com',
-      phoneNumber: '+54 11 5555-6666',
-      avatarUrl: null,
       role: 'client',
       status: 'active',
       createdAt: new Date('2024-01-10'),
-      lastLoginAt: null,
-      emailVerified: false,
-      twoFactorEnabled: false,
-      authProvider: 'apple',
-      notes: null,
-      clientDetails: {
-        loyaltyTier: 'gold',
-        availablePoints: 1200,
-        lifetimePoints: 3000,
-        redemptionsCount: 5,
-        preferredCafe: 'Grano Dorado',
-      },
     },
   ];
 
@@ -127,7 +77,7 @@ describe('AdminUserStore', () => {
     expect(store.filteredUsers().length).toBe(1);
     expect(store.filteredUsers()[0].id).toBe('USR-101');
 
-    store.setSearchQuery('Grano Dorado');
+    store.setSearchQuery('grano');
     expect(store.filteredUsers().length).toBe(1);
     expect(store.filteredUsers()[0].id).toBe('USR-201');
 
@@ -149,9 +99,9 @@ describe('AdminUserStore', () => {
   });
 
   it('should filter users by status', () => {
-    store.setStatusFilter('pending');
+    store.setStatusFilter('inactive');
     expect(store.filteredUsers().length).toBe(1);
-    expect(store.filteredUsers()[0].status).toBe('pending');
+    expect(store.filteredUsers()[0].status).toBe('inactive');
 
     store.setStatusFilter('active');
     expect(store.filteredUsers().length).toBe(2);
@@ -169,19 +119,19 @@ describe('AdminUserStore', () => {
 
   it('should select user by id', () => {
     store.selectUserById('USR-201');
-    expect(store.selectedUser()?.fullName).toBe('Mateo Valenzuela');
+    expect(store.selectedUser()?.email).toBe('mateo@grano.com');
   });
 
-  it('should activate a pending cafe and update selectedUser and stats', () => {
+  it('should activate an inactive cafe and update selectedUser and stats', () => {
     store.selectUserById('USR-201');
-    expect(store.selectedUser()?.status).toBe('pending');
+    expect(store.selectedUser()?.status).toBe('inactive');
 
     store.updateUserStatus('USR-201', 'active');
 
     expect(store.selectedUser()?.status).toBe('active');
     expect(store.users().find((u) => u.id === 'USR-201')?.status).toBe('active');
     expect(store.actionMessage()?.type).toBe('success');
-    expect(store.actionMessage()?.text).toContain('Grano Dorado');
+    expect(store.actionMessage()?.text).toContain('mateo@grano.com');
     expect(store.stats().activeUsers).toBe(3);
   });
 

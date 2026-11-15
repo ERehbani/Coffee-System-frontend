@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { environment } from '../../../environments/environment';
+import { backendErrorMessage } from '../../../shared/utils/backend-error';
 import { Product } from '../../catalog/model/product.model';
 import { Cafe } from '../../home/model/cafe.model';
 import { CartCafe, CartItem, CartResponse } from '../model/cart.model';
@@ -45,7 +46,11 @@ export class CartService {
     return currentCafe.externalId !== product.cafeExternalId;
   }
 
-  addProduct(product: Product, cafe: Cafe): boolean {
+  /**
+   * Adds the product optimistically. When the backend rejects it (for example a product sold out
+   * today, 409) the cart goes back to its previous state and `onRejected` gets the backend detail.
+   */
+  addProduct(product: Product, cafe: Cafe, onRejected?: (reason: string | null) => void): boolean {
     if (this.isFromAnotherCafe(product)) {
       return false;
     }
@@ -75,16 +80,16 @@ export class CartService {
         quantity: 1,
       })
       .subscribe({
-        error: (error) => {
-          console.error('error adding product to cart:', error);
+        error: (error: unknown) => {
           this.restore(previousItems, previousCafe);
+          onRejected?.(backendErrorMessage(error));
         },
       });
 
     return true;
   }
 
-  replaceWithProduct(product: Product, cafe: Cafe): boolean {
+  replaceWithProduct(product: Product, cafe: Cafe, onRejected?: (reason: string | null) => void): boolean {
     if (product.cafeExternalId !== cafe.externalId) {
       return false;
     }
@@ -92,7 +97,7 @@ export class CartService {
     this.clearLocal();
 
     this.http.delete<void>(`${this.url}/clear`).subscribe({
-      next: () => this.addProduct(product, cafe),
+      next: () => this.addProduct(product, cafe, onRejected),
       error: (error) => console.error('error clearing cart:', error),
     });
 
