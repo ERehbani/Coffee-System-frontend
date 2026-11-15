@@ -130,12 +130,12 @@ describe('HttpProfileRepository', () => {
     expect(status).toBe(403);
   });
 
-  it('getUsedBenefits requests the used redemptions of the client', () => {
+  it('getUsedBenefits requests the redemptions of the client of every status', () => {
     repository.getUsedBenefits().subscribe();
 
     const request = http.expectOne((req) => req.url === `${environment.apiBaseUrl}/redemption`);
     expect(request.request.method).toBe('GET');
-    expect(request.request.params.get('status')).toBe('USED');
+    expect(request.request.params.has('status')).toBe(false);
     expect(request.request.params.get('size')).toBe('100');
     request.flush(pageOf([]));
   });

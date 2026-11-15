@@ -14,6 +14,7 @@ const MESSAGES_BY_BACKEND_ERROR: ReadonlyMap<string, string> = new Map([
     'Este cupón es de otra cafetería, no se puede canjear en este local.',
   ],
   ['a redemption cannot go from cancelled to used', 'Este cupón fue cancelado y ya no se puede canjear.'],
+  ['code has expired', 'Este cupón está vencido y ya no se puede canjear.'],
   [
     'the product of this benefit is sold out for today, cancel the redemption to give the points back',
     'El producto de este cupón está agotado hoy. Podés cancelar el canje para devolverle los puntos al cliente.',

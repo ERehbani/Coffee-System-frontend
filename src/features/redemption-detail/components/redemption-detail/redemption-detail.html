@@ -90,7 +90,7 @@
       role="alert"
       class="flex flex-col items-center gap-3 rounded-2xl border border-border bg-surface p-6 text-center"
     >
-      <h2 class="text-lg font-bold text-text">Este canje ya fue usado</h2>
+      <h2 class="text-lg font-bold text-text">{{ closedTitle() }}</h2>
       <p class="text-sm text-muted">{{ redemption.benefitName }} ya no está disponible para presentar.</p>
       <a
         routerLink="/profile"

@@ -1,4 +1,4 @@
-import { CurrencyPipe, NgTemplateOutlet } from '@angular/common';
+import { CurrencyPipe, DecimalPipe, NgTemplateOutlet } from '@angular/common';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { forkJoin } from 'rxjs';
@@ -19,7 +19,7 @@ interface StatCard {
 
 @Component({
   selector: 'app-cafe-dashboard-page',
-  imports: [CurrencyPipe, NgTemplateOutlet, Icon, RouterLink],
+  imports: [CurrencyPipe, DecimalPipe, NgTemplateOutlet, Icon, RouterLink],
   templateUrl: './cafe-dashboard-page.html',
   host: { class: 'block' },
 })
@@ -44,6 +44,7 @@ export class CafeDashboardPage implements OnInit {
       { label: 'Beneficios activos', value: data.activeBenefits, icon: 'ticket', link: '/cafe/benefits' },
       { label: 'Cupones validados hoy', value: data.redemptionsToday, icon: 'scan-qr-code', link: '/cafe/validate' },
       { label: 'Compras de hoy', value: data.purchasesToday, icon: 'shopping-bag', link: null },
+      { label: 'Puntos otorgados hoy', value: data.pointsAwardedToday, icon: 'star', link: null },
     ];
   });
 
