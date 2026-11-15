@@ -1,4 +1,4 @@
-import { Component, computed, inject, input } from '@angular/core';
+import { Component, afterNextRender, computed, inject, input, signal } from '@angular/core';
 import { ThemeService } from '../../services/theme';
 import { Icon } from '../icon/icon';
 
@@ -32,12 +32,17 @@ export class ThemeToggle {
   readonly appearance = input<ThemeToggleAppearance>('plain');
 
   protected readonly theme = inject(ThemeService);
+  private readonly rendered = signal(false);
 
   protected readonly isDark = computed(() => this.theme.theme() === 'dark');
   protected readonly label = computed(() => (this.isDark() ? 'Activar modo claro' : 'Activar modo nocturno'));
   protected readonly iconSize = computed(() => (this.appearance() === 'card' ? 20 : this.appearance() === 'pill' ? 15 : 18));
-  protected readonly buttonClass = computed(
-    () =>
-      `inline-flex cursor-pointer items-center justify-center transition-colors ${FOCUS} ${APPEARANCES[this.appearance()]}`,
-  );
+  protected readonly buttonClass = computed(() => {
+    const transition = this.rendered() ? 'transition-colors' : '';
+    return `inline-flex cursor-pointer items-center justify-center ${transition} ${FOCUS} ${APPEARANCES[this.appearance()]}`;
+  });
+
+  constructor() {
+    afterNextRender(() => this.rendered.set(true));
+  }
 }

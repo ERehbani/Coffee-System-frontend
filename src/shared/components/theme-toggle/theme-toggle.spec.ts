@@ -44,6 +44,21 @@ describe('ThemeToggle', () => {
     expect(button(fixture).getAttribute('aria-pressed')).toBe('true');
   });
 
+  it('appears with its colors and only animates them once it is on screen', async () => {
+    const fixture = TestBed.createComponent(ThemeToggle);
+    fixture.componentRef.setInput('appearance', 'card');
+
+    fixture.componentRef.changeDetectorRef.detectChanges();
+
+    expect(button(fixture).className).toContain('bg-surface');
+    expect(button(fixture).className).not.toContain('transition-colors');
+
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(button(fixture).className).toContain('transition-colors');
+  });
+
   it('looks like the cart button next to it in the client headers', () => {
     expect(button(render('card')).className).toContain('size-11');
     expect(button(render('pill')).className).toContain('rounded-full');
