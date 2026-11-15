@@ -1,6 +1,7 @@
 import { Component, computed, effect, input, output, signal } from '@angular/core';
 import { FormField, form, max, maxLength, min, minLength, pattern, required } from '@angular/forms/signals';
 import { Icon } from '../../../../shared/components/icon/icon';
+import { ImageInput } from '../../../../shared/components/image-input/image-input';
 import { CategoryOption, CreateProductRequest, ProductDto } from '../../../catalog/types/product.dto';
 
 interface ProductFormModel {
@@ -16,7 +17,7 @@ interface ProductFormModel {
 
 @Component({
   selector: 'app-product-form',
-  imports: [FormField, Icon],
+  imports: [FormField, Icon, ImageInput],
   templateUrl: './product-form.html',
   styleUrl: './product-form.css',
   host: { class: 'block' },
@@ -30,6 +31,7 @@ export class ProductForm {
   readonly cancel = output<void>();
 
   attemptedSubmit = signal(false);
+  imageUploading = signal(false);
 
   formModel = signal<ProductFormModel>({
     name: '',
@@ -162,7 +164,7 @@ export class ProductForm {
     event.preventDefault();
     this.attemptedSubmit.set(true);
 
-    if (!this.isFormValid() || this.isSaving()) {
+    if (!this.isFormValid() || this.isSaving() || this.imageUploading()) {
       return;
     }
 

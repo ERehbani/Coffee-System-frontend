@@ -12,6 +12,9 @@ interface UploadSignatureDto {
   readonly signature: string;
 }
 
+/** What the image is for; the backend picks the Cloudinary folder of the signed-in owner from it. */
+export type UploadTarget = 'CAFE_LOGO' | 'CAFE_COVER' | 'PRODUCT_IMAGE' | 'CLIENT_AVATAR';
+
 interface CloudinaryUploadDto {
   readonly secure_url: string;
 }
@@ -22,8 +25,8 @@ export class ImageUpload {
   private readonly http = inject(HttpClient);
 
   /** Emits the HTTPS URL of the uploaded image. */
-  upload(file: File): Observable<string> {
-    return this.http.post<UploadSignatureDto>(`${environment.apiBaseUrl}/media/signature`, null).pipe(
+  upload(file: File, target: UploadTarget): Observable<string> {
+    return this.http.post<UploadSignatureDto>(`${environment.apiBaseUrl}/media/signature`, { target }).pipe(
       switchMap((signed) => {
         const form = new FormData();
         form.append('file', file);
