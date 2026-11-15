@@ -1,6 +1,7 @@
 export type UserRole = 'superadmin' | 'cafe_admin' | 'client';
 
-export type UserStatus = 'active' | 'inactive' | 'suspended' | 'pending';
+/** The backend only has an active flag (`UserResponse.state`). */
+export type UserStatus = 'active' | 'inactive';
 
 /** Only what the backend sends: it has no name, phone, last login or role-specific details. */
 export interface AdminUser {

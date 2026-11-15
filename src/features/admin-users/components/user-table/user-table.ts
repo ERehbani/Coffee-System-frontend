@@ -45,10 +45,6 @@ export class UserTable {
         return 'Activo';
       case 'inactive':
         return 'Inactivo';
-      case 'suspended':
-        return 'Suspendido';
-      case 'pending':
-        return 'Pendiente';
     }
   }
 

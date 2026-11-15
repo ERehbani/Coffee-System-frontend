@@ -5,7 +5,7 @@ import { ActionFeedback } from '../../services/admin-user.store';
 import { AdminUser, UserRole, UserStatus } from '../../types/admin-user.model';
 
 const ROLES: Record<UserRole, string> = { superadmin: 'Superadministrador', cafe_admin: 'Administrador de Comercio', client: 'Cliente / Consumidor' };
-const STATUSES: Record<UserStatus, string> = { active: 'Activo', inactive: 'Inactivo', suspended: 'Suspendido', pending: 'Pendiente' };
+const STATUSES: Record<UserStatus, string> = { active: 'Activo', inactive: 'Inactivo' };
 
 @Component({
   selector: 'app-user-detail-modal',

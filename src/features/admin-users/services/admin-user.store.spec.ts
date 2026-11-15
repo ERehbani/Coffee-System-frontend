@@ -20,7 +20,7 @@ describe('AdminUserStore', () => {
       id: 'USR-201',
       email: 'mateo@grano.com',
       role: 'cafe_admin',
-      status: 'pending',
+      status: 'inactive',
       createdAt: new Date('2023-05-01'),
     },
     {
@@ -99,9 +99,9 @@ describe('AdminUserStore', () => {
   });
 
   it('should filter users by status', () => {
-    store.setStatusFilter('pending');
+    store.setStatusFilter('inactive');
     expect(store.filteredUsers().length).toBe(1);
-    expect(store.filteredUsers()[0].status).toBe('pending');
+    expect(store.filteredUsers()[0].status).toBe('inactive');
 
     store.setStatusFilter('active');
     expect(store.filteredUsers().length).toBe(2);
@@ -122,9 +122,9 @@ describe('AdminUserStore', () => {
     expect(store.selectedUser()?.email).toBe('mateo@grano.com');
   });
 
-  it('should activate a pending cafe and update selectedUser and stats', () => {
+  it('should activate an inactive cafe and update selectedUser and stats', () => {
     store.selectUserById('USR-201');
-    expect(store.selectedUser()?.status).toBe('pending');
+    expect(store.selectedUser()?.status).toBe('inactive');
 
     store.updateUserStatus('USR-201', 'active');
 
