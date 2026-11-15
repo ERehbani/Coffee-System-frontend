@@ -12,7 +12,7 @@ import { matchesServerCart } from '../utils/cart-match';
 import { CartMismatchError, toCheckoutErrorMessage } from '../utils/checkout-error';
 import { toCheckoutSummary } from '../utils/checkout.mapper';
 import { toCouponPreview } from '../utils/coupon-discount';
-import { findApplicableCoupons } from '../utils/coupon-eligibility';
+import { findApplicableCoupons, withCartProducts } from '../utils/coupon-eligibility';
 import { CheckoutRepository } from './checkout.repository';
 
 export type CheckoutStatus = 'idle' | 'confirming' | 'confirmed';
@@ -29,6 +29,7 @@ export class CheckoutStore {
   private readonly repository = inject(CheckoutRepository);
   private readonly cart = inject(CartService);
   private couponsRequest: Subscription | null = null;
+  private cartRequest: Subscription | null = null;
 
   readonly status = signal<CheckoutStatus>('idle');
   readonly errorMessage = signal<string | null>(null);
@@ -38,6 +39,7 @@ export class CheckoutStore {
   private readonly coupons = signal<readonly CheckoutCoupon[]>([]);
   private readonly couponsLoadedAt = signal(new Date());
   private readonly selectedCouponId = signal<string | null>(null);
+  private readonly serverCart = signal<ServerCart | null>(null);
 
   readonly summary = computed<CheckoutSummary | null>(() =>
     toCheckoutSummary(this.cart.cafe(), this.cart.items()),
@@ -45,9 +47,11 @@ export class CheckoutStore {
 
   readonly applicableCoupons = computed<readonly ApplicableCoupon[]>(() => {
     const summary = this.summary();
-    return summary
-      ? findApplicableCoupons(this.coupons(), summary.cafeId, this.couponsLoadedAt())
-      : [];
+    if (!summary) {
+      return [];
+    }
+    const coupons = withCartProducts(this.coupons(), summary, this.serverCart());
+    return findApplicableCoupons(coupons, summary.cafeId, this.couponsLoadedAt());
   });
 
   readonly selectedCoupon = computed<ApplicableCoupon | null>(
@@ -108,9 +112,18 @@ export class CheckoutStore {
 
   private loadCoupons(): void {
     this.couponsRequest?.unsubscribe();
-    if (!this.summary()) {
+    this.cartRequest?.unsubscribe();
+    this.serverCart.set(null);
+    const summary = this.summary();
+    if (!summary) {
       return;
     }
+
+    // Global product coupons match the backend cart lines by catalog product; without it they stay hidden.
+    this.cartRequest = this.repository.findCart(summary.cafeId).subscribe({
+      next: (cart) => this.serverCart.set(cart),
+      error: () => this.serverCart.set(null),
+    });
 
     this.couponsStatus.set('loading');
     this.couponsRequest = this.repository.findCoupons().subscribe({

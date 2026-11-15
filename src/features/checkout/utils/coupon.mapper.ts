@@ -1,7 +1,23 @@
 import { CheckoutCouponDto } from '../types/coupon.dto';
-import { CheckoutCoupon, CouponBenefit, CouponProduct } from '../types/coupon.model';
+import {
+  CatalogProductBenefit,
+  CheckoutCoupon,
+  CouponBenefit,
+  CouponProduct,
+} from '../types/coupon.model';
 
 const CALENDAR_DAY = /^\d{4}-\d{2}-\d{2}$/;
+
+const CATALOG_BENEFIT_KINDS: ReadonlyMap<string, CatalogProductBenefit['kind']> = new Map([
+  ['DOS_POR_UNO', 'two-for-one'],
+  ['PRODUCTO_POR_PUNTOS', 'free-product'],
+  ['PRODUCTO_GRATIS_SOCIO', 'free-product'],
+]);
+
+function toCatalogBenefit(dto: CheckoutCouponDto): CatalogProductBenefit | null {
+  const kind = dto.benefitType === null ? undefined : CATALOG_BENEFIT_KINDS.get(dto.benefitType);
+  return kind && dto.catalogProductId !== null ? { kind, catalogProductId: dto.catalogProductId } : null;
+}
 
 function toProduct(dto: CheckoutCouponDto): CouponProduct | null {
   if (dto.productId === null || dto.productName === null || dto.productPrice === null) {
@@ -61,6 +77,7 @@ export function toCheckoutCoupon(dto: CheckoutCouponDto): CheckoutCoupon {
     expiresAt: toExpirationDate(dto.expiresAt),
     isActive: dto.state,
     benefit: toBenefit(dto),
+    catalogBenefit: toCatalogBenefit(dto),
   };
 }
 

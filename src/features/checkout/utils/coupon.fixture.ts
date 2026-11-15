@@ -27,6 +27,7 @@ function baseCoupon(id: string, benefitName: string): CheckoutCouponDto {
     productId: null,
     productName: null,
     productPrice: null,
+    catalogProductId: null,
   };
 }
 

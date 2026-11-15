@@ -12,6 +12,7 @@ export interface CartCafe {
 
 export interface CartItemResponse {
   productId: string;
+  catalogProductId: string;
   productName: string;
   quantity: number;
 }
