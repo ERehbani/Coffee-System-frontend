@@ -5,4 +5,5 @@ export interface CafeDashboard {
   readonly redemptionsToday: number;
   readonly purchasesToday: number;
   readonly salesToday: number;
+  readonly pointsAwardedToday: number;
 }

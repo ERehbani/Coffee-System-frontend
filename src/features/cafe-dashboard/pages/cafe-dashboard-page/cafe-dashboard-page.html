@@ -57,7 +57,7 @@
                 <app-icon [name]="card.icon" [size]="22" />
               </span>
               <span>
-                <span class="block text-2xl font-extrabold text-text">{{ card.value }}</span>
+                <span class="block text-2xl font-extrabold text-text">{{ card.value | number }}</span>
                 <span class="block text-xs font-semibold text-muted">{{ card.label }}</span>
               </span>
             </ng-template>
