@@ -1,5 +1,6 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { map } from 'rxjs';
 import { Icon } from '../../../../shared/components/icon/icon';
 import { ProductService } from '../../../catalog/services/product.service';
 import {
@@ -201,14 +202,15 @@ export class CafeProducts implements OnInit {
         tags: payload.request.tags,
       };
 
+      const requestedState = payload.request.state;
       this.productService.update(cafeId, payload.id, updatePayload).subscribe({
         next: (updatedProduct) => {
-          this.products.update((list) =>
-            list.map((item) => (item.externalId === updatedProduct.externalId ? updatedProduct : item)),
-          );
-          this.isSaving.set(false);
-          this.closeForm();
-          this.successMessage.set('¡Producto modificado exitosamente!');
+          this.replaceProduct(updatedProduct);
+          if (requestedState === undefined || requestedState === updatedProduct.state) {
+            this.finishEdit();
+            return;
+          }
+          this.changeState(cafeId, updatedProduct, requestedState);
         },
         error: (err) => {
           this.isSaving.set(false);
@@ -231,6 +233,34 @@ export class CafeProducts implements OnInit {
         },
       });
     }
+  }
+
+  /** The edit request has no state, so the active toggle uses the deactivate and activate endpoints. */
+  private changeState(cafeId: string, product: ProductDto, active: boolean): void {
+    const change$ = active
+      ? this.productService.activate(cafeId, product.externalId)
+      : this.productService.delete(cafeId, product.externalId).pipe(map(() => ({ ...product, state: false })));
+
+    change$.subscribe({
+      next: (changedProduct) => {
+        this.replaceProduct(changedProduct);
+        this.finishEdit();
+      },
+      error: (err) => {
+        this.isSaving.set(false);
+        const reason = backendErrorMessage(err);
+        const action = active ? 'activar' : 'dar de baja';
+        this.errorMessage.set(
+          `Los cambios se guardaron, pero no se pudo ${action} el producto.${reason ? ` ${reason}` : ''}`,
+        );
+      },
+    });
+  }
+
+  private finishEdit(): void {
+    this.isSaving.set(false);
+    this.closeForm();
+    this.successMessage.set('¡Producto modificado exitosamente!');
   }
 
   onActivateProduct(product: ProductDto): void {
