@@ -93,10 +93,14 @@ export class CafeBenefits implements OnInit {
   loadTypesAndTiers(): void {
     this.cafeBenefitService.getBenefitTypes().subscribe({
       next: (types) => this.benefitTypes.set(types),
+      error: () =>
+        this.errorMessage.set('No se pudieron cargar los tipos de promoción. Recargá la página para intentar de nuevo.'),
     });
 
     this.cafeBenefitService.getTiers().subscribe({
       next: (tiers) => this.tiers.set(tiers),
+      error: () =>
+        this.errorMessage.set('No se pudieron cargar los niveles de socio. Recargá la página para intentar de nuevo.'),
     });
   }
 
@@ -106,6 +110,8 @@ export class CafeBenefits implements OnInit {
       .pipe(switchMap((cafeId) => this.productService.listByCafe(cafeId)))
       .subscribe({
         next: (products) => this.products.set(toProductOptions(products)),
+        error: () =>
+          this.errorMessage.set('No se pudieron cargar los productos del local. Recargá la página para intentar de nuevo.'),
       });
   }
 
@@ -115,10 +121,15 @@ export class CafeBenefits implements OnInit {
     this.successMessage.set(null);
 
     this.cafeBenefitService.create(request).subscribe({
-      next: (newBenefit) => {
-        this.benefits.update((list) => [newBenefit, ...list]);
+      next: ({ benefit, publishError }) => {
+        this.benefits.update((list) => [benefit, ...list]);
         this.isSaving.set(false);
         this.showForm.set(false);
+        if (publishError) {
+          const reason = backendErrorMessage(publishError);
+          this.errorMessage.set(`La promoción se guardó, pero no se pudo publicar.${reason ? ` ${reason}` : ''}`);
+          return;
+        }
         this.successMessage.set('¡Promoción publicada exitosamente!');
       },
       error: (err) => {

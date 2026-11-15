@@ -45,6 +45,12 @@ export interface CafeBenefit {
   discountPercentage?: number | null;
 }
 
+export interface CafeBenefitCreation {
+  benefit: CafeBenefit;
+  /** Null when the benefit was published; otherwise the error of the publish request. */
+  publishError: unknown;
+}
+
 export interface BenefitTypeOption {
   id: BenefitType;
   name: BenefitType;

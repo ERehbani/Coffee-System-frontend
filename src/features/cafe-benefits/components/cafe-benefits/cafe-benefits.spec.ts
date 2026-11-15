@@ -46,7 +46,7 @@ describe('CafeBenefits', () => {
       getAll: vi.fn(() => of([])),
       getBenefitTypes: vi.fn(() => of([])),
       getTiers: vi.fn(() => of([])),
-      create: vi.fn(() => of(benefit)),
+      create: vi.fn(() => of({ benefit, publishError: null })),
     };
     productService = {
       getMyCafeId: vi.fn(() => of(PRODUCT_CAFE_ID)),

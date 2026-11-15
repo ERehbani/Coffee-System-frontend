@@ -1,11 +1,12 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { map, Observable } from 'rxjs';
+import { catchError, map, Observable, of, switchMap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
   BenefitType,
   BenefitTypeOption,
   CafeBenefit,
+  CafeBenefitCreation,
   CreateCafeBenefitRequest,
   TierOption,
 } from '../model/cafe-benefit.model';
@@ -23,7 +24,8 @@ export class CafeBenefitService {
     return this.http.get<CafeBenefit[]>(this.baseUrl);
   }
 
-  create(request: CreateCafeBenefitRequest): Observable<CafeBenefit> {
+  /** Creates the benefit and publishes it; a failed publish still emits the saved (unpublished) benefit. */
+  create(request: CreateCafeBenefitRequest): Observable<CafeBenefitCreation> {
     const payload = {
       name: request.name,
       description: request.description,
@@ -38,7 +40,14 @@ export class CafeBenefitService {
       tierId: request.tierId,
     };
 
-    return this.http.post<CafeBenefit>(this.baseUrl, payload);
+    return this.http.post<CafeBenefit>(this.baseUrl, payload).pipe(
+      switchMap((created) =>
+        this.http.post<CafeBenefit>(`${this.baseUrl}/${created.externalId}/publish`, {}).pipe(
+          map((benefit) => ({ benefit, publishError: null })),
+          catchError((publishError: unknown) => of({ benefit: created, publishError })),
+        ),
+      ),
+    );
   }
 
   getBenefitTypes(): Observable<BenefitTypeOption[]> {
