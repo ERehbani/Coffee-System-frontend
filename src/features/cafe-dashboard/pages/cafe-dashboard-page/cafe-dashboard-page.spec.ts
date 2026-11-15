@@ -15,6 +15,7 @@ const DASHBOARD: CafeDashboard = {
   redemptionsToday: 4,
   purchasesToday: 12,
   salesToday: 45600,
+  pointsAwardedToday: 350,
 };
 
 describe('CafeDashboardPage', () => {
