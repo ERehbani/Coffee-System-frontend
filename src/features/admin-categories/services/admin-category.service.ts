@@ -2,7 +2,19 @@ import { HttpClient } from '@angular/common/http';
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { map } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { backendErrorMessage } from '../../../shared/utils/backend-error';
 import { AdminCategory } from '../models/admin-category.model';
+
+/** `CategoryResponse` of the backend. */
+interface CategoryDto {
+  readonly categoryId: string;
+  readonly name: string;
+  readonly productCount: number;
+}
+
+function toAdminCategory(dto: CategoryDto): AdminCategory {
+  return { id: dto.categoryId, name: dto.name, productCount: dto.productCount };
+}
 
 @Injectable({ providedIn: 'root' })
 export class AdminCategoryService {
@@ -27,9 +39,7 @@ export class AdminCategoryService {
 
   load(): void {
     this.loading.set(true);
-    this.http.get<{ categoryId?: string; id?: string; name: string }[]>(this.baseUrl).pipe(
-      map((items) => items.map((i) => ({ id: i.categoryId || i.id || '', name: i.name, productCount: 0 }))),
-    ).subscribe({
+    this.http.get<CategoryDto[]>(this.baseUrl).pipe(map((items) => items.map(toAdminCategory))).subscribe({
       next: (list) => {
         this.categories.set(list);
         this.loading.set(false);
@@ -48,13 +58,13 @@ export class AdminCategoryService {
       return;
     }
 
-    this.http.post<{ categoryId?: string; id?: string; name: string }>(this.baseUrl, { name: trimmed }).subscribe({
+    this.http.post<CategoryDto>(this.baseUrl, { name: trimmed }).subscribe({
       next: (res) => {
-        this.categories.update((prev) => [{ id: res.categoryId || res.id || '', name: res.name, productCount: 0 }, ...prev]);
+        this.categories.update((prev) => [toAdminCategory(res), ...prev]);
         this.notify(`¡Categoría "${trimmed}" creada con éxito!`);
         onSuccess?.();
       },
-      error: () => this.notify('Ocurrió un error al crear la categoría.', true),
+      error: (err: unknown) => this.notifyError('crear', err),
     });
   }
 
@@ -65,13 +75,13 @@ export class AdminCategoryService {
       return;
     }
 
-    this.http.put<{ categoryId?: string; id?: string; name: string }>(`${this.baseUrl}/${id}`, { name: trimmed }).subscribe({
+    this.http.put<CategoryDto>(`${this.baseUrl}/${id}`, { name: trimmed }).subscribe({
       next: (res) => {
-        this.categories.update((prev) => prev.map((c) => (c.id === id ? { ...c, name: res.name } : c)));
+        this.categories.update((prev) => prev.map((c) => (c.id === id ? toAdminCategory(res) : c)));
         this.notify(`¡Categoría actualizada a "${trimmed}"!`);
         onSuccess?.();
       },
-      error: () => this.notify('Ocurrió un error al actualizar la categoría.', true),
+      error: (err: unknown) => this.notifyError('actualizar', err),
     });
   }
 
@@ -85,12 +95,21 @@ export class AdminCategoryService {
         this.notify(`Categoría "${catName}" eliminada correctamente.`);
         onSuccess?.();
       },
-      error: () => this.notify('Ocurrió un error al eliminar la categoría.', true),
+      error: (err: unknown) => this.notifyError('eliminar', err),
     });
   }
 
   notify(text: string, error = false): void {
     this.message.set({ text, error });
+  }
+
+  /** Shows why the backend rejected the change (409 category in use or duplicated, 400 invalid name). */
+  private notifyError(action: 'crear' | 'actualizar' | 'eliminar', error: unknown): void {
+    const reason = backendErrorMessage(error);
+    this.notify(
+      reason ? `No se pudo ${action} la categoría. ${reason}` : `Ocurrió un error al ${action} la categoría.`,
+      true,
+    );
   }
 
   clearMessage(): void {

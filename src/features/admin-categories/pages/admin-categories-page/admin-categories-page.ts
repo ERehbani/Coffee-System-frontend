@@ -1,3 +1,4 @@
+import { DecimalPipe } from '@angular/common';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -7,7 +8,7 @@ import { AdminCategoryService } from '../../services/admin-category.service';
 
 @Component({
   selector: 'app-admin-categories-page',
-  imports: [FormsModule, RouterLink, Icon],
+  imports: [DecimalPipe, FormsModule, RouterLink, Icon],
   templateUrl: './admin-categories-page.html',
   host: { class: 'block' },
 })
