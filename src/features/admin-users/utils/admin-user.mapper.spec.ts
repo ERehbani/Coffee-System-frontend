@@ -1,10 +1,13 @@
+import { AdminUserDto } from '../types/admin-user.dto';
 import { toAdminUser } from './admin-user.mapper';
 
 describe('toAdminUser', () => {
-  const backendUser = {
+  const backendUser: AdminUserDto = {
     externalId: 'user-1',
     email: 'cliente@test.com',
     state: true,
+    role: 'ROLE_CLIENTE',
+    creationDate: null,
   };
 
   it('uses the creation date sent by the backend', () => {

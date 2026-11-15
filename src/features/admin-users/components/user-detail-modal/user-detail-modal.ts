@@ -2,11 +2,10 @@ import { DatePipe } from '@angular/common';
 import { Component, HostListener, input, output, signal } from '@angular/core';
 import { Icon } from '../../../../shared/components/icon/icon';
 import { ActionFeedback } from '../../services/admin-user.store';
-import { AdminUser, LoyaltyTier, UserRole, UserStatus } from '../../types/admin-user.model';
+import { AdminUser, UserRole, UserStatus } from '../../types/admin-user.model';
 
 const ROLES: Record<UserRole, string> = { superadmin: 'Superadministrador', cafe_admin: 'Administrador de Comercio', client: 'Cliente / Consumidor' };
 const STATUSES: Record<UserStatus, string> = { active: 'Activo', inactive: 'Inactivo', suspended: 'Suspendido', pending: 'Pendiente' };
-const TIERS: Record<LoyaltyTier, string> = { diamond: 'Nivel Diamante', gold: 'Nivel Oro', silver: 'Nivel Plata', bronze: 'Nivel Bronce' };
 
 @Component({
   selector: 'app-user-detail-modal',
@@ -37,9 +36,8 @@ export class UserDetailModal {
   }
   protected onReactivateUser(): void { this.updateStatus.emit({ id: this.user().id, status: 'active' }); }
 
-  protected getRoleLabel(role: UserRole): string { return ROLES[role]; }
+  protected getRoleLabel(role: UserRole | null): string { return role ? ROLES[role] : 'Sin rol asignado'; }
   protected getStatusLabel(status: UserStatus): string { return STATUSES[status]; }
-  protected getLoyaltyLabel(tier: LoyaltyTier): string { return TIERS[tier]; }
 
   protected getInitials(name: string): string {
     return name.split(' ').filter(Boolean).slice(0, 2).map((p) => p[0].toUpperCase()).join('');

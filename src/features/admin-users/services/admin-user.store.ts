@@ -55,13 +55,7 @@ export class AdminUserStore {
         return true;
       }
 
-      const matchesId = user.id.toLowerCase().includes(query);
-      const matchesName = user.fullName.toLowerCase().includes(query);
-      const matchesEmail = user.email.toLowerCase().includes(query);
-      const matchesPhone = user.phoneNumber.toLowerCase().includes(query);
-      const matchesCafe = user.cafeAdminDetails?.cafeName.toLowerCase().includes(query) ?? false;
-
-      return matchesId || matchesName || matchesEmail || matchesPhone || matchesCafe;
+      return user.id.toLowerCase().includes(query) || user.email.toLowerCase().includes(query);
     });
   });
 
@@ -119,11 +113,11 @@ export class AdminUserStore {
 
         let msg = '¡Estado del usuario actualizado exitosamente!';
         if (status === 'active' && updatedUser.role === 'cafe_admin') {
-          msg = `¡La cafetería "${updatedUser.cafeAdminDetails?.cafeName || updatedUser.fullName}" ha sido activada con éxito!`;
+          msg = `¡La cuenta de comercio ${updatedUser.email} ha sido activada con éxito!`;
         } else if (status === 'active') {
-          msg = `¡El usuario ${updatedUser.fullName} ha sido reactivado exitosamente!`;
+          msg = `¡El usuario ${updatedUser.email} ha sido reactivado exitosamente!`;
         } else if (status === 'inactive') {
-          msg = `¡El usuario ${updatedUser.fullName} ha sido dado de baja exitosamente!`;
+          msg = `¡El usuario ${updatedUser.email} ha sido dado de baja exitosamente!`;
         }
 
         this.actionMessage.set({ type: 'success', text: msg });

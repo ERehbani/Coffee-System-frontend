@@ -26,7 +26,7 @@ export class UserTable {
     }
   }
 
-  protected getRoleLabel(role: UserRole): string {
+  protected getRoleLabel(role: UserRole | null): string {
     switch (role) {
       case 'superadmin':
         return 'Superadmin';
@@ -34,6 +34,8 @@ export class UserTable {
         return 'Comercio';
       case 'client':
         return 'Cliente';
+      case null:
+        return 'Sin rol';
     }
   }
 
