@@ -12,7 +12,6 @@ const CLIENT_NOT_FOUND_MESSAGE =
  * 404 not found, 403 no client profile, 409 sold out, 422 business rules.
  */
 const MESSAGES_BY_BACKEND_DETAIL: ReadonlyMap<string, string> = new Map([
-  ['client not found', CLIENT_NOT_FOUND_MESSAGE],
   ['the current user has no client profile', CLIENT_NOT_FOUND_MESSAGE],
   ['client does not have enough points', 'No tienes puntos suficientes para este beneficio.'],
   ['benefit is sold out', 'Este beneficio ya no tiene canjes disponibles.'],

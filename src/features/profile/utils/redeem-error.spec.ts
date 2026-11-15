@@ -32,11 +32,13 @@ describe('toRedeemErrorMessage', () => {
     const expected =
       'No pudimos identificar tu cuenta. Vuelve a iniciar sesión e inténtalo de nuevo.';
 
-    expect(toRedeemErrorMessage(problem(404, 'Client not found'))).toBe(expected);
-    expect(toRedeemErrorMessage(problem(404, '  CLIENT NOT FOUND '))).toBe(expected);
     expect(toRedeemErrorMessage(problem(403, 'The current user has no client profile'))).toBe(
       expected,
     );
+    expect(toRedeemErrorMessage(problem(403, '  THE CURRENT USER HAS NO CLIENT PROFILE '))).toBe(
+      expected,
+    );
+    expect(toRedeemErrorMessage(problem(404, 'Benefit not found'))).not.toBe(expected);
   });
 
   it('keeps the benefit message for any other 404 body', () => {
