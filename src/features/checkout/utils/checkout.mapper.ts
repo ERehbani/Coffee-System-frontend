@@ -52,7 +52,11 @@ export function toServerCart(dto: CartResponse): ServerCart {
   return {
     id: dto.externalId,
     total: dto.totalPrice,
-    lines: dto.products.map((item) => ({ productId: item.productId, quantity: item.quantity })),
+    lines: dto.products.map((item) => ({
+      productId: item.productId,
+      catalogProductId: item.catalogProductId,
+      quantity: item.quantity,
+    })),
   };
 }
 

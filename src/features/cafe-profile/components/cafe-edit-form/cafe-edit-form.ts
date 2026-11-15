@@ -1,12 +1,13 @@
 import { Component, computed, input, linkedSignal, output, signal } from '@angular/core';
 import { Icon } from '../../../../shared/components/icon/icon';
+import { ImageInput } from '../../../../shared/components/image-input/image-input';
 import { OpeningHoursEditor } from '../../../../shared/components/opening-hours-editor/opening-hours-editor';
 import { hasValidOpeningHours, OpeningHours } from '../../../../shared/utils/opening-hours';
 import { CafeProfile, UpdateCafeProfileInput } from '../../types/cafe-profile.model';
 
 @Component({
   selector: 'app-cafe-edit-form',
-  imports: [Icon, OpeningHoursEditor],
+  imports: [Icon, ImageInput, OpeningHoursEditor],
   templateUrl: './cafe-edit-form.html',
   host: { class: 'block' },
 })
@@ -23,6 +24,9 @@ export class CafeEditForm {
   readonly description = linkedSignal(() => this.profile().description);
   readonly logo = linkedSignal(() => this.profile().logo);
   readonly image = linkedSignal(() => this.profile().image);
+  readonly logoUploading = signal(false);
+  readonly imageUploading = signal(false);
+  readonly uploading = computed(() => this.logoUploading() || this.imageUploading());
 
   readonly addressTouched = signal(false);
   readonly phoneTouched = signal(false);
@@ -53,10 +57,6 @@ export class CafeEditForm {
     hasValidOpeningHours(this.openingHours()) ? null : 'Revisá los horarios de atención.',
   );
 
-  readonly logoError = computed(() => (this.logo().trim() ? null : 'El logo es obligatorio.'));
-
-  readonly imageError = computed(() => (this.image().trim() ? null : 'La portada es obligatoria.'));
-
   readonly descriptionError = computed(() => {
     if (this.description().length > 500) {
       return 'La descripción no puede superar los 500 caracteres.';
@@ -68,8 +68,6 @@ export class CafeEditForm {
     !this.addressError() &&
     !this.phoneError() &&
     !this.hoursError() &&
-    !this.logoError() &&
-    !this.imageError() &&
     !this.descriptionError()
   );
 
@@ -80,7 +78,7 @@ export class CafeEditForm {
     this.descriptionTouched.set(true);
     this.submitted.set(true);
 
-    if (!this.isFormValid()) {
+    if (!this.isFormValid() || this.uploading()) {
       return;
     }
 

@@ -1,4 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { of } from 'rxjs';
+import { ImageUpload } from '../../../../shared/services/image-upload';
 import { ClientProfile } from '../../types/profile.model';
 import { ProfileEditForm } from './profile-edit-form';
 
@@ -18,6 +20,7 @@ describe('ProfileEditForm', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [ProfileEditForm],
+      providers: [{ provide: ImageUpload, useValue: { upload: () => of('') } }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ProfileEditForm);
@@ -165,7 +168,10 @@ describe('ProfileEditForm', () => {
     });
 
     it('should allow clearing the avatar url', () => {
-      component.onClearAvatar();
+      const buttons = Array.from(
+        fixture.nativeElement.querySelectorAll('button'),
+      ) as HTMLButtonElement[];
+      buttons.find((btn) => btn.textContent?.includes('Quitar imagen'))?.click();
       expect(component.avatarUrl()).toBe('');
       expect(component.avatarUrlError()).toBeNull();
     });

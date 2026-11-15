@@ -20,8 +20,18 @@ describe('checkout mapper', () => {
         cafeid: 'cafe-central-001',
         totalPrice: 9200,
         products: [
-          { productId: 'prod-central-001', productName: 'Espresso Doble', quantity: 2 },
-          { productId: 'prod-central-002', productName: 'Flat White', quantity: 1 },
+          {
+            productId: 'prod-central-001',
+            catalogProductId: 'catalog-espresso',
+            productName: 'Espresso Doble',
+            quantity: 2,
+          },
+          {
+            productId: 'prod-central-002',
+            catalogProductId: 'catalog-flat-white',
+            productName: 'Flat White',
+            quantity: 1,
+          },
         ],
       });
 
@@ -29,8 +39,8 @@ describe('checkout mapper', () => {
         id: 'cart-1',
         total: 9200,
         lines: [
-          { productId: 'prod-central-001', quantity: 2 },
-          { productId: 'prod-central-002', quantity: 1 },
+          { productId: 'prod-central-001', catalogProductId: 'catalog-espresso', quantity: 2 },
+          { productId: 'prod-central-002', catalogProductId: 'catalog-flat-white', quantity: 1 },
         ],
       });
     });

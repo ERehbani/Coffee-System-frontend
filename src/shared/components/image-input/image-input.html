@@ -9,7 +9,20 @@
     placeholder="https://..."
     class="w-full rounded-xl border border-border bg-bg px-4 py-2.5 text-sm text-text placeholder:text-muted/60 focus:border-primary focus:outline-hidden"
   />
-  <div class="flex flex-wrap items-center gap-2">
+  <div
+    role="group"
+    [attr.aria-labelledby]="inputId() + '-drop'"
+    (dragover)="dragOver($event)"
+    (dragleave)="dragLeave($event)"
+    (drop)="drop($event)"
+    class="flex flex-wrap items-center gap-2 rounded-xl border-2 border-dashed p-3 transition"
+    [class.border-border]="!dragging()"
+    [class.border-primary]="dragging()"
+    [class.bg-accent-light]="dragging()"
+  >
+    <p [id]="inputId() + '-drop'" class="text-xs font-semibold text-muted">
+      {{ dragging() ? 'Soltá la imagen para subirla' : 'Arrastrá una imagen acá o' }}
+    </p>
     <label
       class="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-primary px-4 py-2 text-sm font-bold text-primary transition hover:bg-accent-light has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-primary"
     >
