@@ -62,15 +62,7 @@ export const serverRoutes: ServerRoute[] = [
     renderMode: RenderMode.Client,
   },
   {
-    path: 'cafe/profile',
-    renderMode: RenderMode.Client,
-  },
-  {
-    path: 'cafe/validate',
-    renderMode: RenderMode.Client,
-  },
-  {
-    path: 'cafe/benefits',
+    path: 'cafe/**',
     renderMode: RenderMode.Client,
   },
   {

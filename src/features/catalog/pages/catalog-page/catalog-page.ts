@@ -5,6 +5,8 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Subject, Subscription, merge, of } from 'rxjs';
 import { catchError, distinctUntilChanged, map, switchMap, tap } from 'rxjs/operators';
 import { Icon } from '../../../../shared/components/icon/icon';
+import { ThemeToggle } from '../../../../shared/components/theme-toggle/theme-toggle';
+import { formatOpeningHours } from '../../../../shared/utils/opening-hours';
 import { CartButton } from '../../../cart/components/cart-button/cart-button';
 import { CartService } from '../../../cart/services/cart.service';
 import { Cafe } from '../../../home/model/cafe.model';
@@ -16,7 +18,7 @@ import { ProductService } from '../../services/product.service';
 
 @Component({
   selector: 'app-catalog-page',
-  imports: [RouterLink, FormsModule, Icon, ProductCard, ProductDetailModal, CartButton],
+  imports: [RouterLink, FormsModule, Icon, ProductCard, ProductDetailModal, CartButton, ThemeToggle],
   templateUrl: './catalog-page.html',
   host: { class: 'block' },
 })
@@ -27,6 +29,8 @@ export class CatalogPage implements OnInit {
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
   readonly cartService = inject(CartService);
+
+  readonly formatHours = formatOpeningHours;
 
   private readonly manualCafeId$ = new Subject<string>();
   private catalogSubscription?: Subscription;

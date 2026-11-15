@@ -63,7 +63,7 @@
 
         <section
           aria-label="Tu nivel actual"
-          class="rounded-3xl bg-linear-to-br from-primary-dark to-text p-5 text-white shadow-xl shadow-primary-dark/25 sm:p-6"
+          class="rounded-3xl bg-linear-to-br from-primary-dark to-ink p-5 text-white shadow-xl shadow-primary-dark/25 sm:p-6"
         >
           <p class="text-xs font-bold tracking-[0.2em] text-white/70">NIVEL ACTUAL</p>
           <p class="mt-2 flex items-center gap-2 text-3xl font-extrabold tracking-tight">
@@ -79,7 +79,7 @@
 
           @if (store.progress(); as progress) {
             <app-tier-progress
-              class="mt-5 rounded-2xl bg-text/50 p-4"
+              class="mt-5 rounded-2xl bg-ink/50 p-4"
               [progress]="progress"
               [lifetimePoints]="detail.lifetimePoints"
               [nextTier]="detail.nextTier"

@@ -1,3 +1,4 @@
+import { formatOpeningHours } from '../../../../shared/utils/opening-hours';
 import { Component, computed, input, output } from '@angular/core';
 import { Icon } from '../../../../shared/components/icon/icon';
 import { Cafe } from '../../../home/model/cafe.model';
@@ -12,6 +13,8 @@ import { Cafe } from '../../../home/model/cafe.model';
   },
 })
 export class CafeDetailModal {
+  readonly formatHours = formatOpeningHours;
+
   readonly cafe = input<Cafe | null>(null);
   readonly close = output<void>();
 

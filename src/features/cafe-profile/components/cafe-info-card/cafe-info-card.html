@@ -34,9 +34,15 @@
       </div>
       <div class="space-y-1">
         <h2 class="text-xs font-bold uppercase tracking-wider text-muted">Horarios de atención</h2>
-        <p class="text-base font-semibold text-text whitespace-pre-line">
-          {{ profile().schedule || 'Sin horario cargado' }}
-        </p>
+        @if (profile().openingHours.length > 0) {
+          <ul class="space-y-0.5 text-base font-semibold text-text">
+            @for (hours of profile().openingHours; track hours.day) {
+              <li>{{ dayLabels[hours.day] }}: {{ hours.opensAt }}–{{ hours.closesAt }}</li>
+            }
+          </ul>
+        } @else {
+          <p class="text-base font-semibold text-text">Sin horario cargado</p>
+        }
       </div>
     </div>
 

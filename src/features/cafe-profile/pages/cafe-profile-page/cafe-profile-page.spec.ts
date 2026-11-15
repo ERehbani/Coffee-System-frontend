@@ -14,12 +14,7 @@ describe('CafeProfilePage', () => {
   let fixture: ComponentFixture<CafeProfilePage>;
   let root: HTMLElement;
 
-  const clientViewLink = () =>
-    Array.from(root.querySelectorAll<HTMLAnchorElement>('a')).find((link) =>
-      link.textContent?.includes('Vista Cliente'),
-    );
-
-  async function setup(roles: string[]): Promise<void> {
+  async function setup(): Promise<void> {
     await TestBed.configureTestingModule({
       imports: [CafeProfilePage],
       providers: [
@@ -32,44 +27,31 @@ describe('CafeProfilePage', () => {
       ],
     }).compileComponents();
 
-    signInForTest(roles);
+    signInForTest(['ROLE_CAFETERIA']);
     fixture = TestBed.createComponent(CafeProfilePage);
     root = fixture.nativeElement as HTMLElement;
     fixture.detectChanges();
   }
 
-  it('hides the client view link for a cafe only', async () => {
-    await setup(['ROLE_CAFETERIA']);
-
-    expect(clientViewLink()).toBeUndefined();
-  });
-
-  it('shows the client view link when the cafe is also a client', async () => {
-    await setup(['ROLE_CAFETERIA', 'ROLE_CLIENTE']);
-
-    expect(clientViewLink()?.getAttribute('href')).toBe('/profile');
-  });
-
-  it('links to the coupon validator', async () => {
-    await setup(['ROLE_CAFETERIA']);
-
-    const validatorLink = Array.from(root.querySelectorAll<HTMLAnchorElement>('a')).find((link) =>
-      link.textContent?.includes('Validar cupones'),
-    );
-
-    expect(validatorLink?.getAttribute('href')).toBe('/cafe/validate');
-  });
-
   it('shows the profile of the cafe once it is loaded', async () => {
-    await setup(['ROLE_CAFETERIA']);
+    await setup();
 
+    expect(root.querySelector('h1')?.textContent?.trim()).toBe('Perfil del local');
     expect(root.textContent).toContain(cafeProfile.name);
     expect(root.textContent).toContain(cafeProfile.address);
   });
 
-  it('shows the logout button', async () => {
-    await setup(['ROLE_CAFETERIA']);
+  it('lists the opening hours of every day the cafe opens', async () => {
+    await setup();
 
-    expect(root.querySelector('app-logout-button')).not.toBeNull();
+    expect(root.textContent).toContain('Lunes: 07:30–20:00');
+    expect(root.textContent).toContain('Sábado: 08:30–19:00');
+  });
+
+  it('leaves the navigation to the cafe layout', async () => {
+    await setup();
+
+    expect(root.querySelector('app-logout-button')).toBeNull();
+    expect(root.querySelector('a[href="/cafe/validate"]')).toBeNull();
   });
 });

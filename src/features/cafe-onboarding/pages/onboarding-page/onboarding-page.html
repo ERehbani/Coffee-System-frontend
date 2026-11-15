@@ -1,0 +1,191 @@
+<header class="flex items-center justify-between border-b border-border bg-surface px-4 py-3">
+  <span class="text-base font-semibold text-text">Coffee System</span>
+  <div class="flex items-center gap-2">
+    <app-theme-toggle />
+    <app-logout-button />
+  </div>
+</header>
+
+<main class="mx-auto max-w-2xl space-y-6 px-4 py-8">
+  @switch (status()) {
+    @case ('loading') {
+      <p role="status" class="text-sm text-muted">Cargando los datos de tu cafetería…</p>
+    }
+    @case ('error') {
+      <div role="alert" class="rounded-2xl border border-border bg-surface p-6 text-center">
+        <p class="font-semibold text-text">No pudimos cargar los datos de tu cafetería.</p>
+        <p class="mt-1 text-sm text-muted">Recargá la página para intentar de nuevo.</p>
+      </div>
+    }
+    @default {
+      <div class="space-y-2">
+        <p class="text-xs font-semibold uppercase tracking-wider text-accent">Bienvenido a Coffee System</p>
+        <h1 class="text-2xl font-extrabold text-text">Configurá {{ profile()?.name }}</h1>
+        <p class="text-sm text-muted">
+          Antes de usar el panel, completá los datos que van a ver tus clientes. Te lleva un par de minutos.
+        </p>
+      </div>
+
+      <ol aria-label="Pasos del onboarding" class="grid grid-cols-4 gap-2">
+        @for (label of steps; track label; let index = $index) {
+          <li
+            class="rounded-xl border px-2 py-2 text-center text-xs font-semibold"
+            [class.border-primary]="index === step()"
+            [class.bg-accent-light]="index === step()"
+            [class.text-primary]="index <= step()"
+            [class.border-border]="index !== step()"
+            [class.text-muted]="index > step()"
+            [attr.aria-current]="index === step() ? 'step' : null"
+          >
+            {{ index + 1 }}. {{ label }}
+          </li>
+        }
+      </ol>
+
+      <section class="space-y-5 rounded-3xl border border-border bg-surface p-6 shadow-xs">
+        @switch (step()) {
+          @case (0) {
+            <h2 class="text-lg font-bold text-text">Datos de contacto</h2>
+            <div class="space-y-1.5">
+              <label for="onboarding-address" class="block text-sm font-bold text-text">Dirección *</label>
+              <input
+                id="onboarding-address"
+                type="text"
+                [value]="address()"
+                (input)="address.set($any($event.target).value)"
+                placeholder="Ej: Av. Corrientes 1450, CABA"
+                class="w-full rounded-xl border border-border bg-bg px-4 py-2.5 text-sm text-text placeholder:text-muted/60 focus:border-primary focus:outline-hidden"
+              />
+              @if (attempted() && addressError(); as err) {
+                <p role="alert" class="text-xs font-semibold text-rose-600">{{ err }}</p>
+              }
+            </div>
+            <div class="space-y-1.5">
+              <label for="onboarding-phone" class="block text-sm font-bold text-text">Teléfono (10 dígitos) *</label>
+              <input
+                id="onboarding-phone"
+                type="tel"
+                maxlength="10"
+                [value]="phoneNumber()"
+                (input)="phoneNumber.set($any($event.target).value)"
+                placeholder="Ej: 1145238890"
+                class="w-full rounded-xl border border-border bg-bg px-4 py-2.5 text-sm text-text placeholder:text-muted/60 focus:border-primary focus:outline-hidden"
+              />
+              @if (attempted() && phoneError(); as err) {
+                <p role="alert" class="text-xs font-semibold text-rose-600">{{ err }}</p>
+              }
+            </div>
+            <div class="space-y-1.5">
+              <label for="onboarding-description" class="block text-sm font-bold text-text">Descripción (opcional)</label>
+              <textarea
+                id="onboarding-description"
+                rows="3"
+                maxlength="500"
+                [value]="description()"
+                (input)="description.set($any($event.target).value)"
+                placeholder="Contale a tus clientes qué ofrece tu cafetería"
+                class="w-full rounded-xl border border-border bg-bg px-4 py-2.5 text-sm text-text placeholder:text-muted/60 focus:border-primary focus:outline-hidden"
+              ></textarea>
+            </div>
+          }
+          @case (1) {
+            <h2 class="text-lg font-bold text-text">Horarios de atención</h2>
+            <p class="text-sm text-muted">Con estos horarios los clientes van a ver si tu local está abierto.</p>
+            <app-opening-hours-editor [(hours)]="openingHours" [showErrors]="attempted()" />
+          }
+          @case (2) {
+            <h2 class="text-lg font-bold text-text">Imágenes</h2>
+            <div class="space-y-1.5">
+              <label for="onboarding-logo" class="block text-sm font-bold text-text">URL del logo *</label>
+              <input
+                id="onboarding-logo"
+                type="url"
+                [value]="logo()"
+                (input)="logo.set($any($event.target).value)"
+                placeholder="https://..."
+                class="w-full rounded-xl border border-border bg-bg px-4 py-2.5 text-sm text-text placeholder:text-muted/60 focus:border-primary focus:outline-hidden"
+              />
+              @if (attempted() && logoError(); as err) {
+                <p role="alert" class="text-xs font-semibold text-rose-600">{{ err }}</p>
+              }
+              @if (logo()) {
+                <img [src]="logo()" alt="Vista previa del logo" class="size-20 rounded-2xl border border-border object-cover" />
+              }
+            </div>
+            <div class="space-y-1.5">
+              <label for="onboarding-image" class="block text-sm font-bold text-text">URL de la portada *</label>
+              <input
+                id="onboarding-image"
+                type="url"
+                [value]="image()"
+                (input)="image.set($any($event.target).value)"
+                placeholder="https://..."
+                class="w-full rounded-xl border border-border bg-bg px-4 py-2.5 text-sm text-text placeholder:text-muted/60 focus:border-primary focus:outline-hidden"
+              />
+              @if (attempted() && imageError(); as err) {
+                <p role="alert" class="text-xs font-semibold text-rose-600">{{ err }}</p>
+              }
+              @if (image()) {
+                <img [src]="image()" alt="Vista previa de la portada" class="h-40 w-full rounded-2xl border border-border object-cover" />
+              }
+            </div>
+          }
+          @default {
+            <h2 class="text-lg font-bold text-text">Revisá los datos</h2>
+            <dl class="space-y-3 text-sm">
+              <div>
+                <dt class="font-semibold text-muted">Dirección</dt>
+                <dd class="text-text">{{ address() }}</dd>
+              </div>
+              <div>
+                <dt class="font-semibold text-muted">Teléfono</dt>
+                <dd class="text-text">{{ phoneNumber() }}</dd>
+              </div>
+              <div>
+                <dt class="font-semibold text-muted">Horarios</dt>
+                <dd class="text-text">{{ hoursSummary() }}</dd>
+              </div>
+              <div class="flex items-center gap-3">
+                <img [src]="logo()" alt="Logo" class="size-14 rounded-xl border border-border object-cover" />
+                <img [src]="image()" alt="Portada" class="h-14 flex-1 rounded-xl border border-border object-cover" />
+              </div>
+            </dl>
+            @if (errorMessage(); as err) {
+              <p role="alert" class="rounded-xl bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-700">{{ err }}</p>
+            }
+          }
+        }
+
+        <div class="flex items-center justify-between border-t border-border pt-4">
+          <button
+            type="button"
+            (click)="back()"
+            [disabled]="step() === 0 || status() === 'saving'"
+            class="cursor-pointer rounded-xl border border-border px-4 py-2 text-sm font-semibold text-muted transition hover:bg-bg hover:text-text disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            Atrás
+          </button>
+          @if (isLastStep()) {
+            <button
+              type="button"
+              (click)="finish()"
+              [disabled]="status() === 'saving'"
+              class="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-primary px-5 py-2 text-sm font-bold text-white transition hover:bg-primary-dark disabled:opacity-60"
+            >
+              <app-icon name="check" [size]="16" />
+              {{ status() === 'saving' ? 'Guardando…' : 'Terminar y entrar al panel' }}
+            </button>
+          } @else {
+            <button
+              type="button"
+              (click)="next()"
+              class="cursor-pointer rounded-xl bg-primary px-5 py-2 text-sm font-bold text-white transition hover:bg-primary-dark"
+            >
+              Siguiente
+            </button>
+          }
+        </div>
+      </section>
+    }
+  }
+</main>

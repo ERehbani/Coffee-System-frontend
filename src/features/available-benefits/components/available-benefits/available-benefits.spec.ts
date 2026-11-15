@@ -40,6 +40,12 @@ describe('AvailableBenefits', () => {
     expect(cards[1].textContent).toContain('Cafe Central');
   });
 
+  it('puts the night mode button next to the cart in the header', () => {
+    const header = render().nativeElement.querySelector('header');
+
+    expect(header.querySelector('app-theme-toggle + app-cart-button')).not.toBeNull();
+  });
+
   it('counts the benefits the tier of the client unlocks', () => {
     const component = render().componentInstance;
 

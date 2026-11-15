@@ -26,7 +26,7 @@ describe('auth guards', () => {
         provideRouter([
           { path: 'login', component: EmptyPage, canActivate: [guestGuard] },
           { path: 'admin', component: EmptyPage, canActivate: [roleGuard('ROLE_SUPERADMIN')] },
-          { path: 'cafe/profile', component: EmptyPage, canActivate: [roleGuard('ROLE_CAFETERIA')] },
+          { path: 'cafe/dashboard', component: EmptyPage, canActivate: [roleGuard('ROLE_CAFETERIA')] },
           { path: 'home', component: EmptyPage, canActivate: [roleGuard('ROLE_CLIENTE')] },
         ]),
       ],
@@ -73,12 +73,12 @@ describe('auth guards', () => {
       expect(router.url).toBe('/home');
     });
 
-    it('sends a cafe that opens the home to its profile', async () => {
+    it('sends a cafe that opens the home to its dashboard', async () => {
       await setupSignedIn(['ROLE_CAFETERIA']);
 
       await harness.navigateByUrl('/home');
 
-      expect(router.url).toBe('/cafe/profile');
+      expect(router.url).toBe('/cafe/dashboard');
     });
 
     it('closes the session when the user has no known role', async () => {

@@ -1,3 +1,4 @@
+import { formatOpeningHours } from '../../../../shared/utils/opening-hours';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
@@ -15,6 +16,8 @@ import { CafeRegisterModal } from '../../components/cafe-register-modal/cafe-reg
   host: { class: 'block' },
 })
 export class AdminCafesPage implements OnInit {
+  readonly formatHours = formatOpeningHours;
+
   private readonly cafeService = inject(CafeService);
 
   cafes = signal<Cafe[]>([]);

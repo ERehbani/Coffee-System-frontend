@@ -7,7 +7,7 @@ import { CafeProfile, UpdateCafeProfileInput } from '../types/cafe-profile.model
 import { toCafeProfile, toUpdateCafeRequestDto } from '../utils/cafe-profile.mapper';
 import { CafeProfileRepository } from './cafe-profile.repository';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class HttpCafeProfileRepository implements CafeProfileRepository {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = environment.apiBaseUrl;

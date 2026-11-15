@@ -9,6 +9,7 @@
         <h1 class="text-2xl font-bold tracking-tight text-text md:text-3xl">Explorar Cafeterías</h1>
       </div>
       <div class="flex items-center gap-2">
+        <app-theme-toggle appearance="card" />
         <app-cart-button />
         <a
           routerLink="/profile"
@@ -35,7 +36,7 @@
         [value]="searchQuery()"
         (input)="onSearchChange($any($event.target).value)"
         placeholder="Buscar cafetería por nombre, dirección o especialidad..."
-        class="w-full rounded-2xl border border-border bg-surface py-3 pr-10 pl-10 text-sm text-text placeholder:text-muted/70 shadow-xs transition-colors focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20"
+        class="w-full rounded-2xl border border-border bg-surface py-3 pr-10 pl-10 text-sm text-text placeholder:text-muted/70 shadow-xs transition-colors focus:border-primary focus:bg-surface focus:outline-none focus:ring-2 focus:ring-primary/20"
       />
       @if (searchQuery()) {
         <button

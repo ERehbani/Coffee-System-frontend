@@ -4,8 +4,12 @@ import { ADMIN_NAV_ITEMS } from '../shared/components/admin-layout/admin-nav';
 import { AdminPlaceholderPage } from '../shared/components/admin-placeholder-page/admin-placeholder-page';
 import { ClientLayout } from '../shared/components/client-layout/client-layout';
 import { roleGuard } from '../features/auth/guards/auth.guard';
+import {
+  onboardingPendingGuard,
+  profileCompleteGuard,
+} from '../features/cafe-onboarding/guards/onboarding.guard';
+import { CafeLayout } from '../shared/components/cafe-layout/cafe-layout';
 
-/** Admin sections that already have a page. Add new ones here to replace their placeholder. */
 const adminSectionRoutes: Routes = [
   {
     path: 'users',
@@ -65,24 +69,37 @@ export const routes: Routes = [
     ],
   },
   {
-    path: 'cafe/profile',
-    canActivate: [roleGuard('ROLE_CAFETERIA')],
-    loadChildren: () => import('../features/cafe-profile/cafe-profile.routes'),
+    path: 'cafe/onboarding',
+    canActivate: [roleGuard('ROLE_CAFETERIA'), onboardingPendingGuard],
+    loadChildren: () => import('../features/cafe-onboarding/cafe-onboarding.routes'),
   },
   {
-    path: 'cafe/validate',
-    canActivate: [roleGuard('ROLE_CAFETERIA')],
-    loadChildren: () => import('../features/coupon-validation/coupon-validation.routes'),
-  },
-  {
-    path: 'cafe/benefits',
-    canActivate: [roleGuard('ROLE_CAFETERIA')],
-    loadChildren: () => import('../features/cafe-benefits/cafe-benefits.routes'),
-  },
-  {
-    path: 'cafe/products',
-    canActivate: [roleGuard('ROLE_CAFETERIA')],
-    loadChildren: () => import('../features/cafe-products/cafe-products.routes'),
+    path: 'cafe',
+    component: CafeLayout,
+    canActivate: [roleGuard('ROLE_CAFETERIA'), profileCompleteGuard],
+    children: [
+      { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
+      {
+        path: 'dashboard',
+        loadChildren: () => import('../features/cafe-dashboard/cafe-dashboard.routes'),
+      },
+      {
+        path: 'profile',
+        loadChildren: () => import('../features/cafe-profile/cafe-profile.routes'),
+      },
+      {
+        path: 'validate',
+        loadChildren: () => import('../features/coupon-validation/coupon-validation.routes'),
+      },
+      {
+        path: 'benefits',
+        loadChildren: () => import('../features/cafe-benefits/cafe-benefits.routes'),
+      },
+      {
+        path: 'products',
+        loadChildren: () => import('../features/cafe-products/cafe-products.routes'),
+      },
+    ],
   },
   {
     path: '',

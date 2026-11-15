@@ -1,5 +1,7 @@
 @import 'tailwindcss';
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
   --color-bg: #faf8f5;
@@ -16,4 +18,80 @@
   --color-silver: #a8a8a8;
   --color-gold: #d4a017;
   --color-diamond: #3ccfcf;
+  --color-ink: #1f1a17;
+}
+
+:root.dark {
+  color-scheme: dark;
+  --color-bg: #141110;
+  --color-surface: #1f1a17;
+  --color-text: #f3ece6;
+  --color-muted: #b3a79f;
+  --color-primary: #b5805a;
+  --color-primary-dark: #8a5f3f;
+  --color-accent: #d98c5f;
+  --color-accent-light: #3a2a20;
+  --color-border: #3a322c;
+  --color-success: #5fb58a;
+}
+
+html.theme-switching,
+html.theme-switching *,
+html.theme-switching *::before,
+html.theme-switching *::after {
+  transition:
+    background-color 0.45s ease,
+    color 0.45s ease,
+    border-color 0.45s ease,
+    fill 0.45s ease !important;
+}
+
+.theme-overlay {
+  animation: theme-overlay-fade 0.7s ease both;
+}
+
+.theme-overlay-icon {
+  animation: theme-overlay-spin 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes theme-overlay-fade {
+  0% {
+    opacity: 0;
+  }
+  20%,
+  70% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes theme-overlay-spin {
+  0% {
+    transform: scale(0.4) rotate(-120deg);
+    opacity: 0;
+  }
+  45% {
+    transform: scale(1.1) rotate(15deg);
+    opacity: 1;
+  }
+  70% {
+    transform: scale(1) rotate(0deg);
+  }
+  100% {
+    transform: scale(0.9) rotate(0deg);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-overlay,
+  .theme-overlay-icon {
+    animation-duration: 0.01ms;
+  }
+
+  html.theme-switching * {
+    transition: none !important;
+  }
 }

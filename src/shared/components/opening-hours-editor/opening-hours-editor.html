@@ -1,0 +1,56 @@
+<fieldset class="space-y-2">
+  <legend class="sr-only">Horarios de atención</legend>
+  @for (row of rows(); track row.day) {
+    <div
+      class="flex flex-wrap items-center gap-3 rounded-xl border px-3 py-2.5"
+      [class.border-border]="!row.invalid"
+      [class.border-rose-400]="row.invalid && showErrors()"
+      [attr.data-day]="row.day"
+    >
+      <label class="flex w-32 cursor-pointer items-center gap-2 text-sm font-semibold text-text">
+        <input
+          type="checkbox"
+          class="size-4 cursor-pointer accent-primary"
+          [checked]="row.hours !== null"
+          (change)="toggleDay(row.day, $any($event.target).checked)"
+        />
+        {{ row.label }}
+      </label>
+
+      @if (row.hours; as hours) {
+        <div class="flex items-center gap-2 text-sm">
+          <input
+            type="time"
+            [attr.aria-label]="'Apertura del ' + row.label"
+            [value]="hours.opensAt"
+            (input)="changeTime(row.day, 'opensAt', $any($event.target).value)"
+            class="rounded-lg border border-border bg-bg px-2 py-1 text-text focus:border-primary focus:outline-hidden"
+          />
+          <span class="text-muted">a</span>
+          <input
+            type="time"
+            [attr.aria-label]="'Cierre del ' + row.label"
+            [value]="hours.closesAt"
+            (input)="changeTime(row.day, 'closesAt', $any($event.target).value)"
+            class="rounded-lg border border-border bg-bg px-2 py-1 text-text focus:border-primary focus:outline-hidden"
+          />
+        </div>
+        <button
+          type="button"
+          (click)="copyToAll(row.day)"
+          class="ml-auto cursor-pointer text-xs font-semibold text-primary hover:underline"
+        >
+          Copiar a todos
+        </button>
+        @if (row.invalid && showErrors()) {
+          <p role="alert" class="w-full text-xs font-semibold text-rose-600">El cierre tiene que ser después de la apertura.</p>
+        }
+      } @else {
+        <span class="text-sm text-muted">Cerrado</span>
+      }
+    </div>
+  }
+  @if (hasNoDays() && showErrors()) {
+    <p role="alert" class="text-xs font-semibold text-rose-600">Marcá al menos un día en el que abre el local.</p>
+  }
+</fieldset>
