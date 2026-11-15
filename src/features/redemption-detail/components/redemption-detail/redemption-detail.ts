@@ -7,6 +7,7 @@ import { calendarDaysUntil } from '../../../profile/utils/loyalty-progress';
 import { toExpiryLabel } from '../../../profile/utils/redemption-expiry';
 import { Redemption } from '../../model/redemption.model';
 import { RedemptionService } from '../../services/redemption.service';
+import { toClosedRedemptionTitle } from '../../utils/redemption-closed-title';
 
 @Component({
   selector: 'app-redemption-detail',
@@ -23,7 +24,12 @@ export class RedemptionDetail implements OnInit {
   isLoading = signal(true);
   hasError = signal(false);
 
-  isReadyToUse = computed(() => this.redemption()?.state === true);
+  isReadyToUse = computed(() => this.redemption()?.status === 'ACTIVE');
+
+  closedTitle = computed(() => {
+    const status = this.redemption()?.status;
+    return status && status !== 'ACTIVE' ? toClosedRedemptionTitle(status) : '';
+  });
 
   cafeLabel = computed(() => {
     const cafeName = this.redemption()?.cafeName;

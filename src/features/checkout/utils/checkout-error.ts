@@ -26,25 +26,29 @@ const NO_CLIENT_PROFILE_MESSAGE =
   'No pudimos identificar tu cuenta de cliente. Volvé a iniciar sesión e intentá de nuevo.';
 const TWO_FOR_ONE_MESSAGE = `El 2x1 necesita al menos dos unidades del producto en el carrito. ${COUPON_RETRY_HINT}`;
 const COUPON_PRODUCT_NOT_SOLD_MESSAGE = `Esta cafetería no vende el producto de ese cupón. ${COUPON_RETRY_HINT}`;
+const COUPON_PRODUCT_SOLD_OUT_MESSAGE = `El producto de regalo de ese cupón se agotó por hoy. ${COUPON_RETRY_HINT}`;
+const EXPIRED_COUPON_MESSAGE = `Ese cupón está vencido. ${COUPON_RETRY_HINT}`;
 const PRODUCT_UNAVAILABLE_MESSAGE =
   'Alguno de los productos de tu carrito se agotó por hoy o ya no está disponible. Quitalo e intentá de nuevo.';
 
 /**
- * ProblemDetail `detail` of `POST /purchases` (PurchaseService, CartEntity, CafeProductEntity, BenefitRules):
- * 400 cart errors, 403 no client profile or coupon of another client, 404 unknown code, 409 product unavailable,
- * 422 coupon rules.
+ * ProblemDetail `detail` of `POST /purchases` (PurchaseService, PurchaseDraft, CartEntity, CafeProductEntity,
+ * RedemptionEntity, BenefitRules): 400 cart errors, 403 no client profile or coupon of another client,
+ * 404 unknown code, 409 product or coupon gift unavailable, 422 coupon rules and expired coupon.
  * Some details carry a product name or a benefit type, so they are matched by pattern.
  */
 const MESSAGES_BY_BACKEND_DETAIL: readonly (readonly [RegExp, string])[] = [
   [/^cart cannot be empty$/i, EMPTY_CART_MESSAGE],
   [/^invalid code$/i, INVALID_COUPON_MESSAGE],
   [/^code already used$/i, USED_COUPON_MESSAGE],
+  [/^code has expired$/i, EXPIRED_COUPON_MESSAGE],
   [/^this code does not belong to this cafe$/i, OTHER_CAFE_COUPON_MESSAGE],
   [/^this code belongs to another client$/i, OTHER_CLIENT_COUPON_MESSAGE],
   [/^the current user has no client profile$/i, NO_CLIENT_PROFILE_MESSAGE],
   [/^the benefit type \S+ cannot be applied$/i, NOT_APPLICABLE_COUPON_MESSAGE],
   [/^the 2x1 needs at least two units of the product in the cart$/i, TWO_FOR_ONE_MESSAGE],
   [/^this cafe does not sell /i, COUPON_PRODUCT_NOT_SOLD_MESSAGE],
+  [/^the coupon product .+ is sold out for today$/i, COUPON_PRODUCT_SOLD_OUT_MESSAGE],
   [/^product .+ is (sold out for today|not available)$/i, PRODUCT_UNAVAILABLE_MESSAGE],
 ];
 

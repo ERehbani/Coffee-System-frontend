@@ -37,9 +37,16 @@ import { UsedBenefit } from '../../types/profile.model';
           </time>
         </p>
       </div>
-      <p class="shrink-0 rounded-full bg-bg px-2.5 py-1 text-xs font-bold text-muted">
-        −{{ benefit().usedPoints | number }} pts
-      </p>
+      <div class="flex shrink-0 flex-col items-end gap-1.5">
+        <p class="rounded-full bg-bg px-2.5 py-1 text-xs font-bold text-muted">
+          −{{ benefit().usedPoints | number }} pts
+        </p>
+        @if (benefit().expired) {
+          <p class="rounded-full border border-border px-2.5 py-0.5 text-xs font-bold text-muted">
+            Vencido
+          </p>
+        }
+      </div>
     </article>
   `,
   host: { class: 'block' },

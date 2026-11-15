@@ -20,6 +20,7 @@ const redemption = (overrides: Partial<RedemptionDto>): RedemptionDto => ({
   date: '2026-10-01T10:00:00',
   usedPoints: 100,
   state: false,
+  status: 'USED',
   validationCode: 'CODE',
   benefitName: 'Beneficio',
   cafeName: 'Cafe Central',
@@ -31,7 +32,7 @@ describe('toUsedBenefits', () => {
   it('keeps only used redemptions, newest first', () => {
     const result = toUsedBenefits([
       redemption({ externalId: 'old', date: '2026-09-01T10:00:00' }),
-      redemption({ externalId: 'active', state: true }),
+      redemption({ externalId: 'active', state: true, status: 'ACTIVE' }),
       redemption({ externalId: 'new', date: '2026-10-10T10:00:00' }),
     ]);
 
@@ -391,6 +392,7 @@ describe('toRedeemedBenefit', () => {
       date: '2026-10-26T09:30:00',
       usedPoints: 300,
       state: true,
+      status: 'ACTIVE',
       validationCode: 'VLD-0009-ABCD',
       benefitName: 'Café de cortesía',
       cafeName: 'Global',
