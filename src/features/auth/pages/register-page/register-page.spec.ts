@@ -3,6 +3,7 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { environment } from '../../../../environments/environment';
+import { ThemeService } from '../../../../shared/services/theme';
 import { RegisterPage } from './register-page';
 
 describe('RegisterPage', () => {
@@ -26,7 +27,10 @@ describe('RegisterPage', () => {
     fixture.detectChanges();
   });
 
-  afterEach(() => http.verify());
+  afterEach(() => {
+    http.verify();
+    TestBed.inject(ThemeService).theme.set('light');
+  });
 
   function type(selector: string, value: string): void {
     const input = element.querySelector<HTMLInputElement>(selector)!;
@@ -167,5 +171,15 @@ describe('RegisterPage', () => {
 
   it('links to the login page', () => {
     expect(element.querySelector('a[href="/login"]')?.textContent).toContain('Iniciá sesión');
+  });
+
+  it('switches between the light and the night theme', () => {
+    const theme = TestBed.inject(ThemeService);
+
+    element.querySelector<HTMLButtonElement>('button[aria-label="Activar modo nocturno"]')!.click();
+    fixture.detectChanges();
+
+    expect(theme.theme()).toBe('dark');
+    expect(element.querySelector('button[aria-label="Activar modo claro"]')).not.toBeNull();
   });
 });
