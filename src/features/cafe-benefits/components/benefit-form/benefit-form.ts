@@ -1,6 +1,7 @@
 import { Component, computed, effect, input, output, signal } from '@angular/core';
 import { FormField, form, max, maxLength, min, minLength, required } from '@angular/forms/signals';
 import { Icon } from '../../../../shared/components/icon/icon';
+import { toLocalIsoDate } from '../../../../shared/utils/local-date';
 import {
   BenefitType,
   BenefitTypeOption,
@@ -40,7 +41,7 @@ export class BenefitForm {
   readonly save = output<CreateCafeBenefitRequest>();
   readonly cancel = output<void>();
 
-  today = new Date().toISOString().slice(0, 10);
+  today = toLocalIsoDate();
 
   formModel = signal<BenefitFormModel>({
     name: '',
