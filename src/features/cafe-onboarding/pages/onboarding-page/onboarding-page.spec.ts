@@ -6,6 +6,7 @@ import { CafeProfileRepository } from '../../../cafe-profile/services/cafe-profi
 import { CafeBenefitService } from '../../../cafe-benefits/services/cafe-benefit.service';
 import { CafeProfile } from '../../../cafe-profile/types/cafe-profile.model';
 import { ProductService } from '../../../catalog/services/product.service';
+import { ImageUpload } from '../../../../shared/services/image-upload';
 import { OnboardingPage } from './onboarding-page';
 
 const NEW_CAFE: CafeProfile = {
@@ -36,6 +37,7 @@ describe('OnboardingPage', () => {
         { provide: CafeProfileRepository, useValue: { getProfile: () => of(NEW_CAFE), updateProfile } },
         { provide: ProductService, useValue: { getCategories: () => of([]) } },
         { provide: CafeBenefitService, useValue: { getBenefitTypes: () => of([]), getTiers: () => of([]) } },
+        { provide: ImageUpload, useValue: { upload: () => of('') } },
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(OnboardingPage);
@@ -84,15 +86,13 @@ describe('OnboardingPage', () => {
     expect(page.hoursError()).not.toBeNull();
   });
 
-  it('asks for the logo and the cover before the opening hours', async () => {
+  it('lets the cafe reach the opening hours without a logo or a cover', async () => {
     await render();
     page.phoneNumber.set('1145238890');
 
     page.next();
 
-    expect(page.step()).toBe(0);
-    expect(page.logoError()).toBe('El logo es obligatorio.');
-    expect(page.imageError()).toBe('La portada es obligatoria.');
+    expect(page.step()).toBe(1);
   });
 
   it('saves every required field before the optional steps and opens the dashboard at the end', async () => {

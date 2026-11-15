@@ -1,0 +1,38 @@
+<fieldset class="space-y-1.5">
+  <legend class="text-sm font-bold text-text">{{ label() }}</legend>
+  <label [for]="inputId()" class="block text-xs font-semibold text-muted">URL de la imagen</label>
+  <input
+    [id]="inputId()"
+    type="url"
+    [value]="value()"
+    (input)="changeUrl($any($event.target).value)"
+    placeholder="https://..."
+    class="w-full rounded-xl border border-border bg-bg px-4 py-2.5 text-sm text-text placeholder:text-muted/60 focus:border-primary focus:outline-hidden"
+  />
+  <div class="flex flex-wrap items-center gap-2">
+    <label
+      class="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-primary px-4 py-2 text-sm font-bold text-primary transition hover:bg-accent-light has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-primary"
+    >
+      <app-icon name="image" [size]="16" />
+      Subir desde tu computadora
+      <input type="file" accept="image/*" class="sr-only" (change)="pickFile($any($event.target))" />
+    </label>
+    @if (preview()) {
+      <button
+        type="button"
+        (click)="remove()"
+        class="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-border px-4 py-2 text-sm font-semibold text-muted transition hover:bg-bg hover:text-text"
+      >
+        <app-icon name="trash" [size]="16" />
+        Quitar imagen
+      </button>
+    }
+    <p aria-live="polite" class="text-xs text-muted">{{ notice() }}</p>
+  </div>
+  @if (error(); as err) {
+    <p role="alert" class="text-xs font-semibold text-rose-600">{{ err }}</p>
+  }
+  @if (preview(); as src) {
+    <img [src]="src" [alt]="previewAlt()" class="rounded-2xl border border-border object-cover" [class]="previewClass()" />
+  }
+</fieldset>

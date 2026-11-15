@@ -111,40 +111,22 @@
                       class="w-full rounded-xl border border-border bg-bg px-4 py-2.5 text-sm text-text placeholder:text-muted/60 focus:border-primary focus:outline-hidden"
                     ></textarea>
                   </div>
-                  <div class="space-y-1.5">
-                    <label for="onboarding-logo" class="block text-sm font-bold text-text">URL del logo *</label>
-                    <input
-                      id="onboarding-logo"
-                      type="url"
-                      [value]="logo()"
-                      (input)="logo.set($any($event.target).value)"
-                      placeholder="https://..."
-                      class="w-full rounded-xl border border-border bg-bg px-4 py-2.5 text-sm text-text placeholder:text-muted/60 focus:border-primary focus:outline-hidden"
-                    />
-                    @if (attempted() && logoError(); as err) {
-                      <p role="alert" class="text-xs font-semibold text-rose-600">{{ err }}</p>
-                    }
-                    @if (logo()) {
-                      <img [src]="logo()" alt="Vista previa del logo" class="size-20 rounded-2xl border border-border object-cover" />
-                    }
-                  </div>
-                  <div class="space-y-1.5">
-                    <label for="onboarding-image" class="block text-sm font-bold text-text">URL de la portada *</label>
-                    <input
-                      id="onboarding-image"
-                      type="url"
-                      [value]="image()"
-                      (input)="image.set($any($event.target).value)"
-                      placeholder="https://..."
-                      class="w-full rounded-xl border border-border bg-bg px-4 py-2.5 text-sm text-text placeholder:text-muted/60 focus:border-primary focus:outline-hidden"
-                    />
-                    @if (attempted() && imageError(); as err) {
-                      <p role="alert" class="text-xs font-semibold text-rose-600">{{ err }}</p>
-                    }
-                    @if (image()) {
-                      <img [src]="image()" alt="Vista previa de la portada" class="h-40 w-full rounded-2xl border border-border object-cover" />
-                    }
-                  </div>
+                  <app-image-input
+                    label="Logo (opcional)"
+                    inputId="onboarding-logo"
+                    previewAlt="Vista previa del logo"
+                    previewClass="size-20"
+                    [(value)]="logo"
+                    [(uploading)]="logoUploading"
+                  />
+                  <app-image-input
+                    label="Portada (opcional)"
+                    inputId="onboarding-image"
+                    previewAlt="Vista previa de la portada"
+                    previewClass="h-40 w-full"
+                    [(value)]="image"
+                    [(uploading)]="imageUploading"
+                  />
                 }
                 @case ('hours') {
                   <p class="text-sm text-muted">Con estos horarios los clientes van a ver si tu local está abierto.</p>
@@ -234,10 +216,16 @@
                       <dt class="font-semibold text-muted">Horarios</dt>
                       <dd class="text-text">{{ hoursSummary() }}</dd>
                     </div>
-                    <div class="flex items-center gap-3">
-                      <img [src]="logo()" alt="Logo" class="size-14 rounded-xl border border-border object-cover" />
-                      <img [src]="image()" alt="Portada" class="h-14 flex-1 rounded-xl border border-border object-cover" />
-                    </div>
+                    @if (logo() || image()) {
+                      <div class="flex items-center gap-3">
+                        @if (logo()) {
+                          <img [src]="logo()" alt="Logo" class="size-14 rounded-xl border border-border object-cover" />
+                        }
+                        @if (image()) {
+                          <img [src]="image()" alt="Portada" class="h-14 flex-1 rounded-xl border border-border object-cover" />
+                        }
+                      </div>
+                    }
                   </dl>
                 }
               }
@@ -262,7 +250,7 @@
             <button
               type="button"
               (click)="isLastStep() ? finish() : next()"
-              [disabled]="status() === 'saving'"
+              [disabled]="status() === 'saving' || uploading()"
               class="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-primary px-5 py-2 text-sm font-bold text-white transition hover:bg-primary-dark disabled:opacity-60"
             >
               @if (isLastStep()) {

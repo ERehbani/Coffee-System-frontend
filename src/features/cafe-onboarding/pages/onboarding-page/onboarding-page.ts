@@ -12,6 +12,7 @@ import {
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { Icon } from '../../../../shared/components/icon/icon';
+import { ImageInput } from '../../../../shared/components/image-input/image-input';
 import { OpeningHoursEditor } from '../../../../shared/components/opening-hours-editor/opening-hours-editor';
 import { ThemeToggle } from '../../../../shared/components/theme-toggle/theme-toggle';
 import { backendErrorMessage } from '../../../../shared/utils/backend-error';
@@ -49,7 +50,7 @@ const PHONE_PATTERN = /^\d{10}$/;
 
 @Component({
   selector: 'app-onboarding-page',
-  imports: [CurrencyPipe, Icon, OpeningHoursEditor, ThemeToggle, LogoutButton, ProductForm, BenefitForm],
+  imports: [CurrencyPipe, Icon, ImageInput, OpeningHoursEditor, ThemeToggle, LogoutButton, ProductForm, BenefitForm],
   templateUrl: './onboarding-page.html',
   styleUrl: './onboarding-page.css',
   host: { class: 'block min-h-dvh bg-bg text-text' },
@@ -77,6 +78,9 @@ export class OnboardingPage implements OnInit {
   readonly openingHours = signal<OpeningHours[]>([]);
   readonly logo = signal('');
   readonly image = signal('');
+  readonly logoUploading = signal(false);
+  readonly imageUploading = signal(false);
+  readonly uploading = computed(() => this.logoUploading() || this.imageUploading());
 
   readonly categories = signal<CategoryOption[]>([]);
   readonly products = signal<ProductDto[]>([]);
@@ -101,8 +105,6 @@ export class OnboardingPage implements OnInit {
   readonly hoursError = computed(() =>
     hasValidOpeningHours(this.openingHours()) ? null : 'Cargá al menos un día con un horario válido.',
   );
-  readonly logoError = computed(() => (this.logo().trim() ? null : 'El logo es obligatorio.'));
-  readonly imageError = computed(() => (this.image().trim() ? null : 'La portada es obligatoria.'));
 
   readonly hoursSummary = computed(() => formatOpeningHours(this.openingHours()));
   readonly currentStep = computed(() => this.steps[this.step()]);
@@ -111,7 +113,7 @@ export class OnboardingPage implements OnInit {
   readonly stepIsValid = computed(() => {
     switch (this.currentStep().id) {
       case 'cafe':
-        return !this.addressError() && !this.phoneError() && !this.logoError() && !this.imageError();
+        return !this.addressError() && !this.phoneError();
       case 'hours':
         return !this.hoursError();
       default:
