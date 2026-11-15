@@ -1,5 +1,15 @@
 import { CurrencyPipe } from '@angular/common';
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  Injector,
+  OnInit,
+  afterNextRender,
+  computed,
+  inject,
+  signal,
+  viewChildren,
+} from '@angular/core';
 import { Router } from '@angular/router';
 import { Icon } from '../../../../shared/components/icon/icon';
 import { OpeningHoursEditor } from '../../../../shared/components/opening-hours-editor/opening-hours-editor';
@@ -41,6 +51,7 @@ const PHONE_PATTERN = /^\d{10}$/;
   selector: 'app-onboarding-page',
   imports: [CurrencyPipe, Icon, OpeningHoursEditor, ThemeToggle, LogoutButton, ProductForm, BenefitForm],
   templateUrl: './onboarding-page.html',
+  styleUrl: './onboarding-page.css',
   host: { class: 'block min-h-dvh bg-bg text-text' },
 })
 export class OnboardingPage implements OnInit {
@@ -48,6 +59,8 @@ export class OnboardingPage implements OnInit {
   private readonly router = inject(Router);
   private readonly productService = inject(ProductService);
   private readonly benefitService = inject(CafeBenefitService);
+  private readonly injector = inject(Injector);
+  private readonly stepHeadings = viewChildren<ElementRef<HTMLElement>>('stepHeading');
 
   readonly steps = ONBOARDING_STEPS;
   readonly dayLabels = DAY_LABELS;
@@ -245,7 +258,10 @@ export class OnboardingPage implements OnInit {
   }
 
   private goTo(index: number): void {
-    this.step.set(Math.min(Math.max(index, 0), this.steps.length - 1));
+    const target = Math.min(Math.max(index, 0), this.steps.length - 1);
+    this.step.set(target);
+    // The heading can take focus only once the render removes `inert` from its slide.
+    afterNextRender(() => this.stepHeadings()[target]?.nativeElement.focus(), { injector: this.injector });
   }
 
   private start(profile: CafeProfile): void {
