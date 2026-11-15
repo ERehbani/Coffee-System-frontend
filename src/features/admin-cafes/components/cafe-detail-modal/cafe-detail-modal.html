@@ -100,15 +100,13 @@
         </div>
       }
 
-      @if (item.rating !== undefined && item.rating !== null) {
+      @if (item.reviewCount) {
         <div class="flex items-center justify-between rounded-2xl border border-border bg-bg/40 px-3.5 py-2.5 text-xs">
           <span class="font-bold text-muted">Calificación promedio</span>
           <div class="flex items-center gap-1.5">
             <app-icon name="star" [size]="16" class="text-accent" [filled]="true" />
-            <span class="font-extrabold text-text">{{ item.rating }}</span>
-            @if (item.reviewCount) {
-              <span class="text-muted">({{ item.reviewCount }} opiniones)</span>
-            }
+            <span class="font-extrabold text-text">{{ item.rating | number: '1.1-1' }}</span>
+            <span class="text-muted">({{ item.reviewCount | number }} opiniones)</span>
           </div>
         </div>
       }
