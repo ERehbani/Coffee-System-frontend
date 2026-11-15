@@ -233,10 +233,11 @@
               {{ formatHours(activeCafe.openingHours) }}
             </span>
           }
-          @if (activeCafe.rating; as rating) {
+          @if (activeCafe.reviewCount; as reviewCount) {
             <div class="flex items-center gap-1 text-text font-bold">
               <app-icon name="star" [size]="13" class="text-amber-400" />
-              <span>{{ rating }}</span>
+              <span>{{ activeCafe.rating | number: '1.1-1' }}</span>
+              <span class="font-normal text-muted">({{ reviewCount | number }})</span>
             </div>
           }
           <a

@@ -12,6 +12,7 @@ export interface Cafe {
   logo?: string | null;
   image?: string | null;
   openingHours?: OpeningHours[] | null;
+  /** Average with one decimal; 0 with a reviewCount of 0 while the cafe has no reviews. */
   rating?: number;
   reviewCount?: number;
 }

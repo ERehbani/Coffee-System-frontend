@@ -24,13 +24,11 @@
       }
     </div>
 
-    @if (cafe().rating; as rating) {
+    @if (cafe().reviewCount; as reviewCount) {
       <div class="absolute top-3 right-3 flex items-center gap-1 rounded-full bg-black/60 px-3 py-1 text-xs font-bold text-white shadow-sm backdrop-blur-md">
         <app-icon name="star" [size]="14" class="text-amber-400" />
-        <span>{{ rating }}</span>
-        @if (cafe().reviewCount; as reviewCount) {
-          <span class="text-[11px] font-normal text-white/80">({{ reviewCount }})</span>
-        }
+        <span>{{ cafe().rating | number: '1.1-1' }}</span>
+        <span class="text-[11px] font-normal text-white/80">({{ reviewCount | number }})</span>
       </div>
     }
 
