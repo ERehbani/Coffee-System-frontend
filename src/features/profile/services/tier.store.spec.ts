@@ -321,8 +321,8 @@ describe('TierStore', () => {
         throwError(
           () =>
             new HttpErrorResponse({
-              status: 400,
-              error: { error: 'Benefit has expired', status: 400 },
+              status: 422,
+              error: { title: 'Business rule violated', status: 422, detail: 'Benefit has expired' },
             }),
         ),
       );
