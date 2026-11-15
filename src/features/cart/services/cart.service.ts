@@ -17,8 +17,6 @@ export class CartService {
 
   items = signal<CartItem[]>([]);
   cafe = signal<CartCafe | null>(null);
-  /** Why the backend rejected the last product added, for example a product sold out for today (409). */
-  addErrorMessage = signal<string | null>(null);
 
   totalItems = computed(() => {
     let total = 0;
@@ -48,7 +46,11 @@ export class CartService {
     return currentCafe.externalId !== product.cafeExternalId;
   }
 
-  addProduct(product: Product, cafe: Cafe): boolean {
+  /**
+   * Adds the product optimistically. When the backend rejects it (for example a product sold out
+   * today, 409) the cart goes back to its previous state and `onRejected` gets the backend detail.
+   */
+  addProduct(product: Product, cafe: Cafe, onRejected?: (reason: string | null) => void): boolean {
     if (this.isFromAnotherCafe(product)) {
       return false;
     }
@@ -57,7 +59,6 @@ export class CartService {
       return false;
     }
 
-    this.addErrorMessage.set(null);
     const previousItems = this.items();
     const previousCafe = this.cafe();
     const list = [...previousItems];
@@ -81,15 +82,14 @@ export class CartService {
       .subscribe({
         error: (error: unknown) => {
           this.restore(previousItems, previousCafe);
-          const reason = backendErrorMessage(error);
-          this.addErrorMessage.set(`No pudimos agregar ${product.name} al carrito.${reason ? ` ${reason}` : ''}`);
+          onRejected?.(backendErrorMessage(error));
         },
       });
 
     return true;
   }
 
-  replaceWithProduct(product: Product, cafe: Cafe): boolean {
+  replaceWithProduct(product: Product, cafe: Cafe, onRejected?: (reason: string | null) => void): boolean {
     if (product.cafeExternalId !== cafe.externalId) {
       return false;
     }
@@ -97,7 +97,7 @@ export class CartService {
     this.clearLocal();
 
     this.http.delete<void>(`${this.url}/clear`).subscribe({
-      next: () => this.addProduct(product, cafe),
+      next: () => this.addProduct(product, cafe, onRejected),
       error: (error) => console.error('error clearing cart:', error),
     });
 

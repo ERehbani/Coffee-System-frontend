@@ -50,6 +50,7 @@ export class CatalogPage implements OnInit {
   selectedCategory = signal('Todas');
   productSearchQuery = signal('');
   addedProductMessage = signal<string | null>(null);
+  addErrorMessage = signal<string | null>(null);
   pendingProduct = signal<Product | null>(null);
   selectedProduct = signal<Product | null>(null);
   private messageTimeout?: ReturnType<typeof setTimeout>;
@@ -192,7 +193,8 @@ export class CatalogPage implements OnInit {
       return;
     }
 
-    if (this.cartService.addProduct(product, cafe)) {
+    this.addErrorMessage.set(null);
+    if (this.cartService.addProduct(product, cafe, (reason) => this.showAddError(product, reason))) {
       this.showAddedMessage(product);
     }
   }
@@ -217,7 +219,8 @@ export class CatalogPage implements OnInit {
       return;
     }
 
-    if (this.cartService.replaceWithProduct(product, cafe)) {
+    this.addErrorMessage.set(null);
+    if (this.cartService.replaceWithProduct(product, cafe, (reason) => this.showAddError(product, reason))) {
       this.showAddedMessage(product);
     }
     this.pendingProduct.set(null);
@@ -225,6 +228,13 @@ export class CatalogPage implements OnInit {
 
   cancelReplaceCart(): void {
     this.pendingProduct.set(null);
+  }
+
+  /** A rejected add cancels its optimistic success toast, so dismissing the error shows nothing stale. */
+  private showAddError(product: Product, reason: string | null): void {
+    clearTimeout(this.messageTimeout);
+    this.addedProductMessage.set(null);
+    this.addErrorMessage.set(`No pudimos agregar ${product.name} al carrito.${reason ? ` ${reason}` : ''}`);
   }
 
   private showAddedMessage(product: Product): void {
