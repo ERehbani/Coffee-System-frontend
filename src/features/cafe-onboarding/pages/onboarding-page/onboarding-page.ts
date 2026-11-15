@@ -261,7 +261,10 @@ export class OnboardingPage implements OnInit {
     const target = Math.min(Math.max(index, 0), this.steps.length - 1);
     this.step.set(target);
     // The heading can take focus only once the render removes `inert` from its slide.
-    afterNextRender(() => this.stepHeadings()[target]?.nativeElement.focus(), { injector: this.injector });
+    // Without `preventScroll` the browser scrolls the clipped section to the heading and the slide jumps.
+    afterNextRender(() => this.stepHeadings()[target]?.nativeElement.focus({ preventScroll: true }), {
+      injector: this.injector,
+    });
   }
 
   private start(profile: CafeProfile): void {
