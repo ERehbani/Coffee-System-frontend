@@ -86,6 +86,10 @@ export class ProductForm {
   awardedPointsError = computed(() => this.productForm.awardedPoints().errors()[0]?.message ?? null);
 
   categoryError = computed(() => {
+    // The category cannot change after creation, so it only needs a value when creating.
+    if (this.isEditing()) {
+      return null;
+    }
     if (!this.formModel().categoryId) {
       return 'Debes seleccionar una categoría.';
     }
