@@ -11,5 +11,6 @@ export const CAFE_NAV_ITEMS: readonly CafeNavItem[] = [
   { label: 'Perfil del local', path: 'profile', icon: 'store' },
   { label: 'Productos', path: 'products', icon: 'coffee' },
   { label: 'Beneficios', path: 'benefits', icon: 'ticket' },
+  { label: 'Reseñas', path: 'reviews', icon: 'star' },
   { label: 'Validar cupones', path: 'validate', icon: 'scan-qr-code' },
 ];
