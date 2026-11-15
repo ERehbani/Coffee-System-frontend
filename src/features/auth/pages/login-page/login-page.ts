@@ -3,6 +3,7 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { FormField, email, form, required } from '@angular/forms/signals';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Icon } from '../../../../shared/components/icon/icon';
+import { ThemeToggle } from '../../../../shared/components/theme-toggle/theme-toggle';
 import { SESSION_EXPIRED_REASON } from '../../interceptors/auth.interceptor';
 import { AuthService } from '../../services/auth.service';
 import { LoginCredentials } from '../../types/auth.model';
@@ -32,7 +33,7 @@ function toReasonNotice(reason: string | null): ReasonNotice | null {
 
 @Component({
   selector: 'app-login-page',
-  imports: [FormField, Icon, RouterLink],
+  imports: [FormField, Icon, RouterLink, ThemeToggle],
   templateUrl: './login-page.html',
   host: { class: 'block' },
 })

@@ -5,6 +5,7 @@ import { Icon } from '../icon/icon';
 export type ThemeToggleAppearance = 'plain' | 'card' | 'pill';
 
 const FOCUS = 'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary';
+const HOVER_TRANSITION = 'hover:transition-colors focus-visible:transition-colors';
 
 const APPEARANCES: Readonly<Record<ThemeToggleAppearance, string>> = {
   plain: 'size-9 rounded-lg text-muted hover:bg-bg hover:text-text',
@@ -38,6 +39,6 @@ export class ThemeToggle {
   protected readonly iconSize = computed(() => (this.appearance() === 'card' ? 20 : this.appearance() === 'pill' ? 15 : 18));
   protected readonly buttonClass = computed(
     () =>
-      `inline-flex cursor-pointer items-center justify-center transition-colors ${FOCUS} ${APPEARANCES[this.appearance()]}`,
+      `inline-flex cursor-pointer items-center justify-center ${HOVER_TRANSITION} ${FOCUS} ${APPEARANCES[this.appearance()]}`,
   );
 }

@@ -3,6 +3,7 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router, convertToParamMap, provideRouter } from '@angular/router';
 import { environment } from '../../../../environments/environment';
+import { ThemeService } from '../../../../shared/services/theme';
 import { LoginPage } from './login-page';
 
 describe('LoginPage', () => {
@@ -30,6 +31,10 @@ describe('LoginPage', () => {
     vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
     fixture.detectChanges();
   }
+
+  afterEach(() => {
+    TestBed.inject(ThemeService).theme.set('light');
+  });
 
   function type(selector: string, value: string): void {
     const input = element.querySelector<HTMLInputElement>(selector)!;
@@ -174,5 +179,17 @@ describe('LoginPage', () => {
     fixture.detectChanges();
 
     expect(password.type).toBe('text');
+  });
+
+  it('switches between the light and the night theme', async () => {
+    await setup();
+    const theme = TestBed.inject(ThemeService);
+    const toggle = element.querySelector<HTMLButtonElement>('button[aria-label="Activar modo nocturno"]')!;
+
+    toggle.click();
+    fixture.detectChanges();
+
+    expect(theme.theme()).toBe('dark');
+    expect(element.querySelector('button[aria-label="Activar modo claro"]')).not.toBeNull();
   });
 });
