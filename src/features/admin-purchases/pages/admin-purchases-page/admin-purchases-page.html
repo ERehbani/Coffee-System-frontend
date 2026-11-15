@@ -108,65 +108,22 @@
           Todas ({{ purchases().length }})
         </button>
 
-        <button
-          type="button"
-          (click)="setFilterStatus('CONFIRMED')"
-          class="rounded-lg px-3 py-1.5 text-xs font-semibold transition cursor-pointer select-none"
-          [class.bg-primary]="filterStatus() === 'CONFIRMED'"
-          [class.text-white]="filterStatus() === 'CONFIRMED'"
-          [class.shadow-xs]="filterStatus() === 'CONFIRMED'"
-          [class.bg-surface]="filterStatus() !== 'CONFIRMED'"
-          [class.text-muted]="filterStatus() !== 'CONFIRMED'"
-          [class.border]="filterStatus() !== 'CONFIRMED'"
-          [class.border-border]="filterStatus() !== 'CONFIRMED'"
-        >
-          Confirmadas
-        </button>
-
-        <button
-          type="button"
-          (click)="setFilterStatus('PENDING')"
-          class="rounded-lg px-3 py-1.5 text-xs font-semibold transition cursor-pointer select-none"
-          [class.bg-primary]="filterStatus() === 'PENDING'"
-          [class.text-white]="filterStatus() === 'PENDING'"
-          [class.shadow-xs]="filterStatus() === 'PENDING'"
-          [class.bg-surface]="filterStatus() !== 'PENDING'"
-          [class.text-muted]="filterStatus() !== 'PENDING'"
-          [class.border]="filterStatus() !== 'PENDING'"
-          [class.border-border]="filterStatus() !== 'PENDING'"
-        >
-          Pendientes
-        </button>
-
-        <button
-          type="button"
-          (click)="setFilterStatus('CANCELLED')"
-          class="rounded-lg px-3 py-1.5 text-xs font-semibold transition cursor-pointer select-none"
-          [class.bg-primary]="filterStatus() === 'CANCELLED'"
-          [class.text-white]="filterStatus() === 'CANCELLED'"
-          [class.shadow-xs]="filterStatus() === 'CANCELLED'"
-          [class.bg-surface]="filterStatus() !== 'CANCELLED'"
-          [class.text-muted]="filterStatus() !== 'CANCELLED'"
-          [class.border]="filterStatus() !== 'CANCELLED'"
-          [class.border-border]="filterStatus() !== 'CANCELLED'"
-        >
-          Canceladas
-        </button>
-
-        <button
-          type="button"
-          (click)="setFilterStatus('REFUNDED')"
-          class="rounded-lg px-3 py-1.5 text-xs font-semibold transition cursor-pointer select-none"
-          [class.bg-primary]="filterStatus() === 'REFUNDED'"
-          [class.text-white]="filterStatus() === 'REFUNDED'"
-          [class.shadow-xs]="filterStatus() === 'REFUNDED'"
-          [class.bg-surface]="filterStatus() !== 'REFUNDED'"
-          [class.text-muted]="filterStatus() !== 'REFUNDED'"
-          [class.border]="filterStatus() !== 'REFUNDED'"
-          [class.border-border]="filterStatus() !== 'REFUNDED'"
-        >
-          Reembolsadas
-        </button>
+        @for (status of statusFilters; track status) {
+          <button
+            type="button"
+            (click)="setFilterStatus(status)"
+            class="rounded-lg px-3 py-1.5 text-xs font-semibold transition cursor-pointer select-none"
+            [class.bg-primary]="filterStatus() === status"
+            [class.text-white]="filterStatus() === status"
+            [class.shadow-xs]="filterStatus() === status"
+            [class.bg-surface]="filterStatus() !== status"
+            [class.text-muted]="filterStatus() !== status"
+            [class.border]="filterStatus() !== status"
+            [class.border-border]="filterStatus() !== status"
+          >
+            {{ statusView(status).filterLabel }}
+          </button>
+        }
       </div>
     </div>
 
@@ -251,9 +208,9 @@
                   <td class="py-3.5 px-4 whitespace-nowrap">
                     <span
                       class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider"
-                      [class]="getStatusBadgeClass(purchase.status)"
+                      [class]="statusView(purchase.status).badgeClass"
                     >
-                      {{ getStatusLabel(purchase.status) }}
+                      {{ statusView(purchase.status).label }}
                     </span>
                   </td>
 
@@ -324,9 +281,9 @@
             <span class="text-muted text-[11px] block">Estado</span>
             <span
               class="inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-bold mt-0.5"
-              [class]="getStatusBadgeClass(item.status)"
+              [class]="statusView(item.status).badgeClass"
             >
-              {{ getStatusLabel(item.status) }}
+              {{ statusView(item.status).label }}
             </span>
           </div>
         </div>

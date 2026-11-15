@@ -1,4 +1,4 @@
-export type OrderStatus = 'confirmed' | 'cancelled' | 'refunded';
+export type OrderStatus = 'confirmed' | 'cancelled' | 'refunded' | 'in-preparation' | 'ready' | 'delivered';
 
 export interface CheckoutLine {
   readonly productId: string;

@@ -2,8 +2,10 @@ import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { Icon } from '../../../../shared/components/icon/icon';
-import { Purchase } from '../../../purchase-history/model/purchase.model';
+import { PURCHASE_STATUSES, Purchase, PurchaseStatus } from '../../../purchase-history/model/purchase.model';
 import { PurchaseService } from '../../../purchase-history/services/purchase.service';
+import { isCancellation } from '../../../purchase-history/utils/purchase-status';
+import { toPurchaseStatusView } from '../../utils/purchase-status-view';
 
 @Component({
   selector: 'app-admin-purchases-page',
@@ -17,16 +19,18 @@ export class AdminPurchasesPage implements OnInit {
   purchases = signal<Purchase[]>([]);
   isLoading = signal(true);
   searchQuery = signal('');
-  filterStatus = signal<string>('all');
+  filterStatus = signal<PurchaseStatus | 'all'>('all');
   selectedPurchase = signal<Purchase | null>(null);
+
+  readonly statusFilters = PURCHASE_STATUSES;
+  readonly statusView = toPurchaseStatusView;
 
   filteredPurchases = computed(() => {
     let list = this.purchases();
 
-    if (this.filterStatus() !== 'all') {
-      list = list.filter(
-        (p) => p.status?.toUpperCase() === this.filterStatus().toUpperCase()
-      );
+    const status = this.filterStatus();
+    if (status !== 'all') {
+      list = list.filter((p) => p.status === status);
     }
 
     const query = this.searchQuery().toLowerCase().trim();
@@ -49,8 +53,9 @@ export class AdminPurchasesPage implements OnInit {
     this.filteredPurchases().reduce((acc, p) => acc + (p.price || 0), 0)
   );
 
+  // Preparation and delivery states follow a confirmed sale, so only cancellations are left out.
   confirmedCount = computed(
-    () => this.purchases().filter((p) => p.status === 'CONFIRMED').length
+    () => this.purchases().filter((p) => !isCancellation(p.status)).length
   );
 
   ngOnInit(): void {
@@ -79,7 +84,7 @@ export class AdminPurchasesPage implements OnInit {
     this.searchQuery.set('');
   }
 
-  setFilterStatus(status: string): void {
+  setFilterStatus(status: PurchaseStatus | 'all'): void {
     this.filterStatus.set(status);
   }
 
@@ -109,33 +114,4 @@ export class AdminPurchasesPage implements OnInit {
     return '$ ' + value.toLocaleString('es-AR');
   }
 
-  getStatusBadgeClass(status: string): string {
-    switch (status?.toUpperCase()) {
-      case 'CONFIRMED':
-        return 'bg-emerald-50 text-emerald-800 border-emerald-300';
-      case 'PENDING':
-        return 'bg-amber-50 text-amber-800 border-amber-300';
-      case 'CANCELLED':
-        return 'bg-rose-50 text-rose-800 border-rose-300';
-      case 'REFUNDED':
-        return 'bg-purple-50 text-purple-800 border-purple-300';
-      default:
-        return 'bg-neutral-100 text-neutral-800 border-neutral-300';
-    }
-  }
-
-  getStatusLabel(status: string): string {
-    switch (status?.toUpperCase()) {
-      case 'CONFIRMED':
-        return 'Confirmada';
-      case 'PENDING':
-        return 'Pendiente';
-      case 'CANCELLED':
-        return 'Cancelada';
-      case 'REFUNDED':
-        return 'Reembolsada';
-      default:
-        return status || 'Desconocido';
-    }
-  }
 }

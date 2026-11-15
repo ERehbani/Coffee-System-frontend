@@ -2,6 +2,7 @@ import { CurrencyPipe, DatePipe } from '@angular/common';
 import { Component, computed, input, output } from '@angular/core';
 import { Icon } from '../../../../shared/components/icon/icon';
 import { Purchase, ReviewFormData } from '../../model/purchase.model';
+import { canBeReviewed } from '../../utils/purchase-status';
 import { ReviewForm } from '../review-form/review-form';
 
 @Component({
@@ -24,5 +25,5 @@ export class PurchaseCard {
     return this.purchase().details.reduce((total, detail) => total + detail.generatedPoints, 0);
   });
 
-  canReview = computed(() => this.purchase().status === 'CONFIRMED' && !this.purchase().reviewed);
+  canReview = computed(() => canBeReviewed(this.purchase()));
 }
