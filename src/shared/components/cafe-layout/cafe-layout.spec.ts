@@ -8,6 +8,7 @@ const EXPECTED_ITEMS = [
   { label: 'Perfil del local', href: '/cafe/profile' },
   { label: 'Productos', href: '/cafe/products' },
   { label: 'Beneficios', href: '/cafe/benefits' },
+  { label: 'Reseñas', href: '/cafe/reviews' },
   { label: 'Validar cupones', href: '/cafe/validate' },
 ];
 

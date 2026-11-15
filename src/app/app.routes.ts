@@ -99,6 +99,10 @@ export const routes: Routes = [
         path: 'products',
         loadChildren: () => import('../features/cafe-products/cafe-products.routes'),
       },
+      {
+        path: 'reviews',
+        loadChildren: () => import('../features/cafe-reviews/cafe-reviews.routes'),
+      },
     ],
   },
   {

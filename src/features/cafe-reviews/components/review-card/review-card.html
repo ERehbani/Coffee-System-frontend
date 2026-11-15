@@ -1,0 +1,21 @@
+<article class="space-y-2 rounded-2xl border border-border bg-surface p-5 shadow-xs">
+  <header class="flex flex-wrap items-center justify-between gap-2">
+    <h2 class="text-sm font-bold text-text">{{ review().clientName }}</h2>
+    <time [attr.datetime]="review().date" class="text-xs text-muted">{{ review().date | date: 'dd/MM/yyyy' }}</time>
+  </header>
+  <p class="flex items-center gap-0.5">
+    <span class="sr-only">{{ review().rating }} de 5 estrellas</span>
+    @for (star of stars; track star) {
+      <app-icon
+        name="star"
+        [size]="16"
+        [filled]="star <= review().rating"
+        [class.text-gold]="star <= review().rating"
+        [class.text-muted]="star > review().rating"
+      />
+    }
+  </p>
+  @if (review().message) {
+    <p class="text-sm leading-relaxed text-text">{{ review().message }}</p>
+  }
+</article>
