@@ -91,6 +91,7 @@ export interface UsedBenefit {
   readonly cafeName: string | null;
   readonly redeemedAt: Date;
   readonly usedPoints: number;
+  readonly expired: boolean;
 }
 
 export interface TierBenefit {

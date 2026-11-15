@@ -90,11 +90,14 @@ export interface FeaturedBenefitDto {
   readonly pointsCost: number;
 }
 
+export type RedemptionStatusDto = 'ACTIVE' | 'USED' | 'CANCELLED' | 'EXPIRED';
+
 export interface RedemptionDto {
   readonly externalId: string;
   readonly date: string;
   readonly usedPoints: number;
   readonly state: boolean;
+  readonly status: RedemptionStatusDto;
   readonly validationCode: string;
   readonly benefitName: string;
   readonly cafeName: string | null;

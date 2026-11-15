@@ -13,6 +13,7 @@ const usedBenefits: UsedBenefit[] = [
     cafeName: 'Cafe Central',
     redeemedAt: new Date(2026, 9, 17, 10, 30),
     usedPoints: 450,
+    expired: false,
   },
   {
     id: 'redemption-1',
@@ -20,6 +21,7 @@ const usedBenefits: UsedBenefit[] = [
     cafeName: null,
     redeemedAt: new Date(2026, 8, 2, 18, 5),
     usedPoints: 300,
+    expired: true,
   },
 ];
 
@@ -64,7 +66,7 @@ describe('RedemptionHistoryPage', () => {
   it('shows a summary of benefits and points used', async () => {
     await render(() => of(usedBenefits));
 
-    expect(element.textContent).toContain('2 beneficios usados');
+    expect(element.textContent).toContain('2 beneficios canjeados');
     expect(element.textContent).toContain('750 pts canjeados');
   });
 
@@ -78,16 +80,16 @@ describe('RedemptionHistoryPage', () => {
   it('uses the singular label for a single used benefit', async () => {
     await render(() => of([usedBenefits[0]]));
 
-    expect(element.textContent).toContain('1 beneficio usado');
-    expect(element.textContent).not.toContain('beneficios usados');
+    expect(element.textContent).toContain('1 beneficio canjeado');
+    expect(element.textContent).not.toMatch(/\d+ beneficios canjeados/);
   });
 
-  it('warns that the history may include expired or cancelled redemptions', async () => {
+  it('tells the expired redemptions apart from the used ones', async () => {
     await render(() => of(usedBenefits));
 
-    expect(element.querySelector('[data-testid="history-disclaimer"]')?.textContent).toContain(
-      'vencidos o cancelados',
-    );
+    const items = element.querySelectorAll('app-used-benefit-item');
+    expect(items[0].textContent).not.toContain('Vencido');
+    expect(items[1].textContent).toContain('Vencido');
   });
 
   it('shows a loading state while the history is loading', async () => {

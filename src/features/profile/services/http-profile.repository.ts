@@ -59,9 +59,9 @@ export class HttpProfileRepository implements ProfileRepository {
   }
 
   getUsedBenefits(): Observable<readonly UsedBenefit[]> {
-    const params = { ...ALL_ITEMS, status: 'USED' };
+    // The status filter takes one value and the history shows used and expired coupons.
     return this.http
-      .get<Page<RedemptionDto>>(`${environment.apiBaseUrl}/redemption`, { params })
+      .get<Page<RedemptionDto>>(`${environment.apiBaseUrl}/redemption`, { params: ALL_ITEMS })
       .pipe(map((page) => toUsedBenefits(page.content)));
   }
 
