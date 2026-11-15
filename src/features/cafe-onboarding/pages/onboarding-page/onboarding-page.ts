@@ -12,6 +12,15 @@ import {
   OpeningHours,
 } from '../../../../shared/utils/opening-hours';
 import { LogoutButton } from '../../../auth/components/logout-button/logout-button';
+import { BenefitForm } from '../../../cafe-benefits/components/benefit-form/benefit-form';
+import {
+  BenefitTypeOption,
+  CafeBenefit,
+  CreateCafeBenefitRequest,
+  ProductOption,
+  TierOption,
+} from '../../../cafe-benefits/model/cafe-benefit.model';
+import { CafeBenefitService } from '../../../cafe-benefits/services/cafe-benefit.service';
 import { CafeProfileRepository } from '../../../cafe-profile/services/cafe-profile.repository';
 import { CafeProfile } from '../../../cafe-profile/types/cafe-profile.model';
 import { ProductForm } from '../../../cafe-products/components/product-form/product-form';
@@ -30,7 +39,7 @@ const PHONE_PATTERN = /^\d{10}$/;
 
 @Component({
   selector: 'app-onboarding-page',
-  imports: [CurrencyPipe, Icon, OpeningHoursEditor, ThemeToggle, LogoutButton, ProductForm],
+  imports: [CurrencyPipe, Icon, OpeningHoursEditor, ThemeToggle, LogoutButton, ProductForm, BenefitForm],
   templateUrl: './onboarding-page.html',
   host: { class: 'block min-h-dvh bg-bg text-text' },
 })
@@ -38,6 +47,7 @@ export class OnboardingPage implements OnInit {
   private readonly repository = inject(CafeProfileRepository);
   private readonly router = inject(Router);
   private readonly productService = inject(ProductService);
+  private readonly benefitService = inject(CafeBenefitService);
 
   readonly steps = ONBOARDING_STEPS;
   readonly dayLabels = DAY_LABELS;
@@ -60,6 +70,16 @@ export class OnboardingPage implements OnInit {
   readonly showProductForm = signal(false);
   readonly productSaving = signal(false);
   readonly productError = signal<string | null>(null);
+
+  readonly benefitTypes = signal<BenefitTypeOption[]>([]);
+  readonly tiers = signal<TierOption[]>([]);
+  readonly benefit = signal<CafeBenefit | null>(null);
+  readonly showBenefitForm = signal(false);
+  readonly benefitSaving = signal(false);
+  readonly benefitError = signal<string | null>(null);
+  readonly productOptions = computed<ProductOption[]>(() =>
+    this.products().map((product) => ({ id: product.externalId, name: product.name })),
+  );
 
   readonly addressError = computed(() => (this.address().trim() ? null : 'La dirección es obligatoria.'));
   readonly phoneError = computed(() =>
@@ -93,7 +113,7 @@ export class OnboardingPage implements OnInit {
       case 'products':
         return this.products().length > 0 ? 'Continuar' : 'Saltear';
       case 'benefit':
-        return 'Saltear';
+        return this.benefit() ? 'Continuar' : 'Saltear';
       case 'done':
         return 'Entrar al panel';
       default:
@@ -109,6 +129,14 @@ export class OnboardingPage implements OnInit {
     this.productService.getCategories().subscribe({
       next: (categories) => this.categories.set(categories),
       error: () => this.productError.set('No pudimos cargar las categorías. Recargá la página para intentar de nuevo.'),
+    });
+    this.benefitService.getBenefitTypes().subscribe({
+      next: (types) => this.benefitTypes.set(types),
+      error: () => this.benefitError.set('No pudimos cargar los tipos de beneficio. Recargá la página para intentar de nuevo.'),
+    });
+    this.benefitService.getTiers().subscribe({
+      next: (tiers) => this.tiers.set(tiers),
+      error: () => this.benefitError.set('No pudimos cargar los niveles de socio. Recargá la página para intentar de nuevo.'),
     });
   }
 
@@ -152,6 +180,34 @@ export class OnboardingPage implements OnInit {
       error: (error) => {
         this.productSaving.set(false);
         this.productError.set(backendErrorMessage(error) ?? 'No pudimos crear el producto. Probá de nuevo.');
+      },
+    });
+  }
+
+  openBenefitForm(): void {
+    this.benefitError.set(null);
+    this.showBenefitForm.set(true);
+  }
+
+  createBenefit(request: CreateCafeBenefitRequest): void {
+    if (this.benefitSaving()) {
+      return;
+    }
+    this.benefitSaving.set(true);
+    this.benefitError.set(null);
+    this.benefitService.create(request).subscribe({
+      next: ({ benefit, publishError }) => {
+        this.benefit.set(benefit);
+        this.benefitSaving.set(false);
+        this.showBenefitForm.set(false);
+        if (publishError) {
+          const reason = backendErrorMessage(publishError);
+          this.benefitError.set(`El beneficio se guardó, pero no se publicó.${reason ? ` ${reason}` : ''}`);
+        }
+      },
+      error: (error) => {
+        this.benefitSaving.set(false);
+        this.benefitError.set(backendErrorMessage(error) ?? 'No pudimos crear el beneficio. Probá de nuevo.');
       },
     });
   }

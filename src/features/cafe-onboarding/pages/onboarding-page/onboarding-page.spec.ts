@@ -3,6 +3,7 @@ import { Router, provideRouter } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { of, throwError } from 'rxjs';
 import { CafeProfileRepository } from '../../../cafe-profile/services/cafe-profile.repository';
+import { CafeBenefitService } from '../../../cafe-benefits/services/cafe-benefit.service';
 import { CafeProfile } from '../../../cafe-profile/types/cafe-profile.model';
 import { ProductService } from '../../../catalog/services/product.service';
 import { OnboardingPage } from './onboarding-page';
@@ -34,6 +35,7 @@ describe('OnboardingPage', () => {
         provideRouter([]),
         { provide: CafeProfileRepository, useValue: { getProfile: () => of(NEW_CAFE), updateProfile } },
         { provide: ProductService, useValue: { getCategories: () => of([]) } },
+        { provide: CafeBenefitService, useValue: { getBenefitTypes: () => of([]), getTiers: () => of([]) } },
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(OnboardingPage);
