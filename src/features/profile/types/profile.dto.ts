@@ -102,6 +102,7 @@ export interface RedemptionDto {
   readonly benefitName: string;
   readonly cafeName: string | null;
   readonly cafeId: string | null;
+  readonly usedDate?: string | null;
 }
 
 export interface TierBenefitDto {
