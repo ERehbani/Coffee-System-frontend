@@ -236,8 +236,8 @@
           @if (activeCafe.reviewCount; as reviewCount) {
             <div class="flex items-center gap-1 text-text font-bold">
               <app-icon name="star" [size]="13" class="text-amber-400" />
-              <span>{{ activeCafe.rating | number: '1.1-1' }}</span>
-              <span class="font-normal text-muted">({{ reviewCount | number }})</span>
+              <span><span class="sr-only">Calificación </span>{{ activeCafe.rating | number: '1.1-1' }}</span>
+              <span class="font-normal text-muted">({{ reviewCount | number }} opiniones)</span>
             </div>
           }
           <a

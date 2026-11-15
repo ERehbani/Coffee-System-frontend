@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Service } from '@angular/core';
 import { map, Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { ALL_ITEMS, Page } from '../../../shared/types/page';
+import { Page } from '../../../shared/types/page';
 import {
   ProfileDashboardDto,
   RedemptionDto,
@@ -61,7 +61,8 @@ export class HttpProfileRepository implements ProfileRepository {
   getUsedBenefits(): Observable<readonly UsedBenefit[]> {
     // The status filter takes one value and the history shows used and expired coupons.
     return this.http
-      .get<Page<RedemptionDto>>(`${environment.apiBaseUrl}/redemption`, { params: ALL_ITEMS })
+      // shortcut: one newest-first page of 500 filtered here, because the backend status filter takes a single value; page through it if a client ever exceeds 500 redemptions.
+      .get<Page<RedemptionDto>>(`${environment.apiBaseUrl}/redemption`, { params: { size: 500 } })
       .pipe(map((page) => toUsedBenefits(page.content)));
   }
 
