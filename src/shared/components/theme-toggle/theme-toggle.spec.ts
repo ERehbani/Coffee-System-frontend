@@ -44,19 +44,12 @@ describe('ThemeToggle', () => {
     expect(button(fixture).getAttribute('aria-pressed')).toBe('true');
   });
 
-  it('appears with its colors and only animates them once it is on screen', async () => {
-    const fixture = TestBed.createComponent(ThemeToggle);
-    fixture.componentRef.setInput('appearance', 'card');
+  it('only animates its colors on hover or focus, so it does not flash when a page opens', () => {
+    const classes = button(render('card')).className.split(' ');
 
-    fixture.componentRef.changeDetectorRef.detectChanges();
-
-    expect(button(fixture).className).toContain('bg-surface');
-    expect(button(fixture).className).not.toContain('transition-colors');
-
-    fixture.detectChanges();
-    await fixture.whenStable();
-
-    expect(button(fixture).className).toContain('transition-colors');
+    expect(classes).not.toContain('transition-colors');
+    expect(classes).toContain('hover:transition-colors');
+    expect(classes).toContain('focus-visible:transition-colors');
   });
 
   it('looks like the cart button next to it in the client headers', () => {
