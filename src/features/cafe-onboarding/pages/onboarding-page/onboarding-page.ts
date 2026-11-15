@@ -14,7 +14,13 @@ import { LogoutButton } from '../../../auth/components/logout-button/logout-butt
 import { CafeProfileRepository } from '../../../cafe-profile/services/cafe-profile.repository';
 import { CafeProfile } from '../../../cafe-profile/types/cafe-profile.model';
 
-export const ONBOARDING_STEPS = ['Contacto', 'Horarios', 'Imágenes', 'Confirmar'] as const;
+export const ONBOARDING_STEPS = [
+  { id: 'cafe', label: 'Tu cafetería', optional: false },
+  { id: 'hours', label: 'Horarios', optional: false },
+  { id: 'products', label: 'Primeros productos', optional: true },
+  { id: 'benefit', label: 'Primer beneficio', optional: true },
+  { id: 'done', label: '¡Listo!', optional: false },
+] as const;
 
 const PHONE_PATTERN = /^\d{10}$/;
 
@@ -55,18 +61,31 @@ export class OnboardingPage implements OnInit {
   readonly imageError = computed(() => (this.image().trim() ? null : 'La portada es obligatoria.'));
 
   readonly hoursSummary = computed(() => formatOpeningHours(this.openingHours()));
+  readonly currentStep = computed(() => this.steps[this.step()]);
   readonly isLastStep = computed(() => this.step() === this.steps.length - 1);
 
   readonly stepIsValid = computed(() => {
-    switch (this.step()) {
-      case 0:
-        return !this.addressError() && !this.phoneError();
-      case 1:
+    switch (this.currentStep().id) {
+      case 'cafe':
+        return !this.addressError() && !this.phoneError() && !this.logoError() && !this.imageError();
+      case 'hours':
         return !this.hoursError();
-      case 2:
-        return !this.logoError() && !this.imageError();
       default:
         return true;
+    }
+  });
+
+  readonly nextLabel = computed(() => {
+    switch (this.currentStep().id) {
+      case 'hours':
+        return this.status() === 'saving' ? 'Guardando…' : 'Guardar y seguir';
+      case 'products':
+      case 'benefit':
+        return 'Saltear';
+      case 'done':
+        return 'Entrar al panel';
+      default:
+        return 'Siguiente';
     }
   });
 
@@ -83,15 +102,24 @@ export class OnboardingPage implements OnInit {
       return;
     }
     this.attempted.set(false);
-    this.step.update((current) => Math.min(current + 1, this.steps.length - 1));
+    // The required data is saved before the optional steps, so leaving them never keeps the cafe in onboarding.
+    if (this.currentStep().id === 'hours') {
+      this.saveProfile();
+      return;
+    }
+    this.goTo(this.step() + 1);
   }
 
   back(): void {
     this.attempted.set(false);
-    this.step.update((current) => Math.max(current - 1, 0));
+    this.goTo(this.step() - 1);
   }
 
   finish(): void {
+    this.router.navigateByUrl('/cafe/dashboard');
+  }
+
+  private saveProfile(): void {
     const profile = this.profile();
     if (!profile || this.status() === 'saving') {
       return;
@@ -108,12 +136,19 @@ export class OnboardingPage implements OnInit {
         openingHours: this.openingHours(),
       })
       .subscribe({
-        next: () => this.router.navigateByUrl('/cafe/dashboard'),
+        next: () => {
+          this.status.set('ready');
+          this.goTo(this.step() + 1);
+        },
         error: (error) => {
           this.status.set('ready');
           this.errorMessage.set(backendErrorMessage(error) ?? 'No pudimos guardar los datos. Probá de nuevo.');
         },
       });
+  }
+
+  private goTo(index: number): void {
+    this.step.set(Math.min(Math.max(index, 0), this.steps.length - 1));
   }
 
   private start(profile: CafeProfile): void {

@@ -26,10 +26,10 @@
         </p>
       </div>
 
-      <ol aria-label="Pasos del onboarding" class="grid grid-cols-4 gap-2">
-        @for (label of steps; track label; let index = $index) {
+      <ol aria-label="Pasos del onboarding" class="grid grid-cols-5 gap-2">
+        @for (item of steps; track item.id; let index = $index) {
           <li
-            class="rounded-xl border px-2 py-2 text-center text-xs font-semibold"
+            class="rounded-xl border px-1 py-2 text-center text-xs font-semibold"
             [class.border-primary]="index === step()"
             [class.bg-accent-light]="index === step()"
             [class.text-primary]="index <= step()"
@@ -37,15 +37,30 @@
             [class.text-muted]="index > step()"
             [attr.aria-current]="index === step() ? 'step' : null"
           >
-            {{ index + 1 }}. {{ label }}
+            {{ index + 1 }}<span class="sr-only sm:not-sr-only">. {{ item.label }}</span>
+            @if (item.optional) {
+              <span class="block text-[10px] font-medium">Opcional</span>
+            }
           </li>
         }
       </ol>
 
       <section class="space-y-5 rounded-3xl border border-border bg-surface p-6 shadow-xs">
-        @switch (step()) {
-          @case (0) {
-            <h2 class="text-lg font-bold text-text">Datos de contacto</h2>
+        <h2 class="text-lg font-bold text-text">{{ currentStep().label }}</h2>
+        @switch (currentStep().id) {
+          @case ('cafe') {
+            <div class="space-y-1.5">
+              <label for="onboarding-name" class="block text-sm font-bold text-text">Nombre</label>
+              <input
+                id="onboarding-name"
+                type="text"
+                readonly
+                [value]="profile()?.name"
+                aria-describedby="onboarding-name-hint"
+                class="w-full rounded-xl border border-border bg-bg px-4 py-2.5 text-sm text-muted focus:border-primary focus:outline-hidden"
+              />
+              <p id="onboarding-name-hint" class="text-xs text-muted">El nombre de la cafetería no se puede modificar.</p>
+            </div>
             <div class="space-y-1.5">
               <label for="onboarding-address" class="block text-sm font-bold text-text">Dirección *</label>
               <input
@@ -87,14 +102,6 @@
                 class="w-full rounded-xl border border-border bg-bg px-4 py-2.5 text-sm text-text placeholder:text-muted/60 focus:border-primary focus:outline-hidden"
               ></textarea>
             </div>
-          }
-          @case (1) {
-            <h2 class="text-lg font-bold text-text">Horarios de atención</h2>
-            <p class="text-sm text-muted">Con estos horarios los clientes van a ver si tu local está abierto.</p>
-            <app-opening-hours-editor [(hours)]="openingHours" [showErrors]="attempted()" />
-          }
-          @case (2) {
-            <h2 class="text-lg font-bold text-text">Imágenes</h2>
             <div class="space-y-1.5">
               <label for="onboarding-logo" class="block text-sm font-bold text-text">URL del logo *</label>
               <input
@@ -130,8 +137,22 @@
               }
             </div>
           }
+          @case ('hours') {
+            <p class="text-sm text-muted">Con estos horarios los clientes van a ver si tu local está abierto.</p>
+            <app-opening-hours-editor [(hours)]="openingHours" [showErrors]="attempted()" />
+          }
+          @case ('products') {
+            <p class="text-sm text-muted">
+              Cargá algunos productos para que tus clientes vean tu menú. Si preferís, salteá este paso y hacelo después desde el panel.
+            </p>
+          }
+          @case ('benefit') {
+            <p class="text-sm text-muted">
+              Creá un beneficio para que tus clientes lo canjeen con sus puntos. También podés crearlo más tarde desde el panel.
+            </p>
+          }
           @default {
-            <h2 class="text-lg font-bold text-text">Revisá los datos</h2>
+            <p class="text-sm text-muted">Guardamos los datos de tu cafetería. Ya podés empezar a usar el panel.</p>
             <dl class="space-y-3 text-sm">
               <div>
                 <dt class="font-semibold text-muted">Dirección</dt>
@@ -150,10 +171,11 @@
                 <img [src]="image()" alt="Portada" class="h-14 flex-1 rounded-xl border border-border object-cover" />
               </div>
             </dl>
-            @if (errorMessage(); as err) {
-              <p role="alert" class="rounded-xl bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-700">{{ err }}</p>
-            }
           }
+        }
+
+        @if (errorMessage(); as err) {
+          <p role="alert" class="rounded-xl bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-700">{{ err }}</p>
         }
 
         <div class="flex items-center justify-between border-t border-border pt-4">
@@ -165,25 +187,17 @@
           >
             Atrás
           </button>
-          @if (isLastStep()) {
-            <button
-              type="button"
-              (click)="finish()"
-              [disabled]="status() === 'saving'"
-              class="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-primary px-5 py-2 text-sm font-bold text-white transition hover:bg-primary-dark disabled:opacity-60"
-            >
+          <button
+            type="button"
+            (click)="isLastStep() ? finish() : next()"
+            [disabled]="status() === 'saving'"
+            class="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-primary px-5 py-2 text-sm font-bold text-white transition hover:bg-primary-dark disabled:opacity-60"
+          >
+            @if (isLastStep()) {
               <app-icon name="check" [size]="16" />
-              {{ status() === 'saving' ? 'Guardando…' : 'Terminar y entrar al panel' }}
-            </button>
-          } @else {
-            <button
-              type="button"
-              (click)="next()"
-              class="cursor-pointer rounded-xl bg-primary px-5 py-2 text-sm font-bold text-white transition hover:bg-primary-dark"
-            >
-              Siguiente
-            </button>
-          }
+            }
+            {{ nextLabel() }}
+          </button>
         </div>
       </section>
     }
