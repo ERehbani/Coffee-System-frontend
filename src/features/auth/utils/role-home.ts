@@ -6,7 +6,7 @@ export const ACCOUNT_CREATED_REASON = 'registered';
 
 const HOME_BY_ROLE: Record<UserRole, string> = {
   ROLE_SUPERADMIN: '/admin',
-  ROLE_CAFETERIA: '/cafe/profile',
+  ROLE_CAFETERIA: '/cafe/dashboard',
   ROLE_CLIENTE: '/home',
 };
 

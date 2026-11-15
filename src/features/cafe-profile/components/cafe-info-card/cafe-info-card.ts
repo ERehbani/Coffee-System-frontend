@@ -1,4 +1,5 @@
 import { Component, input } from '@angular/core';
+import { DAY_LABELS } from '../../../../shared/utils/opening-hours';
 import { Icon } from '../../../../shared/components/icon/icon';
 import { CafeProfile } from '../../types/cafe-profile.model';
 
@@ -10,4 +11,5 @@ import { CafeProfile } from '../../types/cafe-profile.model';
 })
 export class CafeInfoCard {
   readonly profile = input.required<CafeProfile>();
+  readonly dayLabels = DAY_LABELS;
 }

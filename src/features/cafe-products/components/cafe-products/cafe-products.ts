@@ -1,8 +1,6 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
 import { Icon } from '../../../../shared/components/icon/icon';
-import { LogoutButton } from '../../../auth/components/logout-button/logout-button';
 import { ProductService } from '../../../catalog/services/product.service';
 import {
   CategoryOption,
@@ -27,7 +25,7 @@ function normalizeText(text: string | null | undefined): string {
 
 @Component({
   selector: 'app-cafe-products',
-  imports: [RouterLink, FormsModule, Icon, LogoutButton, ProductItemCard, ProductForm],
+  imports: [FormsModule, Icon, ProductItemCard, ProductForm],
   templateUrl: './cafe-products.html',
   styleUrl: './cafe-products.css',
   host: { class: 'block' },

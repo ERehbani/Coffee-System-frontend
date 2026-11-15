@@ -6,7 +6,7 @@ describe('getHomeForRoles', () => {
   });
 
   it('sends the cafe to its profile', () => {
-    expect(getHomeForRoles(['ROLE_CAFETERIA'])).toBe('/cafe/profile');
+    expect(getHomeForRoles(['ROLE_CAFETERIA'])).toBe('/cafe/dashboard');
   });
 
   it('sends the client to the home', () => {

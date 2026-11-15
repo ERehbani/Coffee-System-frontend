@@ -83,15 +83,11 @@ describe('CouponValidationPage', () => {
     await click(fixture, 'Validar código');
   }
 
-  it('links back to the cafe panel and lets the cafe log out', async () => {
+  it('shows its title and leaves the navigation to the cafe layout', async () => {
     await render();
 
-    const back = Array.from(element.querySelectorAll('a')).find((link) =>
-      link.textContent?.includes('Panel del comercio'),
-    );
     expect(element.querySelector('h1')?.textContent?.trim()).toBe('Validar cupones');
-    expect(back?.getAttribute('href')).toBe('/cafe/profile');
-    expect(element.querySelector('app-logout-button')).not.toBeNull();
+    expect(element.querySelector('app-logout-button')).toBeNull();
   });
 
   it('warns that validating a coupon uses it up', async () => {

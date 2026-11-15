@@ -19,7 +19,7 @@
   <div
     data-testid="admin-backdrop"
     aria-hidden="true"
-    class="fixed inset-0 z-30 bg-text/40 lg:hidden"
+    class="fixed inset-0 z-30 bg-ink/40 lg:hidden"
     (click)="closeMenu()"
   ></div>
 }
@@ -51,7 +51,10 @@
   </nav>
 
   <footer class="mt-4 flex flex-col gap-1 border-t border-border pt-4">
-    <p class="px-2.5 text-xs text-muted">Superadmin</p>
+    <div class="flex items-center justify-between px-2.5">
+      <p class="text-xs text-muted">Superadmin</p>
+      <app-theme-toggle />
+    </div>
     @if (canOpenClientApp()) {
       <a
         routerLink="/home"

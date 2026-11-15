@@ -1,9 +1,11 @@
 import { provideHttpClient } from '@angular/common/http';
-import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
+import { environment } from '../environments/environment';
 import { signInForTest, signOutForTest } from '../features/auth/utils/auth.fixture';
+import { CAFE_PROFILE_FIXTURE } from '../features/cafe-profile/utils/cafe-profile.fixture';
 import { ADMIN_NAV_ITEMS } from '../shared/components/admin-layout/admin-nav';
 import { routes } from './app.routes';
 
@@ -146,11 +148,40 @@ describe('cafe routes', () => {
     }).compileComponents();
   });
 
-  it('renders the coupon validator for a cafe', async () => {
-    await navigateAs(['ROLE_CAFETERIA'], '/cafe/validate');
+  async function navigateAsCafe(url: string, profileComplete: boolean): Promise<void> {
+    signInForTest(['ROLE_CAFETERIA']);
+    harness = await RouterTestingHarness.create();
+    router = TestBed.inject(Router);
+    const http = TestBed.inject(HttpTestingController);
+    let finished = false;
+    const navigation = harness.navigateByUrl(url).finally(() => (finished = true));
+    for (let attempt = 0; attempt < 200 && !finished; attempt++) {
+      await new Promise((resolve) => setTimeout(resolve, 10));
+      http
+        .match(`${environment.apiBaseUrl}/cafes/me`)
+        .forEach((request) => request.flush({ ...CAFE_PROFILE_FIXTURE, profileComplete }));
+    }
+    await navigation;
+  }
+
+  it('renders the coupon validator inside the cafe layout for a cafe with a complete profile', async () => {
+    await navigateAsCafe('/cafe/validate', true);
 
     expect(router.url).toBe('/cafe/validate');
-    expect(page().querySelector('app-coupon-validation-page')).not.toBeNull();
+    expect(page().querySelector('app-cafe-layout app-coupon-validation-page')).not.toBeNull();
+  });
+
+  it('sends a cafe that did not finish its profile to the onboarding', async () => {
+    await navigateAsCafe('/cafe/products', false);
+
+    expect(router.url).toBe('/cafe/onboarding');
+    expect(page().querySelector('app-onboarding-page')).not.toBeNull();
+  });
+
+  it('opens the dashboard when the cafe enters its area', async () => {
+    await navigateAsCafe('/cafe', true);
+
+    expect(router.url).toBe('/cafe/dashboard');
   });
 
   it('keeps a client out of the coupon validator', async () => {

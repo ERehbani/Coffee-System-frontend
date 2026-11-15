@@ -7,8 +7,9 @@ export const CAFE_CENTRAL_FIXTURE: Cafe = {
   email: 'cafe.central@test.com',
   phoneNumber: '1111111111',
   description: 'Cafeteria de prueba en el centro',
-  schedule: 'Lun a Vie 8-20',
   state: true,
+  openNow: true,
+  openingHours: [{ day: 'MONDAY', opensAt: '08:00', closesAt: '20:00' }],
   image: null,
 };
 
@@ -19,8 +20,9 @@ export const CAFE_NORTE_FIXTURE: Cafe = {
   email: 'cafe.norte@test.com',
   phoneNumber: '2222222222',
   description: 'Cafeteria de prueba zona norte',
-  schedule: 'Lun a Dom 9-22',
   state: true,
+  openNow: true,
+  openingHours: [{ day: 'SATURDAY', opensAt: '09:00', closesAt: '22:00' }],
   image: null,
 };
 
@@ -31,8 +33,9 @@ export const CLOSED_CAFE_FIXTURE: Cafe = {
   email: 'tostado.club@test.com',
   phoneNumber: null,
   description: null,
-  schedule: null,
-  state: false,
+  state: true,
+  openNow: false,
+  openingHours: [],
   image: null,
 };
 

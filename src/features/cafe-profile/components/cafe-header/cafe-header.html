@@ -16,12 +16,12 @@
       @if (profile().isOpen) {
         <span class="inline-flex items-center gap-1.5 rounded-full bg-success/90 px-3.5 py-1 text-xs font-bold tracking-wide text-white backdrop-blur-sm">
           <span class="size-2 rounded-full bg-white animate-pulse"></span>
-          Abierto al público
+          Abierto ahora
         </span>
       } @else {
         <span class="inline-flex items-center gap-1.5 rounded-full bg-muted/90 px-3.5 py-1 text-xs font-bold tracking-wide text-white backdrop-blur-sm">
           <span class="size-2 rounded-full bg-white/60"></span>
-          Cerrado
+          Cerrado ahora
         </span>
       }
     </div>
@@ -31,9 +31,13 @@
     <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
       <div class="space-y-1">
         <div class="flex items-center gap-2">
-          <span class="inline-flex size-10 items-center justify-center rounded-xl bg-accent-light text-primary">
-            <app-icon name="coffee" [size]="22" />
-          </span>
+          @if (profile().logo) {
+            <img [src]="profile().logo" [alt]="'Logo de ' + profile().name" class="size-10 rounded-xl object-cover" />
+          } @else {
+            <span class="inline-flex size-10 items-center justify-center rounded-xl bg-accent-light text-primary">
+              <app-icon name="coffee" [size]="22" />
+            </span>
+          }
           <h1 class="text-2xl font-extrabold tracking-tight text-text md:text-3xl">
             {{ profile().name }}
           </h1>

@@ -51,7 +51,6 @@ describe('CafeService', () => {
       name: 'Café Test',
       address: 'Calle Falsa 123',
       phoneNumber: null,
-      schedule: null,
       description: null,
     };
 

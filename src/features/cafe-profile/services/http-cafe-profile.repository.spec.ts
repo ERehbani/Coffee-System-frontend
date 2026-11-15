@@ -49,15 +49,26 @@ describe('HttpCafeProfileRepository', () => {
       address: '  Av. Corrientes 1500  ',
       phoneNumber: '1145238890',
       description: 'Cafetería de especialidad',
-      schedule: 'Lun a Vie 8-20',
-      image: '',
+      logo: 'https://img/logo.png',
+      image: 'https://img/cover.png',
+      openingHours: [
+        { day: 'FRIDAY', opensAt: '08:00', closesAt: '20:00' },
+        { day: 'MONDAY', opensAt: '08:00', closesAt: '20:00' },
+      ],
     };
     let profile: CafeProfile | undefined;
     repository.updateProfile('cafe-9', input).subscribe((value) => (profile = value));
 
     const request = http.expectOne(`${environment.apiBaseUrl}/cafes/cafe-9`);
     expect(request.request.method).toBe('PUT');
-    expect(request.request.body).toEqual({ ...input, address: 'Av. Corrientes 1500' });
+    expect(request.request.body).toEqual({
+      ...input,
+      address: 'Av. Corrientes 1500',
+      openingHours: [
+        { day: 'MONDAY', opensAt: '08:00', closesAt: '20:00' },
+        { day: 'FRIDAY', opensAt: '08:00', closesAt: '20:00' },
+      ],
+    });
     request.flush({ ...CAFE_PROFILE_FIXTURE, externalId: 'cafe-9', address: 'Av. Corrientes 1500' });
 
     expect(profile?.address).toBe('Av. Corrientes 1500');

@@ -86,7 +86,7 @@
             <app-icon name="clock" [size]="14" />
             Horarios
           </span>
-          <p class="font-semibold text-text">{{ item.schedule || 'No especificado' }}</p>
+          <p class="font-semibold text-text">{{ formatHours(item.openingHours) || 'No especificado' }}</p>
         </div>
       </div>
 

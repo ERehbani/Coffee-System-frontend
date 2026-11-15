@@ -9,6 +9,7 @@
         <h1 class="text-2xl font-bold tracking-tight text-text md:text-3xl">Catálogo de Productos</h1>
       </div>
       <div class="flex items-center gap-2">
+        <app-theme-toggle appearance="card" />
         <app-cart-button />
         <a
           routerLink="/profile"
@@ -49,7 +50,7 @@
   }
 
   @if (pendingProduct(); as pending) {
-    <div class="fixed inset-0 z-40 flex items-end justify-center bg-text/40 p-4 sm:items-center">
+    <div class="fixed inset-0 z-40 flex items-end justify-center bg-ink/40 p-4 sm:items-center">
       <div
         role="alertdialog"
         aria-modal="true"
@@ -162,7 +163,7 @@
               <span class="text-xs font-bold truncate max-w-[130px] sm:max-w-[160px]">
                 {{ cafe.name }}
               </span>
-              @if (cafe.state) {
+              @if (cafe.openNow) {
                 <span
                   class="size-1.5 rounded-full"
                   [class.bg-emerald-300]="selectedCafe()?.externalId === cafe.externalId"
@@ -195,7 +196,7 @@
             <app-icon name="store" [size]="15" />
             <span>Mostrando productos de {{ activeCafe.name }}</span>
           </div>
-          @if (activeCafe.state) {
+          @if (activeCafe.openNow) {
             <span class="rounded-full bg-emerald-600/10 text-emerald-700 px-2 py-0.5 text-[10px] font-semibold">
               Abierto
             </span>
@@ -211,10 +212,10 @@
             <app-icon name="map-pin" [size]="13" class="text-accent" />
             {{ activeCafe.address }}
           </span>
-          @if (activeCafe.schedule) {
+          @if (activeCafe.openingHours?.length) {
             <span class="flex items-center gap-1">
               <app-icon name="clock" [size]="13" />
-              {{ activeCafe.schedule }}
+              {{ formatHours(activeCafe.openingHours) }}
             </span>
           }
           @if (activeCafe.rating; as rating) {
@@ -257,7 +258,7 @@
           [value]="productSearchQuery()"
           (input)="onProductSearchChange($any($event.target).value)"
           placeholder="Buscar producto o ingrediente..."
-          class="w-full rounded-xl border border-border bg-surface py-2 pr-8 pl-9 text-xs text-text placeholder:text-muted/70 shadow-2xs transition-colors focus:border-primary focus:bg-white focus:outline-none focus:ring-1 focus:ring-primary/20"
+          class="w-full rounded-xl border border-border bg-surface py-2 pr-8 pl-9 text-xs text-text placeholder:text-muted/70 shadow-2xs transition-colors focus:border-primary focus:bg-surface focus:outline-none focus:ring-1 focus:ring-primary/20"
         />
         @if (productSearchQuery()) {
           <button

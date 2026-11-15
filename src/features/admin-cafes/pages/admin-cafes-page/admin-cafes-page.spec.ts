@@ -20,7 +20,8 @@ describe('AdminCafesPage', () => {
       phoneNumber: '+54 11 1111-2222',
       description: 'Café de especialidad',
       state: true,
-      schedule: 'Lun a Vie 08:00 - 20:00',
+      openNow: true,
+      openingHours: [{ day: 'MONDAY', opensAt: '08:00', closesAt: '20:00' }],
     },
     {
       externalId: 'cafe-2',
@@ -30,7 +31,8 @@ describe('AdminCafesPage', () => {
       phoneNumber: null,
       description: null,
       state: false,
-      schedule: null,
+      openNow: false,
+      openingHours: [],
     },
   ];
 
@@ -106,7 +108,6 @@ describe('AdminCafesPage', () => {
       name: 'Nuevo Café',
       address: 'Av. Libertador 500',
       phoneNumber: '12345678',
-      schedule: 'Lun a Vie 08:00 - 20:00',
       description: 'Una descripción',
     });
     fixture.detectChanges();
@@ -120,7 +121,6 @@ describe('AdminCafesPage', () => {
       name: 'Nuevo Café',
       address: 'Av. Libertador 500',
       phoneNumber: '12345678',
-      schedule: 'Lun a Vie 08:00 - 20:00',
       description: 'Una descripción',
     });
     TestBed.flushEffects();
@@ -136,7 +136,7 @@ describe('AdminCafesPage', () => {
     const emailInputAfter = fixture.nativeElement.querySelector('input[type="email"]') as HTMLInputElement;
     expect(emailInputAfter.value).toBe('');
     expect(modalComponent.attemptedSubmit()).toBe(false);
-    expect(modalComponent.cafeModel().schedule).toBe('Lun a Vie 08:00 - 20:00');
+    expect(modalComponent.cafeModel().name).toBe('');
   });
 });
 

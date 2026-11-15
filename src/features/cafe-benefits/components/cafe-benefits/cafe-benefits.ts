@@ -1,10 +1,8 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
 import { switchMap } from 'rxjs';
 import { Icon } from '../../../../shared/components/icon/icon';
 import { backendErrorMessage } from '../../../../shared/utils/backend-error';
-import { LogoutButton } from '../../../auth/components/logout-button/logout-button';
 import { ProductService } from '../../../catalog/services/product.service';
 import { ProductDto } from '../../../catalog/types/product.dto';
 import {
@@ -24,7 +22,7 @@ function toProductOptions(products: ProductDto[]): ProductOption[] {
 
 @Component({
   selector: 'app-cafe-benefits',
-  imports: [RouterLink, FormsModule, Icon, LogoutButton, BenefitCard, BenefitForm],
+  imports: [FormsModule, Icon, BenefitCard, BenefitForm],
   templateUrl: './cafe-benefits.html',
   styleUrl: './cafe-benefits.css',
   host: { class: 'block' },
