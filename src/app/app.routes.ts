@@ -16,6 +16,10 @@ const adminSectionRoutes: Routes = [
     loadChildren: () => import('../features/admin-users/admin-users.routes'),
   },
   {
+    path: 'clients',
+    loadChildren: () => import('../features/admin-clients/admin-clients.routes'),
+  },
+  {
     path: 'categories',
     loadChildren: () => import('../features/admin-categories/admin-categories.routes'),
   },
