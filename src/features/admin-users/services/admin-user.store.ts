@@ -1,4 +1,5 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
+import { backendErrorMessage } from '../../../shared/utils/backend-error';
 import { AdminUser, UserRole, UserStatsSummary, UserStatus } from '../types/admin-user.model';
 import { AdminUserRepository } from './admin-user.repository';
 
@@ -127,11 +128,11 @@ export class AdminUserStore {
           onSuccess();
         }
       },
-      error: (err) => {
+      error: (err: unknown) => {
         this.isProcessing.set(false);
         this.actionMessage.set({
           type: 'error',
-          text: err?.message || 'Ocurrió un error al intentar actualizar el estado del usuario.',
+          text: backendErrorMessage(err) ?? 'Ocurrió un error al intentar actualizar el estado del usuario.',
         });
       },
     });

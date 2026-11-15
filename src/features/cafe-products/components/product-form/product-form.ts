@@ -179,7 +179,8 @@ export class ProductForm {
       awardedPoints: Number(model.awardedPoints),
       categoryId: model.categoryId,
       image: model.image.trim(),
-      tags: rawTags.length > 0 ? rawTags : undefined,
+      // An empty list clears the tags; the backend keeps them when the field is missing.
+      tags: rawTags,
       state: model.state,
     };
 

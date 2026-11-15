@@ -1,4 +1,5 @@
-import { AdminUserDto, BackendUserRole } from '../types/admin-user.dto';
+import { UserRole as BackendUserRole } from '../../auth/types/auth.model';
+import { AdminUserDto } from '../types/admin-user.dto';
 import { AdminUser, UserRole } from '../types/admin-user.model';
 
 const ROLES_BY_BACKEND_ROLE: Record<BackendUserRole, UserRole> = {
