@@ -1,3 +1,4 @@
+import { CurrencyPipe } from '@angular/common';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { Icon } from '../../../../shared/components/icon/icon';
@@ -13,6 +14,9 @@ import {
 import { LogoutButton } from '../../../auth/components/logout-button/logout-button';
 import { CafeProfileRepository } from '../../../cafe-profile/services/cafe-profile.repository';
 import { CafeProfile } from '../../../cafe-profile/types/cafe-profile.model';
+import { ProductForm } from '../../../cafe-products/components/product-form/product-form';
+import { ProductService } from '../../../catalog/services/product.service';
+import { CategoryOption, CreateProductRequest, ProductDto } from '../../../catalog/types/product.dto';
 
 export const ONBOARDING_STEPS = [
   { id: 'cafe', label: 'Tu cafetería', optional: false },
@@ -26,13 +30,14 @@ const PHONE_PATTERN = /^\d{10}$/;
 
 @Component({
   selector: 'app-onboarding-page',
-  imports: [Icon, OpeningHoursEditor, ThemeToggle, LogoutButton],
+  imports: [CurrencyPipe, Icon, OpeningHoursEditor, ThemeToggle, LogoutButton, ProductForm],
   templateUrl: './onboarding-page.html',
   host: { class: 'block min-h-dvh bg-bg text-text' },
 })
 export class OnboardingPage implements OnInit {
   private readonly repository = inject(CafeProfileRepository);
   private readonly router = inject(Router);
+  private readonly productService = inject(ProductService);
 
   readonly steps = ONBOARDING_STEPS;
   readonly dayLabels = DAY_LABELS;
@@ -49,6 +54,12 @@ export class OnboardingPage implements OnInit {
   readonly openingHours = signal<OpeningHours[]>([]);
   readonly logo = signal('');
   readonly image = signal('');
+
+  readonly categories = signal<CategoryOption[]>([]);
+  readonly products = signal<ProductDto[]>([]);
+  readonly showProductForm = signal(false);
+  readonly productSaving = signal(false);
+  readonly productError = signal<string | null>(null);
 
   readonly addressError = computed(() => (this.address().trim() ? null : 'La dirección es obligatoria.'));
   readonly phoneError = computed(() =>
@@ -80,6 +91,7 @@ export class OnboardingPage implements OnInit {
       case 'hours':
         return this.status() === 'saving' ? 'Guardando…' : 'Guardar y seguir';
       case 'products':
+        return this.products().length > 0 ? 'Continuar' : 'Saltear';
       case 'benefit':
         return 'Saltear';
       case 'done':
@@ -93,6 +105,10 @@ export class OnboardingPage implements OnInit {
     this.repository.getProfile().subscribe({
       next: (profile) => this.start(profile),
       error: () => this.status.set('error'),
+    });
+    this.productService.getCategories().subscribe({
+      next: (categories) => this.categories.set(categories),
+      error: () => this.productError.set('No pudimos cargar las categorías. Recargá la página para intentar de nuevo.'),
     });
   }
 
@@ -113,6 +129,31 @@ export class OnboardingPage implements OnInit {
   back(): void {
     this.attempted.set(false);
     this.goTo(this.step() - 1);
+  }
+
+  openProductForm(): void {
+    this.productError.set(null);
+    this.showProductForm.set(true);
+  }
+
+  createProduct({ request }: { request: CreateProductRequest }): void {
+    const profile = this.profile();
+    if (!profile || this.productSaving()) {
+      return;
+    }
+    this.productSaving.set(true);
+    this.productError.set(null);
+    this.productService.create(profile.id, request).subscribe({
+      next: (product) => {
+        this.products.update((list) => [...list, product]);
+        this.productSaving.set(false);
+        this.showProductForm.set(false);
+      },
+      error: (error) => {
+        this.productSaving.set(false);
+        this.productError.set(backendErrorMessage(error) ?? 'No pudimos crear el producto. Probá de nuevo.');
+      },
+    });
   }
 
   finish(): void {

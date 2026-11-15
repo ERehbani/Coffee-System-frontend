@@ -145,6 +145,36 @@
             <p class="text-sm text-muted">
               Cargá algunos productos para que tus clientes vean tu menú. Si preferís, salteá este paso y hacelo después desde el panel.
             </p>
+            @if (products().length > 0) {
+              <ul aria-label="Productos cargados" class="divide-y divide-border rounded-2xl border border-border">
+                @for (product of products(); track product.externalId) {
+                  <li class="flex items-center justify-between gap-3 px-4 py-2.5 text-sm">
+                    <span class="font-semibold text-text">{{ product.name }}</span>
+                    <span class="text-muted">{{ product.price | currency: 'ARS' : '$ ' : '1.0-0' }}</span>
+                  </li>
+                }
+              </ul>
+            }
+            @if (productError(); as err) {
+              <p role="alert" class="rounded-xl bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-700">{{ err }}</p>
+            }
+            @if (showProductForm()) {
+              <app-product-form
+                [isSaving]="productSaving()"
+                [categories]="categories()"
+                (save)="createProduct($event)"
+                (cancel)="showProductForm.set(false)"
+              />
+            } @else {
+              <button
+                type="button"
+                (click)="openProductForm()"
+                class="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-primary px-4 py-2 text-sm font-bold text-primary transition hover:bg-accent-light"
+              >
+                <app-icon name="plus" [size]="16" />
+                Agregar producto
+              </button>
+            }
           }
           @case ('benefit') {
             <p class="text-sm text-muted">

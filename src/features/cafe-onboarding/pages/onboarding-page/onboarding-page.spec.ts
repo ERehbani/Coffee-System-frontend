@@ -4,6 +4,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { of, throwError } from 'rxjs';
 import { CafeProfileRepository } from '../../../cafe-profile/services/cafe-profile.repository';
 import { CafeProfile } from '../../../cafe-profile/types/cafe-profile.model';
+import { ProductService } from '../../../catalog/services/product.service';
 import { OnboardingPage } from './onboarding-page';
 
 const NEW_CAFE: CafeProfile = {
@@ -32,6 +33,7 @@ describe('OnboardingPage', () => {
       providers: [
         provideRouter([]),
         { provide: CafeProfileRepository, useValue: { getProfile: () => of(NEW_CAFE), updateProfile } },
+        { provide: ProductService, useValue: { getCategories: () => of([]) } },
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(OnboardingPage);
