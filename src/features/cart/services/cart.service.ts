@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { environment } from '../../../environments/environment';
+import { backendErrorMessage } from '../../../shared/utils/backend-error';
 import { Product } from '../../catalog/model/product.model';
 import { Cafe } from '../../home/model/cafe.model';
 import { CartCafe, CartItem, CartResponse } from '../model/cart.model';
@@ -16,6 +17,8 @@ export class CartService {
 
   items = signal<CartItem[]>([]);
   cafe = signal<CartCafe | null>(null);
+  /** Why the backend rejected the last product added, for example a product sold out for today (409). */
+  addErrorMessage = signal<string | null>(null);
 
   totalItems = computed(() => {
     let total = 0;
@@ -54,6 +57,7 @@ export class CartService {
       return false;
     }
 
+    this.addErrorMessage.set(null);
     const previousItems = this.items();
     const previousCafe = this.cafe();
     const list = [...previousItems];
@@ -75,9 +79,10 @@ export class CartService {
         quantity: 1,
       })
       .subscribe({
-        error: (error) => {
-          console.error('error adding product to cart:', error);
+        error: (error: unknown) => {
           this.restore(previousItems, previousCafe);
+          const reason = backendErrorMessage(error);
+          this.addErrorMessage.set(`No pudimos agregar ${product.name} al carrito.${reason ? ` ${reason}` : ''}`);
         },
       });
 

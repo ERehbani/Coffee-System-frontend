@@ -11,6 +11,7 @@ export function toProduct(dto: ProductDto): Product {
     price: dto.price,
     awardedPoints: dto.awardedPoints,
     state: dto.state,
+    available: dto.available,
     category: dto.category ?? UNCATEGORIZED_LABEL,
     cafeExternalId: dto.cafe,
     image: dto.image,
