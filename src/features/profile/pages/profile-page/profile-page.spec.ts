@@ -47,6 +47,16 @@ describe('ProfilePage coupon entry points', () => {
     expect(router.navigate).toHaveBeenCalledWith(['/profile/coupons']);
   });
 
+  it('makes every quick action react to the mouse', () => {
+    const tiles = Array.from(element.querySelectorAll('app-quick-actions button'));
+
+    expect(tiles.length).toBe(4);
+    for (const tile of tiles) {
+      expect(tile.classList).toContain('cursor-pointer');
+      expect(tile.classList).toContain('hover:border-primary');
+    }
+  });
+
   it('links "Ver todos" in the active redemptions section to the my coupons page', () => {
     const section = element.querySelector('section[aria-labelledby="active-redemptions-heading"]');
     const link = Array.from(section!.querySelectorAll('a')).find((anchor) =>

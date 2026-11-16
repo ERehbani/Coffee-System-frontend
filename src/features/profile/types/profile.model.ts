@@ -85,13 +85,16 @@ export interface ProfileDashboard {
   readonly featuredBenefits: readonly FeaturedBenefit[];
 }
 
+export type UsedBenefitStatus = 'used' | 'expired';
+
 export interface UsedBenefit {
   readonly id: string;
   readonly benefitName: string;
   readonly cafeName: string | null;
   readonly redeemedAt: Date;
   readonly usedPoints: number;
-  readonly expired: boolean;
+  readonly status: UsedBenefitStatus;
+  readonly usedAt: Date | null;
 }
 
 export interface TierBenefit {

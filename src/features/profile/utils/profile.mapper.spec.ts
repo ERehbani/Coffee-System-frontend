@@ -46,6 +46,24 @@ describe('toUsedBenefits', () => {
 
     expect(result.cafeName).toBeNull();
   });
+
+  it('marks a used coupon with the date it was used and an expired one as expired', () => {
+    const [used, expired] = toUsedBenefits([
+      redemption({ externalId: 'used', date: '2026-10-10T10:00:00', usedDate: '2026-10-11T09:15:00' }),
+      redemption({ externalId: 'expired', date: '2026-09-01T10:00:00', status: 'EXPIRED' }),
+    ]);
+
+    expect(used.status).toBe('used');
+    expect(used.usedAt).toEqual(new Date('2026-10-11T09:15:00'));
+    expect(expired.status).toBe('expired');
+    expect(expired.usedAt).toBeNull();
+  });
+
+  it('leaves the used date empty when the backend does not send it', () => {
+    const [result] = toUsedBenefits([redemption({ usedDate: null })]);
+
+    expect(result.usedAt).toBeNull();
+  });
 });
 
 describe('toSavedClientProfile', () => {
