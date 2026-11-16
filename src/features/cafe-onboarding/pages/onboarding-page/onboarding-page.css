@@ -1,0 +1,18 @@
+.onboarding-track {
+  transition: transform 350ms ease-out;
+}
+
+/* Hidden steps collapse after sliding out, so the card takes the height of the visible step. */
+.onboarding-slide[inert] {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0s linear 350ms;
+  transition-behavior: allow-discrete;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .onboarding-track,
+  .onboarding-slide[inert] {
+    transition: none;
+  }
+}

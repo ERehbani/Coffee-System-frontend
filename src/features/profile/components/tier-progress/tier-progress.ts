@@ -1,7 +1,7 @@
 import { DecimalPipe, PercentPipe } from '@angular/common';
 import { Component, computed, input } from '@angular/core';
 import { LoyaltyTier } from '../../types/profile.model';
-import { TIER_LABELS, TIER_TEXT_CLASSES } from '../../utils/loyalty-tier';
+import { toTierLabel, toTierTextClass } from '../../utils/loyalty-tier';
 import { LoyaltyProgress } from '../../utils/loyalty-progress';
 
 @Component({
@@ -19,10 +19,10 @@ export class TierProgress {
   protected readonly progressRatio = computed(() => this.progress().percent / 100);
   protected readonly nextTierLabel = computed(() => {
     const nextTier = this.nextTier();
-    return nextTier ? TIER_LABELS[nextTier] : '';
+    return nextTier ? toTierLabel(nextTier) : '';
   });
   protected readonly nextTierClass = computed(() => {
     const nextTier = this.nextTier();
-    return nextTier ? TIER_TEXT_CLASSES[nextTier] : '';
+    return nextTier ? toTierTextClass(nextTier) : '';
   });
 }

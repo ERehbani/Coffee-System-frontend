@@ -1,0 +1,429 @@
+import {
+  ProfileDashboardDto,
+  RedemptionDto,
+  TierBenefitDto,
+  TierDetailDto,
+} from '../types/profile.dto';
+import { buildProfileDashboardFixture, buildTierDetailFixture } from './profile.fixture';
+import {
+  toProfileDashboard,
+  toRedeemedBenefit,
+  toSavedClientProfile,
+  toTierBenefits,
+  toTierDetail,
+  toUpdateClientProfileDto,
+  toUsedBenefits,
+} from './profile.mapper';
+
+const redemption = (overrides: Partial<RedemptionDto>): RedemptionDto => ({
+  externalId: 'redemption',
+  date: '2026-10-01T10:00:00',
+  usedPoints: 100,
+  state: false,
+  status: 'USED',
+  validationCode: 'CODE',
+  benefitName: 'Beneficio',
+  cafeName: 'Cafe Central',
+  cafeId: 'cafe-central-001',
+  ...overrides,
+});
+
+describe('toUsedBenefits', () => {
+  it('keeps only used redemptions, newest first', () => {
+    const result = toUsedBenefits([
+      redemption({ externalId: 'old', date: '2026-09-01T10:00:00' }),
+      redemption({ externalId: 'active', state: true, status: 'ACTIVE' }),
+      redemption({ externalId: 'new', date: '2026-10-10T10:00:00' }),
+    ]);
+
+    expect(result.map((benefit) => benefit.id)).toEqual(['new', 'old']);
+    expect(result[0].cafeName).toBe('Cafe Central');
+    expect(result[0].redeemedAt).toEqual(new Date('2026-10-10T10:00:00'));
+  });
+
+  it('has no cafe for a global benefit, which the backend names "Global" without a cafe id', () => {
+    const [result] = toUsedBenefits([redemption({ cafeName: 'Global', cafeId: null })]);
+
+    expect(result.cafeName).toBeNull();
+  });
+
+  it('marks a used coupon with the date it was used and an expired one as expired', () => {
+    const [used, expired] = toUsedBenefits([
+      redemption({ externalId: 'used', date: '2026-10-10T10:00:00', usedDate: '2026-10-11T09:15:00' }),
+      redemption({ externalId: 'expired', date: '2026-09-01T10:00:00', status: 'EXPIRED' }),
+    ]);
+
+    expect(used.status).toBe('used');
+    expect(used.usedAt).toEqual(new Date('2026-10-11T09:15:00'));
+    expect(expired.status).toBe('expired');
+    expect(expired.usedAt).toBeNull();
+  });
+
+  it('leaves the used date empty when the backend does not send it', () => {
+    const [result] = toUsedBenefits([redemption({ usedDate: null })]);
+
+    expect(result.usedAt).toBeNull();
+  });
+});
+
+describe('toSavedClientProfile', () => {
+  it('maps the field names of the backend client to the profile', () => {
+    const saved = toSavedClientProfile({
+      externalId: 'client-001',
+      name: 'Mateo',
+      lastName: 'Gómez',
+      phone: '1199887766',
+      profilePhoto: 'https://example.com/avatar.jpg',
+    });
+
+    expect(saved).toEqual({
+      id: 'client-001',
+      firstName: 'Mateo',
+      lastName: 'Gómez',
+      phoneNumber: '1199887766',
+      avatarUrl: 'https://example.com/avatar.jpg',
+    });
+  });
+
+  it('maps the missing fields to empty values', () => {
+    const saved = toSavedClientProfile({
+      externalId: 'client-001',
+      name: 'Mateo',
+      lastName: null,
+      phone: null,
+      profilePhoto: '',
+    });
+
+    expect(saved.lastName).toBe('');
+    expect(saved.phoneNumber).toBe('');
+    expect(saved.avatarUrl).toBeNull();
+  });
+});
+
+describe('toUpdateClientProfileDto', () => {
+  const input = {
+    firstName: 'Mateo',
+    lastName: 'Gómez',
+    phoneNumber: '1199887766',
+    avatarUrl: 'https://example.com/avatar.jpg',
+  };
+
+  it('sends the field names the backend expects, without the email', () => {
+    expect(toUpdateClientProfileDto(input)).toEqual({
+      name: 'Mateo',
+      lastName: 'Gómez',
+      phone: '1199887766',
+      profilePhoto: 'https://example.com/avatar.jpg',
+    });
+  });
+
+  it('sends an empty photo to remove it, because the backend ignores a null one', () => {
+    expect(toUpdateClientProfileDto({ ...input, avatarUrl: null }).profilePhoto).toBe('');
+  });
+});
+
+describe('toProfileDashboard', () => {
+  const now = new Date(2026, 9, 21, 12, 0);
+
+  it('maps the conditions of active redemptions', () => {
+    const dashboard = toProfileDashboard(buildProfileDashboardFixture(now));
+
+    expect(dashboard.activeRedemptions[0].conditions).toEqual([
+      'Un solo uso por cliente.',
+      'No acumulable con otras promociones.',
+      'Presentá el código antes de pagar.',
+    ]);
+  });
+
+  it('defaults to no conditions when the backend does not send them', () => {
+    const dto = buildProfileDashboardFixture(now);
+    const { conditions: _omitted, ...withoutConditions } = dto.activeRedemptions[0];
+
+    const dashboard = toProfileDashboard({ ...dto, activeRedemptions: [withoutConditions] });
+
+    expect(dashboard.activeRedemptions[0].conditions).toEqual([]);
+  });
+
+  it('maps the cafe of active redemptions, null for global benefits', () => {
+    const dashboard = toProfileDashboard(buildProfileDashboardFixture(now));
+
+    expect(dashboard.activeRedemptions.map((redemption) => redemption.cafeName)).toEqual([
+      null,
+      'Cafe Norte',
+    ]);
+  });
+
+  it('defaults to no cafe when an older payload does not send it', () => {
+    const dto = buildProfileDashboardFixture(now);
+    const { cafeName: _omitted, ...withoutCafe } = dto.activeRedemptions[1];
+
+    const dashboard = toProfileDashboard({ ...dto, activeRedemptions: [withoutCafe] });
+
+    expect(dashboard.activeRedemptions[0].cafeName).toBeNull();
+  });
+
+  describe('with the nullable fields of the backend contract', () => {
+    const sparseDto = (): ProfileDashboardDto => {
+      const dto = buildProfileDashboardFixture(now);
+      const { conditions: _omitted, ...redemption } = dto.activeRedemptions[0];
+      return {
+        ...dto,
+        client: { ...dto.client, lastName: null, email: null, phoneNumber: null, avatarUrl: null },
+        activeRedemptions: [{ ...redemption, expiresAt: null }],
+        nearbyCafes: [
+          {
+            ...dto.nearbyCafes[0],
+            imageUrl: null,
+            distanceMeters: null,
+            maxPointsPerProduct: null,
+          },
+        ],
+        featuredBenefits: [{ ...dto.featuredBenefits[0], imageUrl: null }],
+      };
+    };
+
+    it('maps a missing last name to an empty one and keeps a null avatar', () => {
+      const { profile } = toProfileDashboard(sparseDto());
+
+      expect(profile.lastName).toBe('');
+      expect(profile.avatarUrl).toBeNull();
+    });
+
+    it('maps a null email and phone number to empty strings', () => {
+      const { profile } = toProfileDashboard(sparseDto());
+
+      expect(profile.email).toBe('');
+      expect(profile.phoneNumber).toBe('');
+    });
+
+    it('keeps an active redemption without expiry date', () => {
+      const [redemption] = toProfileDashboard(sparseDto()).activeRedemptions;
+
+      expect(redemption.expiresAt).toBeNull();
+      expect(redemption.conditions).toEqual([]);
+    });
+
+    it('keeps a cafe without image, distance or points per product', () => {
+      const [cafe] = toProfileDashboard(sparseDto()).nearbyCafes;
+
+      expect(cafe.imageUrl).toBeNull();
+      expect(cafe.distanceMeters).toBeNull();
+      expect(cafe.maxPointsPerProduct).toBeNull();
+    });
+
+    it('keeps a featured benefit without image', () => {
+      const [benefit] = toProfileDashboard(sparseDto()).featuredBenefits;
+
+      expect(benefit.imageUrl).toBeNull();
+    });
+
+    it('treats an empty image url as missing', () => {
+      const dto = sparseDto();
+
+      const dashboard = toProfileDashboard({
+        ...dto,
+        nearbyCafes: [{ ...dto.nearbyCafes[0], imageUrl: '' }],
+        featuredBenefits: [{ ...dto.featuredBenefits[0], imageUrl: '  ' }],
+        client: { ...dto.client, avatarUrl: '' },
+      });
+
+      expect(dashboard.nearbyCafes[0].imageUrl).toBeNull();
+      expect(dashboard.featuredBenefits[0].imageUrl).toBeNull();
+      expect(dashboard.profile.avatarUrl).toBeNull();
+    });
+
+    it('reads a date-only expiry as the end of that local day', () => {
+      const dto = sparseDto();
+
+      const [redemption] = toProfileDashboard({
+        ...dto,
+        activeRedemptions: [{ ...dto.activeRedemptions[0], expiresAt: '2026-12-31' }],
+      }).activeRedemptions;
+
+      expect(redemption.expiresAt).toEqual(new Date(2026, 11, 31, 23, 59, 59));
+      expect(redemption.expiresAtHasTime).toBe(false);
+    });
+
+    it('keeps the instant of a date-time expiry', () => {
+      const dto = sparseDto();
+
+      const [redemption] = toProfileDashboard({
+        ...dto,
+        activeRedemptions: [{ ...dto.activeRedemptions[0], expiresAt: '2026-12-31T10:30:00Z' }],
+      }).activeRedemptions;
+
+      expect(redemption.expiresAt).toEqual(new Date('2026-12-31T10:30:00Z'));
+      expect(redemption.expiresAtHasTime).toBe(true);
+    });
+
+    it('flags a coupon that never expires as having no time', () => {
+      const dto = sparseDto();
+
+      const [redemption] = toProfileDashboard({
+        ...dto,
+        activeRedemptions: [{ ...dto.activeRedemptions[0], expiresAt: null }],
+      }).activeRedemptions;
+
+      expect(redemption.expiresAtHasTime).toBe(false);
+    });
+  });
+});
+
+describe('toTierDetail', () => {
+  const detailDto = (overrides: Partial<TierDetailDto> = {}): TierDetailDto => ({
+    ...buildTierDetailFixture(),
+    ...overrides,
+  });
+
+  it('maps the available points next to the lifetime points', () => {
+    const detail = toTierDetail(detailDto({ availablePoints: 820, lifetimePoints: 1420 }));
+
+    expect(detail.availablePoints).toBe(820);
+    expect(detail.lifetimePoints).toBe(1420);
+  });
+
+  it('accepts the backend (Spanish) tier names in any letter case', () => {
+    const detail = toTierDetail(
+      detailDto({
+        tier: 'PLATA',
+        nextTier: 'oro',
+        levels: [
+          { tier: 'DIAMANTE', threshold: 7000, benefits: [] },
+          { tier: 'BRONCE', threshold: 0, benefits: ['Café de cortesía'] },
+          { tier: 'Plata', threshold: 1000, benefits: [] },
+          { tier: 'ORO', threshold: 3000, benefits: [] },
+        ],
+      }),
+    );
+
+    expect(detail.tier).toBe('silver');
+    expect(detail.nextTier).toBe('gold');
+    expect(detail.levels.map((level) => level.tier)).toEqual([
+      'bronze',
+      'silver',
+      'gold',
+      'diamond',
+    ]);
+    expect(detail.levels[0].benefits).toEqual(['Café de cortesía']);
+  });
+
+  it('keeps accepting the English tier codes', () => {
+    const detail = toTierDetail(detailDto({ tier: 'SILVER', nextTier: 'GOLD' }));
+
+    expect(detail.tier).toBe('silver');
+    expect(detail.nextTier).toBe('gold');
+  });
+
+  it('keeps a null next tier at the top of the ladder', () => {
+    const detail = toTierDetail(detailDto({ tier: 'DIAMANTE', nextTier: null }));
+
+    expect(detail.tier).toBe('diamond');
+    expect(detail.nextTier).toBeNull();
+  });
+
+  it('keeps the name of a tier created by the admin', () => {
+    const detail = toTierDetail(
+      detailDto({
+        tier: ' Platino ',
+        nextTier: 'Leyenda',
+        levels: [{ tier: 'Platino', threshold: 9000, benefits: [] }],
+      }),
+    );
+
+    expect(detail.tier).toBe('Platino');
+    expect(detail.nextTier).toBe('Leyenda');
+    expect(detail.levels[0].tier).toBe('Platino');
+  });
+});
+
+describe('toTierBenefits', () => {
+  const benefit = (overrides: Partial<TierBenefitDto> = {}): TierBenefitDto => ({
+    externalId: 'benefit-1',
+    name: 'Café de cortesía',
+    description: 'Un café de filtro a elección',
+    pointsCost: 300,
+    endDate: '2026-12-31',
+    cafeName: 'Cafe Central',
+    tierName: 'BRONCE',
+    benefitType: 'PRODUCTO_GRATIS_SOCIO',
+    ...overrides,
+  });
+
+  it('maps a benefit scoped to one cafe, keeping the backend order', () => {
+    const [first, second] = toTierBenefits([
+      benefit(),
+      benefit({ externalId: 'benefit-2', tierName: 'PLATA' }),
+    ]);
+
+    expect(first).toEqual({
+      id: 'benefit-1',
+      name: 'Café de cortesía',
+      description: 'Un café de filtro a elección',
+      pointsCost: 300,
+      expiresAt: new Date(2026, 11, 31),
+      cafeName: 'Cafe Central',
+      tier: 'bronze',
+    });
+    expect(second.id).toBe('benefit-2');
+    expect(second.tier).toBe('silver');
+  });
+
+  it('keeps a null cafe for benefits valid in any cafe', () => {
+    const [result] = toTierBenefits([benefit({ cafeName: null })]);
+
+    expect(result.cafeName).toBeNull();
+  });
+
+  it('keeps a null expiry for benefits without an end date', () => {
+    const [result] = toTierBenefits([benefit({ endDate: null })]);
+
+    expect(result.expiresAt).toBeNull();
+  });
+
+  it('reads the end date as a calendar day, not as a UTC instant', () => {
+    const [result] = toTierBenefits([benefit({ endDate: '2026-01-01' })]);
+
+    expect(result.expiresAt?.getFullYear()).toBe(2026);
+    expect(result.expiresAt?.getMonth()).toBe(0);
+    expect(result.expiresAt?.getDate()).toBe(1);
+  });
+
+  it('accepts every backend tier name', () => {
+    const tiers = toTierBenefits(
+      ['BRONCE', 'PLATA', 'ORO', 'DIAMANTE'].map((tierName) => benefit({ tierName })),
+    ).map((result) => result.tier);
+
+    expect(tiers).toEqual(['bronze', 'silver', 'gold', 'diamond']);
+  });
+
+  it('rejects a benefit with an invalid end date', () => {
+    expect(() => toTierBenefits([benefit({ endDate: 'mañana' })])).toThrowError(
+      'Invalid date: mañana',
+    );
+  });
+});
+
+describe('toRedeemedBenefit', () => {
+  it('maps the redemption id, validation code and the points spent', () => {
+    const result = toRedeemedBenefit({
+      externalId: 'redemption-9',
+      date: '2026-10-26T09:30:00',
+      usedPoints: 300,
+      state: true,
+      status: 'ACTIVE',
+      validationCode: 'VLD-0009-ABCD',
+      benefitName: 'Café de cortesía',
+      cafeName: 'Global',
+      cafeId: null,
+    });
+
+    expect(result).toEqual({
+      id: 'redemption-9',
+      validationCode: 'VLD-0009-ABCD',
+      benefitName: 'Café de cortesía',
+      cafeName: null,
+      usedPoints: 300,
+      redeemedAt: new Date('2026-10-26T09:30:00'),
+    });
+  });
+});

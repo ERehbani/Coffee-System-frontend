@@ -15,7 +15,7 @@
     </div>
     <button
       type="button"
-      aria-label="Mostrar código QR"
+      aria-label="Ver código QR y detalle"
       (click)="showQr.emit(redemption().id)"
       class="flex size-14 shrink-0 items-center justify-center rounded-2xl border border-border bg-accent-light text-primary-dark transition-colors hover:border-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
     >
@@ -42,10 +42,12 @@
   </div>
 
   <div class="mt-2 flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-sm">
-    <p class="flex items-center gap-1.5 text-text">
-      <app-icon name="clock" [size]="14" class="text-muted" />
-      {{ expiryLabel() }}
-    </p>
+    @if (expiryLabel(); as label) {
+      <p class="flex items-center gap-1.5 text-text">
+        <app-icon name="clock" [size]="14" class="text-muted" />
+        {{ label }}
+      </p>
+    }
     <p
       aria-live="polite"
       class="text-xs font-semibold"

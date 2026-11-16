@@ -1,3 +1,5 @@
+import { OpeningHours } from '../../../shared/utils/opening-hours';
+
 export interface CafeResponseDto {
   readonly externalId: string;
   readonly name: string;
@@ -6,14 +8,18 @@ export interface CafeResponseDto {
   readonly phoneNumber: string | null;
   readonly description: string | null;
   readonly state: boolean;
-  readonly schedule: string | null;
+  readonly logo: string | null;
   readonly image: string | null;
+  readonly openingHours: readonly OpeningHours[] | null;
+  readonly openNow: boolean;
+  readonly profileComplete: boolean;
 }
 
 export interface UpdateCafeRequestDto {
   readonly address: string;
   readonly phoneNumber: string;
   readonly description: string;
-  readonly schedule: string;
+  readonly logo: string;
   readonly image: string;
+  readonly openingHours: readonly OpeningHours[];
 }

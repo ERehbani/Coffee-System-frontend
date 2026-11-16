@@ -1,23 +1,118 @@
 import { Routes } from '@angular/router';
+import { AdminLayout } from '../shared/components/admin-layout/admin-layout';
+import { ADMIN_NAV_ITEMS } from '../shared/components/admin-layout/admin-nav';
+import { AdminPlaceholderPage } from '../shared/components/admin-placeholder-page/admin-placeholder-page';
 import { ClientLayout } from '../shared/components/client-layout/client-layout';
+import { roleGuard } from '../features/auth/guards/auth.guard';
+import {
+  onboardingPendingGuard,
+  profileCompleteGuard,
+} from '../features/cafe-onboarding/guards/onboarding.guard';
+import { CafeLayout } from '../shared/components/cafe-layout/cafe-layout';
 
-export const routes: Routes = [
+const adminSectionRoutes: Routes = [
   {
-    path: 'admin/users',
+    path: 'users',
     loadChildren: () => import('../features/admin-users/admin-users.routes'),
   },
   {
-    path: 'admin',
-    pathMatch: 'full',
-    redirectTo: 'admin/users',
+    path: 'clients',
+    loadChildren: () => import('../features/admin-clients/admin-clients.routes'),
   },
   {
-    path: 'cafe/profile',
-    loadChildren: () => import('../features/cafe-profile/cafe-profile.routes'),
+    path: 'categories',
+    loadChildren: () => import('../features/admin-categories/admin-categories.routes'),
+  },
+  {
+    path: 'global-benefits',
+    loadChildren: () => import('../features/admin-global-benefits/admin-global-benefits.routes'),
+  },
+  {
+    path: 'purchases',
+    loadChildren: () => import('../features/admin-purchases/admin-purchases.routes'),
+  },
+  {
+    path: 'tiers',
+    loadChildren: () => import('../features/admin-tiers/admin-tiers.routes'),
+  },
+  {
+    path: 'benefit-types',
+    loadChildren: () => import('../features/admin-benefit-types/admin-benefit-types.routes'),
+  },
+  {
+    path: 'cafes',
+    loadChildren: () => import('../features/admin-cafes/admin-cafes.routes'),
+  },
+];
+
+const adminPlaceholderRoutes: Routes = ADMIN_NAV_ITEMS.filter(
+  (item) => !adminSectionRoutes.some((route) => route.path === item.path),
+).map((item) => ({
+  path: item.path,
+  component: AdminPlaceholderPage,
+  data: { title: item.label },
+}));
+
+export const routes: Routes = [
+  {
+    path: 'login',
+    loadChildren: () => import('../features/auth/auth.routes'),
+  },
+  {
+    path: 'register',
+    loadChildren: () => import('../features/auth/register.routes'),
+  },
+  {
+    path: 'admin',
+    component: AdminLayout,
+    canActivate: [roleGuard('ROLE_SUPERADMIN')],
+    children: [
+      { path: '', pathMatch: 'full', redirectTo: 'users' },
+      ...adminSectionRoutes,
+      ...adminPlaceholderRoutes,
+    ],
+  },
+  {
+    path: 'cafe/onboarding',
+    canActivate: [roleGuard('ROLE_CAFETERIA'), onboardingPendingGuard],
+    loadChildren: () => import('../features/cafe-onboarding/cafe-onboarding.routes'),
+  },
+  {
+    path: 'cafe',
+    component: CafeLayout,
+    canActivate: [roleGuard('ROLE_CAFETERIA'), profileCompleteGuard],
+    children: [
+      { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
+      {
+        path: 'dashboard',
+        loadChildren: () => import('../features/cafe-dashboard/cafe-dashboard.routes'),
+      },
+      {
+        path: 'profile',
+        loadChildren: () => import('../features/cafe-profile/cafe-profile.routes'),
+      },
+      {
+        path: 'validate',
+        loadChildren: () => import('../features/coupon-validation/coupon-validation.routes'),
+      },
+      {
+        path: 'benefits',
+        loadChildren: () => import('../features/cafe-benefits/cafe-benefits.routes'),
+      },
+      {
+        path: 'products',
+        loadChildren: () => import('../features/cafe-products/cafe-products.routes'),
+      },
+      {
+        path: 'reviews',
+        loadChildren: () => import('../features/cafe-reviews/cafe-reviews.routes'),
+      },
+    ],
   },
   {
     path: '',
     component: ClientLayout,
+    canActivate: [roleGuard('ROLE_CLIENTE')],
     children: [
       { path: '', pathMatch: 'full', redirectTo: 'home' },
       {
@@ -33,8 +128,16 @@ export const routes: Routes = [
         loadChildren: () => import('../features/profile/profile.routes'),
       },
       {
-        path: 'orders',
-        loadChildren: () => import('../features/orders/orders.routes'),
+        path: 'purchases',
+        loadChildren: () => import('../features/purchase-history/purchase-history.routes'),
+      },
+      {
+        path: 'checkout',
+        loadChildren: () => import('../features/checkout/checkout.routes'),
+      },
+      {
+        path: 'rewards',
+        loadChildren: () => import('../features/available-benefits/available-benefits.routes'),
       },
     ],
   },

@@ -1,26 +1,20 @@
+import { UserRole as BackendUserRole } from '../../auth/types/auth.model';
 import { AdminUserDto } from '../types/admin-user.dto';
-import { AdminUser } from '../types/admin-user.model';
+import { AdminUser, UserRole } from '../types/admin-user.model';
+
+const ROLES_BY_BACKEND_ROLE: Record<BackendUserRole, UserRole> = {
+  ROLE_SUPERADMIN: 'superadmin',
+  ROLE_CAFETERIA: 'cafe_admin',
+  ROLE_CLIENTE: 'client',
+};
 
 export function toAdminUser(dto: AdminUserDto): AdminUser {
   return {
-    id: dto.id,
-    firstName: dto.firstName,
-    lastName: dto.lastName,
-    fullName: `${dto.firstName} ${dto.lastName}`.trim(),
+    id: dto.externalId,
     email: dto.email,
-    phoneNumber: dto.phoneNumber,
-    avatarUrl: dto.avatarUrl,
-    role: dto.role,
-    status: dto.status,
-    createdAt: new Date(dto.createdAt),
-    lastLoginAt: dto.lastLoginAt ? new Date(dto.lastLoginAt) : null,
-    emailVerified: dto.emailVerified,
-    twoFactorEnabled: dto.twoFactorEnabled,
-    authProvider: dto.authProvider,
-    notes: dto.notes,
-    clientDetails: dto.clientDetails ? { ...dto.clientDetails } : undefined,
-    cafeAdminDetails: dto.cafeAdminDetails ? { ...dto.cafeAdminDetails } : undefined,
-    superadminDetails: dto.superadminDetails ? { ...dto.superadminDetails } : undefined,
+    role: (dto.role && ROLES_BY_BACKEND_ROLE[dto.role]) ?? null,
+    status: dto.state ? 'active' : 'inactive',
+    createdAt: dto.creationDate ? new Date(dto.creationDate) : null,
   };
 }
 

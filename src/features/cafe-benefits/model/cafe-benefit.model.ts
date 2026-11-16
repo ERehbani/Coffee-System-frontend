@@ -1,0 +1,70 @@
+export type BenefitType = 'CODIGO_DESCUENTO' | 'DOS_POR_UNO' | 'PRODUCTO_POR_PUNTOS' | 'PRODUCTO_GRATIS_SOCIO';
+
+export const PRODUCT_BENEFIT_TYPES: readonly BenefitType[] = [
+  'DOS_POR_UNO',
+  'PRODUCTO_POR_PUNTOS',
+  'PRODUCTO_GRATIS_SOCIO',
+];
+
+export interface CreateCafeBenefitRequest {
+  name: string;
+  description: string;
+  conditions?: string | null;
+  pointsCost: number;
+  startDate: string;
+  endDate: string;
+  maxRedemptions: number;
+  type: BenefitType;
+  tierId: string;
+  productId?: string | null;
+  discountPercentage?: number | null;
+}
+
+export interface CafeBenefit {
+  externalId: string;
+  name: string;
+  description: string;
+  conditions?: string | null;
+  pointsCost: number;
+  status: boolean;
+  isPublic: boolean;
+  maxRedemptions: number;
+  redeemedCount?: number | null;
+  remainingRedemptions?: number | null;
+  soldOut?: boolean;
+  cafeEntity?: string | null;
+  global: boolean;
+  benefitType?: BenefitType | null;
+  productId?: string | null;
+  productName?: string | null;
+  tierId?: string | null;
+  tierName?: string | null;
+  tierMinPoints?: number | null;
+  startDate?: string | null;
+  endDate?: string | null;
+  discountPercentage?: number | null;
+}
+
+export interface CafeBenefitCreation {
+  benefit: CafeBenefit;
+  /** Null when the benefit was published; otherwise the error of the publish request. */
+  publishError: unknown;
+}
+
+export interface BenefitTypeOption {
+  id: BenefitType;
+  name: BenefitType;
+  displayName: string;
+}
+
+export interface TierOption {
+  id: string;
+  name: string;
+  displayName: string;
+  minPoints?: number;
+}
+
+export interface ProductOption {
+  id: string;
+  name: string;
+}

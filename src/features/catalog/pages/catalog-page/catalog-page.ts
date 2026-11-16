@@ -2,18 +2,23 @@ import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angula
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { Subject, merge, of } from 'rxjs';
+import { Subject, Subscription, merge, of } from 'rxjs';
 import { catchError, distinctUntilChanged, map, switchMap, tap } from 'rxjs/operators';
 import { Icon } from '../../../../shared/components/icon/icon';
+import { ThemeToggle } from '../../../../shared/components/theme-toggle/theme-toggle';
+import { formatOpeningHours } from '../../../../shared/utils/opening-hours';
+import { CartButton } from '../../../cart/components/cart-button/cart-button';
+import { CartService } from '../../../cart/services/cart.service';
 import { Cafe } from '../../../home/model/cafe.model';
 import { CafeService } from '../../../home/services/cafe.service';
 import { ProductCard } from '../../components/product-card/product-card';
+import { ProductDetailModal } from '../../components/product-detail-modal/product-detail-modal';
 import { Product } from '../../model/product.model';
 import { ProductService } from '../../services/product.service';
 
 @Component({
   selector: 'app-catalog-page',
-  imports: [RouterLink, FormsModule, Icon, ProductCard],
+  imports: [RouterLink, FormsModule, Icon, ProductCard, ProductDetailModal, CartButton, ThemeToggle],
   templateUrl: './catalog-page.html',
   host: { class: 'block' },
 })
@@ -23,19 +28,32 @@ export class CatalogPage implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
+  readonly cartService = inject(CartService);
+
+  readonly formatHours = formatOpeningHours;
 
   private readonly manualCafeId$ = new Subject<string>();
+  private catalogSubscription?: Subscription;
 
   cafes = signal<Cafe[]>([]);
   selectedCafe = signal<Cafe | null>(null);
   isLoadingCafes = signal(true);
+  hasCafesError = signal(false);
 
   products = signal<Product[]>([]);
   isLoadingProducts = signal(false);
+  hasProductsError = signal(false);
+
+  isLoadingMenu = computed(() => this.isLoadingCafes() || this.isLoadingProducts());
+  showCafeSkeletons = computed(() => this.isLoadingCafes() && this.cafes().length === 0);
 
   selectedCategory = signal('Todas');
   productSearchQuery = signal('');
   addedProductMessage = signal<string | null>(null);
+  addErrorMessage = signal<string | null>(null);
+  pendingProduct = signal<Product | null>(null);
+  selectedProduct = signal<Product | null>(null);
+  private messageTimeout?: ReturnType<typeof setTimeout>;
 
   categories = computed(() => {
     const set = new Set(this.products().map((p) => p.category));
@@ -70,7 +88,16 @@ export class CatalogPage implements OnInit {
   });
 
   ngOnInit(): void {
-    this.cafeService
+    this.loadCatalog();
+  }
+
+  loadCatalog(): void {
+    this.catalogSubscription?.unsubscribe();
+    this.isLoadingCafes.set(true);
+    this.hasCafesError.set(false);
+    this.hasProductsError.set(false);
+
+    this.catalogSubscription = this.cafeService
       .getAll()
       .pipe(
         tap((cafes) => {
@@ -92,7 +119,9 @@ export class CatalogPage implements OnInit {
                 this.selectedCafe.set(cafe);
                 this.selectedCategory.set('Todas');
                 this.productSearchQuery.set('');
+                this.products.set([]);
                 this.isLoadingProducts.set(true);
+                this.hasProductsError.set(false);
               }
             }),
             switchMap((cafe) => {
@@ -102,6 +131,7 @@ export class CatalogPage implements OnInit {
               return this.productService.getProductsByCafe(cafe.externalId).pipe(
                 catchError((error) => {
                   console.error('Error loading products:', error);
+                  this.hasProductsError.set(true);
                   return of([]);
                 })
               );
@@ -117,6 +147,7 @@ export class CatalogPage implements OnInit {
         },
         error: (err) => {
           console.error('Error loading catalog data:', err);
+          this.hasCafesError.set(true);
           this.isLoadingCafes.set(false);
           this.isLoadingProducts.set(false);
         },
@@ -152,8 +183,64 @@ export class CatalogPage implements OnInit {
   }
 
   onAddToOrder(product: Product): void {
-    this.addedProductMessage.set(`¡${product.name} agregado al pedido!`);
-    setTimeout(() => {
+    const cafe = this.selectedCafe();
+    if (!cafe) {
+      return;
+    }
+
+    if (this.cartService.isFromAnotherCafe(product)) {
+      this.pendingProduct.set(product);
+      return;
+    }
+
+    this.addErrorMessage.set(null);
+    if (this.cartService.addProduct(product, cafe, (reason) => this.showAddError(product, reason))) {
+      this.showAddedMessage(product);
+    }
+  }
+
+  openProductDetail(product: Product): void {
+    this.selectedProduct.set(product);
+  }
+
+  closeProductDetail(): void {
+    this.selectedProduct.set(null);
+  }
+
+  onAddFromDetail(product: Product): void {
+    this.selectedProduct.set(null);
+    this.onAddToOrder(product);
+  }
+
+  confirmReplaceCart(): void {
+    const product = this.pendingProduct();
+    const cafe = this.selectedCafe();
+    if (!product || !cafe) {
+      return;
+    }
+
+    this.addErrorMessage.set(null);
+    if (this.cartService.replaceWithProduct(product, cafe, (reason) => this.showAddError(product, reason))) {
+      this.showAddedMessage(product);
+    }
+    this.pendingProduct.set(null);
+  }
+
+  cancelReplaceCart(): void {
+    this.pendingProduct.set(null);
+  }
+
+  /** A rejected add cancels its optimistic success toast, so dismissing the error shows nothing stale. */
+  private showAddError(product: Product, reason: string | null): void {
+    clearTimeout(this.messageTimeout);
+    this.addedProductMessage.set(null);
+    this.addErrorMessage.set(`No pudimos agregar ${product.name} al carrito.${reason ? ` ${reason}` : ''}`);
+  }
+
+  private showAddedMessage(product: Product): void {
+    clearTimeout(this.messageTimeout);
+    this.addedProductMessage.set(`¡${product.name} agregado al carrito!`);
+    this.messageTimeout = setTimeout(() => {
       this.addedProductMessage.set(null);
     }, 2500);
   }

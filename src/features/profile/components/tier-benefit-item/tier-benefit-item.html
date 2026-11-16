@@ -1,0 +1,107 @@
+<article
+  [attr.aria-labelledby]="titleId()"
+  class="rounded-2xl border bg-surface p-4"
+  [class.border-primary]="benefit().phase !== 'idle'"
+  [class.border-border]="benefit().phase === 'idle'"
+>
+  <div class="flex items-start gap-3">
+    <span
+      aria-hidden="true"
+      class="flex size-11 shrink-0 items-center justify-center rounded-xl bg-accent-light text-primary"
+    >
+      <app-icon name="gift" [size]="20" />
+    </span>
+    <div class="min-w-0 flex-1 space-y-1">
+      <h3 [id]="titleId()" class="text-base leading-snug font-bold text-text">
+        {{ benefit().name }}
+      </h3>
+      <p class="text-sm text-text">{{ benefit().description }}</p>
+      <p class="flex items-center gap-1.5 text-sm text-muted">
+        <app-icon name="store" [size]="14" />
+        <span class="sr-only">Cafetería: </span>
+        {{ benefit().cafeName ?? 'Todas las cafeterías' }}
+      </p>
+      @if (benefit().expiresAt; as expiresAt) {
+        <p class="flex items-center gap-1.5 text-sm text-muted">
+          <app-icon name="clock" [size]="14" />
+          <time [attr.datetime]="expiresAt | date: 'yyyy-MM-dd'">
+            Vence el {{ expiresAt | date: 'd MMM y' }}
+          </time>
+        </p>
+      }
+    </div>
+    <p
+      data-testid="benefit-cost"
+      class="shrink-0 rounded-full bg-bg px-2.5 py-1 text-xs font-bold text-text"
+    >
+      {{ benefit().pointsCost | number }} pts
+    </p>
+  </div>
+
+  <div class="mt-3 border-t border-border pt-3">
+    @if (benefit().phase === 'confirming') {
+      <div role="group" [attr.aria-labelledby]="confirmId()" class="space-y-3">
+        <p [id]="confirmId()" class="text-sm font-bold text-text">
+          ¿Canjear {{ benefit().name }} por {{ benefit().pointsCost | number }} pts?
+        </p>
+        <div class="flex flex-wrap gap-2">
+          <button
+            #confirmButton
+            type="button"
+            (click)="redeemConfirmed.emit()"
+            class="inline-flex min-h-11 items-center justify-center rounded-xl bg-primary px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+          >
+            Confirmar
+          </button>
+          <button
+            type="button"
+            (click)="cancel()"
+            class="inline-flex min-h-11 items-center justify-center rounded-xl border border-border bg-surface px-4 py-2 text-sm font-bold text-text transition-colors hover:bg-accent-light focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+          >
+            Cancelar
+          </button>
+        </div>
+      </div>
+    } @else {
+      <div class="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
+        @if (benefit().missingPoints > 0) {
+          <p [id]="missingId()" class="text-sm font-semibold text-muted">
+            Te faltan {{ benefit().missingPoints | number }} pts
+          </p>
+        }
+        @if (benefit().phase === 'redeeming') {
+          <button
+            type="button"
+            disabled
+            aria-busy="true"
+            class="ml-auto inline-flex min-h-11 items-center justify-center rounded-xl border border-border px-4 py-2 text-sm font-bold text-muted"
+          >
+            Canjeando…
+          </button>
+        } @else {
+          <button
+            #activateButton
+            type="button"
+            [disabled]="isActivationBlocked()"
+            [attr.aria-label]="'Activar ' + benefit().name"
+            [attr.aria-describedby]="benefit().missingPoints > 0 ? missingId() : null"
+            (click)="redeemRequested.emit(benefit().id)"
+            class="ml-auto inline-flex min-h-11 items-center justify-center rounded-xl border border-primary px-4 py-2 text-sm font-bold text-primary transition-colors hover:bg-accent-light focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:border-border disabled:text-muted disabled:hover:bg-transparent"
+          >
+            Activar
+          </button>
+        }
+      </div>
+    }
+    <div aria-live="polite">
+      @if (benefit().errorMessage; as message) {
+        <p
+          class="mt-3 flex items-start gap-2 rounded-xl border border-accent bg-accent-light p-3 text-sm font-medium text-text"
+        >
+          <app-icon name="alert-circle" [size]="16" class="mt-0.5" />
+          {{ message }}
+        </p>
+      }
+    </div>
+  </div>
+</article>

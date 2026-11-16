@@ -11,18 +11,25 @@ export type LoyaltyTierCodeDto = string;
 export interface ClientProfileDto {
   readonly id: string;
   readonly firstName: string;
-  readonly lastName?: string;
-  readonly email?: string;
-  readonly phoneNumber?: string;
+  readonly lastName?: string | null;
+  readonly email?: string | null;
+  readonly phoneNumber?: string | null;
   readonly avatarUrl?: string | null;
 }
 
 export interface UpdateClientProfileDto {
-  readonly firstName: string;
+  readonly name: string;
   readonly lastName: string;
-  readonly email: string;
-  readonly phoneNumber: string;
-  readonly avatarUrl?: string | null;
+  readonly phone: string;
+  readonly profilePhoto: string;
+}
+
+export interface UpdatedClientDto {
+  readonly externalId: string;
+  readonly name: string;
+  readonly lastName: string | null;
+  readonly phone: string | null;
+  readonly profilePhoto: string | null;
 }
 
 export interface LoyaltyStatusDto {
@@ -37,6 +44,7 @@ export interface LoyaltyStatusDto {
 
 export interface TierDetailDto {
   readonly tier: LoyaltyTierCodeDto;
+  readonly availablePoints: number;
   readonly lifetimePoints: number;
   readonly currentTierThreshold: number;
   readonly nextTier: LoyaltyTierCodeDto | null;
@@ -57,13 +65,15 @@ export interface ActiveRedemptionDto {
   readonly title: string;
   readonly description: string;
   readonly code: string;
-  readonly expiresAt: string;
+  readonly expiresAt: string | null;
+  readonly cafeName?: string | null;
+  readonly conditions?: readonly string[];
 }
 
 export interface NearbyCafeDto {
   readonly id: string;
   readonly name: string;
-  readonly imageUrl: string;
+  readonly imageUrl: string | null;
   readonly rating: number;
   readonly reviewCount: number;
   readonly isOpenNow: boolean;
@@ -76,6 +86,32 @@ export interface FeaturedBenefitDto {
   readonly id: string;
   readonly title: string;
   readonly description: string;
-  readonly imageUrl: string;
+  readonly imageUrl: string | null;
   readonly pointsCost: number;
+}
+
+export type RedemptionStatusDto = 'ACTIVE' | 'USED' | 'CANCELLED' | 'EXPIRED';
+
+export interface RedemptionDto {
+  readonly externalId: string;
+  readonly date: string;
+  readonly usedPoints: number;
+  readonly state: boolean;
+  readonly status: RedemptionStatusDto;
+  readonly validationCode: string;
+  readonly benefitName: string;
+  readonly cafeName: string | null;
+  readonly cafeId: string | null;
+  readonly usedDate?: string | null;
+}
+
+export interface TierBenefitDto {
+  readonly externalId: string;
+  readonly name: string;
+  readonly description: string;
+  readonly pointsCost: number;
+  readonly endDate: string | null;
+  readonly cafeName: string | null;
+  readonly tierName: LoyaltyTierCodeDto;
+  readonly benefitType: string;
 }

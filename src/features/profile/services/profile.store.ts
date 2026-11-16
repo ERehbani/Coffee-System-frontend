@@ -12,7 +12,7 @@ import { ProfileRepository } from './profile.repository';
 export type ProfileDashboardStatus = 'loading' | 'error' | 'ready';
 
 export interface ActiveRedemptionView extends ActiveRedemption {
-  readonly daysUntilExpiry: number;
+  readonly daysUntilExpiry: number | null;
 }
 
 @Service({ autoProvided: false })
@@ -45,7 +45,7 @@ export class ProfileStore {
   });
 
   readonly status = computed<ProfileDashboardStatus>(() => {
-    if (this.resource.isLoading() && !this.resource.hasValue()) {
+    if (this.resource.isLoading()) {
       return 'loading';
     }
     if (this.resource.error()) {
@@ -62,22 +62,29 @@ export class ProfileStore {
   readonly activeRedemptions = computed<readonly ActiveRedemptionView[]>(() => {
     const redemptions = this.dashboard()?.activeRedemptions ?? [];
     const now = new Date();
-    return redemptions.map((redemption) => ({
-      ...redemption,
-      daysUntilExpiry: calendarDaysUntil(redemption.expiresAt, now),
-    }));
+    return redemptions
+      .filter(
+        (redemption) => !redemption.expiresAt || redemption.expiresAt.getTime() >= now.getTime(),
+      )
+      .map((redemption) => ({
+        ...redemption,
+        daysUntilExpiry: redemption.expiresAt ? calendarDaysUntil(redemption.expiresAt, now) : null,
+      }));
   });
 
   saveProfile(input: UpdateClientProfileInput, onSuccess?: () => void): void {
-    const clientId = this.profile()?.id ?? 'client-001';
+    const current = this.profile();
+    if (!current) {
+      return;
+    }
 
     this.isSaving.set(true);
     this.errorMessage.set(null);
     this.successMessage.set(null);
 
-    this.repository.updateProfile(clientId, input).subscribe({
+    this.repository.updateProfile(current.id, input).subscribe({
       next: (savedProfile) => {
-        this.updatedProfile.set(savedProfile);
+        this.updatedProfile.set({ ...savedProfile, email: current.email });
         this.isSaving.set(false);
         this.successMessage.set('¡Tus datos personales se han actualizado correctamente!');
         if (onSuccess) {
@@ -103,4 +110,3 @@ export class ProfileStore {
     this.resource.reload();
   }
 }
-

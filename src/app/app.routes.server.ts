@@ -2,11 +2,19 @@ import { RenderMode, ServerRoute } from '@angular/ssr';
 
 export const serverRoutes: ServerRoute[] = [
   {
-    path: 'admin/users',
+    path: 'login',
+    renderMode: RenderMode.Client,
+  },
+  {
+    path: 'register',
     renderMode: RenderMode.Client,
   },
   {
     path: 'admin',
+    renderMode: RenderMode.Client,
+  },
+  {
+    path: 'admin/**',
     renderMode: RenderMode.Client,
   },
   {
@@ -26,7 +34,35 @@ export const serverRoutes: ServerRoute[] = [
     renderMode: RenderMode.Client,
   },
   {
-    path: 'cafe/profile',
+    path: 'profile/coupons',
+    renderMode: RenderMode.Client,
+  },
+  {
+    path: 'profile/edit',
+    renderMode: RenderMode.Client,
+  },
+  {
+    path: 'profile/redemptions',
+    renderMode: RenderMode.Client,
+  },
+  {
+    path: 'profile/redemptions/:id',
+    renderMode: RenderMode.Client,
+  },
+  {
+    path: 'purchases',
+    renderMode: RenderMode.Client,
+  },
+  {
+    path: 'checkout',
+    renderMode: RenderMode.Client,
+  },
+  {
+    path: 'checkout/success',
+    renderMode: RenderMode.Client,
+  },
+  {
+    path: 'cafe/**',
     renderMode: RenderMode.Client,
   },
   {

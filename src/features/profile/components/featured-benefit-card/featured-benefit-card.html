@@ -1,6 +1,16 @@
 <article class="flex h-full flex-col rounded-2xl border border-border bg-surface p-3 shadow-sm">
   <div class="relative aspect-4/3 overflow-hidden rounded-2xl bg-accent-light">
-    <img [ngSrc]="benefit().imageUrl" fill alt="" class="object-cover" />
+    @if (benefit().imageUrl; as imageUrl) {
+      <img [ngSrc]="imageUrl" fill alt="" class="object-cover" />
+    } @else {
+      <span
+        aria-hidden="true"
+        data-testid="benefit-placeholder"
+        class="flex size-full items-center justify-center text-primary-dark"
+      >
+        <app-icon name="gift" [size]="40" />
+      </span>
+    }
     <span
       class="absolute top-2 right-2 rounded-full bg-white/90 px-2.5 py-1 text-xs font-bold text-primary-dark"
     >

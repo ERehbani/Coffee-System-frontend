@@ -2,18 +2,31 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Service } from '@angular/core';
 import { map, Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { ClientProfileDto, ProfileDashboardDto, TierDetailDto } from '../types/profile.dto';
+import { ALL_ITEMS, Page } from '../../../shared/types/page';
 import {
-  ClientProfile,
+  ProfileDashboardDto,
+  RedemptionDto,
+  TierBenefitDto,
+  TierDetailDto,
+  UpdatedClientDto,
+} from '../types/profile.dto';
+import {
   ProfileDashboard,
+  RedeemedBenefit,
+  SavedClientProfile,
+  TierBenefit,
   TierDetail,
   UpdateClientProfileInput,
+  UsedBenefit,
 } from '../types/profile.model';
 import {
-  toClientProfile,
   toProfileDashboard,
+  toRedeemedBenefit,
+  toSavedClientProfile,
+  toTierBenefits,
   toTierDetail,
   toUpdateClientProfileDto,
+  toUsedBenefits,
 } from '../utils/profile.mapper';
 import { ProfileRepository } from './profile.repository';
 
@@ -33,10 +46,32 @@ export class HttpProfileRepository implements ProfileRepository {
       .pipe(map(toTierDetail));
   }
 
-  updateProfile(clientId: string, input: UpdateClientProfileInput): Observable<ClientProfile> {
+  getTierBenefits(): Observable<readonly TierBenefit[]> {
+    return this.http
+      .get<TierBenefitDto[]>(`${environment.apiBaseUrl}/clients/me/benefits`)
+      .pipe(map(toTierBenefits));
+  }
+
+  redeemBenefit(benefitId: string): Observable<RedeemedBenefit> {
+    return this.http
+      .post<RedemptionDto>(`${environment.apiBaseUrl}/redemption`, { benefitId })
+      .pipe(map(toRedeemedBenefit));
+  }
+
+  getUsedBenefits(): Observable<readonly UsedBenefit[]> {
+    // The status filter takes one value and the history shows used and expired coupons.
+    return this.http
+      .get<Page<RedemptionDto>>(`${environment.apiBaseUrl}/redemption`, { params: ALL_ITEMS })
+      .pipe(map((page) => toUsedBenefits(page.content)));
+  }
+
+  updateProfile(
+    clientId: string,
+    input: UpdateClientProfileInput,
+  ): Observable<SavedClientProfile> {
     const payload = toUpdateClientProfileDto(input);
     return this.http
-      .put<ClientProfileDto>(`${environment.apiBaseUrl}/clients/${clientId}`, payload)
-      .pipe(map(toClientProfile));
+      .put<UpdatedClientDto>(`${environment.apiBaseUrl}/clients/${clientId}`, payload)
+      .pipe(map(toSavedClientProfile));
   }
 }

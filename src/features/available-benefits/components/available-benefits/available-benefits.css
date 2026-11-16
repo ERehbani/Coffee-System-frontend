@@ -1,0 +1,17 @@
+.filter-select {
+  width: 100%;
+  appearance: none;
+  cursor: pointer;
+}
+
+.benefits-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+@media (min-width: 768px) {
+  .benefits-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

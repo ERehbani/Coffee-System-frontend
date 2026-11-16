@@ -18,11 +18,11 @@ export class CafeProfileStore {
     this.loadProfile();
   }
 
-  loadProfile(externalId?: string): void {
+  loadProfile(): void {
     this.status.set('loading');
     this.errorMessage.set(null);
 
-    this.repository.getProfile(externalId).subscribe({
+    this.repository.getProfile().subscribe({
       next: (profile) => {
         this.profile.set(profile);
         this.status.set('ready');

@@ -1,3 +1,5 @@
+import { OpeningHours } from '../../../shared/utils/opening-hours';
+
 export interface Cafe {
   externalId: string;
   name: string;
@@ -6,8 +8,25 @@ export interface Cafe {
   phoneNumber?: string | null;
   description?: string | null;
   state: boolean;
-  schedule?: string | null;
+  openNow: boolean;
+  logo?: string | null;
   image?: string | null;
+  openingHours?: OpeningHours[] | null;
   rating?: number;
   reviewCount?: number;
+}
+
+export interface CreateCafeAccountRequest {
+  email: string;
+  password: string;
+  name: string;
+  address: string;
+  description?: string | null;
+  phoneNumber?: string | null;
+}
+
+export interface UserResponse {
+  externalId: string;
+  email: string;
+  state: boolean;
 }

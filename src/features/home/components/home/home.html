@@ -8,13 +8,17 @@
         </span>
         <h1 class="text-2xl font-bold tracking-tight text-text md:text-3xl">Explorar Cafeterías</h1>
       </div>
-      <a
-        routerLink="/profile"
-        aria-label="Mi perfil y fidelización"
-        class="flex size-11 items-center justify-center rounded-2xl border border-border bg-surface text-primary shadow-xs transition-all hover:border-primary hover:bg-accent-light/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-      >
-        <app-icon name="user" [size]="20" />
-      </a>
+      <div class="flex items-center gap-2">
+        <app-theme-toggle appearance="card" />
+        <app-cart-button />
+        <a
+          routerLink="/profile"
+          aria-label="Mi perfil y fidelización"
+          class="flex size-11 items-center justify-center rounded-2xl border border-border bg-surface text-primary shadow-xs transition-all hover:border-primary hover:bg-accent-light/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+        >
+          <app-icon name="user" [size]="20" />
+        </a>
+      </div>
     </div>
     <p class="text-sm text-muted max-w-2xl">
       Descubrí las mejores cafeterías de especialidad, conocé sus horarios, ubicaciones y explorá sus catálogos de productos.
@@ -32,7 +36,7 @@
         [value]="searchQuery()"
         (input)="onSearchChange($any($event.target).value)"
         placeholder="Buscar cafetería por nombre, dirección o especialidad..."
-        class="w-full rounded-2xl border border-border bg-surface py-3 pr-10 pl-10 text-sm text-text placeholder:text-muted/70 shadow-xs transition-colors focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20"
+        class="w-full rounded-2xl border border-border bg-surface py-3 pr-10 pl-10 text-sm text-text placeholder:text-muted/70 shadow-xs transition-colors focus:border-primary focus:bg-surface focus:outline-none focus:ring-2 focus:ring-primary/20"
       />
       @if (searchQuery()) {
         <button
@@ -61,7 +65,10 @@
           [class.border-border]="filterState() !== 'all'"
           [class.hover:border-primary/50]="filterState() !== 'all'"
         >
-          Todas ({{ cafes().length }})
+          Todas
+          @if (!isLoading()) {
+            ({{ cafes().length }})
+          }
         </button>
 
         <button
@@ -78,12 +85,19 @@
           [class.hover:border-primary/50]="filterState() !== 'open'"
         >
           <span class="size-2 rounded-full bg-emerald-500"></span>
-          Abiertas ahora ({{ openCafesCount() }})
+          Abiertas ahora
+          @if (!isLoading()) {
+            ({{ openCafesCount() }})
+          }
         </button>
       </div>
 
       <div class="text-xs text-muted">
-        <span>Mostrando {{ filteredCafes().length }} de {{ cafes().length }} cafeterías</span>
+        @if (isLoading()) {
+          <span>Cargando cafeterías…</span>
+        } @else {
+          <span>Mostrando {{ filteredCafes().length }} de {{ cafes().length }} cafeterías</span>
+        }
         @if (searchQuery() || filterState() !== 'all') {
           <button
             type="button"
@@ -103,6 +117,22 @@
         @for (item of [1, 2, 3, 4]; track item) {
           <div class="h-96 rounded-2xl bg-border/40 animate-pulse"></div>
         }
+      </div>
+    } @else if (hasError()) {
+      <div
+        role="alert"
+        class="col-span-full flex flex-col items-center gap-3 rounded-2xl border border-border bg-surface p-10 text-center"
+      >
+        <h3 class="text-base font-bold text-text">No pudimos cargar las cafeterías</h3>
+        <p class="text-xs text-muted">Revisá tu conexión e intentalo de nuevo.</p>
+        <button
+          type="button"
+          (click)="loadCafes()"
+          class="mt-1 inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-primary-dark cursor-pointer"
+        >
+          <app-icon name="refresh-cw" [size]="14" />
+          Reintentar
+        </button>
       </div>
     } @else {
       <div class="grid grid-cols-1 gap-6 md:grid-cols-2">

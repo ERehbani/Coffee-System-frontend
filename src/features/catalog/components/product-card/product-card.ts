@@ -12,8 +12,13 @@ import { Product } from '../../model/product.model';
 export class ProductCard {
   readonly product = input.required<Product>();
   readonly addToOrder = output<Product>();
+  readonly viewDetail = output<Product>();
 
   onAddClick(): void {
     this.addToOrder.emit(this.product());
+  }
+
+  onViewClick(): void {
+    this.viewDetail.emit(this.product());
   }
 }

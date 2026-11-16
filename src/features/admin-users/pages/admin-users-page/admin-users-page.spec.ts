@@ -14,74 +14,24 @@ describe('AdminUsersPage', () => {
   const mockUsers: readonly AdminUser[] = [
     {
       id: 'USR-1001',
-      firstName: 'Elena',
-      lastName: 'Rostova',
-      fullName: 'Elena Rostova',
       email: 'elena.rostova@coffeesystem.admin',
-      phoneNumber: '+54 11 4521-8890',
-      avatarUrl: null,
       role: 'superadmin',
       status: 'active',
       createdAt: new Date('2023-01-10T08:30:00.000Z'),
-      lastLoginAt: new Date('2026-10-20T10:15:22.000Z'),
-      emailVerified: true,
-      twoFactorEnabled: true,
-      authProvider: 'email_password',
-      notes: 'Superadministradora fundadora.',
-      superadminDetails: {
-        accessLevel: 'Control Total',
-        department: 'Seguridad y Operaciones',
-        lastAuditAction: 'Modificación de parámetros',
-        ipAddressLastLogin: '190.210.45.12',
-      },
     },
     {
       id: 'USR-2003',
-      firstName: 'Andrés',
-      lastName: 'Morales',
-      fullName: 'Andrés Morales',
       email: 'andres@velvetbrew.com',
-      phoneNumber: '+54 11 9812-7634',
-      avatarUrl: null,
       role: 'cafe_admin',
-      status: 'pending',
+      status: 'active',
       createdAt: new Date('2026-10-18T11:45:00.000Z'),
-      lastLoginAt: null,
-      emailVerified: false,
-      twoFactorEnabled: false,
-      authProvider: 'email_password',
-      notes: 'Solicitud pendiente',
-      cafeAdminDetails: {
-        cafeId: 'cafe-velvet-brew',
-        cafeName: 'Velvet Specialty Brew',
-        cafeRole: 'Propietario',
-        cafeAddress: 'Thames 1720',
-        branchCount: 1,
-      },
     },
     {
       id: 'USR-3001',
-      firstName: 'Sofía',
-      lastName: 'Martínez',
-      fullName: 'Sofía Martínez',
       email: 'sofia.martinez@email.com',
-      phoneNumber: '+54 11 6543-9870',
-      avatarUrl: null,
       role: 'client',
       status: 'active',
       createdAt: new Date('2024-02-14T10:00:00.000Z'),
-      lastLoginAt: new Date('2026-10-20T07:50:23.000Z'),
-      emailVerified: true,
-      twoFactorEnabled: true,
-      authProvider: 'google',
-      notes: 'Cliente diamante',
-      clientDetails: {
-        loyaltyTier: 'diamond',
-        availablePoints: 4520,
-        lifetimePoints: 12450,
-        redemptionsCount: 24,
-        preferredCafe: 'Café Central',
-      },
     },
   ];
 
@@ -122,10 +72,9 @@ describe('AdminUsersPage', () => {
 
   it('should render table with all registered users', () => {
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.textContent).toContain('Elena Rostova');
     expect(compiled.textContent).toContain('elena.rostova@coffeesystem.admin');
-    expect(compiled.textContent).toContain('Andrés Morales');
-    expect(compiled.textContent).toContain('Sofía Martínez');
+    expect(compiled.textContent).toContain('andres@velvetbrew.com');
+    expect(compiled.textContent).toContain('sofia.martinez@email.com');
   });
 
   it('should not show modal initially when no user is selected', () => {
@@ -133,7 +82,7 @@ describe('AdminUsersPage', () => {
     expect(modal).toBeNull();
   });
 
-  it('should open modal with full attributes when a user is selected', () => {
+  it('should open modal with superadmin attributes without security audit section or audit notes', () => {
     store.selectUser(mockUsers[0]);
     fixture.detectChanges();
 
@@ -141,14 +90,19 @@ describe('AdminUsersPage', () => {
     expect(modal).toBeTruthy();
 
     const modalText = modal.textContent;
-    expect(modalText).toContain('Elena Rostova');
-    expect(modalText).toContain('USR-1001');
-    expect(modalText).toContain('Control Total');
-    expect(modalText).toContain('Seguridad y Operaciones');
-    expect(modalText).toContain('190.210.45.12');
+    expect(modalText).toContain('elena.rostova@coffeesystem.admin');
+    expect(modalText).not.toContain('Privilegios y Auditoría de Seguridad');
+    expect(modalText).not.toContain('Control Total');
+    expect(modalText).not.toContain('Seguridad y Operaciones');
+    expect(modalText).not.toContain('190.210.45.12');
+    expect(modalText).not.toContain('Notas de Auditoría y Observaciones');
+    expect(modalText).not.toContain('ID en Base de Datos');
+    expect(modalText).not.toContain('Email Verificado');
+    expect(modalText).not.toContain('Seguridad 2FA');
+    expect(modalText).not.toContain('Autenticación');
   });
 
-  it('should show client-specific attributes in modal when client is selected', () => {
+  it('should show the client account without invented loyalty data', () => {
     store.selectUser(mockUsers[2]);
     fixture.detectChanges();
 
@@ -156,31 +110,31 @@ describe('AdminUsersPage', () => {
     expect(modal).toBeTruthy();
 
     const modalText = modal.textContent;
-    expect(modalText).toContain('Sofía Martínez');
-    expect(modalText).toContain('4520 pts');
-    expect(modalText).toContain('12450 pts');
-    expect(modalText).toContain('Café Central');
+    expect(modalText).toContain('sofia.martinez@email.com');
+    expect(modalText).toContain('Cliente / Consumidor');
+    expect(modalText).not.toContain('pts');
+    expect(modalText).not.toContain('Auditoría de Programa de Fidelización');
+    expect(modalText).not.toContain('ID en Base de Datos');
+    expect(modalText).not.toContain('Email Verificado');
+    expect(modalText).not.toContain('Seguridad 2FA');
   });
 
-  it('should allow activating a pending cafe from the modal', () => {
+  it('should display the cafe account without invented cafe details, pending request banner, activate button, or database id', () => {
     store.selectUser(mockUsers[1]);
     fixture.detectChanges();
 
     const modal = fixture.nativeElement.querySelector('app-user-detail-modal');
-    expect(modal.textContent).toContain('Solicitud de Cafetería Pendiente');
+    expect(modal).toBeTruthy();
 
-    // Find the activate button
-    const activateButtons = modal.querySelectorAll('button');
-    const activateBtn = Array.from(activateButtons).find((b: any) =>
-      b.textContent?.includes('Activar Cafetería')
-    ) as HTMLButtonElement;
-
-    expect(activateBtn).toBeTruthy();
-    activateBtn.click();
-    fixture.detectChanges();
-
-    expect(mockRepository.updateUserStatus).toHaveBeenCalledWith('USR-2003', 'active');
-    expect(store.selectedUser()?.status).toBe('active');
+    const modalText = modal.textContent;
+    expect(modalText).toContain('andres@velvetbrew.com');
+    expect(modalText).toContain('Administrador de Comercio');
+    expect(modalText).not.toContain('Auditoría de Cafetería / Comercio Asociado');
+    expect(modalText).not.toContain('Solicitud de Cafetería Pendiente');
+    expect(modalText).not.toContain('Activar Cafetería');
+    expect(modalText).not.toContain('ID en Base de Datos');
+    expect(modalText).not.toContain('Email Verificado');
+    expect(modalText).not.toContain('Seguridad 2FA');
   });
 
   it('should allow giving a user de baja (inactive) with confirmation in the modal', () => {
@@ -231,13 +185,13 @@ describe('AdminUsersPage', () => {
 
   it('should filter table when search input changes', () => {
     const input = fixture.nativeElement.querySelector('input[type="text"]') as HTMLInputElement;
-    input.value = 'Sofía';
+    input.value = 'sofia';
     input.dispatchEvent(new Event('input'));
     fixture.detectChanges();
 
-    expect(store.searchQuery()).toBe('Sofía');
+    expect(store.searchQuery()).toBe('sofia');
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.textContent).toContain('Sofía Martínez');
-    expect(compiled.textContent).not.toContain('Elena Rostova');
+    expect(compiled.textContent).toContain('sofia.martinez@email.com');
+    expect(compiled.textContent).not.toContain('elena.rostova@coffeesystem.admin');
   });
 });

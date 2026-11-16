@@ -1,0 +1,71 @@
+<section
+  aria-labelledby="checkout-summary-heading"
+  class="space-y-4 rounded-2xl border border-border bg-surface p-5 shadow-xs"
+>
+  <header>
+    <h2 id="checkout-summary-heading" class="text-base font-bold text-text">Resumen del pedido</h2>
+    <p class="mt-0.5 flex items-center gap-1 text-xs text-muted">
+      <app-icon name="store" [size]="12" />
+      <span data-testid="checkout-cafe">{{ summary().cafeName }}</span>
+    </p>
+  </header>
+
+  <ul class="divide-y divide-border/60">
+    @for (line of summary().lines; track line.productId) {
+      <li class="flex items-center justify-between gap-3 py-3">
+        <div class="min-w-0">
+          <p class="truncate text-sm font-semibold text-text">{{ line.productName }}</p>
+          <p class="text-xs text-muted">
+            {{ line.quantity }} × {{ line.unitPrice | currency:'ARS':'$ ':'1.0-0' }}
+          </p>
+        </div>
+        <span class="shrink-0 text-sm font-bold text-text">
+          {{ line.subtotal | currency:'ARS':'$ ':'1.0-0' }}
+        </span>
+      </li>
+    }
+  </ul>
+
+  @if (preview(); as preview) {
+    <dl class="space-y-2 border-t border-border/60 pt-4 text-sm">
+      <div class="flex items-center justify-between gap-3">
+        <dt class="text-muted">Subtotal</dt>
+        <dd data-testid="checkout-subtotal" class="font-semibold text-text">
+          {{ preview.subtotal | currency:'ARS':'$ ':'1.0-0' }}
+        </dd>
+      </div>
+      @if (preview.discount > 0) {
+        <div class="flex items-center justify-between gap-3 text-success">
+          <dt class="flex min-w-0 items-center gap-1.5">
+            <app-icon name="ticket" [size]="14" />
+            <span class="truncate">{{ preview.couponName }}</span>
+          </dt>
+          <dd data-testid="checkout-discount" class="shrink-0 font-semibold">
+            - {{ preview.discount | currency:'ARS':'$ ':'1.0-2' }}
+          </dd>
+        </div>
+      }
+      @if (preview.gift; as gift) {
+        <div class="flex items-center justify-between gap-3 text-success">
+          <dt class="flex min-w-0 items-center gap-1.5">
+            <app-icon name="gift" [size]="14" />
+            <span data-testid="checkout-gift" class="truncate">1 × {{ gift.name }} de regalo</span>
+          </dt>
+          <dd class="shrink-0 font-semibold">Gratis</dd>
+        </div>
+      }
+      @if (preview.discount === 0 && !preview.gift) {
+        <p data-testid="checkout-no-effect" class="text-xs text-muted">
+          Este cupón no tiene efecto sobre los productos de tu pedido.
+        </p>
+      }
+    </dl>
+  }
+
+  <div class="flex items-center justify-between border-t border-border/60 pt-4">
+    <span class="text-sm font-semibold text-muted">Total</span>
+    <span data-testid="checkout-total" class="text-lg font-extrabold text-text">
+      {{ total() | currency:'ARS':'$ ':'1.0-2' }}
+    </span>
+  </div>
+</section>

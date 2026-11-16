@@ -1,5 +1,6 @@
 import { Component, computed, input, linkedSignal, output, signal } from '@angular/core';
 import { Icon } from '../../../../shared/components/icon/icon';
+import { ImageInput } from '../../../../shared/components/image-input/image-input';
 import { ClientProfile, UpdateClientProfileInput } from '../../types/profile.model';
 
 export interface AvatarPreset {
@@ -9,7 +10,7 @@ export interface AvatarPreset {
 
 @Component({
   selector: 'app-profile-edit-form',
-  imports: [Icon],
+  imports: [Icon, ImageInput],
   templateUrl: './profile-edit-form.html',
   host: { class: 'block' },
 })
@@ -23,13 +24,12 @@ export class ProfileEditForm {
   readonly firstName = linkedSignal(() => this.profile().firstName);
   readonly lastName = linkedSignal(() => this.profile().lastName);
   readonly phoneNumber = linkedSignal(() => this.profile().phoneNumber);
-  readonly email = linkedSignal(() => this.profile().email);
   readonly avatarUrl = linkedSignal(() => this.profile().avatarUrl ?? '');
+  readonly avatarUploading = signal(false);
 
   readonly firstNameTouched = signal(false);
   readonly lastNameTouched = signal(false);
   readonly phoneTouched = signal(false);
-  readonly emailTouched = signal(false);
   readonly avatarUrlTouched = signal(false);
   readonly attemptedSubmit = signal(false);
 
@@ -51,13 +51,6 @@ export class ProfileEditForm {
       url: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=96&h=96&fit=crop&crop=faces&q=80&auto=format',
     },
   ];
-
-  readonly initials = computed(() => {
-    const f = this.firstName().trim().charAt(0);
-    const l = this.lastName().trim().charAt(0);
-    const combined = `${f}${l}`.toUpperCase();
-    return combined || '?';
-  });
 
   readonly firstNameError = computed(() => {
     const val = this.firstName().trim();
@@ -98,17 +91,6 @@ export class ProfileEditForm {
     return null;
   });
 
-  readonly emailError = computed(() => {
-    const val = this.email().trim();
-    if (!val) {
-      return 'El correo electrónico es obligatorio.';
-    }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
-      return 'Ingresá un correo electrónico válido (ej: usuario@ejemplo.com).';
-    }
-    return null;
-  });
-
   readonly avatarUrlError = computed(() => {
     const val = this.avatarUrl().trim();
     if (!val) {
@@ -125,7 +107,6 @@ export class ProfileEditForm {
       !this.firstNameError() &&
       !this.lastNameError() &&
       !this.phoneError() &&
-      !this.emailError() &&
       !this.avatarUrlError(),
   );
 
@@ -135,10 +116,9 @@ export class ProfileEditForm {
     this.firstNameTouched.set(true);
     this.lastNameTouched.set(true);
     this.phoneTouched.set(true);
-    this.emailTouched.set(true);
     this.avatarUrlTouched.set(true);
 
-    if (!this.isFormValid()) {
+    if (!this.isFormValid() || this.avatarUploading()) {
       return;
     }
 
@@ -146,18 +126,12 @@ export class ProfileEditForm {
       firstName: this.firstName().trim(),
       lastName: this.lastName().trim(),
       phoneNumber: this.phoneNumber().trim(),
-      email: this.email().trim(),
       avatarUrl: this.avatarUrl().trim() || null,
     });
   }
 
   onSelectAvatar(url: string): void {
     this.avatarUrl.set(url);
-    this.avatarUrlTouched.set(true);
-  }
-
-  onClearAvatar(): void {
-    this.avatarUrl.set('');
     this.avatarUrlTouched.set(true);
   }
 

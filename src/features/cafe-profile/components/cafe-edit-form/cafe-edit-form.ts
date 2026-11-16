@@ -1,10 +1,13 @@
 import { Component, computed, input, linkedSignal, output, signal } from '@angular/core';
 import { Icon } from '../../../../shared/components/icon/icon';
+import { ImageInput } from '../../../../shared/components/image-input/image-input';
+import { OpeningHoursEditor } from '../../../../shared/components/opening-hours-editor/opening-hours-editor';
+import { hasValidOpeningHours, OpeningHours } from '../../../../shared/utils/opening-hours';
 import { CafeProfile, UpdateCafeProfileInput } from '../../types/cafe-profile.model';
 
 @Component({
   selector: 'app-cafe-edit-form',
-  imports: [Icon],
+  imports: [Icon, ImageInput, OpeningHoursEditor],
   templateUrl: './cafe-edit-form.html',
   host: { class: 'block' },
 })
@@ -17,14 +20,18 @@ export class CafeEditForm {
 
   readonly address = linkedSignal(() => this.profile().address);
   readonly phoneNumber = linkedSignal(() => this.profile().phoneNumber);
-  readonly schedule = linkedSignal(() => this.profile().schedule);
+  readonly openingHours = linkedSignal<OpeningHours[]>(() => this.profile().openingHours);
   readonly description = linkedSignal(() => this.profile().description);
+  readonly logo = linkedSignal(() => this.profile().logo);
   readonly image = linkedSignal(() => this.profile().image);
+  readonly logoUploading = signal(false);
+  readonly imageUploading = signal(false);
+  readonly uploading = computed(() => this.logoUploading() || this.imageUploading());
 
   readonly addressTouched = signal(false);
   readonly phoneTouched = signal(false);
-  readonly scheduleTouched = signal(false);
   readonly descriptionTouched = signal(false);
+  readonly submitted = signal(false);
 
   readonly descriptionLength = computed(() => this.description().length);
 
@@ -46,12 +53,9 @@ export class CafeEditForm {
     return null;
   });
 
-  readonly scheduleError = computed(() => {
-    if (!this.schedule().trim()) {
-      return 'El horario de atención es obligatorio.';
-    }
-    return null;
-  });
+  readonly hoursError = computed(() =>
+    hasValidOpeningHours(this.openingHours()) ? null : 'Revisá los horarios de atención.',
+  );
 
   readonly descriptionError = computed(() => {
     if (this.description().length > 500) {
@@ -63,7 +67,7 @@ export class CafeEditForm {
   readonly isFormValid = computed(() =>
     !this.addressError() &&
     !this.phoneError() &&
-    !this.scheduleError() &&
+    !this.hoursError() &&
     !this.descriptionError()
   );
 
@@ -71,18 +75,19 @@ export class CafeEditForm {
     event.preventDefault();
     this.addressTouched.set(true);
     this.phoneTouched.set(true);
-    this.scheduleTouched.set(true);
     this.descriptionTouched.set(true);
+    this.submitted.set(true);
 
-    if (!this.isFormValid()) {
+    if (!this.isFormValid() || this.uploading()) {
       return;
     }
 
     this.save.emit({
       address: this.address().trim(),
       phoneNumber: this.phoneNumber().trim(),
-      schedule: this.schedule().trim(),
+      openingHours: this.openingHours(),
       description: this.description().trim(),
+      logo: this.logo().trim(),
       image: this.image().trim(),
     });
   }

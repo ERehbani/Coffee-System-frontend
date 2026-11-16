@@ -6,11 +6,15 @@ import {
 } from '@angular/ssr/node';
 import express from 'express';
 import { join } from 'node:path';
+import { createApiProxy, resolveApiUrl } from './api-proxy';
 
 const browserDistFolder = join(import.meta.dirname, '../browser');
 
 const app = express();
 const angularApp = new AngularNodeAppEngine();
+const apiUrl = resolveApiUrl(process.env);
+
+app.use('/api', express.raw({ type: '*/*', limit: '1mb' }), createApiProxy(apiUrl));
 
 app.use(
   express.static(browserDistFolder, {

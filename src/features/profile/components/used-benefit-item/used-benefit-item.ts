@@ -1,0 +1,66 @@
+import { DatePipe, DecimalPipe } from '@angular/common';
+import { Component, input } from '@angular/core';
+import { Icon } from '../../../../shared/components/icon/icon';
+import { UsedBenefit, UsedBenefitStatus } from '../../types/profile.model';
+
+const STATUS_LABELS: Record<UsedBenefitStatus, string> = { used: 'Canjeado', expired: 'Vencido' };
+
+@Component({
+  imports: [DatePipe, DecimalPipe, Icon],
+  selector: 'app-used-benefit-item',
+  template: `
+    <article
+      [attr.aria-labelledby]="'used-benefit-' + benefit().id"
+      [attr.data-status]="benefit().status"
+      class="flex items-start gap-3 rounded-2xl border border-dashed border-border bg-bg p-4 opacity-80"
+    >
+      <span
+        aria-hidden="true"
+        class="flex size-11 shrink-0 items-center justify-center rounded-xl bg-border/60 text-muted"
+      >
+        <app-icon name="gift" [size]="20" />
+      </span>
+      <div class="min-w-0 flex-1 space-y-1">
+        <h3 [id]="'used-benefit-' + benefit().id" class="text-base leading-snug font-bold text-muted">
+          {{ benefit().benefitName }}
+        </h3>
+        <p class="flex items-center gap-1.5 text-sm text-muted">
+          <app-icon name="store" [size]="14" />
+          <span class="sr-only">Cafetería: </span>
+          {{ benefit().cafeName ?? 'Todas las cafeterías de la red' }}
+        </p>
+        <p class="flex items-center gap-1.5 text-sm text-muted">
+          <app-icon name="clock" [size]="14" />
+          <span class="sr-only">Canjeado el </span>
+          <time [attr.datetime]="benefit().redeemedAt.toISOString()">
+            {{ benefit().redeemedAt | date: 'd MMM y, HH:mm' }}
+          </time>
+        </p>
+        @if (benefit().usedAt; as usedAt) {
+          <p class="flex items-center gap-1.5 text-sm text-muted">
+            <app-icon name="check" [size]="14" />
+            Usado el
+            <time [attr.datetime]="usedAt.toISOString()">{{ usedAt | date: 'd MMM y, HH:mm' }}</time>
+          </p>
+        }
+      </div>
+      <div class="flex shrink-0 flex-col items-end gap-1.5">
+        <p
+          class="inline-flex items-center gap-1 rounded-full border border-border bg-surface px-2.5 py-0.5 text-xs font-bold text-muted"
+        >
+          <app-icon [name]="benefit().status === 'used' ? 'check-circle' : 'clock'" [size]="12" />
+          {{ statusLabels[benefit().status] }}
+        </p>
+        <p class="rounded-full bg-surface px-2.5 py-1 text-xs font-bold text-muted">
+          −{{ benefit().usedPoints | number }} pts
+        </p>
+      </div>
+    </article>
+  `,
+  host: { class: 'block' },
+})
+export class UsedBenefitItem {
+  readonly benefit = input.required<UsedBenefit>();
+
+  protected readonly statusLabels = STATUS_LABELS;
+}

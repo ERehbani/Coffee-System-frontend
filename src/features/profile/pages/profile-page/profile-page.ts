@@ -1,6 +1,7 @@
 import { Component, computed, inject } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { Icon } from '../../../../shared/components/icon/icon';
+import { LogoutButton } from '../../../auth/components/logout-button/logout-button';
 import { ActiveRedemptionCard } from '../../components/active-redemption-card/active-redemption-card';
 import { DashboardHeader } from '../../components/dashboard-header/dashboard-header';
 import { FeaturedBenefitCard } from '../../components/featured-benefit-card/featured-benefit-card';
@@ -12,6 +13,7 @@ import { ProfileStore } from '../../services/profile.store';
 
 @Component({
   imports: [
+    RouterLink,
     Icon,
     DashboardHeader,
     LoyaltyCard,
@@ -20,6 +22,7 @@ import { ProfileStore } from '../../services/profile.store';
     ActiveRedemptionCard,
     NearbyCafeCard,
     FeaturedBenefitCard,
+    LogoutButton,
   ],
   selector: 'app-profile-page',
   templateUrl: './profile-page.html',
@@ -28,6 +31,10 @@ import { ProfileStore } from '../../services/profile.store';
 export class ProfilePage {
   protected readonly store = inject(ProfileStore);
   private readonly router = inject(Router);
+
+  constructor() {
+    this.store.reload();
+  }
 
   protected readonly activeRedemptionsBadge = computed(() => {
     const count = this.store.activeRedemptions().length;
@@ -41,10 +48,14 @@ export class ProfilePage {
   protected onViewCard(): void {}
   protected onQuickAction(action: QuickActionId): void {
     if (action === 'write-review') {
-      this.router.navigate(['/orders']);
+      this.router.navigate(['/purchases']);
+    } else if (action === 'my-coupons') {
+      this.router.navigate(['/profile/coupons']);
     }
   }
-  protected onShowQr(_redemptionId: string): void {}
+  protected onShowQr(redemptionId: string): void {
+    this.router.navigate(['/profile/redemptions', redemptionId]);
+  }
   protected onSeeMap(): void {}
   protected onSeeCatalog(): void {}
   protected onRedeem(_benefitId: string): void {}

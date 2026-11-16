@@ -1,0 +1,88 @@
+<form
+  (submit)="onSubmit($event)"
+  novalidate
+  [attr.aria-label]="'Reseña de ' + cafeName()"
+  class="space-y-4 rounded-2xl border border-border bg-bg p-4"
+>
+  <div class="space-y-2">
+    <p class="text-sm font-bold text-text">
+      ¿Cómo calificarías tu experiencia? <span class="text-accent">*</span>
+    </p>
+    <div class="flex flex-wrap items-center gap-1">
+      @for (star of stars; track star) {
+        <button
+          type="button"
+          (click)="setRating(star)"
+          [disabled]="isSubmitting()"
+          [attr.aria-label]="star + ' de 5 estrellas'"
+          class="cursor-pointer rounded-lg p-1 transition-transform hover:scale-110 disabled:pointer-events-none"
+          [class.text-accent]="star <= reviewModel().rating"
+          [class.text-muted]="star > reviewModel().rating"
+        >
+          <app-icon name="star" [size]="28" [filled]="star <= reviewModel().rating" />
+        </button>
+      }
+      @if (ratingLabel()) {
+        <span class="ml-2 text-sm font-semibold text-muted">{{ ratingLabel() }}</span>
+      }
+    </div>
+    @if (attemptedSubmit() && ratingError()) {
+      <p role="alert" class="text-xs font-semibold text-rose-600">{{ ratingError() }}</p>
+    }
+  </div>
+
+  <div class="space-y-1.5">
+    <label for="review-message" class="block text-sm font-bold text-text">
+      Comentario <span class="text-accent">*</span>
+    </label>
+    <textarea
+      id="review-message"
+      rows="3"
+      [formField]="reviewForm.message"
+      placeholder="¿Qué te gustó? ¿Qué podría mejorar?"
+      class="w-full resize-none rounded-xl border border-border bg-surface px-4 py-2.5 text-sm text-text placeholder:text-muted/60 transition focus:border-primary focus:outline-hidden focus:ring-2 focus:ring-primary/20"
+    ></textarea>
+    <div class="flex items-center justify-between gap-2">
+      @if (attemptedSubmit() && messageError()) {
+        <p role="alert" class="text-xs font-semibold text-rose-600">{{ messageError() }}</p>
+      } @else {
+        <span></span>
+      }
+      <p class="text-xs text-muted">{{ messageLength() }}/{{ maxMessageLength }}</p>
+    </div>
+  </div>
+
+  @if (errorMessage()) {
+    <div
+      role="alert"
+      class="flex items-center gap-2 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-800"
+    >
+      <app-icon name="x" [size]="16" class="text-rose-600" />
+      <p>{{ errorMessage() }}</p>
+    </div>
+  }
+
+  <div class="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+    <button
+      type="button"
+      (click)="cancelled.emit()"
+      [disabled]="isSubmitting()"
+      class="inline-flex cursor-pointer items-center justify-center rounded-xl border border-border px-4 py-2 text-sm font-bold text-muted transition hover:bg-surface hover:text-text disabled:pointer-events-none disabled:opacity-50"
+    >
+      Cancelar
+    </button>
+    <button
+      type="submit"
+      [disabled]="isSubmitting()"
+      class="inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl bg-primary px-5 py-2 text-sm font-bold text-white shadow-sm transition hover:bg-primary-dark disabled:pointer-events-none disabled:opacity-50"
+    >
+      @if (isSubmitting()) {
+        <span class="size-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
+        <span>Enviando…</span>
+      } @else {
+        <app-icon name="message-square-text" [size]="16" />
+        <span>Enviar reseña</span>
+      }
+    </button>
+  </div>
+</form>

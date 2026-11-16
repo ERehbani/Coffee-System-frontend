@@ -83,6 +83,17 @@
 
         <app-quick-actions (actionSelected)="onQuickAction($event)" />
 
+        <a
+          routerLink="/purchases"
+          class="flex items-center justify-between gap-2 rounded-2xl border border-border bg-surface px-4 py-3 text-sm font-bold text-primary transition-colors hover:border-primary hover:bg-accent-light/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+        >
+          <span class="flex items-center gap-2">
+            <app-icon name="shopping-bag" [size]="18" />
+            Historial de compras
+          </span>
+          <app-icon name="chevron-right" [size]="18" />
+        </a>
+
         <section aria-labelledby="active-redemptions-heading" class="space-y-3">
           <app-section-header
             headingId="active-redemptions-heading"
@@ -102,6 +113,27 @@
               </li>
             }
           </ul>
+          <a
+            routerLink="/profile/coupons"
+            aria-label="Ver todos mis cupones"
+            class="flex items-center justify-between gap-2 rounded-2xl border border-border bg-surface px-4 py-3 text-sm font-bold text-primary transition-colors hover:border-primary hover:bg-accent-light/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+          >
+            <span class="flex items-center gap-2">
+              <app-icon name="ticket" [size]="18" />
+              Ver todos
+            </span>
+            <app-icon name="chevron-right" [size]="18" />
+          </a>
+          <a
+            routerLink="/profile/redemptions"
+            class="flex items-center justify-between gap-2 rounded-2xl border border-border bg-surface px-4 py-3 text-sm font-bold text-primary transition-colors hover:border-primary hover:bg-accent-light/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+          >
+            <span class="flex items-center gap-2">
+              <app-icon name="history" [size]="18" />
+              Historial de beneficios canjeados
+            </span>
+            <app-icon name="chevron-right" [size]="18" />
+          </a>
         </section>
 
         <section aria-labelledby="nearby-cafes-heading" class="space-y-3">
@@ -141,3 +173,7 @@
     }
   }
 }
+
+<div class="mt-8 flex justify-center">
+  <app-logout-button />
+</div>

@@ -1,20 +1,25 @@
-import { Component, OnInit, computed, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { Icon } from '../../../../shared/components/icon/icon';
+import { ThemeToggle } from '../../../../shared/components/theme-toggle/theme-toggle';
+import { CartButton } from '../../../cart/components/cart-button/cart-button';
 import { Cafe } from '../../model/cafe.model';
 import { CafeService } from '../../services/cafe.service';
 import { CafeCard } from '../cafe-card/cafe-card';
 
 @Component({
   selector: 'app-home',
-  imports: [RouterLink, FormsModule, Icon, CafeCard],
+  imports: [RouterLink, FormsModule, Icon, CafeCard, CartButton, ThemeToggle],
   templateUrl: './home.html',
   host: { class: 'block' },
 })
 export class Home implements OnInit {
+  private readonly cafeService = inject(CafeService);
+
   cafes = signal<Cafe[]>([]);
   isLoading = signal(true);
+  hasError = signal(false);
   searchQuery = signal('');
   filterState = signal<'all' | 'open'>('all');
 
@@ -22,7 +27,7 @@ export class Home implements OnInit {
     let list = this.cafes();
 
     if (this.filterState() === 'open') {
-      list = list.filter((c) => c.state);
+      list = list.filter((c) => c.openNow);
     }
 
     const query = this.searchQuery().toLowerCase().trim();
@@ -39,12 +44,17 @@ export class Home implements OnInit {
   });
 
   openCafesCount = computed(() => {
-    return this.cafes().filter((c) => c.state).length;
+    return this.cafes().filter((c) => c.openNow).length;
   });
 
-  constructor(private cafeService: CafeService) {}
-
   ngOnInit(): void {
+    this.loadCafes();
+  }
+
+  loadCafes(): void {
+    this.isLoading.set(true);
+    this.hasError.set(false);
+
     this.cafeService.getAll().subscribe({
       next: (data) => {
         this.cafes.set(data);
@@ -52,6 +62,7 @@ export class Home implements OnInit {
       },
       error: (error) => {
         console.error('error loading cafes:', error);
+        this.hasError.set(true);
         this.isLoading.set(false);
       },
     });
