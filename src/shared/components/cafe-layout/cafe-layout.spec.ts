@@ -7,6 +7,7 @@ const EXPECTED_ITEMS = [
   { label: 'Panel', href: '/cafe/dashboard' },
   { label: 'Perfil del local', href: '/cafe/profile' },
   { label: 'Productos', href: '/cafe/products' },
+  { label: 'Historial de compras', href: '/cafe/purchases' },
   { label: 'Beneficios', href: '/cafe/benefits' },
   { label: 'Reseñas', href: '/cafe/reviews' },
   { label: 'Validar cupones', href: '/cafe/validate' },

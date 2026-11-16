@@ -107,6 +107,10 @@ export const routes: Routes = [
         path: 'reviews',
         loadChildren: () => import('../features/cafe-reviews/cafe-reviews.routes'),
       },
+      {
+        path: 'purchases',
+        loadChildren: () => import('../features/cafe-purchases/cafe-purchases.routes'),
+      },
     ],
   },
   {
