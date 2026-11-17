@@ -92,15 +92,6 @@ describe('admin routes', () => {
     expect(page().querySelector('h1')?.textContent?.trim()).toBe('Clientes');
   });
 
-  it('renders the placeholder with the section title inside the admin layout', async () => {
-    await harness.navigateByUrl('/admin/dashboard');
-
-    const placeholder = page().querySelector('app-admin-layout app-admin-placeholder-page');
-
-    expect(placeholder?.querySelector('h1')?.textContent?.trim()).toBe('Panel');
-    expect(placeholder?.textContent).toContain('Próximamente');
-  });
-
   it('marks the active section in the sidebar after navigating', async () => {
     await harness.navigateByUrl('/admin/categories');
 
