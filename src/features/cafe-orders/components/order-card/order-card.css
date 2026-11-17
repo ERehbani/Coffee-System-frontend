@@ -1,0 +1,40 @@
+.order-card {
+  border-left-width: 4px;
+}
+
+.order-card--incoming {
+  border-left-color: var(--color-primary);
+}
+
+.order-items {
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.order-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.5rem 0;
+}
+
+.order-item + .order-item {
+  border-top: 1px dashed var(--color-border);
+}
+
+.order-badge {
+  border-radius: 9999px;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.order-badge--incoming {
+  background-color: var(--color-primary);
+  color: white;
+}
+
+.order-badge--preparing {
+  border: 1px solid var(--color-border);
+  color: var(--color-muted);
+}

@@ -1,0 +1,59 @@
+<article
+  class="order-card space-y-4 rounded-2xl border border-border bg-surface p-5 shadow-xs"
+  [class.order-card--incoming]="isIncoming()"
+  [attr.aria-labelledby]="'order-' + order().externalId"
+>
+  <header class="flex flex-wrap items-start justify-between gap-3">
+    <div class="space-y-1">
+      <h3 [id]="'order-' + order().externalId" class="text-base font-bold text-text">
+        Pedido #{{ orderCode() }}
+      </h3>
+      <p class="flex items-center gap-1.5 text-sm text-muted">
+        <app-icon name="user" [size]="14" />
+        <span class="sr-only">Cliente: </span>
+        {{ clientName() }}
+      </p>
+      <p class="flex items-center gap-1.5 text-sm text-muted">
+        <app-icon name="clock" [size]="14" />
+        <span class="sr-only">Recibido el </span>
+        <time [attr.datetime]="order().date">{{ order().date | date: 'd MMM, HH:mm' }}</time>
+      </p>
+    </div>
+
+    @if (isIncoming()) {
+      <span class="order-badge order-badge--incoming">Nuevo</span>
+    } @else {
+      <span class="order-badge order-badge--preparing">En preparación</span>
+    }
+  </header>
+
+  <ul class="order-items" aria-label="Artículos del pedido">
+    @for (item of order().details; track item.externalId) {
+      <li class="order-item">
+        <span class="text-sm text-text">
+          <strong>{{ item.amount }} ×</strong> {{ item.productName }}
+        </span>
+        <span class="text-sm text-muted">{{ item.subtotal | currency: 'ARS' : '$ ' : '1.0-0' }}</span>
+      </li>
+    }
+  </ul>
+
+  <footer class="flex flex-wrap items-center justify-between gap-3">
+    <p class="text-sm text-muted">
+      {{ totalItems() }} {{ totalItems() === 1 ? 'artículo' : 'artículos' }} ·
+      <strong class="text-text">{{ order().price | currency: 'ARS' : '$ ' : '1.0-0' }}</strong>
+    </p>
+
+    @if (isIncoming()) {
+      <button
+        type="button"
+        (click)="onTake()"
+        [disabled]="isTaking()"
+        class="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-60"
+      >
+        <app-icon name="check" [size]="16" />
+        {{ isTaking() ? 'Tomando…' : 'Tomar pedido' }}
+      </button>
+    }
+  </footer>
+</article>
