@@ -69,7 +69,7 @@ export class AdminPurchasesPage implements OnInit {
         this.isLoading.set(false);
       },
       error: (error) => {
-        console.error('Error loading purchases:', error);
+        console.error('Error al cargar las compras:', error);
         this.isLoading.set(false);
       },
     });

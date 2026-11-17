@@ -94,7 +94,7 @@ export class CartService {
 
     this.http.delete<void>(`${this.url}/clear`).subscribe({
       next: () => this.addProduct(product, cafe, onRejected),
-      error: (error) => console.error('error clearing cart:', error),
+      error: (error) => console.error('Error al vaciar el carrito:', error),
     });
 
     return true;
@@ -131,7 +131,7 @@ export class CartService {
 
     this.http.delete<CartResponse>(`${this.url}/items/${productId}`).subscribe({
       error: (error) => {
-        console.error('error removing product from cart:', error);
+        console.error('Error al quitar el producto del carrito:', error);
         this.restore(previousItems, previousCafe);
       },
     });
@@ -147,7 +147,7 @@ export class CartService {
     this.clearLocal();
 
     this.http.delete<void>(`${this.url}/clear`).subscribe({
-      error: (error) => console.error('error clearing cart:', error),
+      error: (error) => console.error('Error al vaciar el carrito:', error),
     });
   }
 
@@ -162,7 +162,7 @@ export class CartService {
 
     this.http.put<CartResponse>(`${this.url}/items/${productId}`, { quantity: quantity }).subscribe({
       error: (error) => {
-        console.error('error updating cart quantity:', error);
+        console.error('Error al actualizar la cantidad del carrito:', error);
         this.restore(previousItems, this.cafe());
       },
     });
@@ -183,7 +183,7 @@ export class CartService {
       const data = { cafe: this.cafe(), items: this.items() };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     } catch (error) {
-      console.error('error saving cart:', error);
+      console.error('Error al guardar el carrito:', error);
     }
   }
 
@@ -204,7 +204,7 @@ export class CartService {
         this.cafe.set(data.cafe);
       }
     } catch (error) {
-      console.error('error loading cart:', error);
+      console.error('Error al cargar el carrito:', error);
     }
   }
 }

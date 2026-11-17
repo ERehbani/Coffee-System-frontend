@@ -131,7 +131,7 @@ export class CatalogPage implements OnInit {
               }
               return this.productService.getProductsByCafe(cafe.externalId).pipe(
                 catchError((error) => {
-                  console.error('Error loading products:', error);
+                  console.error('Error al cargar los productos:', error);
                   this.hasProductsError.set(true);
                   return of([]);
                 })
@@ -147,7 +147,7 @@ export class CatalogPage implements OnInit {
           this.isLoadingProducts.set(false);
         },
         error: (err) => {
-          console.error('Error loading catalog data:', err);
+          console.error('Error al cargar los datos del catálogo:', err);
           this.hasCafesError.set(true);
           this.isLoadingCafes.set(false);
           this.isLoadingProducts.set(false);

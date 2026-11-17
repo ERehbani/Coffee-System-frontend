@@ -65,11 +65,18 @@ describe('HttpCheckoutRepository', () => {
 
     it('fails with a 404 when the client has no cart for that cafe', () => {
       let status: number | undefined;
-      repository.findCart('cafe-c').subscribe({ error: (error) => (status = error.status) });
+      let body: unknown;
+      repository.findCart('cafe-c').subscribe({
+        error: (error) => {
+          status = error.status;
+          body = error.error;
+        },
+      });
 
       http.expectOne(`${environment.apiBaseUrl}/carts/myCart`).flush([cartFor('cafe-a', 'cart-a')]);
 
       expect(status).toBe(404);
+      expect(body).toBe('Carrito no encontrado');
     });
   });
 

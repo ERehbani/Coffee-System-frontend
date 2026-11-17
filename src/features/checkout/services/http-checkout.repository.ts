@@ -17,7 +17,7 @@ import { toCheckoutCoupons } from '../utils/coupon.mapper';
 import { CheckoutRepository } from './checkout.repository';
 
 function cartNotFound(): HttpErrorResponse {
-  return new HttpErrorResponse({ status: HttpStatusCode.NotFound, error: 'Cart not found' });
+  return new HttpErrorResponse({ status: HttpStatusCode.NotFound, error: 'Carrito no encontrado' });
 }
 
 function pickCart(carts: readonly CartResponse[], cafeId: string): ServerCart {

@@ -141,7 +141,7 @@ describe('CheckoutStore', () => {
 
   it('shows the error when the cart cannot be found', () => {
     findCart.mockReturnValue(
-      throwError(() => new HttpErrorResponse({ status: 404, error: 'Cart not found' })),
+      throwError(() => new HttpErrorResponse({ status: 404, error: 'Carrito no encontrado' })),
     );
 
     store.confirm(vi.fn());

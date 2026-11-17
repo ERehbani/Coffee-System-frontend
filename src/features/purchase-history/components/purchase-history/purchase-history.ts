@@ -55,7 +55,7 @@ export class PurchaseHistory implements OnInit {
         this.isLoading.set(false);
       },
       error: (error) => {
-        console.error('error loading purchases:', error);
+        console.error('Error al cargar las compras:', error);
         this.hasError.set(true);
         this.isLoading.set(false);
       },
@@ -94,7 +94,7 @@ export class PurchaseHistory implements OnInit {
           this.successMessage.set(`¡Gracias! Tu reseña de ${purchase.cafeName} fue enviada.`);
         },
         error: (error) => {
-          console.error('error sending review:', error);
+          console.error('Error al enviar la reseña:', error);
           this.isSubmitting.set(false);
           this.reviewError.set('No pudimos enviar tu reseña. Intentá de nuevo.');
         },
