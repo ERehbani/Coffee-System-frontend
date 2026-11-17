@@ -4,7 +4,6 @@ import { signInForTest } from '../../../features/auth/utils/auth.fixture';
 import { AdminLayout } from './admin-layout';
 
 const EXPECTED_ITEMS = [
-  { label: 'Panel', href: '/admin/dashboard' },
   { label: 'Usuarios', href: '/admin/users' },
   { label: 'Clientes', href: '/admin/clients' },
   { label: 'Cafeterías', href: '/admin/cafes' },
@@ -39,7 +38,7 @@ describe('AdminLayout', () => {
     expect(brand?.textContent?.trim()).toBe('Coffee System');
   });
 
-  it('renders the nine sections in order inside the "Administración" navigation landmark', () => {
+  it('renders the eight sections in order inside the "Administración" navigation landmark', () => {
     const nav = root.querySelector('nav');
 
     expect(nav?.getAttribute('aria-label')).toBe('Administración');
