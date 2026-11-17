@@ -305,7 +305,11 @@ describe('TierPage', () => {
           () =>
             new HttpErrorResponse({
               status: 409,
-              error: { title: 'Benefit sold out', status: 409, detail: 'Benefit is sold out' },
+              error: {
+                title: 'Beneficio agotado',
+                status: 409,
+                detail: 'El beneficio está agotado',
+              },
             }),
         ),
       );

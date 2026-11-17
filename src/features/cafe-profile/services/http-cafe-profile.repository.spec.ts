@@ -39,7 +39,7 @@ describe('HttpCafeProfileRepository', () => {
 
     http
       .expectOne(`${environment.apiBaseUrl}/cafes/me`)
-      .flush('Cafe not found', { status: 404, statusText: 'Not Found' });
+      .flush('Cafetería no encontrada', { status: 404, statusText: 'Not Found' });
 
     expect(status).toBe(404);
   });

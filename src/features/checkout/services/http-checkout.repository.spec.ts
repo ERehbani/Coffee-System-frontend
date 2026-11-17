@@ -151,7 +151,7 @@ describe('HttpCheckoutRepository', () => {
 
       http
         .expectOne(`${environment.apiBaseUrl}/purchases`)
-        .flush('Cart cannot be empty', { status: 400, statusText: 'Bad Request' });
+        .flush('El carrito no puede estar vacío', { status: 400, statusText: 'Bad Request' });
 
       expect(status).toBe(400);
     });

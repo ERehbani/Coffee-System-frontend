@@ -70,10 +70,10 @@ describe('HttpCouponValidationRepository', () => {
 
     http
       .expectOne(`${url}/missing`)
-      .flush('Redemption not found', { status: 404, statusText: 'Not Found' });
+      .flush('Canje no encontrado', { status: 404, statusText: 'Not Found' });
 
     expect(failure).toBeInstanceOf(HttpErrorResponse);
     expect((failure as HttpErrorResponse).status).toBe(404);
-    expect((failure as HttpErrorResponse).error).toBe('Redemption not found');
+    expect((failure as HttpErrorResponse).error).toBe('Canje no encontrado');
   });
 });

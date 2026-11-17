@@ -113,7 +113,7 @@ describe('AuthService', () => {
       .register({ name: 'Ana', email: 'ana@test.com', password: 'Secret123' })
       .subscribe({ error: (error) => (status = error.status) });
 
-    http.expectOne(`${authUrl}/register`).flush('Email already exists', { status: 409, statusText: 'Conflict' });
+    http.expectOne(`${authUrl}/register`).flush('Ya existe una cuenta con ese email', { status: 409, statusText: 'Conflict' });
 
     expect(status).toBe(409);
   });

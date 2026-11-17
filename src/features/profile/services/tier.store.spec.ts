@@ -322,7 +322,7 @@ describe('TierStore', () => {
           () =>
             new HttpErrorResponse({
               status: 422,
-              error: { title: 'Business rule violated', status: 422, detail: 'Benefit has expired' },
+              error: { title: 'Regla de negocio incumplida', status: 422, detail: 'El beneficio está vencido' },
             }),
         ),
       );

@@ -125,7 +125,7 @@ describe('HttpProfileRepository', () => {
 
     http
       .expectOne(`${environment.apiBaseUrl}/clients/client-001`)
-      .flush({ error: 'Access denied' }, { status: 403, statusText: 'Forbidden' });
+      .flush({ error: 'Acceso denegado' }, { status: 403, statusText: 'Forbidden' });
 
     expect(status).toBe(403);
   });

@@ -125,7 +125,7 @@ describe('CheckoutStore', () => {
 
   it('shows the error and keeps the cart when the backend rejects the purchase', () => {
     createPurchase.mockReturnValue(
-      throwError(() => new HttpErrorResponse({ status: 400, error: { detail: 'Cart cannot be empty' } })),
+      throwError(() => new HttpErrorResponse({ status: 400, error: { detail: 'El carrito no puede estar vacío' } })),
     );
     const onSuccess = vi.fn();
 
@@ -358,7 +358,7 @@ describe('CheckoutStore', () => {
 
     it('clears the previous error when the coupon changes', () => {
       createPurchase.mockReturnValueOnce(
-        throwError(() => new HttpErrorResponse({ status: 404, error: { detail: 'Invalid code' } })),
+        throwError(() => new HttpErrorResponse({ status: 404, error: { detail: 'Código inválido' } })),
       );
       startAndSelect('coupon-discount');
       store.confirm(vi.fn());
@@ -406,7 +406,7 @@ describe('CheckoutStore', () => {
           () =>
             new HttpErrorResponse({
               status: 422,
-              error: { title: 'Business rule violated', status: 422, detail: 'Code already used' },
+              error: { title: 'Regla de negocio incumplida', status: 422, detail: 'El código ya fue usado' },
             }),
         ),
       );
