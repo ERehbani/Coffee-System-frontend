@@ -1,0 +1,102 @@
+<main class="mx-auto max-w-4xl space-y-6 px-4 py-8">
+  <header class="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-2">
+    <div class="flex items-center gap-2.5">
+      <span class="inline-flex size-9 items-center justify-center rounded-xl bg-primary text-white">
+        <app-icon name="shopping-bag" [size]="20" />
+      </span>
+      <div>
+        <h1 class="text-lg font-extrabold text-text">Pedidos</h1>
+        <p class="text-xs text-muted">Recibí las órdenes entrantes y tomalas para empezar a prepararlas</p>
+      </div>
+    </div>
+    <button
+      type="button"
+      (click)="loadOrders()"
+      class="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-border bg-surface px-3 py-2 text-xs font-semibold text-text hover:border-primary"
+    >
+      <app-icon name="refresh-cw" [size]="14" />
+      Actualizar
+    </button>
+  </header>
+
+  <div class="flex items-center gap-2" role="group" aria-label="Filtrar pedidos">
+    <button
+      type="button"
+      (click)="setFilterState('incoming')"
+      class="filter-button"
+      [class.filter-button--active]="filterState() === 'incoming'"
+      [attr.aria-pressed]="filterState() === 'incoming'"
+    >
+      Entrantes
+      @if (!isLoading()) {
+        ({{ incomingOrders().length }})
+      }
+    </button>
+    <button
+      type="button"
+      (click)="setFilterState('preparing')"
+      class="filter-button"
+      [class.filter-button--active]="filterState() === 'preparing'"
+      [attr.aria-pressed]="filterState() === 'preparing'"
+    >
+      En preparación
+      @if (!isLoading()) {
+        ({{ preparingOrders().length }})
+      }
+    </button>
+  </div>
+
+  @if (actionMessage()) {
+    <div role="alert" class="flex items-center justify-between gap-3 rounded-2xl border border-border bg-accent-light px-4 py-3 text-sm text-text">
+      <span class="flex items-center gap-2">
+        <app-icon name="alert-circle" [size]="16" />
+        {{ actionMessage() }}
+      </span>
+      <button type="button" (click)="clearActionMessage()" aria-label="Cerrar aviso" class="cursor-pointer text-muted hover:text-text">
+        <app-icon name="x" [size]="16" />
+      </button>
+    </div>
+  }
+
+  <section aria-label="Listado de pedidos" class="space-y-4">
+    @if (isLoading()) {
+      <p role="status" class="sr-only">Cargando pedidos…</p>
+      @for (item of [1, 2, 3]; track item) {
+        <div class="h-40 animate-pulse rounded-2xl bg-border/40"></div>
+      }
+    } @else if (hasError()) {
+      <div role="alert" class="space-y-3 rounded-2xl border border-border bg-surface p-6 text-center">
+        <p class="font-semibold text-text">No pudimos cargar los pedidos.</p>
+        <button
+          type="button"
+          (click)="loadOrders()"
+          class="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary-dark"
+        >
+          <app-icon name="refresh-cw" [size]="16" />
+          Reintentar
+        </button>
+      </div>
+    } @else {
+      @for (order of visibleOrders(); track order.externalId) {
+        <app-order-card
+          [order]="order"
+          [isTaking]="takingOrderId() === order.externalId"
+          (take)="takeOrder($event)"
+        />
+      } @empty {
+        <div class="rounded-2xl border border-dashed border-border bg-surface p-10 text-center">
+          <div class="mx-auto flex size-14 items-center justify-center rounded-full bg-accent-light text-primary">
+            <app-icon name="coffee" [size]="28" />
+          </div>
+          @if (filterState() === 'incoming') {
+            <h3 class="mt-4 text-base font-bold text-text">No hay pedidos entrantes</h3>
+            <p class="mt-1.5 text-xs text-muted">Los pedidos nuevos van a aparecer acá automáticamente.</p>
+          } @else {
+            <h3 class="mt-4 text-base font-bold text-text">No hay pedidos en preparación</h3>
+            <p class="mt-1.5 text-xs text-muted">Tomá un pedido entrante para empezar a prepararlo.</p>
+          }
+        </div>
+      }
+    }
+  </section>
+</main>

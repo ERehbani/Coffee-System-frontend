@@ -5,6 +5,7 @@ import { CafeLayout } from './cafe-layout';
 
 const EXPECTED_ITEMS = [
   { label: 'Panel', href: '/cafe/dashboard' },
+  { label: 'Pedidos', href: '/cafe/orders' },
   { label: 'Perfil del local', href: '/cafe/profile' },
   { label: 'Productos', href: '/cafe/products' },
   { label: 'Beneficios', href: '/cafe/benefits' },

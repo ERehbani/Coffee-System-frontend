@@ -88,6 +88,10 @@ export const routes: Routes = [
         loadChildren: () => import('../features/cafe-dashboard/cafe-dashboard.routes'),
       },
       {
+        path: 'orders',
+        loadChildren: () => import('../features/cafe-orders/cafe-orders.routes'),
+      },
+      {
         path: 'profile',
         loadChildren: () => import('../features/cafe-profile/cafe-profile.routes'),
       },

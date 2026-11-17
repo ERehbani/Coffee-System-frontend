@@ -8,6 +8,7 @@ export interface CafeNavItem {
 
 export const CAFE_NAV_ITEMS: readonly CafeNavItem[] = [
   { label: 'Panel', path: 'dashboard', icon: 'zap' },
+  { label: 'Pedidos', path: 'orders', icon: 'shopping-bag' },
   { label: 'Perfil del local', path: 'profile', icon: 'store' },
   { label: 'Productos', path: 'products', icon: 'coffee' },
   { label: 'Beneficios', path: 'benefits', icon: 'ticket' },
