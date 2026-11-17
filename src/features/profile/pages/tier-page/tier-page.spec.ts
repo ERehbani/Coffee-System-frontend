@@ -73,7 +73,6 @@ describe('TierPage', () => {
     element = fixture.nativeElement;
   }
 
-  /** Lets the resources and the queued renders settle after an interaction. */
   async function settle() {
     TestBed.flushEffects();
     await fixture.whenStable();
@@ -156,7 +155,6 @@ describe('TierPage', () => {
       expect(benefitsSection().querySelector('[aria-busy="true"]')).not.toBeNull();
       expect(benefitsSection().textContent).toContain('Cargando tus beneficios');
       expect(element.querySelector('app-tier-benefit-item')).toBeNull();
-      // The rest of the page does not wait for the benefits.
       expect(element.querySelectorAll('app-tier-level-item').length).toBe(4);
     });
 
@@ -399,7 +397,6 @@ describe('TierPage', () => {
   });
 
   describe('returning to the page', () => {
-    /** The store lives in the route injector: the same instance serves the next visit. */
     async function revisit() {
       fixture.destroy();
       fixture = TestBed.createComponent(TierPage);

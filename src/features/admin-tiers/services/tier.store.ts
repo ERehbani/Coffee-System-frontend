@@ -7,7 +7,6 @@ import { TierRepository } from './tier.repository';
 export type TierListStatus = 'loading' | 'ready' | 'error';
 export type TierDrawerMode = 'create' | 'edit';
 
-/** The base tier is the one with 0 points: every new client starts on it. */
 const BASE_TIER_POINTS = 0;
 
 @Injectable()
@@ -102,7 +101,6 @@ export class AdminTierStore {
     });
   }
 
-  /** Drops the server error of a field the user is editing. */
   clearFormError(field: keyof TierFormErrors): void {
     this.formErrors.update(({ [field]: _removed, ...rest }) => rest);
   }

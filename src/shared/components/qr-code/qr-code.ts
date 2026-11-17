@@ -32,7 +32,6 @@ export function toQrSymbol(value: string): QrSymbol {
   return { dimension: size + QUIET_ZONE * 2, path: commands.join('') };
 }
 
-/** Renders `value` as a QR code (black on white, so it stays scannable in dark mode). */
 @Component({
   selector: 'app-qr-code',
   template: `

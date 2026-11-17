@@ -231,7 +231,6 @@ export class CatalogPage implements OnInit {
     this.pendingProduct.set(null);
   }
 
-  /** A rejected add cancels its optimistic success toast, so dismissing the error shows nothing stale. */
   private showAddError(product: Product, reason: string | null): void {
     clearTimeout(this.messageTimeout);
     this.addedProductMessage.set(null);

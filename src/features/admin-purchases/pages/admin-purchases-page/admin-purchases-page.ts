@@ -53,7 +53,6 @@ export class AdminPurchasesPage implements OnInit {
     this.filteredPurchases().reduce((acc, p) => acc + (p.price || 0), 0)
   );
 
-  // Preparation and delivery states follow a confirmed sale, so only cancellations are left out.
   confirmedCount = computed(
     () => this.purchases().filter((p) => !isCancellation(p.status)).length
   );

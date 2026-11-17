@@ -31,12 +31,6 @@ const EXPIRED_COUPON_MESSAGE = `Ese cupón está vencido. ${COUPON_RETRY_HINT}`;
 const PRODUCT_UNAVAILABLE_MESSAGE =
   'Alguno de los productos de tu carrito se agotó por hoy o ya no está disponible. Quitalo e intentá de nuevo.';
 
-/**
- * ProblemDetail `detail` of `POST /purchases` (PurchaseService, PurchaseDraft, CartEntity, CafeProductEntity,
- * RedemptionEntity, BenefitRules): 400 cart errors, 403 no client profile or coupon of another client,
- * 404 unknown code, 409 product or coupon gift unavailable, 422 coupon rules and expired coupon.
- * Some details carry a product name or a benefit type, so they are matched by pattern.
- */
 const MESSAGES_BY_BACKEND_DETAIL: readonly (readonly [RegExp, string])[] = [
   [/^cart cannot be empty$/i, EMPTY_CART_MESSAGE],
   [/^invalid code$/i, INVALID_COUPON_MESSAGE],

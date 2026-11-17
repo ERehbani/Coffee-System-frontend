@@ -1,6 +1,5 @@
 export interface AdminNavItem {
   readonly label: string;
-  /** Child path under `/admin`. */
   readonly path: string;
 }
 

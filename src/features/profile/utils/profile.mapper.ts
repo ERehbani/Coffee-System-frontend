@@ -180,7 +180,6 @@ export function toTierDetail(dto: TierDetailDto): TierDetail {
   };
 }
 
-/** Used and expired coupons spent their points; a cancelled one gave them back. */
 const SPENT_REDEMPTION_STATUSES: readonly RedemptionStatusDto[] = ['USED', 'EXPIRED'];
 
 export function toUsedBenefits(dtos: readonly RedemptionDto[]): readonly UsedBenefit[] {

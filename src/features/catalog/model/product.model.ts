@@ -5,7 +5,6 @@ export interface Product {
   price: number;
   awardedPoints?: number | null;
   state: boolean;
-  /** False when the product is sold out for today. */
   available: boolean;
   category: string;
   cafeExternalId: string;

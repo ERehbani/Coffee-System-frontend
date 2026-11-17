@@ -9,7 +9,6 @@ describe('toCheckoutErrorMessage', () => {
   const emptyCartMessage =
     'No encontramos productos en tu carrito. Volvé a agregarlos desde el catálogo e intentá de nuevo.';
 
-  /** The ProblemDetail GlobalExceptionHandler sends for a domain exception. */
   function problem(status: number, detail: string): HttpErrorResponse {
     return new HttpErrorResponse({ status, error: { title: 'Error', status, detail } });
   }

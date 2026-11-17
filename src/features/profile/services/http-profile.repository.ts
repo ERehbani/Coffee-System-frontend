@@ -59,9 +59,8 @@ export class HttpProfileRepository implements ProfileRepository {
   }
 
   getUsedBenefits(): Observable<readonly UsedBenefit[]> {
-    // The status filter takes one value and the history shows used and expired coupons.
     return this.http
-      // shortcut: one newest-first page of 500 filtered here, because the backend status filter takes a single value; page through it if a client ever exceeds 500 redemptions.
+      // Atajo: una página de 500 canjes filtrada aquí porque el backend filtra un solo estado; paginar si se supera.
       .get<Page<RedemptionDto>>(`${environment.apiBaseUrl}/redemption`, { params: { size: 500 } })
       .pipe(map((page) => toUsedBenefits(page.content)));
   }

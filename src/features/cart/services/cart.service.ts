@@ -46,10 +46,6 @@ export class CartService {
     return currentCafe.externalId !== product.cafeExternalId;
   }
 
-  /**
-   * Adds the product optimistically. When the backend rejects it (for example a product sold out
-   * today, 409) the cart goes back to its previous state and `onRejected` gets the backend detail.
-   */
   addProduct(product: Product, cafe: Cafe, onRejected?: (reason: string | null) => void): boolean {
     if (this.isFromAnotherCafe(product)) {
       return false;

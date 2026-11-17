@@ -7,10 +7,6 @@ const NOT_FOUND_MESSAGE = 'No encontramos este beneficio.';
 const CLIENT_NOT_FOUND_MESSAGE =
   'No pudimos identificar tu cuenta. Vuelve a iniciar sesión e inténtalo de nuevo.';
 
-/**
- * ProblemDetail `detail` of `POST /redemption` (RedemptionService, BenefitEntity), lower-cased:
- * 404 not found, 403 no client profile, 409 sold out, 422 business rules.
- */
 const MESSAGES_BY_BACKEND_DETAIL: ReadonlyMap<string, string> = new Map([
   ['the current user has no client profile', CLIENT_NOT_FOUND_MESSAGE],
   ['client does not have enough points', 'No tienes puntos suficientes para este beneficio.'],
@@ -25,7 +21,6 @@ const MESSAGES_BY_BACKEND_DETAIL: ReadonlyMap<string, string> = new Map([
   ],
 ]);
 
-/** Spanish copy for a rejected redemption; anything unrecognised gets the generic message. */
 export function toRedeemErrorMessage(error: unknown): string {
   if (!(error instanceof HttpErrorResponse)) {
     return REDEEM_ERROR_MESSAGE;

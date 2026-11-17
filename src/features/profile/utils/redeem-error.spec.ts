@@ -1,7 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { REDEEM_ERROR_MESSAGE, toRedeemErrorMessage } from './redeem-error';
 
-/** The ProblemDetail GlobalExceptionHandler sends for a domain exception. */
 function problem(status: number, detail: string): HttpErrorResponse {
   return new HttpErrorResponse({ status, error: { title: 'Error', status, detail } });
 }

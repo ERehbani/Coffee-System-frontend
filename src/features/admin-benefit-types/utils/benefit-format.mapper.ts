@@ -16,7 +16,6 @@ export function toBenefitFormat(dto: BenefitFormatDto): BenefitFormat {
   };
 }
 
-/** Orders formats by name, ignoring the letter case, as the backend does. */
 export function sortBenefitFormats(formats: readonly BenefitFormat[]): readonly BenefitFormat[] {
   return [...formats].sort((a, b) =>
     a.displayName.localeCompare(b.displayName, 'es', { sensitivity: 'base' }),
@@ -38,7 +37,6 @@ export function toCreateBenefitFormatRequestDto(
   };
 }
 
-/** The format cannot change once registered, so the body leaves the code out. */
 export function toUpdateBenefitFormatRequestDto(
   input: SaveBenefitFormatInput,
 ): UpdateBenefitFormatRequestDto {

@@ -1,4 +1,3 @@
-/** Backend lifecycle order: confirmed, then prepared, ready and delivered, or cancelled/refunded. */
 export const PURCHASE_STATUSES = ['CONFIRMED', 'IN_PREPARATION', 'READY', 'DELIVERED', 'CANCELLED', 'REFUNDED'] as const;
 
 export type PurchaseStatus = (typeof PURCHASE_STATUSES)[number];
