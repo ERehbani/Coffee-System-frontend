@@ -1,13 +1,26 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { CafeService } from '../../../home/services/cafe.service';
 import { ProfileRepository } from '../../../profile/services/profile.repository';
+import { RedeemedBenefit } from '../../../profile/types/profile.model';
 import { AvailableBenefitService } from '../../services/available-benefit.service';
 import { CAFE_BENEFIT_FIXTURE, GLOBAL_BENEFIT_FIXTURE } from '../../utils/available-benefit.fixture';
 import { AvailableBenefits } from './available-benefits';
 
 describe('AvailableBenefits', () => {
+  const redeemed: RedeemedBenefit = {
+    id: 'redemption-1',
+    validationCode: 'ABC123',
+    benefitName: GLOBAL_BENEFIT_FIXTURE.name,
+    cafeName: null,
+    usedPoints: 500,
+    redeemedAt: new Date(2026, 10, 17),
+  };
   let getAvailable: ReturnType<typeof vi.fn>;
+  let getTierDetail: ReturnType<typeof vi.fn>;
+  let redeemBenefit: ReturnType<typeof vi.fn>;
 
   function render(): ComponentFixture<AvailableBenefits> {
     const fixture = TestBed.createComponent(AvailableBenefits);
@@ -17,15 +30,18 @@ describe('AvailableBenefits', () => {
 
   beforeEach(async () => {
     getAvailable = vi.fn(() => of([GLOBAL_BENEFIT_FIXTURE, CAFE_BENEFIT_FIXTURE]));
+    getTierDetail = vi.fn(() => of({ currentTierThreshold: 0, availablePoints: 800 }));
+    redeemBenefit = vi.fn(() => of(redeemed));
     await TestBed.configureTestingModule({
       imports: [AvailableBenefits],
       providers: [
+        provideRouter([]),
         { provide: AvailableBenefitService, useValue: { getAvailable } },
         {
           provide: CafeService,
           useValue: { getAll: () => of([{ externalId: 'cafe-central', name: 'Cafe Central' }]) },
         },
-        { provide: ProfileRepository, useValue: { getTierDetail: () => of({ currentTierThreshold: 0 }) } },
+        { provide: ProfileRepository, useValue: { getTierDetail, redeemBenefit } },
       ],
     }).compileComponents();
   });
@@ -78,5 +94,81 @@ describe('AvailableBenefits', () => {
     const fixture = render();
 
     expect(fixture.nativeElement.textContent).toContain('No encontramos beneficios');
+  });
+
+  describe('redeeming a benefit', () => {
+    const click = (fixture: ComponentFixture<AvailableBenefits>, text: string) => {
+      const button = (Array.from(fixture.nativeElement.querySelectorAll('button')) as HTMLButtonElement[]).find(
+        (candidate) => candidate.textContent?.includes(text) || candidate.getAttribute('aria-label')?.includes(text),
+      );
+      button?.click();
+      fixture.detectChanges();
+    };
+
+    it('states the cost and redeems only after the client confirms', () => {
+      const fixture = render();
+
+      click(fixture, 'Canjear Descuento 15% bienvenida');
+
+      expect(fixture.nativeElement.textContent).toContain('¿Canjear Descuento 15% bienvenida por 500 pts?');
+      expect(redeemBenefit).not.toHaveBeenCalled();
+
+      click(fixture, 'Confirmar');
+
+      expect(redeemBenefit).toHaveBeenCalledExactlyOnceWith('benefit-welcome');
+    });
+
+    it('tells the client the coupon is in "Mis cupones" and refreshes the points and the list', () => {
+      const fixture = render();
+      click(fixture, 'Canjear Descuento 15% bienvenida');
+
+      click(fixture, 'Confirmar');
+
+      const notice = fixture.nativeElement.querySelector('[role="status"]') as HTMLElement;
+      expect(notice.textContent).toContain('Canjeaste Descuento 15% bienvenida por 500 pts');
+      expect(notice.textContent).toContain('Mis cupones');
+      expect(notice.querySelector('a')?.getAttribute('href')).toBe('/profile/coupons');
+      expect(getTierDetail).toHaveBeenCalledTimes(2);
+      expect(getAvailable).toHaveBeenCalledTimes(2);
+      expect(fixture.componentInstance.isLoading()).toBe(false);
+    });
+
+    it('does not redeem when the client cancels the confirmation', () => {
+      const fixture = render();
+      click(fixture, 'Canjear Descuento 15% bienvenida');
+
+      click(fixture, 'Cancelar');
+
+      expect(redeemBenefit).not.toHaveBeenCalled();
+      expect(fixture.nativeElement.textContent).not.toContain('¿Canjear');
+    });
+
+    it('shows the reason of the backend in the banner when the redeem is rejected', () => {
+      redeemBenefit.mockReturnValue(
+        throwError(
+          () => new HttpErrorResponse({ status: 422, error: { detail: 'El cliente no tiene puntos suficientes' } }),
+        ),
+      );
+      const fixture = render();
+      click(fixture, 'Canjear Descuento 15% bienvenida');
+
+      click(fixture, 'Confirmar');
+
+      const alert = fixture.nativeElement.querySelector('[role="alert"]') as HTMLElement;
+      expect(alert.textContent).toContain('No tienes puntos suficientes para este beneficio.');
+      expect(fixture.nativeElement.querySelector('[role="status"]')).toBeNull();
+    });
+
+    it('disables the benefits the client cannot redeem yet and says why', () => {
+      const fixture = render();
+      const buttons = Array.from(
+        fixture.nativeElement.querySelectorAll('app-available-benefit-card button'),
+      ) as HTMLButtonElement[];
+
+      expect(buttons.map((button) => button.disabled)).toEqual([false, true]);
+      expect(fixture.nativeElement.querySelectorAll('app-available-benefit-card')[1].textContent).toContain(
+        'Disponible desde Plata',
+      );
+    });
   });
 });

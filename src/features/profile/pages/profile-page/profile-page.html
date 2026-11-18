@@ -43,19 +43,39 @@
   @case ('ready') {
     @if (store.dashboard(); as dashboard) {
       <div class="space-y-7">
-        @if (store.successMessage(); as successMsg) {
+        @if (successMessage(); as successMsg) {
           <div
+            #feedback
+            tabindex="-1"
             role="status"
-            class="flex items-center justify-between gap-3 rounded-2xl border border-emerald-300 bg-emerald-50 px-5 py-4 text-emerald-800 transition shadow-xs"
+            class="flex items-center justify-between gap-3 rounded-2xl border border-emerald-300 bg-emerald-50 px-5 py-4 text-emerald-800 transition shadow-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600"
           >
             <p class="text-sm font-bold text-emerald-950">{{ successMsg }}</p>
             <button
               type="button"
-              (click)="store.dismissSuccess()"
+              (click)="onDismissFeedback()"
               class="cursor-pointer rounded-lg p-1 text-emerald-800 hover:bg-emerald-100 active:scale-95 transition-all select-none"
               aria-label="Cerrar notificación"
             >
               <app-icon name="x" [size]="16" />
+            </button>
+          </div>
+        }
+
+        @if (redeemError(); as errorMsg) {
+          <div
+            #feedback
+            tabindex="-1"
+            role="alert"
+            class="flex items-center justify-between gap-3 rounded-2xl border border-rose-300 bg-rose-50 px-5 py-4 text-rose-900 shadow-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-600"
+          >
+            <p class="text-sm font-bold">{{ errorMsg }}</p>
+            <button
+              type="button"
+              (click)="onDismissFeedback()"
+              class="shrink-0 cursor-pointer rounded-lg px-2 py-1 text-sm font-bold text-rose-900 hover:bg-rose-100 active:scale-95 transition-all select-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-600"
+            >
+              Cerrar
             </button>
           </div>
         }
@@ -134,7 +154,11 @@
                 <app-featured-benefit-card
                   [benefit]="benefit"
                   [availablePoints]="dashboard.loyalty.availablePoints"
+                  [phase]="phaseOf(benefit.id)"
+                  [locked]="redeemTarget()?.phase === 'redeeming'"
                   (redeem)="onRedeem($event)"
+                  (redeemConfirmed)="onRedeemConfirmed()"
+                  (redeemCancelled)="onRedeemCancelled()"
                 />
               </li>
             }

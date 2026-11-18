@@ -45,4 +45,52 @@ describe('FeaturedBenefitCard', () => {
     expect(element.textContent).toContain('Café de cortesía');
     expect(element.textContent).toContain('300 pts');
   });
+
+  describe('redeem action', () => {
+    const buttons = () => Array.from(element.querySelectorAll('button')) as HTMLButtonElement[];
+
+    it('asks to redeem the benefit with its id', () => {
+      render();
+      const requested: string[] = [];
+      fixture.componentInstance.redeem.subscribe((id) => requested.push(id));
+
+      buttons()[0].click();
+
+      expect(requested).toEqual(['benefit-1']);
+    });
+
+    it('cannot redeem while another benefit is being redeemed', () => {
+      render();
+      fixture.componentRef.setInput('locked', true);
+      fixture.detectChanges();
+
+      expect(buttons()[0].disabled).toBe(true);
+    });
+
+    it('asks to confirm the cost and emits the answer', () => {
+      render();
+      fixture.componentRef.setInput('phase', 'confirming');
+      fixture.detectChanges();
+      let confirmations = 0;
+      let cancellations = 0;
+      fixture.componentInstance.redeemConfirmed.subscribe(() => confirmations++);
+      fixture.componentInstance.redeemCancelled.subscribe(() => cancellations++);
+
+      expect(element.textContent).toContain('¿Canjear Café de cortesía por 300 pts?');
+      buttons().find((button) => button.textContent?.includes('Confirmar'))?.click();
+      buttons().find((button) => button.textContent?.includes('Cancelar'))?.click();
+
+      expect(confirmations).toBe(1);
+      expect(cancellations).toBe(1);
+    });
+
+    it('is busy while the redeem is in flight', () => {
+      render();
+      fixture.componentRef.setInput('phase', 'redeeming');
+      fixture.detectChanges();
+
+      expect(buttons()[0].disabled).toBe(true);
+      expect(buttons()[0].textContent).toContain('Canjeando');
+    });
+  });
 });

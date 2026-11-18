@@ -1,10 +1,11 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
-import { Observable, of, Subject } from 'rxjs';
+import { Observable, of, Subject, throwError } from 'rxjs';
 import type { Mock } from 'vitest';
 import { ProfileRepository } from '../../services/profile.repository';
 import { ProfileStore } from '../../services/profile.store';
-import { ProfileDashboard } from '../../types/profile.model';
+import { ProfileDashboard, RedeemedBenefit } from '../../types/profile.model';
 import { buildProfileDashboardFixture } from '../../utils/profile.fixture';
 import { toProfileDashboard } from '../../utils/profile.mapper';
 import { ProfilePage } from './profile-page';
@@ -47,6 +48,16 @@ describe('ProfilePage coupon entry points', () => {
     expect(router.navigate).toHaveBeenCalledWith(['/profile/coupons']);
   });
 
+  it('opens the list of benefits from the "Canjear puntos" quick action', () => {
+    const tile = Array.from(element.querySelectorAll('app-quick-actions button')).find((button) =>
+      button.textContent?.includes('Canjear puntos'),
+    ) as HTMLButtonElement;
+
+    tile.click();
+
+    expect(router.navigate).toHaveBeenCalledWith(['/rewards']);
+  });
+
   it('makes every quick action react to the mouse', () => {
     const tiles = Array.from(element.querySelectorAll('app-quick-actions button'));
 
@@ -64,6 +75,105 @@ describe('ProfilePage coupon entry points', () => {
     );
 
     expect(link?.getAttribute('href')).toBe('/profile/coupons');
+  });
+});
+
+describe('ProfilePage featured benefits', () => {
+  const dashboard = toProfileDashboard(buildProfileDashboardFixture(new Date()));
+  const redeemed: RedeemedBenefit = {
+    id: 'redemption-9',
+    validationCode: 'XYZ',
+    benefitName: 'Capuccino por tus puntos',
+    cafeName: null,
+    usedPoints: 300,
+    redeemedAt: new Date(2026, 10, 17),
+  };
+  let getDashboard: Mock<() => Observable<ProfileDashboard>>;
+  let redeemBenefit: Mock<(benefitId: string) => Observable<RedeemedBenefit>>;
+  let router: Router;
+  let fixture: ComponentFixture<ProfilePage>;
+  let element: HTMLElement;
+
+  function click(text: string): void {
+    const button = (Array.from(element.querySelectorAll('button')) as HTMLButtonElement[]).find((candidate) =>
+      candidate.textContent?.includes(text),
+    );
+    button?.click();
+    TestBed.flushEffects();
+    fixture.detectChanges();
+  }
+
+  beforeEach(async () => {
+    getDashboard = vi.fn(() => of(dashboard));
+    redeemBenefit = vi.fn(() => of(redeemed));
+    await TestBed.configureTestingModule({
+      imports: [ProfilePage],
+      providers: [
+        provideRouter([]),
+        ProfileStore,
+        { provide: ProfileRepository, useValue: { getDashboard, redeemBenefit } },
+      ],
+    }).compileComponents();
+    router = TestBed.inject(Router);
+    vi.spyOn(router, 'navigate').mockResolvedValue(true);
+    fixture = TestBed.createComponent(ProfilePage);
+    TestBed.flushEffects();
+    fixture.detectChanges();
+    element = fixture.nativeElement;
+  });
+
+  it('takes the client to the list of benefits from "Ver todos" of the featured ones', () => {
+    const section = element.querySelector('section[aria-labelledby="featured-benefits-heading"]');
+    const action = Array.from(section!.querySelectorAll('button')).find((button) => button.textContent?.includes('Ver todos'));
+
+    action?.click();
+
+    expect(element.textContent).not.toContain('Ver catálogo');
+    expect(router.navigate).toHaveBeenCalledWith(['/rewards']);
+  });
+
+  it('asks to confirm the cost and redeems the benefit only after confirming', () => {
+    click('Canjear Capuccino por tus puntos');
+
+    expect(element.textContent).toContain('¿Canjear Capuccino por tus puntos por 300 pts?');
+    expect(redeemBenefit).not.toHaveBeenCalled();
+
+    click('Confirmar');
+
+    expect(redeemBenefit).toHaveBeenCalledExactlyOnceWith('benefit-capuccino');
+  });
+
+  it('confirms the redeem in the page banner and loads the dashboard again for the new points', () => {
+    click('Canjear Capuccino por tus puntos');
+
+    click('Confirmar');
+
+    const banner = element.querySelector('[role="status"]');
+    expect(banner?.textContent).toContain('¡Canjeaste Capuccino por tus puntos! Tu cupón ya está en Mis cupones.');
+    expect(getDashboard).toHaveBeenCalledTimes(2);
+  });
+
+  it('leaves the redeem aside when the client cancels the confirmation', () => {
+    click('Canjear Capuccino por tus puntos');
+
+    click('Cancelar');
+
+    expect(redeemBenefit).not.toHaveBeenCalled();
+    expect(element.textContent).not.toContain('¿Canjear');
+  });
+
+  it('shows the reason of the backend in the banner when the redeem is rejected', () => {
+    redeemBenefit.mockReturnValue(
+      throwError(() => new HttpErrorResponse({ status: 422, error: { detail: 'El beneficio está agotado' } })),
+    );
+    click('Canjear Capuccino por tus puntos');
+
+    click('Confirmar');
+
+    expect(element.querySelector('[role="alert"]')?.textContent).toContain(
+      'Este beneficio ya no tiene canjes disponibles.',
+    );
+    expect(getDashboard).toHaveBeenCalledOnce();
   });
 });
 

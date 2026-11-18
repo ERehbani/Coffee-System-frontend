@@ -59,4 +59,81 @@ describe('AvailableBenefitCard', () => {
     expect(text).toContain('Agotado');
     expect(text).not.toContain('Disponible');
   });
+
+  describe('redeem action', () => {
+    const redeemButton = (fixture: ComponentFixture<AvailableBenefitCard>) =>
+      fixture.nativeElement.querySelector('button') as HTMLButtonElement;
+
+    function renderWith(
+      benefit: AvailableBenefit,
+      inputs: { clientTierPoints?: number | null; availablePoints?: number | null; phase?: string } = {},
+    ): ComponentFixture<AvailableBenefitCard> {
+      const fixture = render(benefit, inputs.clientTierPoints ?? null);
+      fixture.componentRef.setInput('availablePoints', inputs.availablePoints ?? null);
+      fixture.componentRef.setInput('phase', inputs.phase ?? 'idle');
+      fixture.detectChanges();
+      return fixture;
+    }
+
+    it('asks to redeem the benefit with its id', () => {
+      const fixture = renderWith(CAFE_BENEFIT_FIXTURE, { clientTierPoints: 1000, availablePoints: 300 });
+      const requested: string[] = [];
+      fixture.componentInstance.redeemRequested.subscribe((id) => requested.push(id));
+
+      redeemButton(fixture).click();
+
+      expect(redeemButton(fixture).disabled).toBe(false);
+      expect(requested).toEqual(['benefit-capuccino']);
+    });
+
+    it('says how many points are missing', () => {
+      const fixture = renderWith(CAFE_BENEFIT_FIXTURE, { clientTierPoints: 1000, availablePoints: 120 });
+
+      expect(redeemButton(fixture).disabled).toBe(true);
+      expect(textOf(fixture)).toContain('Te faltan 180 pts');
+      expect(redeemButton(fixture).getAttribute('aria-describedby')).not.toBeNull();
+    });
+
+    it('says which level unlocks the benefit', () => {
+      const fixture = renderWith(CAFE_BENEFIT_FIXTURE, { clientTierPoints: 0, availablePoints: 5000 });
+
+      expect(redeemButton(fixture).disabled).toBe(true);
+      expect(textOf(fixture)).toContain('Disponible desde Plata');
+    });
+
+    it('cannot redeem a sold out benefit', () => {
+      const fixture = renderWith({ ...CAFE_BENEFIT_FIXTURE, soldOut: true }, { clientTierPoints: 1000, availablePoints: 5000 });
+
+      expect(redeemButton(fixture).disabled).toBe(true);
+    });
+
+    it('does not block the button while the points of the client are unknown', () => {
+      const fixture = renderWith(CAFE_BENEFIT_FIXTURE);
+
+      expect(redeemButton(fixture).disabled).toBe(false);
+    });
+
+    it('asks to confirm the cost and emits the answer', () => {
+      const fixture = renderWith(CAFE_BENEFIT_FIXTURE, { clientTierPoints: 1000, availablePoints: 300, phase: 'confirming' });
+      let confirmations = 0;
+      let cancellations = 0;
+      fixture.componentInstance.redeemConfirmed.subscribe(() => confirmations++);
+      fixture.componentInstance.redeemCancelled.subscribe(() => cancellations++);
+      const buttons = Array.from(fixture.nativeElement.querySelectorAll('button')) as HTMLButtonElement[];
+
+      expect(textOf(fixture)).toContain('¿Canjear Capuccino por puntos por 300 pts?');
+      buttons.find((button) => button.textContent?.includes('Confirmar'))?.click();
+      buttons.find((button) => button.textContent?.includes('Cancelar'))?.click();
+
+      expect(confirmations).toBe(1);
+      expect(cancellations).toBe(1);
+    });
+
+    it('is busy while the redeem is in flight', () => {
+      const fixture = renderWith(CAFE_BENEFIT_FIXTURE, { clientTierPoints: 1000, availablePoints: 300, phase: 'redeeming' });
+
+      expect(redeemButton(fixture).disabled).toBe(true);
+      expect(redeemButton(fixture).textContent).toContain('Canjeando');
+    });
+  });
 });
