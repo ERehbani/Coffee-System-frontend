@@ -155,7 +155,7 @@ describe('AvailableBenefits', () => {
       click(fixture, 'Confirmar');
 
       const alert = fixture.nativeElement.querySelector('[role="alert"]') as HTMLElement;
-      expect(alert.textContent).toContain('No tienes puntos suficientes para este beneficio.');
+      expect(alert.textContent).toContain('No tenés puntos suficientes para este beneficio.');
       expect(fixture.nativeElement.querySelector('[role="status"]')).toBeNull();
     });
 
