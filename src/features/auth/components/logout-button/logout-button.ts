@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
-import { LOGIN_PATH } from '../../utils/role-home';
+import { getLoginForRoles } from '../../utils/role-home';
 
 @Component({
   selector: 'app-logout-button',
@@ -16,6 +16,8 @@ export class LogoutButton {
 
   protected logout(): void {
     this.isLoggingOut.set(true);
-    this.auth.logout().subscribe(() => this.router.navigateByUrl(LOGIN_PATH));
+    // logout() clears the session, so the role has to be read first
+    const loginPath = getLoginForRoles(this.auth.roles());
+    this.auth.logout().subscribe(() => this.router.navigateByUrl(loginPath));
   }
 }

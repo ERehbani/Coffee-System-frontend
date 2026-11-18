@@ -63,6 +63,16 @@ export const routes: Routes = [
     loadChildren: () => import('../features/auth/register.routes'),
   },
   {
+    path: 'cafe/login',
+    loadChildren: () => import('../features/auth/auth.routes'),
+    data: { audience: 'cafe' },
+  },
+  {
+    path: 'superadmin/login',
+    loadChildren: () => import('../features/auth/auth.routes'),
+    data: { audience: 'superadmin' },
+  },
+  {
     path: 'admin',
     component: AdminLayout,
     canActivate: [roleGuard('ROLE_SUPERADMIN')],

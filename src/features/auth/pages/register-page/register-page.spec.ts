@@ -170,7 +170,7 @@ describe('RegisterPage', () => {
   });
 
   it('links to the login page', () => {
-    expect(element.querySelector('a[href="/login"]')?.textContent).toContain('Iniciá sesión');
+    expect(element.querySelector('a[href="/login"]')?.textContent).toContain('Iniciar sesión');
   });
 
   it('switches between the light and the night theme', () => {

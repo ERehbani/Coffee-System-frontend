@@ -1,9 +1,9 @@
 import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormField, email, form, required } from '@angular/forms/signals';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Icon } from '../../../../shared/components/icon/icon';
-import { ThemeToggle } from '../../../../shared/components/theme-toggle/theme-toggle';
+import { AuthPanel, AuthShell, CLIENT_PANEL } from '../../components/auth-shell/auth-shell';
 import { SESSION_EXPIRED_REASON } from '../../interceptors/auth.interceptor';
 import { AuthService } from '../../services/auth.service';
 import { LoginCredentials } from '../../types/auth.model';
@@ -15,6 +15,21 @@ const NO_ROLE_MESSAGE = 'Tu usuario no tiene un rol habilitado para ingresar.';
 const SESSION_EXPIRED_MESSAGE = 'Tu sesión expiró, volvé a iniciar sesión.';
 
 const ACCOUNT_CREATED_MESSAGE = 'Tu cuenta se creó correctamente. Iniciá sesión para continuar.';
+
+const PANEL_BY_AUDIENCE: Partial<Record<string, AuthPanel>> = {
+  cafe: {
+    image: '/auth/coffee-panel.jpg',
+    tagline: 'Gestioná tus productos, promociones y pedidos desde un solo lugar.',
+    title: ['Fidelizá', 'a tus clientes'],
+    fullScreen: true,
+  },
+  superadmin: {
+    image: '/auth/cafe-superadmin.jpg',
+    tagline: 'Gestioná cafeterías, usuarios, niveles y beneficios de la plataforma.',
+    title: ['Panel de', 'administración'],
+    fullScreen: true,
+  },
+};
 
 interface ReasonNotice {
   message: string;
@@ -33,7 +48,7 @@ function toReasonNotice(reason: string | null): ReasonNotice | null {
 
 @Component({
   selector: 'app-login-page',
-  imports: [FormField, Icon, RouterLink, ThemeToggle],
+  imports: [AuthShell, FormField, Icon],
   templateUrl: './login-page.html',
   host: { class: 'block' },
 })
@@ -41,8 +56,12 @@ export class LoginPage {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
 
-  readonly notice = toReasonNotice(inject(ActivatedRoute).snapshot.queryParamMap.get('reason'));
-  readonly registerPath = REGISTER_PATH;
+  private readonly route = inject(ActivatedRoute).snapshot;
+
+  readonly notice = toReasonNotice(this.route.queryParamMap.get('reason'));
+  // Route data `audience` picks the panel; without it (the client login) the register link stays.
+  readonly panel = PANEL_BY_AUDIENCE[this.route.data['audience']] ?? CLIENT_PANEL;
+  readonly registerPath = this.panel === CLIENT_PANEL ? REGISTER_PATH : undefined;
 
   readonly credentials = signal<LoginCredentials>({ email: '', password: '' });
   readonly loginForm = form(this.credentials, (field) => {

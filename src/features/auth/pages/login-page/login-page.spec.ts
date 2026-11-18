@@ -1,7 +1,7 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ActivatedRoute, Router, convertToParamMap, provideRouter } from '@angular/router';
+import { ActivatedRoute, Data, Router, convertToParamMap, provideRouter } from '@angular/router';
 import { environment } from '../../../../environments/environment';
 import { ThemeService } from '../../../../shared/services/theme';
 import { LoginPage } from './login-page';
@@ -13,14 +13,17 @@ describe('LoginPage', () => {
   let http: HttpTestingController;
   let router: Router;
 
-  async function setup(queryParams: Record<string, string> = {}): Promise<void> {
+  async function setup(queryParams: Record<string, string> = {}, data: Data = {}): Promise<void> {
     await TestBed.configureTestingModule({
       imports: [LoginPage],
       providers: [
         provideRouter([]),
         provideHttpClient(),
         provideHttpClientTesting(),
-        { provide: ActivatedRoute, useValue: { snapshot: { queryParamMap: convertToParamMap(queryParams) } } },
+        {
+          provide: ActivatedRoute,
+          useValue: { snapshot: { queryParamMap: convertToParamMap(queryParams), data } },
+        },
       ],
     }).compileComponents();
 
@@ -161,7 +164,36 @@ describe('LoginPage', () => {
   it('links to the register page', async () => {
     await setup();
 
-    expect(element.querySelector('a[href="/register"]')?.textContent).toContain('Registrate');
+    expect(element.querySelector('a[href="/register"]')?.textContent).toContain('Crear cuenta');
+  });
+
+  const photo = () => element.querySelector('img')!.getAttribute('src');
+
+  it('uses the client photo by default', async () => {
+    await setup();
+
+    expect(photo()).toBe('/auth/coffee-panel.jpg');
+  });
+
+  it('does not offer to create an account on the cafe login', async () => {
+    await setup({}, { audience: 'cafe' });
+
+    expect(element.querySelector('a[href="/register"]')).toBeNull();
+    expect(element.textContent).toContain('Fidelizá');
+  });
+
+  it('shows the superadmin photo and no register link on the superadmin login', async () => {
+    await setup({}, { audience: 'superadmin' });
+
+    expect(photo()).toBe('/auth/cafe-superadmin.jpg');
+    expect(element.querySelector('a[href="/register"]')).toBeNull();
+  });
+
+  it('falls back to the client login for an audience it does not know', async () => {
+    await setup({}, { audience: 'otro' });
+
+    expect(photo()).toBe('/auth/coffee-panel.jpg');
+    expect(element.querySelector('a[href="/register"]')).not.toBeNull();
   });
 
   it('ignores a reason it does not know', async () => {

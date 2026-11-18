@@ -3,7 +3,7 @@ import { CanActivateFn, Router, UrlTree } from '@angular/router';
 import { map } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 import { UserRole } from '../types/auth.model';
-import { LOGIN_PATH, getHomeForRoles } from '../utils/role-home';
+import { LOGIN_PATH, getHomeForRoles, getLoginForRoles } from '../utils/role-home';
 
 function redirectToRoleHome(auth: AuthService, router: Router): UrlTree {
   const home = getHomeForRoles(auth.roles());
@@ -15,7 +15,7 @@ function redirectToRoleHome(auth: AuthService, router: Router): UrlTree {
 
 function checkRole(auth: AuthService, router: Router, role: UserRole): boolean | UrlTree {
   if (!auth.isAuthenticated()) {
-    return router.parseUrl(LOGIN_PATH);
+    return router.parseUrl(getLoginForRoles([role]));
   }
   return auth.hasRole(role) ? true : redirectToRoleHome(auth, router);
 }
