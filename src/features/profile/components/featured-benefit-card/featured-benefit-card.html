@@ -19,49 +19,49 @@
   </div>
   <h3 class="mt-3 truncate text-base font-bold text-text">{{ benefit().title }}</h3>
   <p class="truncate text-sm text-muted">{{ benefit().description }}</p>
-  @if (!canRedeem()) {
-    <p [id]="hintId()" class="mt-1 text-xs font-medium text-primary">
+  @if (canRedeem()) {
+    <div class="mt-auto pt-3">
+      @if (phase() === 'confirming') {
+        <div role="group" [attr.aria-labelledby]="confirmId()" class="space-y-2">
+          <p [id]="confirmId()" class="text-sm font-bold text-text">
+            ¿Canjear {{ benefit().title }} por {{ benefit().pointsCost | number }} pts?
+          </p>
+          <button
+            #confirmButton
+            type="button"
+            (click)="redeemConfirmed.emit()"
+            class="w-full rounded-xl bg-primary py-2.5 text-sm font-bold text-white transition-colors hover:bg-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+          >
+            Confirmar
+          </button>
+          <button
+            type="button"
+            (click)="cancel()"
+            class="w-full rounded-xl border border-border bg-surface py-2.5 text-sm font-bold text-text transition-colors hover:bg-accent-light focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+          >
+            Cancelar
+          </button>
+        </div>
+      } @else {
+        <button
+          #redeemButton
+          type="button"
+          [disabled]="locked() || phase() === 'redeeming'"
+          [attr.aria-busy]="phase() === 'redeeming' ? 'true' : null"
+          (click)="redeem.emit(benefit().id)"
+          class="w-full rounded-xl bg-primary py-2.5 text-sm font-bold text-white transition-colors enabled:hover:bg-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:bg-border disabled:text-muted"
+        >
+          @if (phase() === 'redeeming') {
+            Canjeando…
+          } @else {
+            Canjear<span class="sr-only"> {{ benefit().title }}</span>
+          }
+        </button>
+      }
+    </div>
+  } @else {
+    <p class="mt-1 text-xs font-medium text-primary">
       Te faltan {{ missingPoints() | number }} pts
     </p>
   }
-  <div class="mt-auto pt-3">
-    @if (phase() === 'confirming') {
-      <div role="group" [attr.aria-labelledby]="confirmId()" class="space-y-2">
-        <p [id]="confirmId()" class="text-sm font-bold text-text">
-          ¿Canjear {{ benefit().title }} por {{ benefit().pointsCost | number }} pts?
-        </p>
-        <button
-          #confirmButton
-          type="button"
-          (click)="redeemConfirmed.emit()"
-          class="w-full rounded-xl bg-primary py-2.5 text-sm font-bold text-white transition-colors hover:bg-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-        >
-          Confirmar
-        </button>
-        <button
-          type="button"
-          (click)="cancel()"
-          class="w-full rounded-xl border border-border bg-surface py-2.5 text-sm font-bold text-text transition-colors hover:bg-accent-light focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-        >
-          Cancelar
-        </button>
-      </div>
-    } @else {
-      <button
-        #redeemButton
-        type="button"
-        [disabled]="!canRedeem() || locked() || phase() === 'redeeming'"
-        [attr.aria-busy]="phase() === 'redeeming' ? 'true' : null"
-        [attr.aria-describedby]="canRedeem() ? null : hintId()"
-        (click)="redeem.emit(benefit().id)"
-        class="w-full rounded-xl bg-primary py-2.5 text-sm font-bold text-white transition-colors enabled:hover:bg-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:bg-border disabled:text-muted"
-      >
-        @if (phase() === 'redeeming') {
-          Canjeando…
-        } @else {
-          Canjear<span class="sr-only"> {{ benefit().title }}</span>
-        }
-      </button>
-    }
-  </div>
 </article>

@@ -69,7 +69,6 @@ export class AvailableBenefitCard {
   showAccess = computed(() => this.clientTierPoints() !== null);
 
   protected readonly confirmId = computed(() => `available-benefit-confirm-${this.benefit().externalId}`);
-  protected readonly reasonId = computed(() => `available-benefit-reason-${this.benefit().externalId}`);
 
   // El agotado ya lo dice la etiqueta de arriba: acá solo se explica lo que el cliente puede resolver.
   protected readonly blockedReason = computed(() => {
@@ -88,9 +87,11 @@ export class AvailableBenefitCard {
       : null;
   });
 
-  protected readonly isBlocked = computed(
-    () => this.benefit().soldOut || this.blockedReason() !== null || this.locked(),
-  );
+  // The action only exists for a benefit the client can pay for now; otherwise the card explains what is missing.
+  protected readonly canRedeem = computed(() => {
+    const points = this.availablePoints();
+    return !this.benefit().soldOut && this.isUnlocked() && points !== null && points >= this.benefit().pointsCost;
+  });
 
   protected cancel(): void {
     this.redeemCancelled.emit();

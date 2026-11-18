@@ -159,16 +159,12 @@ describe('AvailableBenefits', () => {
       expect(fixture.nativeElement.querySelector('[role="status"]')).toBeNull();
     });
 
-    it('disables the benefits the client cannot redeem yet and says why', () => {
+    it('offers the redeem action only on the benefits the client can redeem and says why on the others', () => {
       const fixture = render();
-      const buttons = Array.from(
-        fixture.nativeElement.querySelectorAll('app-available-benefit-card button'),
-      ) as HTMLButtonElement[];
+      const cards = Array.from(fixture.nativeElement.querySelectorAll('app-available-benefit-card')) as HTMLElement[];
 
-      expect(buttons.map((button) => button.disabled)).toEqual([false, true]);
-      expect(fixture.nativeElement.querySelectorAll('app-available-benefit-card')[1].textContent).toContain(
-        'Disponible desde Plata',
-      );
+      expect(cards.map((card) => card.querySelectorAll('button').length)).toEqual([1, 0]);
+      expect(cards[1].textContent).toContain('Disponible desde Plata');
     });
   });
 });

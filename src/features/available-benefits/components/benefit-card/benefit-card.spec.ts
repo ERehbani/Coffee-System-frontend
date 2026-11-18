@@ -86,31 +86,38 @@ describe('AvailableBenefitCard', () => {
       expect(requested).toEqual(['benefit-capuccino']);
     });
 
-    it('says how many points are missing', () => {
+    it('hides the button and says how many points are missing', () => {
       const fixture = renderWith(CAFE_BENEFIT_FIXTURE, { clientTierPoints: 1000, availablePoints: 120 });
 
-      expect(redeemButton(fixture).disabled).toBe(true);
+      expect(redeemButton(fixture)).toBeNull();
       expect(textOf(fixture)).toContain('Te faltan 180 pts');
-      expect(redeemButton(fixture).getAttribute('aria-describedby')).not.toBeNull();
     });
 
-    it('says which level unlocks the benefit', () => {
+    it('hides the button and says which level unlocks the benefit', () => {
       const fixture = renderWith(CAFE_BENEFIT_FIXTURE, { clientTierPoints: 0, availablePoints: 5000 });
 
-      expect(redeemButton(fixture).disabled).toBe(true);
+      expect(redeemButton(fixture)).toBeNull();
       expect(textOf(fixture)).toContain('Disponible desde Plata');
     });
 
-    it('cannot redeem a sold out benefit', () => {
+    it('hides the button of a sold out benefit', () => {
       const fixture = renderWith({ ...CAFE_BENEFIT_FIXTURE, soldOut: true }, { clientTierPoints: 1000, availablePoints: 5000 });
 
-      expect(redeemButton(fixture).disabled).toBe(true);
+      expect(redeemButton(fixture)).toBeNull();
     });
 
-    it('does not block the button while the points of the client are unknown', () => {
+    it('hides the button while the points of the client are unknown', () => {
       const fixture = renderWith(CAFE_BENEFIT_FIXTURE);
 
-      expect(redeemButton(fixture).disabled).toBe(false);
+      expect(redeemButton(fixture)).toBeNull();
+    });
+
+    it('cannot redeem while another benefit is being redeemed', () => {
+      const fixture = renderWith(CAFE_BENEFIT_FIXTURE, { clientTierPoints: 1000, availablePoints: 300 });
+      fixture.componentRef.setInput('locked', true);
+      fixture.detectChanges();
+
+      expect(redeemButton(fixture).disabled).toBe(true);
     });
 
     it('asks to confirm the cost and emits the answer', () => {

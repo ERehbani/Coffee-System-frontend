@@ -91,23 +91,21 @@
         </button>
       </div>
     </div>
-  } @else {
-    <div class="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
-      @if (blockedReason(); as reason) {
-        <p [id]="reasonId()" class="text-sm font-semibold text-muted">{{ reason }}</p>
-      }
+  } @else if (canRedeem()) {
+    <div class="flex justify-end">
       <button
         #activateButton
         type="button"
-        [disabled]="isBlocked() || phase() === 'redeeming'"
+        [disabled]="locked() || phase() === 'redeeming'"
         [attr.aria-busy]="phase() === 'redeeming' ? 'true' : null"
         [attr.aria-label]="'Canjear ' + benefit().name"
-        [attr.aria-describedby]="blockedReason() ? reasonId() : null"
         (click)="redeemRequested.emit(benefit().externalId)"
-        class="ml-auto inline-flex min-h-11 cursor-pointer items-center justify-center rounded-xl border border-primary px-4 py-2 text-sm font-bold text-primary transition-colors hover:bg-accent-light focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:border-border disabled:text-muted disabled:hover:bg-transparent"
+        class="inline-flex min-h-11 cursor-pointer items-center justify-center rounded-xl border border-primary px-4 py-2 text-sm font-bold text-primary transition-colors hover:bg-accent-light focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:border-border disabled:text-muted disabled:hover:bg-transparent"
       >
         {{ phase() === 'redeeming' ? 'Canjeando…' : 'Canjear' }}
       </button>
     </div>
+  } @else if (blockedReason(); as reason) {
+    <p class="text-sm font-semibold text-muted">{{ reason }}</p>
   }
 </article>

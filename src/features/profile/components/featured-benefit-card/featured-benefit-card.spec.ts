@@ -59,6 +59,15 @@ describe('FeaturedBenefitCard', () => {
       expect(requested).toEqual(['benefit-1']);
     });
 
+    it('hides the button and says how many points are missing when the points are not enough', () => {
+      render();
+      fixture.componentRef.setInput('availablePoints', 100);
+      fixture.detectChanges();
+
+      expect(buttons()).toHaveLength(0);
+      expect(element.textContent).toContain('Te faltan 200 pts');
+    });
+
     it('cannot redeem while another benefit is being redeemed', () => {
       render();
       fixture.componentRef.setInput('locked', true);

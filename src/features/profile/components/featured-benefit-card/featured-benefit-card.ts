@@ -49,7 +49,6 @@ export class FeaturedBenefitCard {
     Math.max(this.benefit().pointsCost - this.availablePoints(), 0),
   );
   protected readonly canRedeem = computed(() => this.missingPoints() === 0);
-  protected readonly hintId = computed(() => `benefit-hint-${this.benefit().id}`);
   protected readonly confirmId = computed(() => `benefit-confirm-${this.benefit().id}`);
 
   protected cancel(): void {
