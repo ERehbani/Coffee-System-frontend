@@ -161,7 +161,7 @@ describe('LoginPage', () => {
   it('links to the register page', async () => {
     await setup();
 
-    expect(element.querySelector('a[href="/register"]')?.textContent).toContain('Registrate');
+    expect(element.querySelector('a[href="/register"]')?.textContent).toContain('Crear cuenta');
   });
 
   it('ignores a reason it does not know', async () => {

@@ -1,9 +1,9 @@
 import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormField, email, form, minLength, pattern, required } from '@angular/forms/signals';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { Icon } from '../../../../shared/components/icon/icon';
-import { ThemeToggle } from '../../../../shared/components/theme-toggle/theme-toggle';
+import { AuthShell } from '../../components/auth-shell/auth-shell';
 import { AuthService } from '../../services/auth.service';
 import { RegisterRequest } from '../../types/auth.model';
 import { ACCOUNT_CREATED_REASON, LOGIN_PATH } from '../../utils/role-home';
@@ -27,7 +27,7 @@ function toErrorMessage(error: unknown): string {
 
 @Component({
   selector: 'app-register-page',
-  imports: [FormField, Icon, RouterLink, ThemeToggle],
+  imports: [AuthShell, FormField, Icon],
   templateUrl: './register-page.html',
   host: { class: 'block' },
 })
