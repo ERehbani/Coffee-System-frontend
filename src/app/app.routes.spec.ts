@@ -39,6 +39,45 @@ describe('register route', () => {
   });
 });
 
+describe('login routes', () => {
+  let harness: RouterTestingHarness;
+  let router: Router;
+
+  const page = () => harness.fixture.nativeElement as HTMLElement;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      providers: [provideRouter(routes), provideHttpClient(), provideHttpClientTesting()],
+    }).compileComponents();
+    signOutForTest();
+    harness = await RouterTestingHarness.create();
+    router = TestBed.inject(Router);
+  });
+
+  it('renders the client login with the register link at /login', async () => {
+    await harness.navigateByUrl('/login');
+
+    expect(page().querySelector('app-login-page')).not.toBeNull();
+    expect(page().querySelector('a[href="/register"]')).not.toBeNull();
+  });
+
+  it('renders the cafe login without the register link at /cafe/login', async () => {
+    await harness.navigateByUrl('/cafe/login');
+
+    expect(router.url).toBe('/cafe/login');
+    expect(page().querySelector('app-login-page')).not.toBeNull();
+    expect(page().querySelector('a[href="/register"]')).toBeNull();
+  });
+
+  it('renders the superadmin login with its own photo at /superadmin/login', async () => {
+    await harness.navigateByUrl('/superadmin/login');
+
+    expect(router.url).toBe('/superadmin/login');
+    expect(page().querySelector('app-login-page')).not.toBeNull();
+    expect(page().querySelector('img')?.getAttribute('src')).toBe('/auth/cafe-superadmin.jpg');
+  });
+});
+
 describe('admin routes', () => {
   let harness: RouterTestingHarness;
   let router: Router;

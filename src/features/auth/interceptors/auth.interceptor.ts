@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { AuthService } from '../services/auth.service';
-import { LOGIN_PATH } from '../utils/role-home';
+import { getLoginForRoles } from '../utils/role-home';
 
 const API_PREFIX = environment.apiBaseUrl;
 const AUTH_PREFIX = `${environment.apiBaseUrl}/auth/`;
@@ -32,8 +32,9 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   return next(authorizedReq).pipe(
     catchError((error: unknown) => {
       if (isUnauthorized(error) && auth.isAuthenticated()) {
+        const loginPath = getLoginForRoles(auth.roles());
         auth.clearSession();
-        router.navigate([LOGIN_PATH], { queryParams: { reason: SESSION_EXPIRED_REASON } });
+        router.navigate([loginPath], { queryParams: { reason: SESSION_EXPIRED_REASON } });
       }
       return throwError(() => error);
     }),

@@ -1,21 +1,30 @@
-<main class="flex min-h-screen items-center justify-center bg-accent-light p-4 sm:p-8 lg:p-12">
+<main
+  [class]="
+    panel().fullScreen
+      ? 'flex min-h-screen items-center justify-center bg-accent-light'
+      : 'flex min-h-screen items-center justify-center bg-accent-light p-4 sm:p-8 lg:p-12'
+  "
+>
   <div
-    class="grid w-full max-w-5xl overflow-hidden rounded-3xl border border-border bg-surface shadow-2xl lg:min-h-[40rem] lg:grid-cols-2"
+    [class]="
+      panel().fullScreen
+        ? 'grid min-h-screen w-full grid-rows-[auto_1fr] bg-surface lg:grid-cols-2 lg:grid-rows-1'
+        : 'grid w-full max-w-5xl overflow-hidden rounded-3xl border border-border bg-surface shadow-2xl lg:min-h-[40rem] lg:grid-cols-2'
+    "
   >
     <div class="relative h-36 overflow-hidden bg-accent sm:h-48 lg:h-auto">
       <img
-        src="/auth/coffee-panel.jpg"
+        [src]="panel().image"
         alt=""
-        width="687"
-        height="1030"
         class="absolute inset-0 size-full object-cover object-center lg:object-[50%_30%]"
       />
       <div class="absolute inset-0 bg-linear-to-b from-black/45 via-black/15 to-transparent lg:via-black/10"></div>
       <div class="relative hidden flex-col gap-8 p-10 text-white lg:flex">
-        <p class="max-w-xs text-sm font-medium">Sumá puntos en tus cafeterías favoritas y canjealos por beneficios.</p>
+        <p class="max-w-xs text-sm font-medium">{{ panel().tagline }}</p>
         <p class="text-5xl font-bold leading-tight tracking-tight">
-          <span class="block">Cada café</span>
-          <span class="block">suma puntos</span>
+          @for (line of panel().title; track line) {
+            <span class="block">{{ line }}</span>
+          }
         </p>
       </div>
     </div>
@@ -23,15 +32,23 @@
     <section class="flex flex-col gap-8 p-6 sm:p-10">
       <header class="flex items-center justify-between gap-4">
         <span class="text-lg font-extrabold tracking-tight text-text">Coffee System</span>
-        <a
-          [routerLink]="linkPath()"
-          class="rounded-full border border-border px-4 py-2 text-sm font-semibold text-text transition hover:border-primary hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-        >
-          {{ linkLabel() }}
-        </a>
+        @if (linkPath(); as path) {
+          <a
+            [routerLink]="path"
+            class="rounded-full border border-border px-4 py-2 text-sm font-semibold text-text transition hover:border-primary hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+          >
+            {{ linkLabel() }}
+          </a>
+        }
       </header>
 
-      <div class="mx-auto flex w-full max-w-sm flex-1 flex-col justify-center gap-6">
+      <div
+        [class]="
+          panel().fullScreen
+            ? 'mx-auto flex w-full max-w-md flex-1 flex-col justify-center gap-6'
+            : 'mx-auto flex w-full max-w-sm flex-1 flex-col justify-center gap-6'
+        "
+      >
         <h1 class="text-3xl font-bold tracking-tight text-text sm:text-4xl">{{ heading() }}</h1>
         <ng-content />
       </div>

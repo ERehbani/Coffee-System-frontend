@@ -55,6 +55,17 @@ describe('authInterceptor', () => {
     });
   });
 
+  it('sends an expired cafe session to the cafe login', () => {
+    signInForTest(['ROLE_CAFETERIA']);
+
+    http.get(`${api}/cafes`).subscribe({ error: () => undefined });
+    httpTesting.expectOne(`${api}/cafes`).flush(null, { status: 401, statusText: 'Unauthorized' });
+
+    expect(router.navigate).toHaveBeenCalledWith(['/cafe/login'], {
+      queryParams: { reason: 'expired' },
+    });
+  });
+
   it('does not redirect on a 401 when there is no session', () => {
     http.get(`${api}/cafes`).subscribe({ error: () => undefined });
     httpTesting.expectOne(`${api}/cafes`).flush(null, { status: 401, statusText: 'Unauthorized' });
