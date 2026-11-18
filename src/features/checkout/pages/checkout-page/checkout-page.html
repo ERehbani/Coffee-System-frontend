@@ -36,15 +36,6 @@
       (couponSelected)="store.selectCoupon($event)"
     />
 
-    @if (store.errorMessage(); as message) {
-      <div
-        role="alert"
-        class="flex items-center gap-2 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-xs font-bold text-rose-800"
-      >
-        <span>{{ message }}</span>
-      </div>
-    }
-
     <button
       type="button"
       (click)="confirm()"

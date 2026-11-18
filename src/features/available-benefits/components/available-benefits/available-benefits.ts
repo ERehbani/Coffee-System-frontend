@@ -1,8 +1,7 @@
-import { DecimalPipe } from '@angular/common';
-import { Component, ElementRef, OnInit, afterRenderEffect, computed, inject, signal, viewChild } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CartButton } from '../../../cart/components/cart-button/cart-button';
 import { ThemeToggle } from '../../../../shared/components/theme-toggle/theme-toggle';
+import { ToastService } from '../../../../shared/components/toast/toast.service';
 import {
   BENEFIT_FORMAT_CODES,
   BenefitFormatCode,
@@ -11,7 +10,6 @@ import { benefitFormatLabel } from '../../../admin-benefit-types/utils/benefit-f
 import { Cafe } from '../../../home/model/cafe.model';
 import { CafeService } from '../../../home/services/cafe.service';
 import { ProfileRepository } from '../../../profile/services/profile.repository';
-import { RedeemedBenefit } from '../../../profile/types/profile.model';
 import { toRedeemErrorMessage } from '../../../profile/utils/redeem-error';
 import { AvailableBenefit } from '../../model/available-benefit.model';
 import { AvailableBenefitService } from '../../services/available-benefit.service';
@@ -24,7 +22,7 @@ interface RedeemTarget {
 
 @Component({
   selector: 'app-available-benefits',
-  imports: [DecimalPipe, RouterLink, AvailableBenefitCard, CartButton, ThemeToggle],
+  imports: [AvailableBenefitCard, CartButton, ThemeToggle],
   templateUrl: './available-benefits.html',
   styleUrl: './available-benefits.css',
   host: { class: 'block' },
@@ -33,6 +31,7 @@ export class AvailableBenefits implements OnInit {
   private readonly benefitService = inject(AvailableBenefitService);
   private readonly cafeService = inject(CafeService);
   private readonly profileRepository = inject(ProfileRepository);
+  private readonly toast = inject(ToastService);
 
   benefits = signal<AvailableBenefit[]>([]);
   cafes = signal<Cafe[]>([]);
@@ -43,10 +42,6 @@ export class AvailableBenefits implements OnInit {
   selectedCafeId = signal('');
   selectedType = signal<BenefitFormatCode | ''>('');
   redeemTarget = signal<RedeemTarget | null>(null);
-  redeemed = signal<RedeemedBenefit | null>(null);
-  redeemError = signal<string | null>(null);
-
-  private readonly feedback = viewChild<ElementRef<HTMLElement>>('feedback');
 
   readonly typeOptions = BENEFIT_FORMAT_CODES.map((code) => ({
     value: code,
@@ -64,15 +59,6 @@ export class AvailableBenefits implements OnInit {
       (benefit) => benefit.tierMinPoints === null || benefit.tierMinPoints <= clientPoints,
     ).length;
   });
-
-  constructor() {
-    // Lo que se muestra arriba (éxito o error del canje) puede quedar fuera de la vista: se lleva el foco ahí.
-    afterRenderEffect(() => {
-      if (this.redeemed() || this.redeemError()) {
-        this.feedback()?.nativeElement.focus();
-      }
-    });
-  }
 
   ngOnInit(): void {
     this.loadCafes();
@@ -108,8 +94,6 @@ export class AvailableBenefits implements OnInit {
     if (this.redeemTarget()?.phase === 'redeeming') {
       return;
     }
-    this.redeemed.set(null);
-    this.redeemError.set(null);
     this.redeemTarget.set({ id: benefitId, phase: 'confirming' });
   }
 
@@ -128,20 +112,18 @@ export class AvailableBenefits implements OnInit {
     this.profileRepository.redeemBenefit(target.id).subscribe({
       next: (redeemed) => {
         this.redeemTarget.set(null);
-        this.redeemed.set(redeemed);
+        this.toast.success(
+          `¡Canjeaste ${redeemed.benefitName} por ${redeemed.usedPoints.toLocaleString('es-AR')} pts! Tu cupón ya está en Mis cupones.`,
+          { label: 'Ver mis cupones', route: '/profile/coupons' },
+        );
         this.refreshAfterRedeem();
       },
       error: (error: unknown) => {
         this.redeemTarget.set(null);
-        this.redeemError.set(toRedeemErrorMessage(error));
+        this.toast.error(toRedeemErrorMessage(error));
         this.refreshAfterRedeem();
       },
     });
-  }
-
-  dismissFeedback(): void {
-    this.redeemed.set(null);
-    this.redeemError.set(null);
   }
 
   // Los puntos del cliente y el cupo del beneficio cambian con el canje, y un rechazo puede deberse a que ya cambiaron.

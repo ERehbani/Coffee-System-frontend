@@ -8,6 +8,7 @@ import {
   signal,
 } from '@angular/core';
 import { rxResource, takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ToastService } from '../../../shared/components/toast/toast.service';
 import { RedeemedBenefit, TierBenefit, TierDetail, TierLevel } from '../types/profile.model';
 import { LoyaltyProgress, toLoyaltyProgress } from '../utils/loyalty-progress';
 import { toRedeemErrorMessage } from '../utils/redeem-error';
@@ -24,14 +25,14 @@ export interface TierBenefitView extends TierBenefit {
   readonly missingPoints: number;
   readonly phase: TierBenefitPhase;
   readonly locked: boolean;
-  readonly errorMessage: string | null;
+  readonly failed: boolean;
 }
 
 type RedeemState =
   | { readonly kind: 'idle' }
   | { readonly kind: 'confirming'; readonly benefitId: string }
   | { readonly kind: 'redeeming'; readonly benefitId: string }
-  | { readonly kind: 'failed'; readonly benefitId: string; readonly message: string };
+  | { readonly kind: 'failed'; readonly benefitId: string };
 
 export type TierLevelState = 'reached' | 'current' | 'locked';
 
@@ -44,6 +45,7 @@ export class TierStore {
   private readonly repository = inject(ProfileRepository);
   private readonly injector = inject(Injector);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly toast = inject(ToastService);
   private readonly resource = rxResource({ stream: () => this.repository.getTierDetail() });
   private readonly benefitsResource = rxResource({
     stream: () => this.repository.getTierBenefits(),
@@ -99,7 +101,7 @@ export class TierStore {
             ? state.kind
             : 'idle',
         locked: state.kind === 'redeeming' && !isTarget,
-        errorMessage: isTarget && state.kind === 'failed' ? state.message : null,
+        failed: isTarget && state.kind === 'failed',
       };
     });
   });
@@ -163,12 +165,14 @@ export class TierStore {
           this.redeemState.set({ kind: 'idle' });
           this.refreshAfterRedemption();
         },
-        error: (error: unknown) =>
+        error: (error: unknown) => {
+          if (this.pageOpen) {
+            this.toast.error(toRedeemErrorMessage(error));
+          }
           this.redeemState.set(
-            this.pageOpen
-              ? { kind: 'failed', benefitId: state.benefitId, message: toRedeemErrorMessage(error) }
-              : { kind: 'idle' },
-          ),
+            this.pageOpen ? { kind: 'failed', benefitId: state.benefitId } : { kind: 'idle' },
+          );
+        },
       });
   }
 

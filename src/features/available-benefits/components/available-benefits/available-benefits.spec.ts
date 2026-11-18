@@ -2,6 +2,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
+import { ToastService } from '../../../../shared/components/toast/toast.service';
 import { CafeService } from '../../../home/services/cafe.service';
 import { ProfileRepository } from '../../../profile/services/profile.repository';
 import { RedeemedBenefit } from '../../../profile/types/profile.model';
@@ -119,15 +120,16 @@ describe('AvailableBenefits', () => {
     });
 
     it('tells the client the coupon is in "Mis cupones" and refreshes the points and the list', () => {
+      const success = vi.spyOn(TestBed.inject(ToastService), 'success');
       const fixture = render();
       click(fixture, 'Canjear Descuento 15% bienvenida');
 
       click(fixture, 'Confirmar');
 
-      const notice = fixture.nativeElement.querySelector('[role="status"]') as HTMLElement;
-      expect(notice.textContent).toContain('Canjeaste Descuento 15% bienvenida por 500 pts');
-      expect(notice.textContent).toContain('Mis cupones');
-      expect(notice.querySelector('a')?.getAttribute('href')).toBe('/profile/coupons');
+      expect(success).toHaveBeenCalledWith(
+        '¡Canjeaste Descuento 15% bienvenida por 500 pts! Tu cupón ya está en Mis cupones.',
+        { label: 'Ver mis cupones', route: '/profile/coupons' },
+      );
       expect(getTierDetail).toHaveBeenCalledTimes(2);
       expect(getAvailable).toHaveBeenCalledTimes(2);
       expect(fixture.componentInstance.isLoading()).toBe(false);
@@ -143,7 +145,8 @@ describe('AvailableBenefits', () => {
       expect(fixture.nativeElement.textContent).not.toContain('¿Canjear');
     });
 
-    it('shows the reason of the backend in the banner when the redeem is rejected', () => {
+    it('shows the reason of the backend in a toast when the redeem is rejected', () => {
+      const error = vi.spyOn(TestBed.inject(ToastService), 'error');
       redeemBenefit.mockReturnValue(
         throwError(
           () => new HttpErrorResponse({ status: 422, error: { detail: 'El cliente no tiene puntos suficientes' } }),
@@ -154,9 +157,7 @@ describe('AvailableBenefits', () => {
 
       click(fixture, 'Confirmar');
 
-      const alert = fixture.nativeElement.querySelector('[role="alert"]') as HTMLElement;
-      expect(alert.textContent).toContain('No tenés puntos suficientes para este beneficio.');
-      expect(fixture.nativeElement.querySelector('[role="status"]')).toBeNull();
+      expect(error).toHaveBeenCalledWith('No tenés puntos suficientes para este beneficio.');
     });
 
     it('offers the redeem action only on the benefits the client can redeem and says why on the others', () => {

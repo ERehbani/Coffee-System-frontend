@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { of, Subject, throwError } from 'rxjs';
+import { ToastService } from '../../../shared/components/toast/toast.service';
 import {
   ActiveRedemption,
   ClientProfile,
@@ -60,7 +61,8 @@ describe('ProfileStore', () => {
     expect(store.profile()?.lastName).toBe('Pérez');
   });
 
-  it('should update profile and set successMessage on saveProfile', () => {
+  it('should update profile and show a success toast on saveProfile', () => {
+    const success = vi.spyOn(TestBed.inject(ToastService), 'success');
     const updateInput: UpdateClientProfileInput = {
       firstName: 'Mateo',
       lastName: 'Gómez',
@@ -72,8 +74,10 @@ describe('ProfileStore', () => {
 
     expect(mockRepository.updateProfile).toHaveBeenCalledWith('client-001', updateInput);
     expect(store.isSaving()).toBe(false);
-    expect(store.successMessage()).toBe('¡Tus datos personales se han actualizado correctamente!');
-    expect(store.errorMessage()).toBeNull();
+    expect(success).toHaveBeenCalledWith('¡Tus datos personales se han actualizado correctamente!', {
+      label: 'Ver en perfil',
+      route: '/profile',
+    });
     expect(store.profile()?.firstName).toBe('Mateo');
     expect(store.profile()?.lastName).toBe('Gómez');
     expect(store.profile()?.phoneNumber).toBe('1199887766');
@@ -112,20 +116,10 @@ describe('ProfileStore', () => {
     expect(store.isSaving()).toBe(false);
   });
 
-  it('should dismiss successMessage', () => {
-    store.saveProfile({
-      firstName: 'Mateo',
-      lastName: 'Gómez',
-      phoneNumber: '1199887766',
-      avatarUrl: null,
-    });
-
-    expect(store.successMessage()).toBeTruthy();
-    store.dismissSuccess();
-    expect(store.successMessage()).toBeNull();
-  });
-
-  it('should set errorMessage when updateProfile fails', () => {
+  it('should show an error toast when updateProfile fails', () => {
+    const toast = TestBed.inject(ToastService);
+    const success = vi.spyOn(toast, 'success');
+    const error = vi.spyOn(toast, 'error');
     mockRepository.updateProfile = () => throwError(() => new Error('Server error'));
 
     store.saveProfile({
@@ -136,8 +130,8 @@ describe('ProfileStore', () => {
     });
 
     expect(store.isSaving()).toBe(false);
-    expect(store.errorMessage()).toBe('Ocurrió un error al intentar guardar los cambios.');
-    expect(store.successMessage()).toBeNull();
+    expect(error).toHaveBeenCalledWith('Ocurrió un error al intentar guardar los cambios.');
+    expect(success).not.toHaveBeenCalled();
   });
 
   describe('reloading the dashboard', () => {

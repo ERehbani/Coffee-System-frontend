@@ -18,7 +18,7 @@ const benefit: TierBenefitView = {
   missingPoints: 0,
   phase: 'idle',
   locked: false,
-  errorMessage: null,
+  failed: false,
 };
 
 describe('TierBenefitItem', () => {
@@ -188,20 +188,11 @@ describe('TierBenefitItem', () => {
   });
 
   describe('error', () => {
-    it('announces the error politely and focuses "Activar" so the client can try again', async () => {
+    it('focuses "Activar" so the client can try again', async () => {
       await render();
-      await update({ errorMessage: 'No pudimos canjear este beneficio.' });
+      await update({ failed: true });
 
-      const message = element.querySelector('[aria-live="polite"]');
-      expect(message?.textContent).toContain('No pudimos canjear este beneficio.');
       expect(document.activeElement).toBe(buttonByText('Activar'));
-    });
-
-    it('keeps the polite live region present even without an error', async () => {
-      await render();
-
-      expect(element.querySelector('[aria-live="polite"]')).not.toBeNull();
-      expect(element.querySelector('[aria-live="polite"]')?.textContent?.trim()).toBe('');
     });
   });
 });

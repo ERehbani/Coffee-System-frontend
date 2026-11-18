@@ -1,14 +1,7 @@
-import {
-  afterRenderEffect,
-  Component,
-  computed,
-  ElementRef,
-  inject,
-  signal,
-  viewChild,
-} from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { Icon } from '../../../../shared/components/icon/icon';
+import { ToastService } from '../../../../shared/components/toast/toast.service';
 import { LogoutButton } from '../../../auth/components/logout-button/logout-button';
 import { ActiveRedemptionCard } from '../../components/active-redemption-card/active-redemption-card';
 import { DashboardHeader } from '../../components/dashboard-header/dashboard-header';
@@ -57,25 +50,12 @@ export class ProfilePage {
   protected readonly store = inject(ProfileStore);
   private readonly repository = inject(ProfileRepository);
   private readonly router = inject(Router);
+  private readonly toast = inject(ToastService);
 
   protected readonly redeemTarget = signal<RedeemTarget | null>(null);
-  private readonly redeemSuccess = signal<string | null>(null);
-  protected readonly redeemError = signal<string | null>(null);
-  // El aviso del canje es propio de esta pantalla; el de guardar el perfil sigue viniendo del store.
-  protected readonly successMessage = computed(
-    () => this.redeemSuccess() ?? this.store.successMessage(),
-  );
-
-  private readonly feedback = viewChild<ElementRef<HTMLElement>>('feedback');
 
   constructor() {
     this.store.reload();
-    // Al terminar un canje el panel se recarga: el aviso queda arriba y se lleva el foco ahí.
-    afterRenderEffect(() => {
-      if (this.redeemSuccess() || this.redeemError()) {
-        this.feedback()?.nativeElement.focus();
-      }
-    });
   }
 
   protected readonly activeRedemptionsBadge = computed(() => {
@@ -115,7 +95,6 @@ export class ProfilePage {
     ) {
       return;
     }
-    this.onDismissFeedback();
     this.redeemTarget.set({ id: benefitId, phase: 'confirming' });
   }
 
@@ -134,20 +113,14 @@ export class ProfilePage {
     this.repository.redeemBenefit(target.id).subscribe({
       next: (redeemed) => {
         this.redeemTarget.set(null);
-        this.redeemSuccess.set(`¡Canjeaste ${redeemed.benefitName}! Tu cupón ya está en Mis cupones.`);
+        this.toast.success(`¡Canjeaste ${redeemed.benefitName}! Tu cupón ya está en Mis cupones.`);
         // Los puntos y los canjes activos que muestra el panel cambiaron con el canje.
         this.store.reload();
       },
       error: (error: unknown) => {
         this.redeemTarget.set(null);
-        this.redeemError.set(toRedeemErrorMessage(error));
+        this.toast.error(toRedeemErrorMessage(error));
       },
     });
-  }
-
-  protected onDismissFeedback(): void {
-    this.redeemSuccess.set(null);
-    this.redeemError.set(null);
-    this.store.dismissSuccess();
   }
 }

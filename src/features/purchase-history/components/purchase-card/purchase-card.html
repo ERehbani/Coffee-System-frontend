@@ -47,7 +47,6 @@
       <app-review-form
         [cafeName]="purchase().cafeName"
         [isSubmitting]="isSubmitting()"
-        [errorMessage]="reviewError()"
         (submitted)="reviewSubmitted.emit($event)"
         (cancelled)="reviewCancelled.emit()"
       />

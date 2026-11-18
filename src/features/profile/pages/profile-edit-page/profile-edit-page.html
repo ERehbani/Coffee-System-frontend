@@ -17,58 +17,6 @@
     </div>
   </div>
 
-  @if (store.successMessage(); as successMsg) {
-    <div
-      role="status"
-      class="flex items-center justify-between gap-3 rounded-2xl border border-emerald-300 bg-emerald-50 px-5 py-4 text-emerald-800 transition shadow-xs"
-    >
-      <div class="flex items-center gap-3">
-        <div>
-          <p class="text-sm font-bold text-emerald-950">{{ successMsg }}</p>
-          <p class="text-xs text-emerald-800">Tus datos personales fueron actualizados satisfactoriamente.</p>
-        </div>
-      </div>
-      <div class="flex items-center gap-2">
-        <a
-          routerLink="/profile"
-          class="cursor-pointer rounded-xl bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white transition hover:bg-emerald-700 active:scale-95"
-        >
-          Ver en perfil
-        </a>
-        <button
-          type="button"
-          (click)="onDismissSuccess()"
-          class="cursor-pointer rounded-lg p-1 text-emerald-800 hover:bg-emerald-100 active:scale-95 transition-all select-none"
-          aria-label="Cerrar notificación"
-        >
-          <app-icon name="x" [size]="16" />
-        </button>
-      </div>
-    </div>
-  }
-
-  @if (store.errorMessage(); as errorMsg) {
-    <div
-      role="alert"
-      class="flex items-center justify-between gap-3 rounded-2xl border border-rose-300 bg-rose-50 px-5 py-4 text-rose-800 transition shadow-xs"
-    >
-      <div class="flex items-center gap-3">
-        <div>
-          <p class="text-sm font-bold text-rose-950">{{ errorMsg }}</p>
-          <p class="text-xs text-rose-800">Reintentá en unos momentos o revisá los datos ingresados.</p>
-        </div>
-      </div>
-      <button
-        type="button"
-        (click)="onDismissError()"
-        class="cursor-pointer rounded-lg p-1 text-rose-800 hover:bg-rose-100 active:scale-95 transition-all select-none"
-        aria-label="Cerrar alerta"
-      >
-        <app-icon name="x" [size]="16" />
-      </button>
-    </div>
-  }
-
   @if (store.status() === 'loading' && !store.profile()) {
     <div aria-busy="true" class="space-y-6 motion-safe:animate-pulse">
       <div class="h-64 rounded-3xl bg-border/60"></div>

@@ -3,6 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { Observable, of, Subject, throwError } from 'rxjs';
 import type { Mock } from 'vitest';
+import { ToastService } from '../../../../shared/components/toast/toast.service';
 import { ProfileRepository } from '../../services/profile.repository';
 import { ProfileStore } from '../../services/profile.store';
 import { ProfileDashboard, RedeemedBenefit } from '../../types/profile.model';
@@ -91,6 +92,7 @@ describe('ProfilePage featured benefits', () => {
   let getDashboard: Mock<() => Observable<ProfileDashboard>>;
   let redeemBenefit: Mock<(benefitId: string) => Observable<RedeemedBenefit>>;
   let router: Router;
+  let toast: ToastService;
   let fixture: ComponentFixture<ProfilePage>;
   let element: HTMLElement;
 
@@ -116,6 +118,9 @@ describe('ProfilePage featured benefits', () => {
     }).compileComponents();
     router = TestBed.inject(Router);
     vi.spyOn(router, 'navigate').mockResolvedValue(true);
+    toast = TestBed.inject(ToastService);
+    vi.spyOn(toast, 'success');
+    vi.spyOn(toast, 'error');
     fixture = TestBed.createComponent(ProfilePage);
     TestBed.flushEffects();
     fixture.detectChanges();
@@ -143,13 +148,12 @@ describe('ProfilePage featured benefits', () => {
     expect(redeemBenefit).toHaveBeenCalledExactlyOnceWith('benefit-capuccino');
   });
 
-  it('confirms the redeem in the page banner and loads the dashboard again for the new points', () => {
+  it('confirms the redeem in a toast and loads the dashboard again for the new points', () => {
     click('Canjear Capuccino por tus puntos');
 
     click('Confirmar');
 
-    const banner = element.querySelector('[role="status"]');
-    expect(banner?.textContent).toContain('¡Canjeaste Capuccino por tus puntos! Tu cupón ya está en Mis cupones.');
+    expect(toast.success).toHaveBeenCalledWith('¡Canjeaste Capuccino por tus puntos! Tu cupón ya está en Mis cupones.');
     expect(getDashboard).toHaveBeenCalledTimes(2);
   });
 
@@ -162,7 +166,7 @@ describe('ProfilePage featured benefits', () => {
     expect(element.textContent).not.toContain('¿Canjear');
   });
 
-  it('shows the reason of the backend in the banner when the redeem is rejected', () => {
+  it('shows the reason of the backend in a toast when the redeem is rejected', () => {
     redeemBenefit.mockReturnValue(
       throwError(() => new HttpErrorResponse({ status: 422, error: { detail: 'El beneficio está agotado' } })),
     );
@@ -170,9 +174,7 @@ describe('ProfilePage featured benefits', () => {
 
     click('Confirmar');
 
-    expect(element.querySelector('[role="alert"]')?.textContent).toContain(
-      'Este beneficio ya no tiene canjes disponibles.',
-    );
+    expect(toast.error).toHaveBeenCalledWith('Este beneficio ya no tiene canjes disponibles.');
     expect(getDashboard).toHaveBeenCalledOnce();
   });
 });
