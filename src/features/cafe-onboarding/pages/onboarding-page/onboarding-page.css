@@ -2,7 +2,7 @@
   transition: transform 350ms ease-out;
 }
 
-/* Hidden steps collapse after sliding out, so the card takes the height of the visible step. */
+/* Los pasos ocultos se colapsan al deslizarse, así la tarjeta toma la altura del paso visible. */
 .onboarding-slide[inert] {
   max-height: 0;
   overflow: hidden;

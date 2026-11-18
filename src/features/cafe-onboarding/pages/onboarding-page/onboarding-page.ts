@@ -160,7 +160,7 @@ export class OnboardingPage implements OnInit {
       return;
     }
     this.attempted.set(false);
-    // The required data is saved before the optional steps, so leaving them never keeps the cafe in onboarding.
+    // Los datos obligatorios se guardan antes de los pasos opcionales para no dejar la cafetería en onboarding.
     if (this.currentStep().id === 'hours') {
       this.saveProfile();
       return;
@@ -261,8 +261,7 @@ export class OnboardingPage implements OnInit {
   private goTo(index: number): void {
     const target = Math.min(Math.max(index, 0), this.steps.length - 1);
     this.step.set(target);
-    // The heading can take focus only once the render removes `inert` from its slide.
-    // Without `preventScroll` the browser scrolls the clipped section to the heading and the slide jumps.
+    // El título recibe el foco cuando el render quita inert; preventScroll evita que la diapositiva salte.
     afterNextRender(() => this.stepHeadings()[target]?.nativeElement.focus({ preventScroll: true }), {
       injector: this.injector,
     });

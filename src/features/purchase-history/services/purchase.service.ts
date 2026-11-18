@@ -3,8 +3,8 @@ import { Injectable, inject } from '@angular/core';
 import { map, Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { ALL_ITEMS, Page } from '../../../shared/types/page';
-import { Purchase, Review, ReviewRequest } from '../model/purchase.model';
-import { OPEN_ORDER_STATUSES, PurchaseStatus } from '../utils/purchase-status';
+import { Purchase, PurchaseStatus, Review, ReviewRequest } from '../model/purchase.model';
+import { OPEN_ORDER_STATUSES } from '../utils/purchase-status';
 
 @Injectable({
   providedIn: 'root',

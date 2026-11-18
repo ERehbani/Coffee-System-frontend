@@ -2,13 +2,9 @@ import { CurrencyPipe, DatePipe } from '@angular/common';
 import { Component, DestroyRef, afterNextRender, computed, inject, output, signal } from '@angular/core';
 import { Observable, catchError, interval, map, of, startWith, switchMap, tap } from 'rxjs';
 import { backendErrorMessage } from '../../../../shared/utils/backend-error';
-import { Purchase } from '../../../purchase-history/model/purchase.model';
+import { Purchase, PurchaseStatus } from '../../../purchase-history/model/purchase.model';
 import { PurchaseService } from '../../../purchase-history/services/purchase.service';
-import {
-  OPEN_ORDER_STATUSES,
-  PurchaseStatus,
-  isCancelledPurchase,
-} from '../../../purchase-history/utils/purchase-status';
+import { OPEN_ORDER_STATUSES, isCancellation } from '../../../purchase-history/utils/purchase-status';
 
 interface OrderColumn {
   readonly status: PurchaseStatus;
@@ -62,8 +58,7 @@ export class OrdersBoard {
     const grouped: Partial<Record<PurchaseStatus, Purchase[]>> = {};
     const byDate = [...this.orders()].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
     for (const order of byDate) {
-      const status = order.status as PurchaseStatus;
-      (grouped[status] ??= []).push(order);
+      (grouped[order.status] ??= []).push(order);
     }
     return grouped;
   });
@@ -95,7 +90,7 @@ export class OrdersBoard {
     this.actionError.set(null);
     this.purchaseService.updateStatus(order.externalId, next).subscribe({
       next: (updated) => {
-        const stillOpen = OPEN_ORDER_STATUSES.includes(updated.status as PurchaseStatus);
+        const stillOpen = OPEN_ORDER_STATUSES.includes(updated.status);
         this.orders.update((list) =>
           stillOpen
             ? list.map((item) => (item.externalId === updated.externalId ? updated : item))
@@ -103,7 +98,7 @@ export class OrdersBoard {
         );
         this.busyId.set(null);
         this.confirmingCancelId.set(null);
-        if (isCancelledPurchase(updated.status) || !stillOpen) {
+        if (isCancellation(updated.status) || !stillOpen) {
           this.changed.emit();
         }
       },

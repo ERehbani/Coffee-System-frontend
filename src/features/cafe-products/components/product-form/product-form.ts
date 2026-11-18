@@ -133,7 +133,6 @@ export class ProductForm {
   );
 
   categoryError = computed(() => {
-    // The category cannot change after creation, so it only needs a value when creating.
     if (this.isEditing()) {
       return null;
     }
@@ -257,7 +256,7 @@ export class ProductForm {
       awardedPoints: Number(model.awardedPoints),
       categoryId: model.categoryId,
       image: model.image.trim(),
-      // An empty list clears the tags; the backend keeps them when the field is missing.
+      // Una lista vacía borra las etiquetas; si el campo falta, el backend las conserva.
       tags: rawTags,
       state: model.state,
     };

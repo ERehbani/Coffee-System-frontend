@@ -119,7 +119,7 @@ export class CheckoutStore {
       return;
     }
 
-    // Global product coupons match the backend cart lines by catalog product; without it they stay hidden.
+    // Los cupones globales de producto se emparejan con las líneas del carrito del backend; sin ellas quedan ocultos.
     this.cartRequest = this.repository.findCart(summary.cafeId).subscribe({
       next: (cart) => this.serverCart.set(cart),
       error: () => this.serverCart.set(null),

@@ -4,8 +4,8 @@
       <h3 class="truncate text-base font-bold text-text">{{ purchase().cafeName }}</h3>
       <p class="text-xs text-muted">{{ purchase().date | date: 'd MMM y, HH:mm' }}</p>
     </div>
-    <span class="shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold" [class]="statusClass()">
-      {{ statusLabel() }}
+    <span class="shrink-0 rounded-full border px-2.5 py-1 text-xs font-semibold" [class]="statusView().badgeClass">
+      {{ statusView().label }}
     </span>
   </header>
 

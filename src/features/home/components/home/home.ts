@@ -61,7 +61,7 @@ export class Home implements OnInit {
         this.isLoading.set(false);
       },
       error: (error) => {
-        console.error('error loading cafes:', error);
+        console.error('Error al cargar las cafeterías:', error);
         this.hasError.set(true);
         this.isLoading.set(false);
       },

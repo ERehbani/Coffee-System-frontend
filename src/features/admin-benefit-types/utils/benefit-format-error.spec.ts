@@ -9,16 +9,14 @@ const validation = (errors: Record<string, string>) =>
 
 describe('toBenefitFormatFormErrors', () => {
   it('maps the missing format to the code field', () => {
-    expect(toBenefitFormatFormErrors(validation({ code: 'The format is required' }))).toEqual({
+    expect(toBenefitFormatFormErrors(validation({ code: 'El formato es obligatorio' }))).toEqual({
       code: 'Elegí un formato.',
     });
   });
 
   it.each([
-    ['The name is required', 'El nombre es obligatorio.'],
-    ['must not be blank', 'El nombre es obligatorio.'],
-    ['The name must have at most 40 characters', 'El nombre puede tener hasta 40 caracteres.'],
-    ['size must be between 0 and 40', 'El nombre puede tener hasta 40 caracteres.'],
+    ['El nombre es obligatorio', 'El nombre es obligatorio.'],
+    ['El nombre puede tener hasta 40 caracteres', 'El nombre puede tener hasta 40 caracteres.'],
   ])('maps the name validation "%s"', (message, expected) => {
     expect(toBenefitFormatFormErrors(validation({ displayName: message }))).toEqual({
       displayName: expected,
@@ -26,10 +24,9 @@ describe('toBenefitFormatFormErrors', () => {
   });
 
   it.each([
-    ['The description is required', 'La descripción es obligatoria.'],
-    ['must not be empty', 'La descripción es obligatoria.'],
+    ['La descripción es obligatoria', 'La descripción es obligatoria.'],
     [
-      'The description must have at most 200 characters',
+      'La descripción puede tener hasta 200 caracteres',
       'La descripción puede tener hasta 200 caracteres.',
     ],
   ])('maps the description validation "%s"', (message, expected) => {
@@ -42,9 +39,9 @@ describe('toBenefitFormatFormErrors', () => {
     expect(
       toBenefitFormatFormErrors(
         validation({
-          code: 'The format is required',
-          displayName: 'The name is required',
-          description: 'The description is required',
+          code: 'El formato es obligatorio',
+          displayName: 'El nombre es obligatorio',
+          description: 'La descripción es obligatoria',
         }),
       ),
     ).toEqual({
@@ -64,7 +61,7 @@ describe('toBenefitFormatFormErrors', () => {
   it('puts a format already in the catalog on the code field', () => {
     const error = new HttpErrorResponse({
       status: 409,
-      error: { detail: 'The format DOS_POR_UNO is already in the catalog' },
+      error: { detail: 'El formato DOS_POR_UNO ya está en el catálogo' },
     });
 
     expect(toBenefitFormatFormErrors(error)).toEqual({
@@ -75,7 +72,7 @@ describe('toBenefitFormatFormErrors', () => {
   it('puts a duplicate name on the name field', () => {
     const error = new HttpErrorResponse({
       status: 409,
-      error: { detail: 'A benefit type named Descuento already exists' },
+      error: { detail: 'Ya existe un tipo de beneficio llamado Descuento' },
     });
 
     expect(toBenefitFormatFormErrors(error)).toEqual({
@@ -86,7 +83,7 @@ describe('toBenefitFormatFormErrors', () => {
   it('ignores the letter case and the spacing of a conflict message', () => {
     const error = new HttpErrorResponse({
       status: 409,
-      error: { detail: '  A BENEFIT TYPE NAMED 2x1 ALREADY EXISTS ' },
+      error: { detail: '  YA EXISTE UN TIPO DE BENEFICIO LLAMADO 2x1 ' },
     });
 
     expect(toBenefitFormatFormErrors(error)).toEqual({
@@ -98,11 +95,11 @@ describe('toBenefitFormatFormErrors', () => {
     const generic = { form: 'No pudimos guardar el tipo de beneficio. Intentalo de nuevo.' };
 
     expect(
-      toBenefitFormatFormErrors(new HttpErrorResponse({ status: 409, error: { detail: 'Something new' } })),
+      toBenefitFormatFormErrors(new HttpErrorResponse({ status: 409, error: { detail: 'Mensaje nuevo' } })),
     ).toEqual(generic);
     expect(
       toBenefitFormatFormErrors(
-        new HttpErrorResponse({ status: 404, error: { detail: 'Benefit format not found' } }),
+        new HttpErrorResponse({ status: 404, error: { detail: 'Tipo de beneficio no encontrado' } }),
       ),
     ).toEqual(generic);
     expect(toBenefitFormatFormErrors(new HttpErrorResponse({ status: 400, error: null }))).toEqual(

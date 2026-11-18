@@ -1,4 +1,4 @@
-export type PurchaseStatusDto = 'CONFIRMED' | 'CANCELLED' | 'REFUNDED';
+export type PurchaseStatusDto = 'CONFIRMED' | 'CANCELLED' | 'REFUNDED' | 'IN_PREPARATION' | 'READY' | 'DELIVERED';
 
 export interface CreatePurchaseRequestDto {
   readonly cartId: string;

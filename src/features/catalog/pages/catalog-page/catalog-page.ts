@@ -1,3 +1,4 @@
+import { DecimalPipe } from '@angular/common';
 import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
@@ -18,7 +19,7 @@ import { ProductService } from '../../services/product.service';
 
 @Component({
   selector: 'app-catalog-page',
-  imports: [RouterLink, FormsModule, Icon, ProductCard, ProductDetailModal, CartButton, ThemeToggle],
+  imports: [DecimalPipe, RouterLink, FormsModule, Icon, ProductCard, ProductDetailModal, CartButton, ThemeToggle],
   templateUrl: './catalog-page.html',
   host: { class: 'block' },
 })
@@ -130,7 +131,7 @@ export class CatalogPage implements OnInit {
               }
               return this.productService.getProductsByCafe(cafe.externalId).pipe(
                 catchError((error) => {
-                  console.error('Error loading products:', error);
+                  console.error('Error al cargar los productos:', error);
                   this.hasProductsError.set(true);
                   return of([]);
                 })
@@ -146,7 +147,7 @@ export class CatalogPage implements OnInit {
           this.isLoadingProducts.set(false);
         },
         error: (err) => {
-          console.error('Error loading catalog data:', err);
+          console.error('Error al cargar los datos del catálogo:', err);
           this.hasCafesError.set(true);
           this.isLoadingCafes.set(false);
           this.isLoadingProducts.set(false);
@@ -230,7 +231,6 @@ export class CatalogPage implements OnInit {
     this.pendingProduct.set(null);
   }
 
-  /** A rejected add cancels its optimistic success toast, so dismissing the error shows nothing stale. */
   private showAddError(product: Product, reason: string | null): void {
     clearTimeout(this.messageTimeout);
     this.addedProductMessage.set(null);

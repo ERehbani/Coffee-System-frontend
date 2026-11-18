@@ -117,7 +117,7 @@ describe('CouponValidationStore', () => {
       failWith(
         new HttpErrorResponse({
           status: 409,
-          error: { detail: 'A redemption cannot go from USED to USED', status: 409 },
+          error: { detail: 'Un canje no puede pasar de USED a USED', status: 409 },
         }),
       ),
     );
@@ -129,7 +129,7 @@ describe('CouponValidationStore', () => {
 
   it('shows a missing coupon', () => {
     const store = create(
-      failWith(new HttpErrorResponse({ status: 404, error: { detail: 'Redemption not found' } })),
+      failWith(new HttpErrorResponse({ status: 404, error: { detail: 'Canje no encontrado' } })),
     );
 
     store.validate('code-1');
@@ -142,7 +142,7 @@ describe('CouponValidationStore', () => {
       failWith(
         new HttpErrorResponse({
           status: 403,
-          error: { detail: 'This redemption does not belong to your cafe', status: 403 },
+          error: { detail: 'Este canje no pertenece a tu cafetería', status: 403 },
         }),
       ),
     );

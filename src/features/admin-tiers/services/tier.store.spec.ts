@@ -148,7 +148,7 @@ describe('AdminTierStore', () => {
 
   it('keeps the drawer open and shows a duplicate name under the name field', () => {
     const store = create();
-    createTier.mockReturnValue(throwError(() => conflict('A tier named Oro already exists')));
+    createTier.mockReturnValue(throwError(() => conflict('Ya existe un tier llamado Oro')));
     store.openCreateDrawer();
 
     store.saveTier({ name: 'Oro', minPoints: 4000 });
@@ -163,7 +163,7 @@ describe('AdminTierStore', () => {
   it('shows duplicate points under the points field', () => {
     const store = create();
     updateTier.mockReturnValue(
-      throwError(() => conflict('A tier with 3000 points already exists')),
+      throwError(() => conflict('Ya existe un tier con 3000 puntos')),
     );
     store.openEditDrawer(plata);
 
@@ -188,7 +188,7 @@ describe('AdminTierStore', () => {
   it('clears the previous server errors when a new save starts', () => {
     const store = create();
     store.openCreateDrawer();
-    createTier.mockReturnValueOnce(throwError(() => conflict('A tier named Oro already exists')));
+    createTier.mockReturnValueOnce(throwError(() => conflict('Ya existe un tier llamado Oro')));
     store.saveTier({ name: 'Oro', minPoints: 4000 });
     const response = new Subject<Tier>();
     createTier.mockReturnValueOnce(response);

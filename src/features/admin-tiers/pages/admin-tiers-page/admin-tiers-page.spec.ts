@@ -210,7 +210,7 @@ describe('AdminTiersPage', () => {
 
     it('shows a duplicate name from the server under the name input and keeps the drawer open', async () => {
       await render();
-      createTier.mockReturnValue(throwError(() => conflict('A tier named Oro already exists')));
+      createTier.mockReturnValue(throwError(() => conflict('Ya existe un tier llamado Oro')));
       await click(button('Nuevo nivel'));
       await type(nameInput(), 'Oro');
       await type(pointsInput(), '4000');
@@ -229,7 +229,7 @@ describe('AdminTiersPage', () => {
     it('shows duplicate points from the server under the points input and clears it on edit', async () => {
       await render();
       createTier.mockReturnValue(
-        throwError(() => conflict('A tier with 3000 points already exists')),
+        throwError(() => conflict('Ya existe un tier con 3000 puntos')),
       );
       await click(button('Nuevo nivel'));
       await type(nameInput(), 'Nuevo');

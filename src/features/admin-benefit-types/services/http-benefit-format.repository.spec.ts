@@ -133,7 +133,7 @@ describe('HttpBenefitFormatRepository', () => {
       .createFormat({ code: 'DOS_POR_UNO', displayName: 'x', description: 'y', active: true })
       .subscribe({ error: (e) => (failure = e) });
 
-    http.expectOne(url).flush('The format DOS_POR_UNO is already in the catalog', {
+    http.expectOne(url).flush('El formato DOS_POR_UNO ya está en el catálogo', {
       status: 409,
       statusText: 'Conflict',
     });

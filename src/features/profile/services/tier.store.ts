@@ -21,10 +21,8 @@ export type TierBenefitsStatus = 'loading' | 'error' | 'ready';
 export type TierBenefitPhase = 'idle' | 'confirming' | 'redeeming';
 
 export interface TierBenefitView extends TierBenefit {
-  /** Points the client still needs to afford the benefit; 0 when affordable. */
   readonly missingPoints: number;
   readonly phase: TierBenefitPhase;
-  /** Another benefit is being redeemed, so this one cannot be requested yet. */
   readonly locked: boolean;
   readonly errorMessage: string | null;
 }
@@ -52,13 +50,10 @@ export class TierStore {
   });
   private readonly redeemState = signal<RedeemState>({ kind: 'idle' });
   private readonly redeemedState = signal<RedeemedBenefit | null>(null);
-  /** The route injector outlives the page, so the store must know whether anyone is looking. */
   private pageOpen = true;
 
-  /** The latest successful redemption, shown until it is dismissed or another one starts. */
   readonly redeemed = this.redeemedState.asReadonly();
 
-  /** The last tier detail that loaded: a failed refresh must not take it away. */
   readonly detail = linkedSignal<TierDetail | null, TierDetail | null>({
     source: () => (this.resource.hasValue() ? this.resource.value() : null),
     computation: (loaded, previous) => loaded ?? previous?.value ?? null,
@@ -74,7 +69,6 @@ export class TierStore {
     return 'loading';
   });
 
-  /** A refresh failed while a previous detail is still on screen: show it, without blocking. */
   readonly detailRefreshFailed = computed(
     () => this.detail() !== null && this.resource.error() !== undefined,
   );
@@ -135,7 +129,6 @@ export class TierStore {
     this.benefitsResource.reload();
   }
 
-  /** Opens the confirm step for an affordable benefit; spending points needs a second click. */
   requestRedeem(benefitId: string): void {
     if (this.redeemState().kind === 'redeeming') {
       return;
@@ -165,8 +158,7 @@ export class TierStore {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (redeemed) => {
-          // Kept even when the page was left meanwhile: the points are spent, so the client
-          // finds the code waiting on return.
+          // Se conserva aunque se haya salido de la página: los puntos ya se gastaron.
           this.redeemedState.set(redeemed);
           this.redeemState.set({ kind: 'idle' });
           this.refreshAfterRedemption();
@@ -180,16 +172,10 @@ export class TierStore {
       });
   }
 
-  /** The tier page is shown (again). */
   enter(): void {
     this.pageOpen = true;
   }
 
-  /**
-   * The tier page is gone. Transient redeem state (open confirm step, error, success panel)
-   * must not reappear on return. A request in flight is kept: its points are spent anyway and
-   * its outcome still refreshes the data.
-   */
   leave(): void {
     this.pageOpen = false;
     if (this.redeemState().kind !== 'redeeming') {
@@ -205,8 +191,7 @@ export class TierStore {
   private refreshAfterRedemption(): void {
     this.resource.reload();
     this.benefitsResource.reload();
-    // The profile store lives in the parent route and may already hold a stale dashboard: its
-    // points and active redemptions feed the loyalty card and the coupon detail ("Ver cupón").
+    // El perfil puede estar desactualizado: sus puntos y canjes alimentan la tarjeta y el cupón.
     this.injector.get(ProfileStore, null)?.reload();
   }
 }

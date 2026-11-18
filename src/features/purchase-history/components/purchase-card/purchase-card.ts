@@ -1,11 +1,8 @@
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { Component, computed, input, output } from '@angular/core';
 import { Purchase, ReviewFormData } from '../../model/purchase.model';
-import {
-  isCancelledPurchase,
-  purchaseStatusBadgeClass,
-  purchaseStatusLabel,
-} from '../../utils/purchase-status';
+import { toPurchaseStatusView } from '../../../admin-purchases/utils/purchase-status-view';
+import { canBeReviewed, isCancellation } from '../../utils/purchase-status';
 import { ReviewForm } from '../review-form/review-form';
 
 @Component({
@@ -28,9 +25,8 @@ export class PurchaseCard {
     return this.purchase().details.reduce((total, detail) => total + detail.generatedPoints, 0);
   });
 
-  statusLabel = computed(() => purchaseStatusLabel(this.purchase().status));
-  statusClass = computed(() => purchaseStatusBadgeClass(this.purchase().status));
-  isCancelled = computed(() => isCancelledPurchase(this.purchase().status));
+  statusView = computed(() => toPurchaseStatusView(this.purchase().status));
+  isCancelled = computed(() => isCancellation(this.purchase().status));
 
-  canReview = computed(() => !this.isCancelled() && !this.purchase().reviewed);
+  canReview = computed(() => canBeReviewed(this.purchase()));
 }

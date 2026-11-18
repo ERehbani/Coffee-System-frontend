@@ -10,10 +10,6 @@ const UPLOAD_ERROR_MESSAGES: ReadonlyMap<number, string> = new Map([
   [HttpStatusCode.ServiceUnavailable, 'La subida de imágenes no está disponible por ahora.'],
 ]);
 
-/**
- * Image field that takes a URL, or uploads a picked or dropped local file, and keeps the URL in `value`.
- * The `value` model makes it a Signal Forms control, so it binds with `[formField]` or `[(value)]`.
- */
 @Component({
   selector: 'app-image-input',
   imports: [],
@@ -52,13 +48,13 @@ export class ImageInput {
 
   pickFile(fileInput: HTMLInputElement): void {
     const file = fileInput.files?.[0];
-    // Clearing the input lets the same file be picked again after an error.
+    // Vaciar el input permite volver a elegir el mismo archivo después de un error.
     fileInput.value = '';
     this.takeFile(file);
   }
 
   dragOver(event: DragEvent): void {
-    // Without preventDefault the browser opens the dropped file instead of handing it over.
+    // Sin preventDefault el navegador abre el archivo soltado en vez de entregarlo.
     event.preventDefault();
     if (event.dataTransfer) {
       event.dataTransfer.dropEffect = 'copy';
@@ -67,7 +63,7 @@ export class ImageInput {
   }
 
   dragLeave(event: DragEvent): void {
-    // Moving over a child of the zone also fires dragleave; only leaving the zone ends the drag.
+    // Pasar sobre un hijo de la zona también dispara dragleave; solo salir de la zona termina el arrastre.
     const zone = event.currentTarget as Node;
     if (!zone.contains(event.relatedTarget as Node | null)) {
       this.dragging.set(false);

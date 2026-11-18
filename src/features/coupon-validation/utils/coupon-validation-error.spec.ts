@@ -7,46 +7,53 @@ function problem(status: number, detail: string): HttpErrorResponse {
 
 describe('toValidationFailure', () => {
   it('detects a code that was already used', () => {
-    expect(toValidationFailure(problem(409, 'A redemption cannot go from USED to USED'))).toEqual({
+    expect(toValidationFailure(problem(409, 'Un canje no puede pasar de USED a USED'))).toEqual({
       kind: 'used',
     });
   });
 
   it('detects a code that does not exist', () => {
-    expect(toValidationFailure(problem(404, 'Redemption not found'))).toEqual({ kind: 'not-found' });
+    expect(toValidationFailure(problem(404, 'Canje no encontrado'))).toEqual({ kind: 'not-found' });
   });
 
   it('ignores the letter case and the spaces of the backend message', () => {
-    expect(toValidationFailure(problem(409, '  a redemption CANNOT go from used to used '))).toEqual({
+    expect(toValidationFailure(problem(409, '  un canje NO PUEDE pasar de used a used '))).toEqual({
       kind: 'used',
     });
-    expect(toValidationFailure(problem(404, ' redemption NOT found '))).toEqual({ kind: 'not-found' });
+    expect(toValidationFailure(problem(404, ' canje NO encontrado '))).toEqual({ kind: 'not-found' });
   });
 
   it('explains a coupon that was cancelled', () => {
-    expect(toValidationFailure(problem(409, 'A redemption cannot go from CANCELLED to USED'))).toEqual({
+    expect(toValidationFailure(problem(409, 'Un canje no puede pasar de CANCELLED a USED'))).toEqual({
       kind: 'rejected',
       message: 'Este cupón fue cancelado y ya no se puede canjear.',
     });
   });
 
+  it('explains an expired coupon', () => {
+    expect(toValidationFailure(problem(422, 'El código está vencido'))).toEqual({
+      kind: 'rejected',
+      message: 'Este cupón está vencido y ya no se puede canjear.',
+    });
+  });
+
   it('explains a coupon whose product is sold out for today', () => {
     const failure = toValidationFailure(
-      problem(409, 'The product of this benefit is sold out for today, cancel the redemption to give the points back'),
+      problem(409, 'El producto de este beneficio está agotado por hoy, cancela el canje para devolver los puntos'),
     );
 
     expect(failure.kind === 'rejected' && failure.message).toContain('agotado hoy');
   });
 
   it('explains a coupon of another cafe', () => {
-    expect(toValidationFailure(problem(403, 'This redemption does not belong to your cafe'))).toEqual({
+    expect(toValidationFailure(problem(403, 'Este canje no pertenece a tu cafetería'))).toEqual({
       kind: 'rejected',
       message: 'Este cupón es de otra cafetería, no se puede canjear en este local.',
     });
   });
 
   it('explains a cafe user without a cafe instead of calling the coupon missing', () => {
-    expect(toValidationFailure(problem(403, 'The current user has no cafe'))).toEqual({
+    expect(toValidationFailure(problem(403, 'El usuario actual no tiene cafetería'))).toEqual({
       kind: 'rejected',
       message: 'Tu usuario no tiene una cafetería asociada. Consultá con el administrador.',
     });
@@ -54,8 +61,8 @@ describe('toValidationFailure', () => {
 
   it('does not take any other 404 for a missing coupon', () => {
     for (const error of [
-      problem(404, 'User not found'),
-      problem(404, 'Benefit not found'),
+      problem(404, 'Usuario no encontrado'),
+      problem(404, 'Beneficio no encontrado'),
       new HttpErrorResponse({ status: 404, error: null }),
     ]) {
       expect(toValidationFailure(error)).toEqual({ kind: 'rejected', message: VALIDATION_ERROR_MESSAGE });
@@ -63,12 +70,12 @@ describe('toValidationFailure', () => {
   });
 
   it('does not take a used message with another status for a used coupon', () => {
-    expect(toValidationFailure(problem(400, 'A redemption cannot go from USED to USED')).kind).toBe('rejected');
+    expect(toValidationFailure(problem(400, 'Un canje no puede pasar de USED a USED')).kind).toBe('rejected');
   });
 
   it('falls back to the generic message for an unknown 400', () => {
     for (const error of [
-      problem(400, 'Something new'),
+      problem(400, 'Mensaje nuevo'),
       new HttpErrorResponse({ status: 400, error: 'Plain text' }),
       new HttpErrorResponse({ status: 400, error: null }),
     ]) {

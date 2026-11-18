@@ -40,7 +40,7 @@ describe('RedemptionService', () => {
       redemption = value;
     });
 
-    http.expectOne(url).flush('Redemption not found', { status: 404, statusText: 'Not Found' });
+    http.expectOne(url).flush('Canje no encontrado', { status: 404, statusText: 'Not Found' });
 
     expect(answered).toBe(true);
     expect(redemption).toBeUndefined();

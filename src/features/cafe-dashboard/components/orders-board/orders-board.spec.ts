@@ -1,11 +1,11 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
-import { Purchase } from '../../../purchase-history/model/purchase.model';
+import { Purchase, PurchaseStatus } from '../../../purchase-history/model/purchase.model';
 import { PurchaseService } from '../../../purchase-history/services/purchase.service';
 import { PENDING_REVIEW_PURCHASE_FIXTURE } from '../../../purchase-history/utils/purchase.fixture';
 import { OrdersBoard } from './orders-board';
 
-function order(id: string, clientName: string, status: string): Purchase {
+function order(id: string, clientName: string, status: PurchaseStatus): Purchase {
   return { ...PENDING_REVIEW_PURCHASE_FIXTURE, externalId: id, clientName, status };
 }
 
@@ -43,7 +43,7 @@ describe('OrdersBoard', () => {
       order('prep-1', 'Sofía Fernández', 'IN_PREPARATION'),
       order('ready-1', 'Tomás Rodríguez', 'READY'),
     ];
-    updateStatus = vi.fn((id: string, status: string) => of({ ...orders.find((o) => o.externalId === id)!, status }));
+    updateStatus = vi.fn((id: string, status: PurchaseStatus) => of({ ...orders.find((o) => o.externalId === id)!, status }));
   });
 
   it('shows each open order in the column of its state', async () => {

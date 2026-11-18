@@ -3,23 +3,23 @@ import { ValidationFailure } from '../types/coupon-validation.model';
 
 export const VALIDATION_ERROR_MESSAGE = 'No pudimos validar el cupón. Probá de nuevo.';
 
-const ALREADY_USED = 'a redemption cannot go from used to used';
-const NOT_FOUND = 'redemption not found';
+const ALREADY_USED = 'un canje no puede pasar de used a used';
+const NOT_FOUND = 'canje no encontrado';
 const SERVER_ERROR_MESSAGE =
   'El servidor no pudo validar el cupón. Probá de nuevo en unos minutos.';
 
 const MESSAGES_BY_BACKEND_ERROR: ReadonlyMap<string, string> = new Map([
   [
-    'this redemption does not belong to your cafe',
+    'este canje no pertenece a tu cafetería',
     'Este cupón es de otra cafetería, no se puede canjear en este local.',
   ],
-  ['a redemption cannot go from cancelled to used', 'Este cupón fue cancelado y ya no se puede canjear.'],
-  ['code has expired', 'Este cupón está vencido y ya no se puede canjear.'],
+  ['un canje no puede pasar de cancelled a used', 'Este cupón fue cancelado y ya no se puede canjear.'],
+  ['el código está vencido', 'Este cupón está vencido y ya no se puede canjear.'],
   [
-    'the product of this benefit is sold out for today, cancel the redemption to give the points back',
+    'el producto de este beneficio está agotado por hoy, cancela el canje para devolver los puntos',
     'El producto de este cupón está agotado hoy. Podés cancelar el canje para devolverle los puntos al cliente.',
   ],
-  ['the current user has no cafe', 'Tu usuario no tiene una cafetería asociada. Consultá con el administrador.'],
+  ['el usuario actual no tiene cafetería', 'Tu usuario no tiene una cafetería asociada. Consultá con el administrador.'],
 ]);
 
 const MESSAGES_BY_STATUS: ReadonlyMap<number, string> = new Map([

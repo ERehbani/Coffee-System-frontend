@@ -27,7 +27,6 @@ describe('BenefitFormatDrawer', () => {
     fixture.componentRef.setInput('fallbackFocus', inputs.fallbackFocus ?? null);
     saved = [];
     fixture.componentInstance.save.subscribe((value) => saved.push(value));
-    // Attached to the document so focus can be observed.
     document.body.appendChild(fixture.nativeElement);
     element = fixture.nativeElement;
     await settle();

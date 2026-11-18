@@ -7,7 +7,6 @@ const LABELS: Readonly<Record<BenefitFormatCode, string>> = {
   PRODUCTO_GRATIS_SOCIO: 'Producto gratis para socios',
 };
 
-/** Spanish name of a coupon format. */
 export function benefitFormatLabel(code: BenefitFormatCode): string {
   return LABELS[code];
 }

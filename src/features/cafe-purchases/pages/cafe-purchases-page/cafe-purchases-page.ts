@@ -113,7 +113,7 @@ export class CafePurchasesPage implements OnInit {
         this.isLoading.set(false);
       },
       error: (error) => {
-        console.error('error loading cafe purchases:', error);
+        console.error('Error al cargar las compras de la cafetería:', error);
         this.hasError.set(true);
         this.isLoading.set(false);
       },

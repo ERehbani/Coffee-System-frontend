@@ -1,5 +1,4 @@
 <main class="space-y-6">
-  <!-- Header / Navigation -->
   <div class="flex items-center justify-between pb-3 border-b border-border">
     <div class="flex items-center gap-2">
       <a
@@ -18,7 +17,6 @@
     </div>
   </div>
 
-  <!-- Success Notification -->
   @if (store.successMessage(); as successMsg) {
     <div
       role="status"
@@ -49,7 +47,6 @@
     </div>
   }
 
-  <!-- Error Notification -->
   @if (store.errorMessage(); as errorMsg) {
     <div
       role="alert"
@@ -72,14 +69,12 @@
     </div>
   }
 
-  <!-- Loading State -->
   @if (store.status() === 'loading' && !store.profile()) {
     <div aria-busy="true" class="space-y-6 motion-safe:animate-pulse">
       <div class="h-64 rounded-3xl bg-border/60"></div>
       <div class="h-32 rounded-2xl bg-border/60"></div>
     </div>
   } @else if (store.status() === 'error' && !store.profile()) {
-    <!-- Error State -->
     <div class="flex flex-col items-center justify-center gap-3 rounded-3xl border border-border bg-surface p-10 text-center shadow-xs">
       <h2 class="text-xl font-bold text-text">No se pudieron cargar tus datos de perfil</h2>
       <p class="text-sm text-muted">Hubo un problema al consultar tu información.</p>
@@ -92,7 +87,6 @@
       </button>
     </div>
   } @else if (store.profile(); as profile) {
-    <!-- Form View -->
     <app-profile-edit-form
       [profile]="profile"
       [isSaving]="store.isSaving()"
