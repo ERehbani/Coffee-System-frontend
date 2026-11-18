@@ -4,6 +4,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Data, Router, convertToParamMap, provideRouter } from '@angular/router';
 import { environment } from '../../../../environments/environment';
 import { ThemeService } from '../../../../shared/services/theme';
+import { AuthService } from '../../services/auth.service';
 import { LoginPage } from './login-page';
 
 describe('LoginPage', () => {
@@ -77,16 +78,59 @@ describe('LoginPage', () => {
     http.expectNone(loginUrl);
   });
 
-  it('logs in and goes to the page of the role', async () => {
-    await setup();
+  const pages = [
+    {
+      name: 'client',
+      data: {},
+      role: 'ROLE_CLIENTE',
+      home: '/home',
+      otherRole: 'ROLE_CAFETERIA',
+      message: 'Esta cuenta no es de cliente. Ingresá desde el acceso de tu tipo de cuenta.',
+    },
+    {
+      name: 'cafe',
+      data: { audience: 'cafe' },
+      role: 'ROLE_CAFETERIA',
+      home: '/cafe/dashboard',
+      otherRole: 'ROLE_CLIENTE',
+      message: 'Esta cuenta no es de una cafetería. Ingresá desde el acceso de tu tipo de cuenta.',
+    },
+    {
+      name: 'superadmin',
+      data: { audience: 'superadmin' },
+      role: 'ROLE_SUPERADMIN',
+      home: '/admin',
+      otherRole: 'ROLE_CLIENTE',
+      message: 'Esta cuenta no es de administración. Ingresá desde el acceso de tu tipo de cuenta.',
+    },
+  ];
 
-    fillAndSubmit('admin@test.com', 'Secret123');
-    const req = http.expectOne(loginUrl);
-    expect(req.request.body).toEqual({ email: 'admin@test.com', password: 'Secret123' });
-    req.flush({ email: 'admin@test.com', roles: ['ROLE_SUPERADMIN'] });
+  for (const page of pages) {
+    it(`logs in and goes to the home of the role on the ${page.name} login`, async () => {
+      await setup({}, page.data);
 
-    expect(router.navigateByUrl).toHaveBeenCalledWith('/admin');
-  });
+      fillAndSubmit('user@test.com', 'Secret123');
+      const req = http.expectOne(loginUrl);
+      expect(req.request.body).toEqual({ email: 'user@test.com', password: 'Secret123' });
+      req.flush({ email: 'user@test.com', roles: [page.role] });
+
+      expect(router.navigateByUrl).toHaveBeenCalledWith(page.home);
+    });
+
+    it(`closes the session and shows a message when the account is not of the ${page.name} login`, async () => {
+      await setup({}, page.data);
+
+      fillAndSubmit('user@test.com', 'Secret123');
+      http.expectOne(loginUrl).flush({ email: 'user@test.com', roles: [page.otherRole] });
+      http.expectOne(`${environment.apiBaseUrl}/auth/logout`).flush(null);
+      fixture.detectChanges();
+
+      expect(element.querySelector('[role="alert"]')?.textContent).toContain(page.message);
+      expect(TestBed.inject(AuthService).isAuthenticated()).toBe(false);
+      expect(router.navigateByUrl).not.toHaveBeenCalled();
+      expect(element.querySelector<HTMLButtonElement>('button[type="submit"]')!.disabled).toBe(false);
+    });
+  }
 
   it('closes the session and shows a message when the user has no known role', async () => {
     await setup();
