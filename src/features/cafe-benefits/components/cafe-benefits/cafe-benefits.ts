@@ -163,6 +163,7 @@ export class CafeBenefits implements OnInit {
   closeForm(): void {
     this.showForm.set(false);
     this.editingBenefit.set(null);
+    this.errorMessage.set(null);
   }
 
   private updateBenefit(editing: CafeBenefit, request: CreateCafeBenefitRequest): void {

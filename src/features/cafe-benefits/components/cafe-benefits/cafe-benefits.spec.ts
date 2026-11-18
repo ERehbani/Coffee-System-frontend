@@ -147,6 +147,20 @@ describe('CafeBenefits', () => {
       expect(component.benefits()).toEqual([withLimit]);
     });
 
+    it('drops the error of a failed update when the form is cancelled', () => {
+      benefitService['update'].mockReturnValue(
+        throwError(() => new HttpErrorResponse({ status: 422, error: { detail: 'Datos inválidos' } })),
+      );
+      const component = render().componentInstance;
+      component.onEditBenefit(withLimit);
+      component.onSaveBenefit(request);
+      expect(component.errorMessage()).toBe('Datos inválidos');
+
+      component.closeForm();
+
+      expect(component.errorMessage()).toBeNull();
+    });
+
     it('goes back to creating after closing the form', () => {
       const component = render().componentInstance;
       component.onEditBenefit(withLimit);

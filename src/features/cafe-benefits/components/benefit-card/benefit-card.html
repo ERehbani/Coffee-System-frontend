@@ -78,7 +78,7 @@
       </span>
     </div>
     <div class="flex items-center gap-1.5">
-      <span>Cupo: {{ benefit().maxRedemptions }} canjes</span>
+      <span>Cupo: {{ benefit().maxRedemptions === null ? 'sin límite' : benefit().maxRedemptions + ' canjes' }}</span>
     </div>
   </div>
 </article>
