@@ -1,15 +1,15 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { TierFormErrors } from '../types/tier.model';
 
-export const TIER_SAVE_ERROR_MESSAGE = 'No pudimos guardar el tier. Inténtalo de nuevo.';
+export const TIER_SAVE_ERROR_MESSAGE = 'No pudimos guardar el nivel. Intentalo de nuevo.';
 
 const NAME_REQUIRED = 'El nombre es obligatorio.';
 const NAME_TOO_LONG = 'El nombre puede tener hasta 50 caracteres.';
 const POINTS_REQUIRED = 'Los puntos son obligatorios.';
 const POINTS_NEGATIVE = 'Los puntos no pueden ser negativos.';
-const DUPLICATE_NAME = 'Ya existe un tier con ese nombre.';
-const DUPLICATE_POINTS = 'Ya existe un tier con esa cantidad de puntos.';
-const BASE_TIER_POINTS = 'El tier base debe mantener 0 puntos.';
+const DUPLICATE_NAME = 'Ya existe un nivel con ese nombre.';
+const DUPLICATE_POINTS = 'Ya existe un nivel con esa cantidad de puntos.';
+const BASE_TIER_POINTS = 'El nivel base debe mantener 0 puntos.';
 
 const GENERIC: TierFormErrors = { form: TIER_SAVE_ERROR_MESSAGE };
 

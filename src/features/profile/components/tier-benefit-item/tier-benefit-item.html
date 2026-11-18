@@ -5,25 +5,17 @@
   [class.border-border]="benefit().phase === 'idle'"
 >
   <div class="flex items-start gap-3">
-    <span
-      aria-hidden="true"
-      class="flex size-11 shrink-0 items-center justify-center rounded-xl bg-accent-light text-primary"
-    >
-      <app-icon name="gift" [size]="20" />
-    </span>
     <div class="min-w-0 flex-1 space-y-1">
       <h3 [id]="titleId()" class="text-base leading-snug font-bold text-text">
         {{ benefit().name }}
       </h3>
       <p class="text-sm text-text">{{ benefit().description }}</p>
       <p class="flex items-center gap-1.5 text-sm text-muted">
-        <app-icon name="store" [size]="14" />
         <span class="sr-only">Cafetería: </span>
         {{ benefit().cafeName ?? 'Todas las cafeterías' }}
       </p>
       @if (benefit().expiresAt; as expiresAt) {
         <p class="flex items-center gap-1.5 text-sm text-muted">
-          <app-icon name="clock" [size]="14" />
           <time [attr.datetime]="expiresAt | date: 'yyyy-MM-dd'">
             Vence el {{ expiresAt | date: 'd MMM y' }}
           </time>
@@ -98,7 +90,6 @@
         <p
           class="mt-3 flex items-start gap-2 rounded-xl border border-accent bg-accent-light p-3 text-sm font-medium text-text"
         >
-          <app-icon name="alert-circle" [size]="16" class="mt-0.5" />
           {{ message }}
         </p>
       }

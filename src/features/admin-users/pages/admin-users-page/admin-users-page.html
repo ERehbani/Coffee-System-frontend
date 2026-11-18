@@ -2,9 +2,6 @@
   <!-- Top Navigation & Title Bar -->
   <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-border">
     <div class="flex items-center gap-3">
-      <span class="inline-flex size-10 items-center justify-center rounded-xl bg-purple-700 text-white shadow-xs">
-        <app-icon name="shield" [size]="20" />
-      </span>
       <div>
         <div class="flex items-center gap-2">
           <h1 class="text-xl font-extrabold text-text">Auditoría de Usuarios</h1>
@@ -23,17 +20,9 @@
         class="cursor-pointer inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface px-3 py-2 text-xs font-bold text-muted transition hover:bg-bg hover:text-text active:scale-95 shadow-2xs select-none"
         title="Recargar usuarios"
       >
-        <app-icon name="refresh-cw" [size]="14" />
         <span>Actualizar</span>
       </button>
 
-      <a
-        routerLink="/home"
-        class="cursor-pointer inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface px-3 py-2 text-xs font-bold text-muted transition hover:bg-bg hover:text-text active:scale-95 shadow-2xs select-none"
-      >
-        <app-icon name="coffee" [size]="14" />
-        <span>Inicio App</span>
-      </a>
     </div>
   </div>
 
@@ -43,7 +32,6 @@
     <div class="rounded-2xl border border-border bg-surface p-4 shadow-2xs">
       <div class="flex items-center justify-between text-muted mb-1">
         <span class="text-xs font-bold">Total Registrados</span>
-        <app-icon name="users" [size]="16" class="text-primary" />
       </div>
       <p class="text-2xl font-black text-text">{{ store.stats().totalUsers }}</p>
       <span class="text-[11px] text-muted">En el sistema</span>
@@ -53,7 +41,6 @@
     <div class="rounded-2xl border border-border bg-surface p-4 shadow-2xs">
       <div class="flex items-center justify-between text-muted mb-1">
         <span class="text-xs font-bold">Activos</span>
-        <app-icon name="check-circle" [size]="16" class="text-emerald-600" />
       </div>
       <p class="text-2xl font-black text-emerald-700">{{ store.stats().activeUsers }}</p>
       <span class="text-[11px] text-muted">Cuentas operativas</span>
@@ -63,7 +50,6 @@
     <div class="rounded-2xl border border-border bg-surface p-4 shadow-2xs">
       <div class="flex items-center justify-between text-muted mb-1">
         <span class="text-xs font-bold">Clientes</span>
-        <app-icon name="user" [size]="16" class="text-sky-600" />
       </div>
       <p class="text-2xl font-black text-sky-800">{{ store.stats().clientUsers }}</p>
       <span class="text-[11px] text-muted">Fidelizados</span>
@@ -73,7 +59,6 @@
     <div class="rounded-2xl border border-border bg-surface p-4 shadow-2xs">
       <div class="flex items-center justify-between text-muted mb-1">
         <span class="text-xs font-bold">Comercios</span>
-        <app-icon name="store" [size]="16" class="text-amber-600" />
       </div>
       <p class="text-2xl font-black text-amber-800">{{ store.stats().cafeAdminUsers }}</p>
       <span class="text-[11px] text-muted">Cafeterías aliadas</span>
@@ -83,7 +68,6 @@
     <div class="col-span-2 sm:col-span-1 rounded-2xl border border-border bg-surface p-4 shadow-2xs">
       <div class="flex items-center justify-between text-muted mb-1">
         <span class="text-xs font-bold">Superadmins</span>
-        <app-icon name="shield" [size]="16" class="text-purple-600" />
       </div>
       <p class="text-2xl font-black text-purple-800">{{ store.stats().superadminUsers }}</p>
       <span class="text-[11px] text-muted">Auditores raíz</span>
@@ -116,9 +100,9 @@
           aria-label="Filtrar por rol de usuario"
         >
           <option value="all">Todos los roles</option>
-          <option value="superadmin">Superadmin</option>
-          <option value="cafe_admin">Comercios / Cafeterías</option>
-          <option value="client">Clientes</option>
+          @for (option of roleOptions; track option.value) {
+            <option [value]="option.value" [selected]="option.value === store.roleFilter()">{{ option.label }}</option>
+          }
         </select>
       </div>
 
@@ -131,8 +115,9 @@
           aria-label="Filtrar por estado de la cuenta"
         >
           <option value="all">Todos los estados</option>
-          <option value="active">Activos</option>
-          <option value="inactive">Inactivos</option>
+          @for (option of statusOptions; track option.value) {
+            <option [value]="option.value" [selected]="option.value === store.statusFilter()">{{ option.label }}</option>
+          }
         </select>
       </div>
     </div>
@@ -147,14 +132,14 @@
               Búsqueda: "{{ q }}"
             </span>
           }
-          @if (store.roleFilter() !== 'all') {
-            <span class="rounded-lg bg-bg px-2.5 py-1 text-[11px] font-medium border border-border capitalize">
-              Rol: {{ store.roleFilter() }}
+          @if (roleFilterLabel(); as roleLabel) {
+            <span class="rounded-lg bg-bg px-2.5 py-1 text-[11px] font-medium border border-border">
+              Rol: {{ roleLabel }}
             </span>
           }
-          @if (store.statusFilter() !== 'all') {
-            <span class="rounded-lg bg-bg px-2.5 py-1 text-[11px] font-medium border border-border capitalize">
-              Estado: {{ store.statusFilter() }}
+          @if (statusFilterLabel(); as statusLabel) {
+            <span class="rounded-lg bg-bg px-2.5 py-1 text-[11px] font-medium border border-border">
+              Estado: {{ statusLabel }}
             </span>
           }
         </div>
@@ -177,9 +162,6 @@
       class="flex items-center justify-between gap-3 rounded-2xl border border-rose-300 bg-rose-50 px-5 py-3.5 text-rose-800 transition"
     >
       <div class="flex items-center gap-3">
-        <span class="inline-flex size-8 shrink-0 items-center justify-center rounded-full bg-rose-600 text-white">
-          <app-icon name="x" [size]="16" />
-        </span>
         <p class="text-xs font-bold text-rose-900">{{ errorMsg }}</p>
       </div>
       <button

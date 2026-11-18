@@ -28,11 +28,15 @@ describe('server routes', () => {
     expect(find('cafe/**')?.renderMode).toBe(RenderMode.Client);
   });
 
-  it('declares the admin wildcard before the catch-all prerender route', () => {
+  it('declares the admin wildcard before the catch-all route', () => {
     const paths = serverRoutes.map((route) => route.path);
 
     expect(paths.indexOf('admin/**')).toBeGreaterThanOrEqual(0);
     expect(paths.indexOf('admin/**')).toBeLessThan(paths.indexOf('**'));
-    expect(find('**')?.renderMode).toBe(RenderMode.Prerender);
+  });
+
+  it('renders the not found page on the client, where the session is', () => {
+    expect(find('**')?.renderMode).toBe(RenderMode.Client);
+    expect(find('')?.renderMode).toBe(RenderMode.Prerender);
   });
 });

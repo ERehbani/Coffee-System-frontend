@@ -73,7 +73,7 @@ describe('admin routes', () => {
 
     expect(page().querySelector('app-admin-layout app-admin-tiers-page')).not.toBeNull();
     expect(page().querySelector('app-admin-placeholder-page')).toBeNull();
-    expect(page().querySelector('h1')?.textContent?.trim()).toBe('Tiers');
+    expect(page().querySelector('h1')?.textContent?.trim()).toBe('Niveles');
   });
 
   it('renders the benefit types page inside the admin layout', async () => {
@@ -228,5 +228,40 @@ describe('checkout route', () => {
     await harness.navigateByUrl('/checkout/success');
 
     expect(router.url).toBe('/purchases');
+  });
+});
+
+describe('unknown routes', () => {
+  let harness: RouterTestingHarness;
+  let router: Router;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      providers: [provideRouter(routes), provideHttpClient(), provideHttpClientTesting()],
+    }).compileComponents();
+    harness = await RouterTestingHarness.create();
+    router = TestBed.inject(Router);
+  });
+
+  it('shows the not found page and keeps the address', async () => {
+    signInForTest(['ROLE_CLIENTE']);
+
+    await harness.navigateByUrl('/esta-pagina-no-existe');
+
+    expect(router.url).toBe('/esta-pagina-no-existe');
+    const page = harness.fixture.nativeElement as HTMLElement;
+    expect(page.querySelector('app-not-found-page')).not.toBeNull();
+    expect(page.textContent).toContain('No encontramos esta página');
+    expect(page.querySelector('a')?.getAttribute('href')).toBe('/home');
+  });
+
+  it('offers the login to a visitor without a session', async () => {
+    signOutForTest();
+
+    await harness.navigateByUrl('/cualquier-cosa');
+
+    const page = harness.fixture.nativeElement as HTMLElement;
+    expect(page.querySelector('app-not-found-page')).not.toBeNull();
+    expect(page.querySelector('a')?.getAttribute('href')).toBe('/login');
   });
 });

@@ -2,10 +2,9 @@ import { Component, computed, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { AdminPageHeader } from '../admin-page-header/admin-page-header';
-import { Icon } from '../icon/icon';
 
 @Component({
-  imports: [AdminPageHeader, Icon],
+  imports: [AdminPageHeader],
   selector: 'app-admin-placeholder-page',
   templateUrl: './admin-placeholder-page.html',
 })

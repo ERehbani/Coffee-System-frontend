@@ -26,7 +26,6 @@
   <hr class="my-4 border-t border-dashed border-border" />
 
   <div class="flex items-center gap-2 rounded-xl border border-border bg-accent-light px-3 py-2">
-    <app-icon name="rectangle-ellipsis" [size]="18" class="text-muted" />
     <span class="sr-only">Código de canje: </span>
     <code class="font-mono text-base font-bold tracking-[0.15em] text-text">{{
       redemption().code
@@ -44,7 +43,6 @@
   <div class="mt-2 flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-sm">
     @if (expiryLabel(); as label) {
       <p class="flex items-center gap-1.5 text-text">
-        <app-icon name="clock" [size]="14" class="text-muted" />
         {{ label }}
       </p>
     }

@@ -1,11 +1,11 @@
 import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
 import { backendErrorMessage } from '../../../shared/utils/backend-error';
 
-export const REDEEM_ERROR_MESSAGE = 'No pudimos activar este beneficio. Inténtalo de nuevo.';
+export const REDEEM_ERROR_MESSAGE = 'No pudimos activar este beneficio. Intentalo de nuevo.';
 
 const NOT_FOUND_MESSAGE = 'No encontramos este beneficio.';
 const CLIENT_NOT_FOUND_MESSAGE =
-  'No pudimos identificar tu cuenta. Vuelve a iniciar sesión e inténtalo de nuevo.';
+  'No pudimos identificar tu cuenta. Volvé a iniciar sesión e intentalo de nuevo.';
 
 /**
  * ProblemDetail `detail` of `POST /redemption` (RedemptionService, BenefitEntity), lower-cased:
@@ -13,7 +13,7 @@ const CLIENT_NOT_FOUND_MESSAGE =
  */
 const MESSAGES_BY_BACKEND_DETAIL: ReadonlyMap<string, string> = new Map([
   ['the current user has no client profile', CLIENT_NOT_FOUND_MESSAGE],
-  ['client does not have enough points', 'No tienes puntos suficientes para este beneficio.'],
+  ['client does not have enough points', 'No tenés puntos suficientes para este beneficio.'],
   ['benefit is sold out', 'Este beneficio ya no tiene canjes disponibles.'],
   ['benefit has expired', 'Este beneficio venció.'],
   ['benefit is not available yet', 'Este beneficio todavía no está disponible.'],

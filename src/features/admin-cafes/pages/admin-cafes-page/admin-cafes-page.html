@@ -1,9 +1,6 @@
 <main class="mx-auto max-w-6xl px-4 py-8 space-y-6">
   <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-border">
     <div class="flex items-center gap-3">
-      <span class="inline-flex size-11 items-center justify-center rounded-2xl bg-primary text-white shadow-xs">
-        <app-icon name="coffee" [size]="22" />
-      </span>
       <div>
         <div class="flex items-center gap-2">
           <h1 class="text-xl font-extrabold text-text">Gestión de Cafeterías</h1>
@@ -23,7 +20,6 @@
         (click)="openRegister()"
         class="cursor-pointer inline-flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2.5 text-xs font-bold text-white shadow-xs hover:bg-primary-dark transition active:scale-95 select-none"
       >
-        <app-icon name="plus" [size]="16" />
         <span>Registrar Cafetería</span>
       </button>
 
@@ -33,7 +29,6 @@
         class="cursor-pointer inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface px-3 py-2 text-xs font-bold text-muted hover:bg-bg hover:text-text transition active:scale-95 shadow-2xs select-none"
         title="Actualizar listado"
       >
-        <app-icon name="refresh-cw" [size]="14" />
         <span>Actualizar</span>
       </button>
 
@@ -41,7 +36,6 @@
         routerLink="/admin/users"
         class="cursor-pointer inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface px-3 py-2 text-xs font-bold text-muted hover:bg-bg hover:text-text transition active:scale-95 shadow-2xs select-none"
       >
-        <app-icon name="users" [size]="14" />
         <span>Usuarios</span>
       </a>
     </div>
@@ -59,7 +53,6 @@
       [class.text-rose-900]="msg.type === 'error'"
     >
       <div class="flex items-center gap-2">
-        <app-icon [name]="msg.type === 'success' ? 'check' : 'alert-circle'" [size]="16" />
         <span>{{ msg.text }}</span>
       </div>
       <button
@@ -176,9 +169,6 @@
         </div>
       } @else if (filteredCafes().length === 0) {
         <div class="flex flex-col items-center justify-center p-12 text-center">
-          <div class="flex size-14 items-center justify-center rounded-2xl bg-primary/10 text-primary mb-3">
-            <app-icon name="store" [size]="24" />
-          </div>
           <p class="text-sm font-bold text-text">No se encontraron cafeterías</p>
           <p class="text-xs text-muted mt-1 max-w-sm">
             No hay comercios que coincidan con la búsqueda o el filtro seleccionado.
@@ -196,7 +186,6 @@
               (click)="openRegister()"
               class="cursor-pointer inline-flex items-center gap-1.5 rounded-xl bg-primary px-3.5 py-2 text-xs font-bold text-white shadow-xs hover:bg-primary-dark transition active:scale-95"
             >
-              <app-icon name="plus" [size]="14" />
               <span>Registrar Cafetería</span>
             </button>
           </div>
@@ -275,7 +264,6 @@
                       class="cursor-pointer inline-flex items-center gap-1 rounded-xl border border-border bg-surface px-3 py-1.5 text-xs font-bold text-text shadow-2xs hover:bg-bg hover:text-primary transition active:scale-95"
                       title="Ver detalle completo"
                     >
-                      <app-icon name="eye" [size]="14" />
                       <span>Ver detalle</span>
                     </button>
                   </td>

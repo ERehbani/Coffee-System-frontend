@@ -25,7 +25,6 @@
       (click)="loadRedemption()"
       class="mt-2 inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-primary-dark cursor-pointer"
     >
-      <app-icon name="refresh-cw" [size]="16" />
       Reintentar
     </button>
   </section>
@@ -39,7 +38,6 @@
           <p class="mt-0.5 text-sm text-muted">{{ redemption.description }}</p>
         }
         <p class="mt-1 flex items-center justify-center gap-1.5 text-sm text-muted">
-          <app-icon name="store" [size]="14" />
           {{ cafeLabel() }}
         </p>
 
@@ -60,7 +58,6 @@
       </section>
 
       <section class="flex items-start gap-3 rounded-2xl border border-border bg-surface p-4">
-        <app-icon name="clock" [size]="18" class="mt-0.5 text-muted" />
         <div>
           <h3 class="text-sm font-bold text-text">Vencimiento</h3>
           @if (expiryDate(); as expiryDate) {

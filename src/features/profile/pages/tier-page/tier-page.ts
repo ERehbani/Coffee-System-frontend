@@ -15,7 +15,7 @@ import { TierBenefitItem } from '../../components/tier-benefit-item/tier-benefit
 import { TierLevelItem } from '../../components/tier-level-item/tier-level-item';
 import { TierProgress } from '../../components/tier-progress/tier-progress';
 import { TierStore } from '../../services/tier.store';
-import { toTierLabel, toTierTextClass } from '../../utils/loyalty-tier';
+import { toTierLabel } from '../../utils/loyalty-tier';
 
 @Component({
   imports: [
@@ -39,10 +39,6 @@ export class TierPage {
   protected readonly tierLabel = computed(() => {
     const detail = this.store.detail();
     return detail ? toTierLabel(detail.tier) : '';
-  });
-  protected readonly tierClass = computed(() => {
-    const detail = this.store.detail();
-    return detail ? toTierTextClass(detail.tier) : '';
   });
 
   constructor() {

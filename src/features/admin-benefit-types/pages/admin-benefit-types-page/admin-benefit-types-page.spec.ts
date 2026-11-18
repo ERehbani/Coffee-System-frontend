@@ -92,7 +92,7 @@ describe('AdminBenefitTypesPage', () => {
 
       expect(element.querySelector('h1')?.textContent?.trim()).toBe('Tipos de beneficio');
       expect(element.querySelector('app-admin-page-header p')?.textContent).toContain(
-        'Define qué formatos de cupón pueden usar los beneficios.',
+        'Definí qué formatos de cupón pueden usar los beneficios.',
       );
       expect(button('Nuevo tipo')).toBeTruthy();
     });
@@ -249,7 +249,7 @@ describe('AdminBenefitTypesPage', () => {
 
       expect(createFormat).not.toHaveBeenCalled();
       expect(dialog()).not.toBeNull();
-      expect(element.textContent).toContain('Elige un formato.');
+      expect(element.textContent).toContain('Elegí un formato.');
       expect(element.textContent).toContain('El nombre es obligatorio.');
       expect(element.textContent).toContain('La descripción es obligatoria.');
       expect(nameInput().getAttribute('aria-describedby')).toBeTruthy();
@@ -308,7 +308,7 @@ describe('AdminBenefitTypesPage', () => {
       await click(button('Guardar'));
 
       expect(dialog()!.querySelector('[role="alert"]')?.textContent).toContain(
-        'No pudimos guardar el tipo de beneficio. Inténtalo de nuevo.',
+        'No pudimos guardar el tipo de beneficio. Intentalo de nuevo.',
       );
     });
 

@@ -5,7 +5,7 @@
 >
   <app-admin-page-header
     title="Tipos de beneficio"
-    subtitle="Define qué formatos de cupón pueden usar los beneficios."
+    subtitle="Definí qué formatos de cupón pueden usar los beneficios."
   >
     <div actions class="flex flex-col items-end gap-1.5">
       <button
@@ -15,7 +15,6 @@
         (click)="onCreate($event)"
         class="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-60"
       >
-        <app-icon name="plus" [size]="16" />
         Nuevo tipo
       </button>
       @if (isCatalogComplete()) {
@@ -36,10 +35,6 @@
       [class.text-rose-700]="message.type === 'error'"
     >
       <span class="flex items-center gap-2 font-medium">
-        <app-icon
-          [name]="message.type === 'success' ? 'check-circle' : 'alert-circle'"
-          [size]="18"
-        />
         {{ message.text }}
       </span>
       <button
@@ -70,13 +65,12 @@
         class="flex flex-col items-center gap-3 rounded-2xl border border-border bg-surface p-6 text-center"
       >
         <h2 class="text-lg font-semibold text-text">No pudimos cargar los tipos de beneficio</h2>
-        <p class="text-sm text-muted">Revisa tu conexión e inténtalo de nuevo.</p>
+        <p class="text-sm text-muted">Revisá tu conexión e intentalo de nuevo.</p>
         <button
           type="button"
           (click)="store.loadFormats()"
           class="mt-2 inline-flex cursor-pointer items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
         >
-          <app-icon name="refresh-cw" [size]="16" />
           Reintentar
         </button>
       </section>

@@ -11,6 +11,13 @@ import { QuickActionId, QuickActions } from '../../components/quick-actions/quic
 import { SectionHeader } from '../../components/section-header/section-header';
 import { ProfileStore } from '../../services/profile.store';
 
+const QUICK_ACTION_PATHS: Record<QuickActionId, string> = {
+  'redeem-points': '/rewards',
+  'order-in-store': '/catalog',
+  'my-coupons': '/profile/coupons',
+  'write-review': '/purchases',
+};
+
 @Component({
   imports: [
     RouterLink,
@@ -44,19 +51,19 @@ export class ProfilePage {
     return count === 1 ? '1 activo' : `${count} activos`;
   });
 
-  protected onScanQr(): void {}
-  protected onViewCard(): void {}
   protected onQuickAction(action: QuickActionId): void {
-    if (action === 'write-review') {
-      this.router.navigate(['/purchases']);
-    } else if (action === 'my-coupons') {
-      this.router.navigate(['/profile/coupons']);
-    }
+    this.router.navigate([QUICK_ACTION_PATHS[action]]);
   }
   protected onShowQr(redemptionId: string): void {
     this.router.navigate(['/profile/redemptions', redemptionId]);
   }
-  protected onSeeMap(): void {}
-  protected onSeeCatalog(): void {}
-  protected onRedeem(_benefitId: string): void {}
+  protected onSeeCafes(): void {
+    this.router.navigate(['/home']);
+  }
+  protected onSeeBenefits(): void {
+    this.router.navigate(['/rewards']);
+  }
+  protected onRedeem(_benefitId: string): void {
+    this.router.navigate(['/rewards']);
+  }
 }

@@ -90,7 +90,7 @@ describe('BenefitFormatDrawer', () => {
 
       const options = [...select()!.options].map((option) => [option.value, option.text.trim()]);
       expect(options).toEqual([
-        ['', 'Elige un formato'],
+        ['', 'Elegí un formato'],
         ['DOS_POR_UNO', '2x1'],
         ['PRODUCTO_POR_PUNTOS', 'Producto por puntos'],
       ]);
@@ -161,7 +161,7 @@ describe('BenefitFormatDrawer', () => {
       await settle();
 
       expect(saved).toEqual([]);
-      expect(panel().textContent).toContain('Elige un formato.');
+      expect(panel().textContent).toContain('Elegí un formato.');
       expect(panel().textContent).toContain('El nombre es obligatorio.');
       expect(panel().textContent).toContain('La descripción es obligatoria.');
       expect(nameInput().getAttribute('aria-invalid')).toBe('true');
@@ -191,7 +191,7 @@ describe('BenefitFormatDrawer', () => {
       fixture.componentRef.setInput('errors', {
         code: 'Ese formato ya está en el catálogo.',
         displayName: 'Ya existe un tipo con ese nombre.',
-        form: 'No pudimos guardar el tipo de beneficio. Inténtalo de nuevo.',
+        form: 'No pudimos guardar el tipo de beneficio. Intentalo de nuevo.',
       });
       await settle();
 

@@ -92,7 +92,7 @@ export class AdminTierStore {
         this.isProcessing.set(false);
         this.actionMessage.set({
           type: 'success',
-          text: editing ? 'Tier actualizado.' : 'Tier creado.',
+          text: editing ? 'Nivel actualizado.' : 'Nivel creado.',
         });
       },
       error: (error: unknown) => {

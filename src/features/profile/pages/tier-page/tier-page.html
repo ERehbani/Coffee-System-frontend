@@ -27,13 +27,12 @@
       class="flex flex-col items-center gap-3 rounded-2xl border border-border bg-surface p-6 text-center"
     >
       <h2 class="text-lg font-bold text-text">No pudimos cargar tu nivel</h2>
-      <p class="text-sm text-muted">Revisa tu conexión e inténtalo de nuevo.</p>
+      <p class="text-sm text-muted">Revisá tu conexión e intentalo de nuevo.</p>
       <button
         type="button"
         (click)="store.reload()"
         class="mt-2 inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
       >
-        <app-icon name="refresh-cw" [size]="16" />
         Reintentar
       </button>
     </section>
@@ -55,7 +54,6 @@
               (click)="store.reload()"
               class="inline-flex min-h-11 items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
             >
-              <app-icon name="refresh-cw" [size]="16" />
               Reintentar
             </button>
           </div>
@@ -67,13 +65,9 @@
         >
           <p class="text-xs font-bold tracking-[0.2em] text-white/70">NIVEL ACTUAL</p>
           <p class="mt-2 flex items-center gap-2 text-3xl font-extrabold tracking-tight">
-            <span class="inline-flex" [class]="tierClass()">
-              <app-icon name="shield" [size]="28" [filled]="true" />
-            </span>
             {{ tierLabel() }}
           </p>
           <p class="mt-1 flex items-center gap-1.5 text-sm text-white/70">
-            <app-icon name="history" [size]="14" />
             {{ detail.lifetimePoints | number }} pts acumulados en total
           </p>
 
@@ -91,7 +85,7 @@
         <section aria-labelledby="tier-benefits-heading" class="space-y-3">
           <app-section-header headingId="tier-benefits-heading" heading="Beneficios de tu nivel" />
           <p class="text-sm text-muted">
-            Tienes {{ store.availablePoints() | number }} pts disponibles para canjear.
+            Tenés {{ store.availablePoints() | number }} pts disponibles para canjear.
           </p>
 
           <div aria-live="polite">
@@ -107,7 +101,6 @@
                   id="tier-redeemed-heading"
                   class="flex items-center gap-2 text-base font-bold text-success"
                 >
-                  <app-icon name="check-circle" [size]="20" />
                   ¡Beneficio activado!
                 </h3>
                 <p class="mt-1 text-sm text-text">
@@ -157,13 +150,12 @@
                 class="flex flex-col items-center gap-3 rounded-2xl border border-border bg-surface p-5 text-center"
               >
                 <h3 class="text-base font-bold text-text">No pudimos cargar tus beneficios</h3>
-                <p class="text-sm text-muted">Revisa tu conexión e inténtalo de nuevo.</p>
+                <p class="text-sm text-muted">Revisá tu conexión e intentalo de nuevo.</p>
                 <button
                   type="button"
                   (click)="store.reloadBenefits()"
                   class="inline-flex min-h-11 items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                 >
-                  <app-icon name="refresh-cw" [size]="16" />
                   Reintentar
                 </button>
               </div>

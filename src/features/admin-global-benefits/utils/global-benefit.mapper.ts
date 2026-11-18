@@ -14,10 +14,10 @@ import {
 import { toLocalIsoDate } from '../../../shared/utils/local-date';
 
 export const BENEFIT_TYPE_OPTIONS: readonly GlobalBenefitTypeOption[] = [
-  { value: 'CODIGO_DESCUENTO', label: 'Código de Descuento', shortLabel: 'Descuento %', description: 'Porcentaje de descuento en el ticket final', icon: 'tag' },
-  { value: 'DOS_POR_UNO', label: 'Promoción 2x1', shortLabel: '2x1', description: 'Llevá 2 productos y pagá solo 1 en toda la red', icon: 'ticket' },
-  { value: 'PRODUCTO_POR_PUNTOS', label: 'Producto por Puntos', shortLabel: 'Por Puntos', description: 'Canje directo de productos usando saldo de puntos', icon: 'coffee' },
-  { value: 'PRODUCTO_GRATIS_SOCIO', label: 'Cortesía Gratis Socio', shortLabel: 'Gratis Socio', description: 'Bebida sin costo por categoría de fidelidad', icon: 'gift' },
+  { value: 'CODIGO_DESCUENTO', label: 'Código de Descuento', shortLabel: 'Descuento %', description: 'Porcentaje de descuento en el ticket final' },
+  { value: 'DOS_POR_UNO', label: 'Promoción 2x1', shortLabel: '2x1', description: 'Llevá 2 productos y pagá solo 1 en toda la red' },
+  { value: 'PRODUCTO_POR_PUNTOS', label: 'Producto por Puntos', shortLabel: 'Por Puntos', description: 'Canje directo de productos usando saldo de puntos' },
+  { value: 'PRODUCTO_GRATIS_SOCIO', label: 'Cortesía Gratis Socio', shortLabel: 'Gratis Socio', description: 'Bebida sin costo por categoría de fidelidad' },
 ];
 
 export const BENEFIT_TIER_OPTIONS: readonly GlobalBenefitTierOption[] = [

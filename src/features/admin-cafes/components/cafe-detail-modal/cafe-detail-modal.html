@@ -12,9 +12,6 @@
     >
       <div class="flex items-start justify-between gap-4 pb-3 border-b border-border">
         <div class="flex items-center gap-3 min-w-0">
-          <div class="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-            <app-icon name="store" [size]="24" />
-          </div>
           <div class="min-w-0">
             <h2 id="modal-cafe-title" class="text-lg font-extrabold text-text truncate">
               {{ item.name }}
@@ -59,7 +56,6 @@
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 text-xs">
         <div class="rounded-2xl border border-border bg-bg/50 p-3 space-y-1">
           <span class="inline-flex items-center gap-1.5 font-bold text-muted">
-            <app-icon name="map-pin" [size]="14" />
             Dirección
           </span>
           <p class="font-semibold text-text break-words">{{ item.address }}</p>
@@ -67,7 +63,6 @@
 
         <div class="rounded-2xl border border-border bg-bg/50 p-3 space-y-1">
           <span class="inline-flex items-center gap-1.5 font-bold text-muted">
-            <app-icon name="mail" [size]="14" />
             Correo electrónico
           </span>
           <p class="font-semibold text-text break-words">{{ item.email }}</p>
@@ -75,7 +70,6 @@
 
         <div class="rounded-2xl border border-border bg-bg/50 p-3 space-y-1">
           <span class="inline-flex items-center gap-1.5 font-bold text-muted">
-            <app-icon name="phone" [size]="14" />
             Teléfono
           </span>
           <p class="font-semibold text-text">{{ item.phoneNumber || 'No especificado' }}</p>
@@ -83,7 +77,6 @@
 
         <div class="rounded-2xl border border-border bg-bg/50 p-3 space-y-1">
           <span class="inline-flex items-center gap-1.5 font-bold text-muted">
-            <app-icon name="clock" [size]="14" />
             Horarios
           </span>
           <p class="font-semibold text-text">{{ formatHours(item.openingHours) || 'No especificado' }}</p>
@@ -93,7 +86,6 @@
       @if (item.description) {
         <div class="rounded-2xl border border-border bg-bg/50 p-3 space-y-1 text-xs">
           <span class="inline-flex items-center gap-1.5 font-bold text-muted">
-            <app-icon name="coffee" [size]="14" />
             Descripción
           </span>
           <p class="text-text leading-relaxed">{{ item.description }}</p>
@@ -104,7 +96,6 @@
         <div class="flex items-center justify-between rounded-2xl border border-border bg-bg/40 px-3.5 py-2.5 text-xs">
           <span class="font-bold text-muted">Calificación promedio</span>
           <div class="flex items-center gap-1.5">
-            <app-icon name="star" [size]="16" class="text-accent" [filled]="true" />
             <span class="font-extrabold text-text">{{ item.rating }}</span>
             @if (item.reviewCount) {
               <span class="text-muted">({{ item.reviewCount }} opiniones)</span>

@@ -164,7 +164,6 @@
                       (click)="openProductForm()"
                       class="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-primary px-4 py-2 text-sm font-bold text-primary transition hover:bg-accent-light"
                     >
-                      <app-icon name="plus" [size]="16" />
                       Agregar producto
                     </button>
                   }
@@ -197,7 +196,6 @@
                         (click)="openBenefitForm()"
                         class="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-primary px-4 py-2 text-sm font-bold text-primary transition hover:bg-accent-light"
                       >
-                        <app-icon name="plus" [size]="16" />
                         Crear beneficio
                       </button>
                     }
@@ -255,9 +253,6 @@
               [disabled]="status() === 'saving' || uploading()"
               class="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-primary px-5 py-2 text-sm font-bold text-white transition hover:bg-primary-dark disabled:opacity-60"
             >
-              @if (isLastStep()) {
-                <app-icon name="check" [size]="16" />
-              }
               {{ nextLabel() }}
             </button>
           </div>

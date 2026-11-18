@@ -1,5 +1,4 @@
 import { Component, computed, input, linkedSignal, output, signal } from '@angular/core';
-import { Icon } from '../../../../shared/components/icon/icon';
 import { ImageInput } from '../../../../shared/components/image-input/image-input';
 import { ClientProfile, UpdateClientProfileInput } from '../../types/profile.model';
 
@@ -10,7 +9,7 @@ export interface AvatarPreset {
 
 @Component({
   selector: 'app-profile-edit-form',
-  imports: [Icon, ImageInput],
+  imports: [ImageInput],
   templateUrl: './profile-edit-form.html',
   host: { class: 'block' },
 })

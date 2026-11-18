@@ -1,0 +1,27 @@
+<main class="flex min-h-dvh items-center justify-center bg-bg px-4 py-12">
+  <div class="w-full max-w-md rounded-3xl border border-border bg-surface p-8 text-center shadow-xs">
+    <p class="text-6xl font-extrabold tracking-tight text-primary">404</p>
+    <h1 class="mt-3 text-2xl font-bold text-text">No encontramos esta página</h1>
+    <p class="mt-2 text-sm text-muted">
+      Puede que el enlace esté mal escrito o que la página ya no exista.
+    </p>
+    @if (path && path !== '/') {
+      <p class="mt-3 break-all rounded-lg bg-bg px-3 py-2 font-mono text-xs text-muted">{{ path }}</p>
+    }
+    <div class="mt-6 flex flex-col gap-2 sm:flex-row sm:justify-center">
+      <a
+        [routerLink]="homeLink()"
+        class="rounded-xl bg-primary px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+      >
+        {{ homeLabel() }}
+      </a>
+      <button
+        type="button"
+        (click)="goBack()"
+        class="cursor-pointer rounded-xl border border-border px-5 py-2.5 text-sm font-bold text-text transition-colors hover:border-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+      >
+        Volver atrás
+      </button>
+    </div>
+  </div>
+</main>

@@ -227,7 +227,7 @@ describe('AdminBenefitFormatStore', () => {
     store.saveFormat({ ...input, code: 'CODIGO_DESCUENTO' });
 
     expect(store.formErrors()).toEqual({
-      form: 'No pudimos guardar el tipo de beneficio. Inténtalo de nuevo.',
+      form: 'No pudimos guardar el tipo de beneficio. Intentalo de nuevo.',
     });
     expect(store.isDrawerOpen()).toBe(true);
   });

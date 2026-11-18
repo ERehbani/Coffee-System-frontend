@@ -64,21 +64,21 @@ describe('AdminTiersPage', () => {
   const conflict = (message: string) => new HttpErrorResponse({ status: 409, error: { detail: message } });
 
   describe('page', () => {
-    it('titles the page "Tiers" with a description and the "Nuevo tier" action', async () => {
+    it('titles the page "Niveles" with a description and the "Nuevo nivel" action', async () => {
       await render();
 
-      expect(element.querySelector('h1')?.textContent?.trim()).toBe('Tiers');
+      expect(element.querySelector('h1')?.textContent?.trim()).toBe('Niveles');
       expect(element.querySelector('app-admin-page-header p')?.textContent).toContain(
-        'Configura los niveles y los puntos necesarios para alcanzarlos.',
+        'Configurá los niveles y los puntos necesarios para alcanzarlos.',
       );
-      expect(button('Nuevo tier')).toBeTruthy();
+      expect(button('Nuevo nivel')).toBeTruthy();
     });
 
     it('shows a busy state while the tiers load', async () => {
       await render(new Subject<readonly Tier[]>());
 
       expect(element.querySelector('[aria-busy="true"]')).not.toBeNull();
-      expect(element.querySelector('[role="status"]')?.textContent).toContain('Cargando tiers');
+      expect(element.querySelector('[role="status"]')?.textContent).toContain('Cargando niveles');
       expect(element.querySelector('table')).toBeNull();
     });
 
@@ -105,7 +105,7 @@ describe('AdminTiersPage', () => {
     it('explains that there are no tiers yet', async () => {
       await render(of([]));
 
-      expect(element.textContent).toContain('Todavía no hay tiers.');
+      expect(element.textContent).toContain('Todavía no hay niveles.');
       expect(element.querySelector('table')).toBeNull();
     });
 
@@ -113,7 +113,7 @@ describe('AdminTiersPage', () => {
       await render(throwError(() => new Error('down')));
 
       expect(element.querySelector('[role="alert"]')?.textContent).toContain(
-        'No pudimos cargar los tiers',
+        'No pudimos cargar los niveles',
       );
       getTiers.mockReturnValue(of(TIERS_FIXTURE));
 
@@ -125,15 +125,15 @@ describe('AdminTiersPage', () => {
   });
 
   describe('create flow', () => {
-    it('opens a dialog titled "Nuevo tier" with the two inputs and the actions', async () => {
+    it('opens a dialog titled "Nuevo nivel" with the two inputs and the actions', async () => {
       await render();
 
-      await click(button('Nuevo tier'));
+      await click(button('Nuevo nivel'));
 
       const panel = dialog()!;
       expect(panel.getAttribute('aria-modal')).toBe('true');
       const titleId = panel.getAttribute('aria-labelledby')!;
-      expect(panel.querySelector(`#${titleId}`)?.textContent?.trim()).toBe('Nuevo tier');
+      expect(panel.querySelector(`#${titleId}`)?.textContent?.trim()).toBe('Nuevo nivel');
       expect(panel.querySelector('label[for="tier-name"]')?.textContent?.trim()).toBe('Nombre');
       expect(panel.querySelector('label[for="tier-min-points"]')?.textContent?.trim()).toBe(
         'Puntos necesarios',
@@ -148,7 +148,7 @@ describe('AdminTiersPage', () => {
     it('saves a new tier, closes the drawer and confirms with a banner', async () => {
       await render();
       createTier.mockReturnValue(of({ id: 'new', name: 'Platino', minPoints: 5000 }));
-      await click(button('Nuevo tier'));
+      await click(button('Nuevo nivel'));
 
       await type(nameInput(), '  Platino ');
       await type(pointsInput(), '5000');
@@ -159,7 +159,7 @@ describe('AdminTiersPage', () => {
         minPoints: 5000,
       } satisfies SaveTierInput);
       expect(dialog()).toBeNull();
-      expect(element.querySelector('[role="status"]')?.textContent).toContain('Tier creado.');
+      expect(element.querySelector('[role="status"]')?.textContent).toContain('Nivel creado.');
       expect(
         rows().map((row) => row.querySelector('td')?.textContent?.trim().replace(/\s+/g, ' ')),
       ).toContain('Platino');
@@ -168,7 +168,7 @@ describe('AdminTiersPage', () => {
     it('dismisses the confirmation banner', async () => {
       await render();
       createTier.mockReturnValue(of({ id: 'new', name: 'Platino', minPoints: 5000 }));
-      await click(button('Nuevo tier'));
+      await click(button('Nuevo nivel'));
       await type(nameInput(), 'Platino');
       await type(pointsInput(), '5000');
       await click(button('Guardar'));
@@ -180,7 +180,7 @@ describe('AdminTiersPage', () => {
 
     it('does not call the backend while the form is invalid and shows the reasons', async () => {
       await render();
-      await click(button('Nuevo tier'));
+      await click(button('Nuevo nivel'));
 
       await click(button('Guardar'));
 
@@ -198,7 +198,7 @@ describe('AdminTiersPage', () => {
       ['Nuevo', '1.5', 'Los puntos deben ser un número entero.'],
     ])('validates "%s" / "%s" before saving', async (name, points, message) => {
       await render();
-      await click(button('Nuevo tier'));
+      await click(button('Nuevo nivel'));
       await type(nameInput(), name);
       await type(pointsInput(), points);
 
@@ -211,7 +211,7 @@ describe('AdminTiersPage', () => {
     it('shows a duplicate name from the server under the name input and keeps the drawer open', async () => {
       await render();
       createTier.mockReturnValue(throwError(() => conflict('A tier named Oro already exists')));
-      await click(button('Nuevo tier'));
+      await click(button('Nuevo nivel'));
       await type(nameInput(), 'Oro');
       await type(pointsInput(), '4000');
 
@@ -219,7 +219,7 @@ describe('AdminTiersPage', () => {
 
       const message = nameInput().getAttribute('aria-describedby')!;
       expect(element.querySelector(`#${message}`)?.textContent).toContain(
-        'Ya existe un tier con ese nombre.',
+        'Ya existe un nivel con ese nombre.',
       );
       expect(nameInput().getAttribute('aria-invalid')).toBe('true');
       expect(nameInput().className).toContain('border-rose-600');
@@ -231,38 +231,38 @@ describe('AdminTiersPage', () => {
       createTier.mockReturnValue(
         throwError(() => conflict('A tier with 3000 points already exists')),
       );
-      await click(button('Nuevo tier'));
+      await click(button('Nuevo nivel'));
       await type(nameInput(), 'Nuevo');
       await type(pointsInput(), '3000');
       await click(button('Guardar'));
 
-      expect(element.textContent).toContain('Ya existe un tier con esa cantidad de puntos.');
+      expect(element.textContent).toContain('Ya existe un nivel con esa cantidad de puntos.');
       expect(pointsInput().getAttribute('aria-invalid')).toBe('true');
 
       await type(pointsInput(), '3500');
 
-      expect(element.textContent).not.toContain('Ya existe un tier con esa cantidad de puntos.');
+      expect(element.textContent).not.toContain('Ya existe un nivel con esa cantidad de puntos.');
       expect(pointsInput().getAttribute('aria-invalid')).toBeNull();
     });
 
     it('shows an unexpected failure inside the drawer', async () => {
       await render();
       createTier.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 500 })));
-      await click(button('Nuevo tier'));
+      await click(button('Nuevo nivel'));
       await type(nameInput(), 'Nuevo');
       await type(pointsInput(), '10');
 
       await click(button('Guardar'));
 
       expect(dialog()!.querySelector('[role="alert"]')?.textContent).toContain(
-        'No pudimos guardar el tier. Inténtalo de nuevo.',
+        'No pudimos guardar el nivel. Intentalo de nuevo.',
       );
     });
 
     it('disables the actions while saving', async () => {
       await render();
       createTier.mockReturnValue(new Subject<Tier>());
-      await click(button('Nuevo tier'));
+      await click(button('Nuevo nivel'));
       await type(nameInput(), 'Nuevo');
       await type(pointsInput(), '10');
 
@@ -274,13 +274,13 @@ describe('AdminTiersPage', () => {
   });
 
   describe('edit flow', () => {
-    it('opens "Editar tier" prefilled with the tier', async () => {
+    it('opens "Editar nivel" prefilled with the tier', async () => {
       await render();
 
       await click(button('Editar PLATA'));
 
       const panel = dialog()!;
-      expect(panel.querySelector('h2')?.textContent?.trim()).toBe('Editar tier');
+      expect(panel.querySelector('h2')?.textContent?.trim()).toBe('Editar nivel');
       expect(nameInput().value).toBe('PLATA');
       expect(pointsInput().value).toBe('1000');
       expect(pointsInput().disabled).toBe(false);
@@ -300,7 +300,7 @@ describe('AdminTiersPage', () => {
         minPoints: 1500,
       });
       expect(dialog()).toBeNull();
-      expect(element.querySelector('[role="status"]')?.textContent).toContain('Tier actualizado.');
+      expect(element.querySelector('[role="status"]')?.textContent).toContain('Nivel actualizado.');
       expect(button('Editar Plata plus')).toBeTruthy();
     });
 
@@ -324,7 +324,7 @@ describe('AdminTiersPage', () => {
     it('does not lock the points of a new tier nor of the other tiers', async () => {
       await render();
 
-      await click(button('Nuevo tier'));
+      await click(button('Nuevo nivel'));
 
       expect(pointsInput().disabled).toBe(false);
       expect(dialog()!.textContent).not.toContain('El tier base siempre requiere 0 puntos.');
@@ -335,7 +335,7 @@ describe('AdminTiersPage', () => {
     it('moves the focus into the drawer when it opens', async () => {
       await render();
 
-      await click(button('Nuevo tier'));
+      await click(button('Nuevo nivel'));
 
       expect(dialog()!.contains(document.activeElement)).toBe(true);
     });
@@ -354,7 +354,7 @@ describe('AdminTiersPage', () => {
 
     it('closes with Escape', async () => {
       await render();
-      const trigger = button('Nuevo tier');
+      const trigger = button('Nuevo nivel');
       trigger.focus();
       await click(trigger);
 
@@ -367,7 +367,7 @@ describe('AdminTiersPage', () => {
 
     it('closes when the backdrop is clicked but not when the panel is', async () => {
       await render();
-      await click(button('Nuevo tier'));
+      await click(button('Nuevo nivel'));
 
       await click(dialog()!);
       expect(dialog()).not.toBeNull();
@@ -378,11 +378,11 @@ describe('AdminTiersPage', () => {
 
     it('discards what was typed when it is closed', async () => {
       await render();
-      await click(button('Nuevo tier'));
+      await click(button('Nuevo nivel'));
       await type(nameInput(), 'Borrador');
       await click(button('Cancelar'));
 
-      await click(button('Nuevo tier'));
+      await click(button('Nuevo nivel'));
 
       expect(nameInput().value).toBe('');
     });

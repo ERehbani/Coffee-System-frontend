@@ -8,7 +8,7 @@ function problem(status: number, detail: string): HttpErrorResponse {
 
 describe('toRedeemErrorMessage', () => {
   it.each([
-    [422, 'Client does not have enough points', 'No tienes puntos suficientes para este beneficio.'],
+    [422, 'Client does not have enough points', 'No tenés puntos suficientes para este beneficio.'],
     [409, 'Benefit is sold out', 'Este beneficio ya no tiene canjes disponibles.'],
     [422, 'Benefit has expired', 'Este beneficio venció.'],
     [422, 'Benefit is not available yet', 'Este beneficio todavía no está disponible.'],
@@ -30,7 +30,7 @@ describe('toRedeemErrorMessage', () => {
 
   it('tells a missing client apart from a missing benefit', () => {
     const expected =
-      'No pudimos identificar tu cuenta. Vuelve a iniciar sesión e inténtalo de nuevo.';
+      'No pudimos identificar tu cuenta. Volvé a iniciar sesión e intentalo de nuevo.';
 
     expect(toRedeemErrorMessage(problem(403, 'The current user has no client profile'))).toBe(
       expected,
@@ -74,6 +74,6 @@ describe('toRedeemErrorMessage', () => {
   });
 
   it('uses a generic message that does not blame the points', () => {
-    expect(REDEEM_ERROR_MESSAGE).toBe('No pudimos activar este beneficio. Inténtalo de nuevo.');
+    expect(REDEEM_ERROR_MESSAGE).toBe('No pudimos activar este beneficio. Intentalo de nuevo.');
   });
 });

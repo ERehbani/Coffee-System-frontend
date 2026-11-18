@@ -5,12 +5,10 @@
       [queryParams]="catalogQueryParams()"
       class="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
     >
-      <app-icon name="arrow-left" [size]="14" />
       Volver al catálogo
     </a>
     <div>
       <span class="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-accent">
-        <app-icon name="coffee" [size]="14" />
         Coffee System
       </span>
       <h1 class="text-2xl font-bold tracking-tight text-text md:text-3xl">Confirmar pago</h1>
@@ -25,7 +23,6 @@
       role="status"
       class="flex items-center gap-2 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-xs font-bold text-emerald-800"
     >
-      <app-icon name="check-circle" [size]="16" class="text-emerald-600" />
       <span>¡Listo! Tu pago fue confirmado.</span>
     </div>
   } @else if (store.summary(); as summary) {
@@ -44,7 +41,6 @@
         role="alert"
         class="flex items-center gap-2 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-xs font-bold text-rose-800"
       >
-        <app-icon name="alert-circle" [size]="16" class="text-rose-600" />
         <span>{{ message }}</span>
       </div>
     }
@@ -57,16 +53,10 @@
       class="flex w-full cursor-pointer items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-3 text-sm font-bold text-white transition hover:bg-primary-dark active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
     >
       {{ store.isConfirming() ? 'Confirmando pago...' : 'Confirmar pago' }}
-      @if (!store.isConfirming()) {
-        <app-icon name="check" [size]="16" />
-      }
     </button>
   } @else {
     <div class="rounded-2xl border border-dashed border-border bg-surface p-12 text-center">
-      <div class="mx-auto flex size-14 items-center justify-center rounded-full bg-accent-light text-primary">
-        <app-icon name="shopping-bag" [size]="28" />
-      </div>
-      <h2 class="mt-4 text-base font-bold text-text">Tu carrito está vacío</h2>
+      <h2 class="text-base font-bold text-text">Tu carrito está vacío</h2>
       <p class="mx-auto mt-1.5 max-w-sm text-xs text-muted">
         Agregá productos desde el catálogo de una cafetería para poder pagar.
       </p>

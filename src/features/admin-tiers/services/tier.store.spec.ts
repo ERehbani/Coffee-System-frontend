@@ -112,7 +112,7 @@ describe('AdminTierStore', () => {
     ]);
     expect(store.isDrawerOpen()).toBe(false);
     expect(store.isProcessing()).toBe(false);
-    expect(store.actionMessage()).toEqual({ type: 'success', text: 'Tier creado.' });
+    expect(store.actionMessage()).toEqual({ type: 'success', text: 'Nivel creado.' });
   });
 
   it('updates the edited tier, re-sorts the list and confirms', () => {
@@ -126,7 +126,7 @@ describe('AdminTierStore', () => {
     expect(store.tiers().at(-1)?.name).toBe('Plata plus');
     expect(store.tiers()).toHaveLength(4);
     expect(store.isDrawerOpen()).toBe(false);
-    expect(store.actionMessage()).toEqual({ type: 'success', text: 'Tier actualizado.' });
+    expect(store.actionMessage()).toEqual({ type: 'success', text: 'Nivel actualizado.' });
   });
 
   it('is processing while the save is in flight and ignores a second save', () => {
@@ -155,7 +155,7 @@ describe('AdminTierStore', () => {
 
     expect(store.isDrawerOpen()).toBe(true);
     expect(store.isProcessing()).toBe(false);
-    expect(store.formErrors()).toEqual({ name: 'Ya existe un tier con ese nombre.' });
+    expect(store.formErrors()).toEqual({ name: 'Ya existe un nivel con ese nombre.' });
     expect(store.actionMessage()).toBeNull();
     expect(store.tiers()).toHaveLength(4);
   });
@@ -170,7 +170,7 @@ describe('AdminTierStore', () => {
     store.saveTier({ name: 'PLATA', minPoints: 3000 });
 
     expect(store.formErrors()).toEqual({
-      minPoints: 'Ya existe un tier con esa cantidad de puntos.',
+      minPoints: 'Ya existe un nivel con esa cantidad de puntos.',
     });
   });
 
@@ -181,7 +181,7 @@ describe('AdminTierStore', () => {
 
     store.saveTier({ name: 'Nuevo', minPoints: 10 });
 
-    expect(store.formErrors()).toEqual({ form: 'No pudimos guardar el tier. Inténtalo de nuevo.' });
+    expect(store.formErrors()).toEqual({ form: 'No pudimos guardar el nivel. Intentalo de nuevo.' });
     expect(store.isDrawerOpen()).toBe(true);
   });
 

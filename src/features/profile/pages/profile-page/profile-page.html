@@ -30,13 +30,12 @@
       class="flex flex-col items-center gap-3 rounded-2xl border border-border bg-surface p-6 text-center"
     >
       <h1 class="text-lg font-bold text-text">No pudimos cargar tu panel</h1>
-      <p class="text-sm text-muted">Revisa tu conexión e inténtalo de nuevo.</p>
+      <p class="text-sm text-muted">Revisá tu conexión e intentalo de nuevo.</p>
       <button
         type="button"
         (click)="store.reload()"
         class="mt-2 inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
       >
-        <app-icon name="refresh-cw" [size]="16" />
         Reintentar
       </button>
     </section>
@@ -49,12 +48,7 @@
             role="status"
             class="flex items-center justify-between gap-3 rounded-2xl border border-emerald-300 bg-emerald-50 px-5 py-4 text-emerald-800 transition shadow-xs"
           >
-            <div class="flex items-center gap-3">
-              <span class="inline-flex size-8 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-white">
-                <app-icon name="check" [size]="16" />
-              </span>
-              <p class="text-sm font-bold text-emerald-950">{{ successMsg }}</p>
-            </div>
+            <p class="text-sm font-bold text-emerald-950">{{ successMsg }}</p>
             <button
               type="button"
               (click)="store.dismissSuccess()"
@@ -69,30 +63,13 @@
         <app-dashboard-header
           [firstName]="dashboard.profile.firstName"
           [avatarUrl]="dashboard.profile.avatarUrl"
-          [availablePoints]="dashboard.loyalty.availablePoints"
         />
 
         @if (store.loyaltyProgress(); as progress) {
-          <app-loyalty-card
-            [loyalty]="dashboard.loyalty"
-            [progress]="progress"
-            (scanQr)="onScanQr()"
-            (viewCard)="onViewCard()"
-          />
+          <app-loyalty-card [loyalty]="dashboard.loyalty" [progress]="progress" />
         }
 
         <app-quick-actions (actionSelected)="onQuickAction($event)" />
-
-        <a
-          routerLink="/purchases"
-          class="flex items-center justify-between gap-2 rounded-2xl border border-border bg-surface px-4 py-3 text-sm font-bold text-primary transition-colors hover:border-primary hover:bg-accent-light/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-        >
-          <span class="flex items-center gap-2">
-            <app-icon name="shopping-bag" [size]="18" />
-            Historial de compras
-          </span>
-          <app-icon name="chevron-right" [size]="18" />
-        </a>
 
         <section aria-labelledby="active-redemptions-heading" class="space-y-3">
           <app-section-header
@@ -109,7 +86,7 @@
               <li
                 class="rounded-2xl border border-dashed border-border bg-surface p-4 text-center text-sm text-muted"
               >
-                No tienes canjes activos
+                No tenés canjes activos
               </li>
             }
           </ul>
@@ -118,20 +95,14 @@
             aria-label="Ver todos mis cupones"
             class="flex items-center justify-between gap-2 rounded-2xl border border-border bg-surface px-4 py-3 text-sm font-bold text-primary transition-colors hover:border-primary hover:bg-accent-light/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
           >
-            <span class="flex items-center gap-2">
-              <app-icon name="ticket" [size]="18" />
-              Ver todos
-            </span>
+            <span>Ver todos mis cupones</span>
             <app-icon name="chevron-right" [size]="18" />
           </a>
           <a
             routerLink="/profile/redemptions"
             class="flex items-center justify-between gap-2 rounded-2xl border border-border bg-surface px-4 py-3 text-sm font-bold text-primary transition-colors hover:border-primary hover:bg-accent-light/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
           >
-            <span class="flex items-center gap-2">
-              <app-icon name="history" [size]="18" />
-              Historial de beneficios canjeados
-            </span>
+            <span>Historial de beneficios canjeados</span>
             <app-icon name="chevron-right" [size]="18" />
           </a>
         </section>
@@ -139,9 +110,9 @@
         <section aria-labelledby="nearby-cafes-heading" class="space-y-3">
           <app-section-header
             headingId="nearby-cafes-heading"
-            heading="Cafeterías de la red cercanas"
-            actionLabel="Ver mapa"
-            (action)="onSeeMap()"
+            heading="Cafeterías de la red"
+            actionLabel="Ver todas"
+            (action)="onSeeCafes()"
           />
           <ul class="space-y-3">
             @for (cafe of dashboard.nearbyCafes; track cafe.id) {
@@ -154,8 +125,8 @@
           <app-section-header
             headingId="featured-benefits-heading"
             heading="Beneficios destacados"
-            actionLabel="Ver catálogo"
-            (action)="onSeeCatalog()"
+            actionLabel="Ver todos"
+            (action)="onSeeBenefits()"
           />
           <ul class="grid grid-cols-2 gap-3">
             @for (benefit of dashboard.featuredBenefits; track benefit.id) {

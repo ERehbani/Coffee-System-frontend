@@ -123,7 +123,7 @@ export class BenefitForm {
 
   typeError = computed(() => {
     if (!this.formModel().type) {
-      return 'Debes seleccionar un tipo de beneficio.';
+      return 'Seleccioná un tipo de beneficio.';
     }
     return null;
   });
@@ -137,7 +137,7 @@ export class BenefitForm {
 
   tierError = computed(() => {
     if (!this.formModel().tierId) {
-      return 'Debes seleccionar un nivel de fidelización.';
+      return 'Seleccioná un nivel de fidelización.';
     }
     return null;
   });

@@ -145,5 +145,10 @@ export const routes: Routes = [
       },
     ],
   },
-  { path: '**', redirectTo: 'home' },
+  {
+    path: '**',
+    title: 'Página no encontrada',
+    loadComponent: () =>
+      import('../shared/components/not-found-page/not-found-page').then((m) => m.NotFoundPage),
+  },
 ];

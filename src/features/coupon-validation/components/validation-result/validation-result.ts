@@ -8,14 +8,13 @@ import {
   output,
   viewChild,
 } from '@angular/core';
-import { Icon } from '../../../../shared/components/icon/icon';
 import { benefitFormatLabel } from '../../../admin-benefit-types/utils/benefit-format-labels';
 import { ValidationOutcome } from '../../types/coupon-validation.model';
 import { toRewardLabel } from '../../utils/coupon-reward';
 
 @Component({
   selector: 'app-validation-result',
-  imports: [CurrencyPipe, DatePipe, Icon],
+  imports: [CurrencyPipe, DatePipe],
   templateUrl: './validation-result.html',
   host: { class: 'block' },
 })

@@ -5,7 +5,6 @@
   <header>
     <h2 id="checkout-summary-heading" class="text-base font-bold text-text">Resumen del pedido</h2>
     <p class="mt-0.5 flex items-center gap-1 text-xs text-muted">
-      <app-icon name="store" [size]="12" />
       <span data-testid="checkout-cafe">{{ summary().cafeName }}</span>
     </p>
   </header>
@@ -37,7 +36,6 @@
       @if (preview.discount > 0) {
         <div class="flex items-center justify-between gap-3 text-success">
           <dt class="flex min-w-0 items-center gap-1.5">
-            <app-icon name="ticket" [size]="14" />
             <span class="truncate">{{ preview.couponName }}</span>
           </dt>
           <dd data-testid="checkout-discount" class="shrink-0 font-semibold">
@@ -48,7 +46,6 @@
       @if (preview.gift; as gift) {
         <div class="flex items-center justify-between gap-3 text-success">
           <dt class="flex min-w-0 items-center gap-1.5">
-            <app-icon name="gift" [size]="14" />
             <span data-testid="checkout-gift" class="truncate">1 × {{ gift.name }} de regalo</span>
           </dt>
           <dd class="shrink-0 font-semibold">Gratis</dd>
