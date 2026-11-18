@@ -4,7 +4,6 @@ export interface AdminNavItem {
 }
 
 export const ADMIN_NAV_ITEMS: readonly AdminNavItem[] = [
-  { label: 'Panel', path: 'dashboard' },
   { label: 'Usuarios', path: 'users' },
   { label: 'Clientes', path: 'clients' },
   { label: 'Cafeterías', path: 'cafes' },

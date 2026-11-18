@@ -103,33 +103,17 @@
       </div>
 
       <div class="space-y-1.5 sm:col-span-2">
-        <label for="product-image" class="block text-xs font-bold text-text">
-          URL de la Imagen <span class="text-rose-500">*</span>
-        </label>
-        <input
-          id="product-image"
-          type="url"
+        <app-image-input
+          label="Imagen del producto (obligatoria)"
+          inputId="product-image"
+          previewAlt="Vista previa del producto"
+          previewClass="size-14"
+          target="PRODUCT_IMAGE"
           [formField]="productForm.image"
-          placeholder="https://ejemplo.com/imagenes/cafe-latte.jpg"
-          class="w-full rounded-xl border border-border bg-bg px-3.5 py-2.5 text-sm text-text placeholder:text-muted/60 transition focus:border-primary focus:bg-surface focus:outline-hidden focus:ring-2 focus:ring-primary/20"
+          [(uploading)]="imageUploading"
         />
         @if (attemptedSubmit() && imageError()) {
           <p role="alert" class="text-xs font-semibold text-rose-600">{{ imageError() }}</p>
-        }
-
-        @if (formModel().image) {
-          <div class="mt-2 flex items-center gap-3 rounded-2xl border border-border bg-bg p-2.5">
-            <img
-              [src]="formModel().image"
-              alt="Vista previa del producto"
-              class="size-14 rounded-xl object-cover border border-border"
-              (error)="$any($event.target).style.display = 'none'"
-            />
-            <div class="text-xs text-muted truncate">
-              <span class="font-semibold text-text">Vista previa de imagen</span>
-              <p class="truncate">{{ formModel().image }}</p>
-            </div>
-          </div>
         }
       </div>
 
@@ -204,7 +188,7 @@
     </button>
     <button
       type="submit"
-      [disabled]="isSaving()"
+      [disabled]="isSaving() || imageUploading()"
       class="cursor-pointer inline-flex items-center gap-1.5 rounded-xl bg-primary px-5 py-2 text-xs font-bold text-white transition hover:bg-primary-dark active:scale-95 disabled:pointer-events-none disabled:opacity-50"
     >
       @if (isSaving()) {

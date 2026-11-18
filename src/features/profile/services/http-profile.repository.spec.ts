@@ -136,7 +136,7 @@ describe('HttpProfileRepository', () => {
     const request = http.expectOne((req) => req.url === `${environment.apiBaseUrl}/redemption`);
     expect(request.request.method).toBe('GET');
     expect(request.request.params.has('status')).toBe(false);
-    expect(request.request.params.get('size')).toBe('500');
+    expect(request.request.params.get('size')).toBe('100');
     request.flush(pageOf([]));
   });
 

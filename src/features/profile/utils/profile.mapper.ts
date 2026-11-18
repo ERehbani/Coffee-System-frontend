@@ -185,13 +185,14 @@ const SPENT_REDEMPTION_STATUSES: readonly RedemptionStatusDto[] = ['USED', 'EXPI
 export function toUsedBenefits(dtos: readonly RedemptionDto[]): readonly UsedBenefit[] {
   return dtos
     .filter((dto) => SPENT_REDEMPTION_STATUSES.includes(dto.status))
-    .map((dto) => ({
+    .map((dto): UsedBenefit => ({
       id: dto.externalId,
       benefitName: dto.benefitName,
       cafeName: toRedemptionCafeName(dto),
       redeemedAt: toDate(dto.date),
       usedPoints: dto.usedPoints,
-      expired: dto.status === 'EXPIRED',
+      status: dto.status === 'EXPIRED' ? 'expired' : 'used',
+      usedAt: dto.usedDate ? toDate(dto.usedDate) : null,
     }))
     .sort((a, b) => b.redeemedAt.getTime() - a.redeemedAt.getTime());
 }

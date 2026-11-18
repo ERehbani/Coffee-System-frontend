@@ -16,6 +16,10 @@ const adminSectionRoutes: Routes = [
     loadChildren: () => import('../features/admin-users/admin-users.routes'),
   },
   {
+    path: 'clients',
+    loadChildren: () => import('../features/admin-clients/admin-clients.routes'),
+  },
+  {
     path: 'categories',
     loadChildren: () => import('../features/admin-categories/admin-categories.routes'),
   },
@@ -98,6 +102,14 @@ export const routes: Routes = [
       {
         path: 'products',
         loadChildren: () => import('../features/cafe-products/cafe-products.routes'),
+      },
+      {
+        path: 'reviews',
+        loadChildren: () => import('../features/cafe-reviews/cafe-reviews.routes'),
+      },
+      {
+        path: 'purchases',
+        loadChildren: () => import('../features/cafe-purchases/cafe-purchases.routes'),
       },
     ],
   },

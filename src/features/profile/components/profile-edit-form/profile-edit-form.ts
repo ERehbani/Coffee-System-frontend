@@ -1,5 +1,6 @@
 import { Component, computed, input, linkedSignal, output, signal } from '@angular/core';
 import { Icon } from '../../../../shared/components/icon/icon';
+import { ImageInput } from '../../../../shared/components/image-input/image-input';
 import { ClientProfile, UpdateClientProfileInput } from '../../types/profile.model';
 
 export interface AvatarPreset {
@@ -9,7 +10,7 @@ export interface AvatarPreset {
 
 @Component({
   selector: 'app-profile-edit-form',
-  imports: [Icon],
+  imports: [Icon, ImageInput],
   templateUrl: './profile-edit-form.html',
   host: { class: 'block' },
 })
@@ -24,6 +25,7 @@ export class ProfileEditForm {
   readonly lastName = linkedSignal(() => this.profile().lastName);
   readonly phoneNumber = linkedSignal(() => this.profile().phoneNumber);
   readonly avatarUrl = linkedSignal(() => this.profile().avatarUrl ?? '');
+  readonly avatarUploading = signal(false);
 
   readonly firstNameTouched = signal(false);
   readonly lastNameTouched = signal(false);
@@ -49,13 +51,6 @@ export class ProfileEditForm {
       url: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=96&h=96&fit=crop&crop=faces&q=80&auto=format',
     },
   ];
-
-  readonly initials = computed(() => {
-    const f = this.firstName().trim().charAt(0);
-    const l = this.lastName().trim().charAt(0);
-    const combined = `${f}${l}`.toUpperCase();
-    return combined || '?';
-  });
 
   readonly firstNameError = computed(() => {
     const val = this.firstName().trim();
@@ -123,7 +118,7 @@ export class ProfileEditForm {
     this.phoneTouched.set(true);
     this.avatarUrlTouched.set(true);
 
-    if (!this.isFormValid()) {
+    if (!this.isFormValid() || this.avatarUploading()) {
       return;
     }
 
@@ -137,11 +132,6 @@ export class ProfileEditForm {
 
   onSelectAvatar(url: string): void {
     this.avatarUrl.set(url);
-    this.avatarUrlTouched.set(true);
-  }
-
-  onClearAvatar(): void {
-    this.avatarUrl.set('');
     this.avatarUrlTouched.set(true);
   }
 

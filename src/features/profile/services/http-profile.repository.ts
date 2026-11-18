@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Service } from '@angular/core';
 import { map, Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { Page } from '../../../shared/types/page';
+import { ALL_ITEMS, Page } from '../../../shared/types/page';
 import {
   ProfileDashboardDto,
   RedemptionDto,
@@ -59,9 +59,9 @@ export class HttpProfileRepository implements ProfileRepository {
   }
 
   getUsedBenefits(): Observable<readonly UsedBenefit[]> {
+    // The status filter takes one value and the history shows used and expired coupons.
     return this.http
-      // Atajo: una página de 500 canjes filtrada aquí porque el backend filtra un solo estado; paginar si se supera.
-      .get<Page<RedemptionDto>>(`${environment.apiBaseUrl}/redemption`, { params: { size: 500 } })
+      .get<Page<RedemptionDto>>(`${environment.apiBaseUrl}/redemption`, { params: ALL_ITEMS })
       .pipe(map((page) => toUsedBenefits(page.content)));
   }
 

@@ -11,6 +11,7 @@ import {
   PRODUCT_TYPES,
   UpdateGlobalBenefitInput,
 } from '../types/global-benefit.model';
+import { toLocalIsoDate } from '../../../shared/utils/local-date';
 
 export const BENEFIT_TYPE_OPTIONS: readonly GlobalBenefitTypeOption[] = [
   { value: 'CODIGO_DESCUENTO', label: 'Código de Descuento', shortLabel: 'Descuento %', description: 'Porcentaje de descuento en el ticket final', icon: 'tag' },
@@ -39,7 +40,7 @@ export function toGlobalBenefit(dto: GlobalBenefitDto): GlobalBenefit {
   const type: GlobalBenefitType = dto.benefitType ?? 'CODIGO_DESCUENTO';
   const r = dto.tierName?.toUpperCase() || '';
   const tier: GlobalBenefitTier = r.includes('DIAMANTE') ? 'DIAMANTE' : r.includes('ORO') ? 'ORO' : r.includes('PLATA') ? 'PLATA' : r.includes('BRONCE') ? 'BRONCE' : 'ALL';
-  const today = new Date().toISOString().slice(0, 10);
+  const today = toLocalIsoDate();
 
   return {
     id: dto.externalId,

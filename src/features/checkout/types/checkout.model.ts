@@ -17,6 +17,7 @@ export interface CheckoutSummary {
 
 export interface ServerCartLine {
   readonly productId: string;
+  readonly catalogProductId: string;
   readonly quantity: number;
 }
 

@@ -13,7 +13,8 @@ const usedBenefits: UsedBenefit[] = [
     cafeName: 'Cafe Central',
     redeemedAt: new Date(2026, 9, 17, 10, 30),
     usedPoints: 450,
-    expired: false,
+    status: 'used',
+    usedAt: new Date(2026, 9, 18, 9, 15),
   },
   {
     id: 'redemption-1',
@@ -21,7 +22,8 @@ const usedBenefits: UsedBenefit[] = [
     cafeName: null,
     redeemedAt: new Date(2026, 8, 2, 18, 5),
     usedPoints: 300,
-    expired: true,
+    status: 'expired',
+    usedAt: null,
   },
 ];
 
@@ -84,12 +86,26 @@ describe('RedemptionHistoryPage', () => {
     expect(element.textContent).not.toMatch(/\d+ beneficios canjeados/);
   });
 
-  it('tells the expired redemptions apart from the used ones', async () => {
+  it('CA2: labels each benefit as redeemed or expired', async () => {
     await render(() => of(usedBenefits));
 
-    const items = element.querySelectorAll('app-used-benefit-item');
-    expect(items[0].textContent).not.toContain('Vencido');
-    expect(items[1].textContent).toContain('Vencido');
+    const statusLabels = Array.from(element.querySelectorAll('article > div:last-child > p:first-child')).map(
+      (label) => label.textContent?.trim(),
+    );
+    expect(statusLabels).toEqual(['Canjeado', 'Vencido']);
+  });
+
+  it('CA2: shows the benefits as disabled, with the date the coupon was used', async () => {
+    await render(() => of(usedBenefits));
+
+    const cards = element.querySelectorAll('app-used-benefit-item article');
+    expect(cards[0].getAttribute('data-status')).toBe('used');
+    expect(cards[1].getAttribute('data-status')).toBe('expired');
+    cards.forEach((card) => expect(card.classList).toContain('opacity-80'));
+
+    expect(cards[0].textContent).toContain('Usado el');
+    expect(cards[0].textContent).toContain('18 Oct 2026, 09:15');
+    expect(cards[1].textContent).not.toContain('Usado el');
   });
 
   it('shows a loading state while the history is loading', async () => {

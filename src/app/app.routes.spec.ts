@@ -84,13 +84,12 @@ describe('admin routes', () => {
     expect(page().querySelector('h1')?.textContent?.trim()).toBe('Tipos de beneficio');
   });
 
-  it('renders the placeholder with the section title inside the admin layout', async () => {
+  it('renders the clients page inside the admin layout', async () => {
     await harness.navigateByUrl('/admin/clients');
 
-    const placeholder = page().querySelector('app-admin-layout app-admin-placeholder-page');
-
-    expect(placeholder?.querySelector('h1')?.textContent?.trim()).toBe('Clientes');
-    expect(placeholder?.textContent).toContain('Próximamente');
+    expect(page().querySelector('app-admin-layout app-admin-clients-page')).not.toBeNull();
+    expect(page().querySelector('app-admin-placeholder-page')).toBeNull();
+    expect(page().querySelector('h1')?.textContent?.trim()).toBe('Clientes');
   });
 
   it('marks the active section in the sidebar after navigating', async () => {
@@ -111,7 +110,7 @@ describe('admin routes', () => {
   });
 
   describe.each(
-    ADMIN_NAV_ITEMS.filter((item) => item.path !== 'users' && item.path !== 'categories' && item.path !== 'global-benefits' && item.path !== 'purchases' && item.path !== 'tiers' && item.path !== 'benefit-types' && item.path !== 'cafes'),
+    ADMIN_NAV_ITEMS.filter((item) => item.path !== 'users' && item.path !== 'clients' && item.path !== 'categories' && item.path !== 'global-benefits' && item.path !== 'purchases' && item.path !== 'tiers' && item.path !== 'benefit-types' && item.path !== 'cafes'),
   )(
     'section $label',
     ({ label, path }) => {

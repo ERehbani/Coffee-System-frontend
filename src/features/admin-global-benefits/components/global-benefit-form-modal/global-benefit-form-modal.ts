@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, effect, HostListener, input, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Icon } from '../../../../shared/components/icon/icon';
+import { toLocalIsoDate } from '../../../../shared/utils/local-date';
 import {
   CatalogProductOption,
   CreateGlobalBenefitInput,
@@ -59,8 +60,8 @@ export class GlobalBenefitFormModal {
     effect(() => {
       if (!this.isOpen()) return;
       const b = this.benefit();
-      const today = new Date().toISOString().slice(0, 10);
-      const in90d = new Date(Date.now() + 90 * 864e5).toISOString().slice(0, 10);
+      const today = toLocalIsoDate();
+      const in90d = toLocalIsoDate(new Date(Date.now() + 90 * 864e5));
 
       this.form.set(b ? {
         name: b.name,
@@ -105,7 +106,7 @@ export class GlobalBenefitFormModal {
   }
 
   protected setPresetDuration(days: number): void {
-    const end = new Date(Date.now() + days * 864e5).toISOString().slice(0, 10);
+    const end = toLocalIsoDate(new Date(Date.now() + days * 864e5));
     this.updateField('endDate', end);
   }
 

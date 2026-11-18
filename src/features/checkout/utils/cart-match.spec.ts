@@ -34,7 +34,7 @@ describe('matchesServerCart', () => {
   });
 
   it('does not match when the backend has a product the local cart does not', () => {
-    const lines = [espresso, flatWhite, { productId: 'prod-other', quantity: 1 }];
+    const lines = [espresso, flatWhite, { productId: 'prod-other', catalogProductId: 'catalog-other', quantity: 1 }];
 
     expect(matchesServerCart(summary, serverCart({ lines }))).toBe(false);
   });
@@ -44,7 +44,7 @@ describe('matchesServerCart', () => {
   });
 
   it('does not match when the backend has another product in its place', () => {
-    const lines = [espresso, { productId: 'prod-other', quantity: 1 }];
+    const lines = [espresso, { productId: 'prod-other', catalogProductId: 'catalog-other', quantity: 1 }];
 
     expect(matchesServerCart(summary, serverCart({ lines }))).toBe(false);
   });

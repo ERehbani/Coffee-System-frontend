@@ -16,4 +16,6 @@ export interface CheckoutCouponDto {
   readonly productId: string | null;
   readonly productName: string | null;
   readonly productPrice: number | null;
+  /** Set only for a global product coupon, which then has no product id nor price. */
+  readonly catalogProductId: string | null;
 }

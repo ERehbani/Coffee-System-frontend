@@ -34,6 +34,7 @@ function couponOf(benefit: CouponBenefit): ApplicableCoupon {
     expiresAt: null,
     isActive: true,
     benefit,
+    catalogBenefit: null,
   };
 }
 

@@ -20,8 +20,8 @@ export const CHECKOUT_SERVER_CART_FIXTURE: ServerCart = {
   id: 'cart-1',
   total: 9200,
   lines: [
-    { productId: ESPRESSO_FIXTURE.externalId, quantity: 2 },
-    { productId: FLAT_WHITE_FIXTURE.externalId, quantity: 1 },
+    { productId: ESPRESSO_FIXTURE.externalId, catalogProductId: 'catalog-espresso', quantity: 2 },
+    { productId: FLAT_WHITE_FIXTURE.externalId, catalogProductId: 'catalog-flat-white', quantity: 1 },
   ],
 };
 

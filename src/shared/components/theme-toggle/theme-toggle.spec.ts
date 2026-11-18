@@ -44,6 +44,14 @@ describe('ThemeToggle', () => {
     expect(button(fixture).getAttribute('aria-pressed')).toBe('true');
   });
 
+  it('only animates its colors on hover or focus, so it does not flash when a page opens', () => {
+    const classes = button(render('card')).className.split(' ');
+
+    expect(classes).not.toContain('transition-colors');
+    expect(classes).toContain('hover:transition-colors');
+    expect(classes).toContain('focus-visible:transition-colors');
+  });
+
   it('looks like the cart button next to it in the client headers', () => {
     expect(button(render('card')).className).toContain('size-11');
     expect(button(render('pill')).className).toContain('rounded-full');
