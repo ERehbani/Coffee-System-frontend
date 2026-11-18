@@ -1,10 +1,22 @@
-import { Component, computed, effect, input, output, signal } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  afterRenderEffect,
+  computed,
+  effect,
+  inject,
+  input,
+  linkedSignal,
+  output,
+  signal,
+} from '@angular/core';
 import { FormField, form, max, maxLength, min, minLength, required } from '@angular/forms/signals';
 import { Icon } from '../../../../shared/components/icon/icon';
 import { toLocalIsoDate } from '../../../../shared/utils/local-date';
 import {
   BenefitType,
   BenefitTypeOption,
+  CafeBenefit,
   CreateCafeBenefitRequest,
   PRODUCT_BENEFIT_TYPES,
   ProductOption,
@@ -33,6 +45,9 @@ interface BenefitFormModel {
   host: { class: 'block' },
 })
 export class BenefitForm {
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+
+  readonly benefit = input<CafeBenefit | null>(null);
   readonly isSaving = input<boolean>(false);
   readonly benefitTypes = input<BenefitTypeOption[]>([]);
   readonly tiers = input<TierOption[]>([]);
@@ -41,20 +56,40 @@ export class BenefitForm {
   readonly save = output<CreateCafeBenefitRequest>();
   readonly cancel = output<void>();
 
+  readonly isEdit = computed(() => this.benefit() !== null);
+
   today = toLocalIsoDate();
 
-  formModel = signal<BenefitFormModel>({
-    name: '',
-    description: '',
-    conditions: '',
-    startDate: this.today,
-    endDate: '',
-    pointsCost: 100,
-    discountPercentage: 15,
-    maxRedemptions: 50,
-    type: '',
-    productId: '',
-    tierId: '',
+  formModel = linkedSignal<BenefitFormModel>(() => {
+    const benefit = this.benefit();
+    if (benefit) {
+      return {
+        name: benefit.name,
+        description: benefit.description,
+        conditions: benefit.conditions ?? '',
+        startDate: benefit.startDate ?? '',
+        endDate: benefit.endDate ?? '',
+        pointsCost: benefit.pointsCost,
+        discountPercentage: benefit.discountPercentage ?? 15,
+        maxRedemptions: benefit.maxRedemptions,
+        type: benefit.benefitType ?? '',
+        productId: benefit.productId ?? '',
+        tierId: benefit.tierId ?? '',
+      };
+    }
+    return {
+      name: '',
+      description: '',
+      conditions: '',
+      startDate: this.today,
+      endDate: '',
+      pointsCost: 100,
+      discountPercentage: 15,
+      maxRedemptions: 50,
+      type: '',
+      productId: '',
+      tierId: '',
+    };
   });
 
   attemptedSubmit = signal(false);
@@ -176,6 +211,13 @@ export class BenefitForm {
         if (!currentId || !exists) {
           this.formModel.update((m) => ({ ...m, tierId: tiersList[0].id }));
         }
+      }
+    });
+
+    // El formulario queda arriba de la lista: al editar se lleva el foco (y la vista) al primer campo.
+    afterRenderEffect(() => {
+      if (this.benefit()) {
+        this.host.nativeElement.querySelector<HTMLInputElement>('#benefit-name')?.focus();
       }
     });
   }

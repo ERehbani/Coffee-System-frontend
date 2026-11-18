@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, computed, input } from '@angular/core';
+import { Component, computed, input, output } from '@angular/core';
 import { CafeBenefit } from '../../model/cafe-benefit.model';
 
 @Component({
@@ -11,6 +11,7 @@ import { CafeBenefit } from '../../model/cafe-benefit.model';
 })
 export class BenefitCard {
   readonly benefit = input.required<CafeBenefit>();
+  readonly edit = output<CafeBenefit>();
 
   tierBadgeClass = computed(() => {
     const tier = this.benefit().tierName?.toUpperCase().trim();

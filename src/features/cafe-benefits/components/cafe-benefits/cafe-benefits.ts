@@ -39,6 +39,7 @@ export class CafeBenefits implements OnInit {
   isLoading = signal(true);
   isSaving = signal(false);
   showForm = signal(false);
+  editingBenefit = signal<CafeBenefit | null>(null);
   searchQuery = signal('');
   filterState = signal<'all' | 'active'>('all');
   successMessage = signal<string | null>(null);
@@ -120,6 +121,12 @@ export class CafeBenefits implements OnInit {
     this.errorMessage.set(null);
     this.successMessage.set(null);
 
+    const editing = this.editingBenefit();
+    if (editing) {
+      this.updateBenefit(editing, request);
+      return;
+    }
+
     this.cafeBenefitService.create(request).subscribe({
       next: ({ benefit, publishError }) => {
         this.benefits.update((list) => [benefit, ...list]);
@@ -140,13 +147,44 @@ export class CafeBenefits implements OnInit {
     });
   }
 
+  onEditBenefit(benefit: CafeBenefit): void {
+    this.editingBenefit.set(benefit);
+    this.showForm.set(true);
+    this.errorMessage.set(null);
+    this.successMessage.set(null);
+  }
+
   toggleForm(): void {
     this.showForm.update((open) => !open);
+    this.editingBenefit.set(null);
     this.errorMessage.set(null);
   }
 
   closeForm(): void {
     this.showForm.set(false);
+    this.editingBenefit.set(null);
+  }
+
+  private updateBenefit(editing: CafeBenefit, request: CreateCafeBenefitRequest): void {
+    this.cafeBenefitService
+      .update(editing.externalId, { ...request, maxPerClient: editing.maxPerClient ?? null })
+      .subscribe({
+        next: (updated) => {
+          this.benefits.update((list) =>
+            list.map((benefit) => (benefit.externalId === updated.externalId ? updated : benefit)),
+          );
+          this.isSaving.set(false);
+          this.closeForm();
+          this.successMessage.set('¡Promoción actualizada exitosamente!');
+        },
+        error: (err) => {
+          this.isSaving.set(false);
+          const serverError = backendErrorMessage(err);
+          this.errorMessage.set(
+            serverError || 'Ocurrió un error al actualizar la promoción. Verificá los datos ingresados.',
+          );
+        },
+      });
   }
 
   onSearchChange(value: string): void {

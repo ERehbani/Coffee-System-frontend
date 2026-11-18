@@ -20,6 +20,10 @@ export interface CreateCafeBenefitRequest {
   discountPercentage?: number | null;
 }
 
+export interface UpdateCafeBenefitRequest extends CreateCafeBenefitRequest {
+  maxPerClient?: number | null;
+}
+
 export interface CafeBenefit {
   externalId: string;
   name: string;
@@ -29,6 +33,7 @@ export interface CafeBenefit {
   status: boolean;
   isPublic: boolean;
   maxRedemptions: number;
+  maxPerClient?: number | null;
   redeemedCount?: number | null;
   remainingRedemptions?: number | null;
   soldOut?: boolean;

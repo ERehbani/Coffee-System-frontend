@@ -57,6 +57,7 @@
 
   @if (showForm()) {
     <app-benefit-form
+      [benefit]="editingBenefit()"
       [isSaving]="isSaving()"
       [benefitTypes]="benefitTypes()"
       [tiers]="tiers()"
@@ -161,7 +162,7 @@
   } @else {
     <section aria-label="Listado de promociones del local" class="grid grid-cols-1 gap-4 md:grid-cols-2">
       @for (benefit of filteredBenefits(); track benefit.externalId) {
-        <app-benefit-card [benefit]="benefit" />
+        <app-benefit-card [benefit]="benefit" (edit)="onEditBenefit($event)" />
       }
     </section>
   }

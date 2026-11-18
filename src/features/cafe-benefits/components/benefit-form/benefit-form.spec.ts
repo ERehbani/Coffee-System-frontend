@@ -74,6 +74,48 @@ describe('BenefitForm', () => {
     expect(sent?.discountPercentage).toBeNull();
   });
 
+  it('pre-fills every field from the benefit being edited', () => {
+    const fixture = render();
+    fixture.componentRef.setInput('benefit', {
+      externalId: 'benefit-1',
+      name: '2x1 Espresso',
+      description: 'Dos por uno',
+      conditions: 'Solo en salón',
+      pointsCost: 120,
+      status: true,
+      isPublic: true,
+      maxRedemptions: 20,
+      global: false,
+      benefitType: 'DOS_POR_UNO',
+      productId: 'product-medialuna',
+      tierId: 'tier-bronce',
+      startDate: '2026-11-15',
+      endDate: '2026-12-15',
+    });
+    fixture.detectChanges();
+    const form = fixture.componentInstance;
+    let sent: CreateCafeBenefitRequest | undefined;
+    form.save.subscribe((request) => (sent = request));
+
+    form.onSubmit(new Event('submit'));
+
+    expect(fixture.nativeElement.querySelector('h2').textContent.trim()).toBe('Editar Promoción');
+    expect(fixture.nativeElement.querySelector('button[type="submit"]').textContent).toContain('Guardar cambios');
+    expect(sent).toEqual({
+      name: '2x1 Espresso',
+      description: 'Dos por uno',
+      conditions: 'Solo en salón',
+      startDate: '2026-11-15',
+      endDate: '2026-12-15',
+      pointsCost: 120,
+      discountPercentage: null,
+      maxRedemptions: 20,
+      type: 'DOS_POR_UNO',
+      productId: 'product-medialuna',
+      tierId: 'tier-bronce',
+    });
+  });
+
   it('forgets the product when switching to a type without product', () => {
     const form = render().componentInstance;
 

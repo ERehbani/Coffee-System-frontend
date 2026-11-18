@@ -2,8 +2,16 @@
   <div class="flex items-center justify-between pb-3 border-b border-border">
     <div class="flex items-center gap-2.5">
       <div>
-        <h2 class="text-base font-bold text-text">Nueva Promoción Propia</h2>
-        <p class="text-xs text-muted">Completá los datos para publicar un beneficio para tu local</p>
+        <h2 class="text-base font-bold text-text">
+          {{ isEdit() ? 'Editar Promoción' : 'Nueva Promoción Propia' }}
+        </h2>
+        <p class="text-xs text-muted">
+          {{
+            isEdit()
+              ? 'Modificá los datos de la promoción y guardá los cambios'
+              : 'Completá los datos para publicar un beneficio para tu local'
+          }}
+        </p>
       </div>
     </div>
     <button
@@ -234,7 +242,7 @@
         <span class="size-3.5 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
         <span>Guardando...</span>
       } @else {
-        <span>Publicar Promoción</span>
+        <span>{{ isEdit() ? 'Guardar cambios' : 'Publicar Promoción' }}</span>
       }
     </button>
   </div>
