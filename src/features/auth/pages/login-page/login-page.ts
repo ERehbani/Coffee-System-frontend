@@ -135,7 +135,7 @@ export class LoginPage {
       this.errorMessage.set(rejection);
       return;
     }
-    this.router.navigateByUrl(home);
+    this.router.navigateByUrl(getHomeForRoles([this.audience.role]));
   }
 
   private toErrorMessage(error: unknown): string {

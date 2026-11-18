@@ -148,6 +148,10 @@ export class CafeBenefits implements OnInit {
   }
 
   onEditBenefit(benefit: CafeBenefit): void {
+    // The save in flight closes the form when it lands, which would throw this edit away.
+    if (this.isSaving()) {
+      return;
+    }
     this.editingBenefit.set(benefit);
     this.showForm.set(true);
     this.errorMessage.set(null);

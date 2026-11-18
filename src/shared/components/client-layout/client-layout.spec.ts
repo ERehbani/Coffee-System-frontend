@@ -71,6 +71,12 @@ describe('ClientLayout toasts', () => {
     expect(toast.toasts()).toEqual([]);
   });
 
+  it('replaces a repeated notice and keeps only the latest three', () => {
+    show(() => ['A', 'A', 'B', 'C', 'D'].forEach((message) => toast.success(message)));
+
+    expect(toast.toasts().map(({ message }) => message)).toEqual(['B', 'C', 'D']);
+  });
+
   it('removes the toast from the screen once it is dismissed', () => {
     show(() => toast.success('Guardado'));
 

@@ -121,12 +121,14 @@ describe('LoginPage', () => {
       await setup({}, page.data);
 
       fillAndSubmit('user@test.com', 'Secret123');
-      http.expectOne(loginUrl).flush({ email: 'user@test.com', roles: [page.otherRole] });
+      http.expectOne(loginUrl).flush({ email: 'user@test.com', roles: [page.otherRole], token: 'stored-token' });
       http.expectOne(`${environment.apiBaseUrl}/auth/logout`).flush(null);
       fixture.detectChanges();
 
       expect(element.querySelector('[role="alert"]')?.textContent).toContain(page.message);
       expect(TestBed.inject(AuthService).isAuthenticated()).toBe(false);
+      expect(TestBed.inject(AuthService).getToken()).toBeNull();
+      expect(localStorage.getItem('auth_token')).toBeNull();
       expect(router.navigateByUrl).not.toHaveBeenCalled();
       expect(element.querySelector<HTMLButtonElement>('button[type="submit"]')!.disabled).toBe(false);
     });
