@@ -4,6 +4,7 @@ import { map, Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { ALL_ITEMS, Page } from '../../../shared/types/page';
 import { Purchase, Review, ReviewRequest } from '../model/purchase.model';
+import { OPEN_ORDER_STATUSES, PurchaseStatus } from '../utils/purchase-status';
 
 @Injectable({
   providedIn: 'root',
@@ -19,6 +20,18 @@ export class PurchaseService {
 
   getAll(): Observable<Purchase[]> {
     return this.listFrom(this.url);
+  }
+
+  getOpenOrders(): Observable<Purchase[]> {
+    return this.http
+      .get<Page<Purchase>>(this.url, {
+        params: { ...ALL_ITEMS, status: OPEN_ORDER_STATUSES.join(','), sort: 'date,asc' },
+      })
+      .pipe(map((page) => [...page.content]));
+  }
+
+  updateStatus(purchaseId: string, status: PurchaseStatus): Observable<Purchase> {
+    return this.http.patch<Purchase>(`${this.url}/${purchaseId}/status`, { status });
   }
 
   createReview(request: ReviewRequest): Observable<Review> {
