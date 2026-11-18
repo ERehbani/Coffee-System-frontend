@@ -27,12 +27,10 @@ export class AdminBenefitFormatStore {
   readonly editingFormat = signal<BenefitFormat | null>(null);
 
   readonly isEmpty = computed(() => this.status() === 'ready' && this.formats().length === 0);
-  /** The formats that are not in the catalog yet, so the ones a new type can register. */
   readonly availableCodes = computed(() => {
     const registered = new Set(this.formats().map((format) => format.code));
     return BENEFIT_FORMAT_CODES.filter((code) => !registered.has(code));
   });
-  /** A new type needs the catalog loaded and at least one format left to register. */
   readonly canCreate = computed(
     () => this.status() === 'ready' && this.availableCodes().length > 0,
   );
@@ -109,7 +107,6 @@ export class AdminBenefitFormatStore {
     });
   }
 
-  /** Drops the server error of a field the user is editing. */
   clearFormError(field: keyof BenefitFormatFormErrors): void {
     this.formErrors.update(({ [field]: _removed, ...rest }) => rest);
   }

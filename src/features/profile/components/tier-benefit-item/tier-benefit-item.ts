@@ -24,7 +24,6 @@ export class TierBenefitItem {
   private readonly injector = inject(Injector);
 
   readonly benefit = input.required<TierBenefitView>();
-  /** Emits the benefit id when the client asks to activate it. */
   readonly redeemRequested = output<string>();
   readonly redeemConfirmed = output<void>();
   readonly redeemCancelled = output<void>();
@@ -41,13 +40,11 @@ export class TierBenefitItem {
   });
 
   constructor() {
-    // The confirm step replaces the "Activar" button, so the focus follows it.
     afterRenderEffect(() => {
       if (this.benefit().phase === 'confirming') {
         this.confirmButton()?.nativeElement.focus();
       }
     });
-    // A failed redemption leaves the client on the same benefit, ready to try again.
     afterRenderEffect(() => {
       if (this.benefit().errorMessage) {
         this.activateButton()?.nativeElement.focus();

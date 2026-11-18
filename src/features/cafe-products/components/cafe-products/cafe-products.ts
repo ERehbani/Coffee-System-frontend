@@ -235,7 +235,6 @@ export class CafeProducts implements OnInit {
     }
   }
 
-  /** The edit request has no state, so the active toggle uses the deactivate and activate endpoints. */
   private changeState(cafeId: string, product: ProductDto, active: boolean): void {
     const change$ = active
       ? this.productService.activate(cafeId, product.externalId)

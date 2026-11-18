@@ -194,7 +194,7 @@ describe('AdminBenefitFormatStore', () => {
   it('keeps the drawer open and shows a duplicate name under the name field', () => {
     const store = create();
     createFormat.mockReturnValue(
-      throwError(() => conflict('A benefit type named Descuento already exists')),
+      throwError(() => conflict('Ya existe un tipo de beneficio llamado Descuento')),
     );
     store.openCreateDrawer();
 
@@ -210,7 +210,7 @@ describe('AdminBenefitFormatStore', () => {
   it('shows a format already in the catalog under the format field', () => {
     const store = create();
     createFormat.mockReturnValue(
-      throwError(() => conflict('The format PRODUCTO_POR_PUNTOS is already in the catalog')),
+      throwError(() => conflict('El formato PRODUCTO_POR_PUNTOS ya está en el catálogo')),
     );
     store.openCreateDrawer();
 
@@ -236,7 +236,7 @@ describe('AdminBenefitFormatStore', () => {
     const store = create();
     store.openCreateDrawer();
     createFormat.mockReturnValueOnce(
-      throwError(() => conflict('A benefit type named Descuento already exists')),
+      throwError(() => conflict('Ya existe un tipo de beneficio llamado Descuento')),
     );
     store.saveFormat({ ...input, displayName: 'Descuento' });
     createFormat.mockReturnValueOnce(new Subject<BenefitFormat>());

@@ -292,7 +292,7 @@ describe('CheckoutPage', () => {
 
     it('explains a rejected coupon and lets the client remove it and pay again', async () => {
       createPurchase.mockReturnValueOnce(
-        throwError(() => new HttpErrorResponse({ status: 404, error: { detail: 'Invalid code' } })),
+        throwError(() => new HttpErrorResponse({ status: 404, error: { detail: 'Código inválido' } })),
       );
       await render();
       chooseCoupon('15% de descuento');

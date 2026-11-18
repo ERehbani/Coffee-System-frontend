@@ -47,7 +47,6 @@ export interface CafeBenefit {
 
 export interface CafeBenefitCreation {
   benefit: CafeBenefit;
-  /** Null when the benefit was published; otherwise the error of the publish request. */
   publishError: unknown;
 }
 

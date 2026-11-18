@@ -30,7 +30,7 @@ function fieldErrorsOf(body: unknown): Record<string, unknown> | null {
 }
 
 function isMissing(message: string): boolean {
-  return /blank|empty|null|required/.test(message);
+  return /obligatori/.test(message);
 }
 
 function fieldError(
@@ -74,10 +74,10 @@ export function toBenefitFormatFormErrors(error: unknown): BenefitFormatFormErro
   }
   const message = detailOf(error.error);
   if (error.status === 409 && message) {
-    if (/^the format .+ is already in the catalog$/.test(message)) {
+    if (/^el formato .+ ya está en el catálogo$/.test(message)) {
       return { code: CODE_TAKEN };
     }
-    if (/^a benefit type named .+ already exists$/.test(message)) {
+    if (/^ya existe un tipo de beneficio llamado .+$/.test(message)) {
       return { displayName: DUPLICATE_NAME };
     }
   }

@@ -1,3 +1,7 @@
+export const PURCHASE_STATUSES = ['CONFIRMED', 'IN_PREPARATION', 'READY', 'DELIVERED', 'CANCELLED', 'REFUNDED'] as const;
+
+export type PurchaseStatus = (typeof PURCHASE_STATUSES)[number];
+
 export interface PurchaseDetail {
   externalId: string;
   productId: string;
@@ -12,7 +16,7 @@ export interface Purchase {
   externalId: string;
   date: string;
   price: number;
-  status: string;
+  status: PurchaseStatus;
   clientId: string;
   clientName?: string;
   cafeId: string;

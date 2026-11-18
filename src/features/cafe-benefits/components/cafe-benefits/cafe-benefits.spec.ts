@@ -82,13 +82,13 @@ describe('CafeBenefits', () => {
   it('shows the detail of the backend when the benefit is rejected', () => {
     benefitService['create'].mockReturnValue(
       throwError(
-        () => new HttpErrorResponse({ status: 422, error: { detail: 'A product benefit needs a product of the cafe' } }),
+        () => new HttpErrorResponse({ status: 422, error: { detail: 'Un beneficio de producto necesita un producto de la cafetería' } }),
       ),
     );
     const component = render().componentInstance;
 
     component.onSaveBenefit(request);
 
-    expect(component.errorMessage()).toBe('A product benefit needs a product of the cafe');
+    expect(component.errorMessage()).toBe('Un beneficio de producto necesita un producto de la cafetería');
   });
 });

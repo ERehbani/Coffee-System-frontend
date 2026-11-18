@@ -1,9 +1,5 @@
 import { BenefitFormat } from '../types/benefit-format.model';
 
-/**
- * Mirrors the formats the backend seeds, all active. `PRODUCTO_POR_PUNTOS` is left out so that
- * "Nuevo tipo" has a format to register.
- */
 export const BENEFIT_FORMATS_FIXTURE: readonly BenefitFormat[] = [
   {
     id: 'format-descuento',

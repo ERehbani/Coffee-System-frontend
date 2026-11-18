@@ -5,7 +5,6 @@ export function toTier(dto: TierDto): Tier {
   return { id: dto.externalId, name: dto.name, minPoints: dto.minPoints };
 }
 
-/** Orders tiers from the fewest points needed to the most. */
 export function sortTiers(tiers: readonly Tier[]): readonly Tier[] {
   return [...tiers].sort((a, b) => a.minPoints - b.minPoints);
 }

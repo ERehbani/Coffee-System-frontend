@@ -24,7 +24,6 @@ export class CafeBenefitService {
     return this.http.get<CafeBenefit[]>(this.baseUrl);
   }
 
-  /** Creates the benefit and publishes it; a failed publish still emits the saved (unpublished) benefit. */
   create(request: CreateCafeBenefitRequest): Observable<CafeBenefitCreation> {
     const payload = {
       name: request.name,

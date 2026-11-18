@@ -62,7 +62,10 @@ describe('CartService', () => {
 
       http
         .expectOne(`${CARTS_URL}/${CAFE_CENTRAL_FIXTURE.externalId}/items`)
-        .flush('Product not found in this cafe', { status: 404, statusText: 'Not Found' });
+        .flush('Producto no encontrado en esta cafetería', {
+          status: 404,
+          statusText: 'Not Found',
+        });
 
       expect(service.items()).toEqual([{ product: ESPRESSO_FIXTURE, quantity: 2 }]);
     });
