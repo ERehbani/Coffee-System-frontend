@@ -1,9 +1,6 @@
 <form (submit)="onSubmit($event)" novalidate class="space-y-5 rounded-3xl border border-border bg-surface p-6 shadow-xs">
   <div class="flex items-center justify-between pb-3 border-b border-border">
     <div class="flex items-center gap-2.5">
-      <span class="inline-flex size-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
-        <app-icon [name]="isEditing() ? 'edit' : 'plus'" [size]="18" />
-      </span>
       <div>
         <h2 class="text-base font-bold text-text">
           {{ isEditing() ? 'Editar Producto' : 'Nuevo Producto' }}
@@ -92,12 +89,40 @@
         <input
           id="product-points"
           type="number"
-          step="10"
+          step="1"
           [formField]="productForm.awardedPoints"
+          aria-describedby="product-points-hint"
           placeholder="80"
           class="w-full rounded-xl border border-border bg-bg px-3.5 py-2.5 text-sm text-text placeholder:text-muted/60 transition focus:border-primary focus:bg-surface focus:outline-hidden focus:ring-2 focus:ring-primary/20"
         />
-        @if (attemptedSubmit() && awardedPointsError()) {
+        <div id="product-points-hint" class="space-y-0.5 text-xs text-muted">
+          @if (pointsRange(); as range) {
+            <p>
+              Sugerido: <span class="font-semibold text-text">{{ range.suggested }} pts</span>. Podés elegir entre
+              {{ range.min }} y {{ range.max }}.
+            </p>
+            <p>
+              @if (range.cafesSelling > 1) {
+                Sale del precio promedio de este producto en {{ range.cafesSelling }} cafeterías
+                ({{ range.referencePrice | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}).
+              } @else {
+                Sale de tu precio; cuando otras cafeterías lo vendan, se usa el promedio de todas.
+              }
+              @if (+formModel().awardedPoints !== range.suggested) {
+                <button
+                  type="button"
+                  (click)="useSuggestedPoints()"
+                  class="cursor-pointer font-semibold text-primary hover:underline"
+                >
+                  Usar sugerido
+                </button>
+              }
+            </p>
+          } @else {
+            <p>Los puntos se calculan según el precio.</p>
+          }
+        </div>
+        @if ((attemptedSubmit() || pointsOutOfRange()) && awardedPointsError()) {
           <p role="alert" class="text-xs font-semibold text-rose-600">{{ awardedPointsError() }}</p>
         }
       </div>
@@ -169,7 +194,6 @@
             [class.text-neutral-700]="!formModel().state"
             [class.border-neutral-300]="!formModel().state"
           >
-            <app-icon [name]="formModel().state ? 'check' : 'x'" [size]="14" />
             <span>{{ formModel().state ? 'Activo' : 'Inactivo (Baja)' }}</span>
           </button>
         </div>
@@ -195,7 +219,6 @@
         <span class="size-3.5 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
         <span>Guardando...</span>
       } @else {
-        <app-icon name="check" [size]="14" />
         <span>{{ isEditing() ? 'Guardar Cambios' : 'Crear Producto' }}</span>
       }
     </button>

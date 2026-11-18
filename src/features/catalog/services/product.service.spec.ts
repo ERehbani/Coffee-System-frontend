@@ -68,6 +68,25 @@ describe('ProductService', () => {
     req.flush(ESPRESSO_DTO_FIXTURE);
   });
 
+  it('asks for the points range of a catalog product at a price', () => {
+    service.getPointsRange(PRODUCT_CAFE_ID, { price: 2500, catalogProductId: 'catalog-1', name: 'Ignored' }).subscribe();
+
+    const request = http.expectOne((req) => req.url === `${productsUrl}/points-range`);
+    expect(request.request.params.get('price')).toBe('2500');
+    expect(request.request.params.get('catalogProductId')).toBe('catalog-1');
+    expect(request.request.params.has('name')).toBe(false);
+    request.flush({ suggested: 100, min: 80, max: 120, referencePrice: 2500, cafesSelling: 1 });
+  });
+
+  it('asks for the points range of a new product by its name', () => {
+    service.getPointsRange(PRODUCT_CAFE_ID, { price: 900, name: 'Medialuna' }).subscribe();
+
+    const request = http.expectOne((req) => req.url === `${productsUrl}/points-range`);
+    expect(request.request.params.get('name')).toBe('Medialuna');
+    expect(request.request.params.has('catalogProductId')).toBe(false);
+    request.flush({ suggested: 36, min: 29, max: 43, referencePrice: 900, cafesSelling: 1 });
+  });
+
   it('updates the product of the cafe', () => {
     service.update(PRODUCT_CAFE_ID, ESPRESSO_DTO_FIXTURE.externalId, { price: 1800 }).subscribe();
 

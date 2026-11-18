@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -8,6 +8,8 @@ import { Product } from '../model/product.model';
 import {
   CategoryOption,
   CreateProductRequest,
+  PointsRange,
+  PointsRangeQuery,
   ProductDto,
   UpdateProductRequest,
 } from '../types/product.dto';
@@ -37,6 +39,16 @@ export class ProductService {
 
   create(cafeId: string, request: CreateProductRequest): Observable<ProductDto> {
     return this.http.post<ProductDto>(this.productsUrl(cafeId), request);
+  }
+
+  getPointsRange(cafeId: string, query: PointsRangeQuery): Observable<PointsRange> {
+    let params = new HttpParams().set('price', query.price);
+    if (query.catalogProductId) {
+      params = params.set('catalogProductId', query.catalogProductId);
+    } else if (query.name) {
+      params = params.set('name', query.name);
+    }
+    return this.http.get<PointsRange>(`${this.productsUrl(cafeId)}/points-range`, { params });
   }
 
   update(cafeId: string, productId: string, request: UpdateProductRequest): Observable<ProductDto> {
