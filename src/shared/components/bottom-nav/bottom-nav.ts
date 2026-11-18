@@ -18,7 +18,7 @@ export class BottomNav {
   protected readonly items: readonly NavItem[] = [
     { label: 'Inicio', path: '/home', icon: 'store' },
     { label: 'Catálogo', path: '/catalog', icon: 'cup' },
-    { label: 'Carrito', path: '/cart', icon: 'shopping-bag' },
-    { label: 'Beneficios', path: '/rewards', icon: 'tag' },
+    { label: 'Beneficios', path: '/rewards', icon: 'gift' },
+    { label: 'Mi perfil', path: '/profile', icon: 'user' },
   ];
 }

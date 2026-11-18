@@ -1,5 +1,4 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
-import { Icon } from '../../../../shared/components/icon/icon';
 import { CartButton } from '../../../cart/components/cart-button/cart-button';
 import { ThemeToggle } from '../../../../shared/components/theme-toggle/theme-toggle';
 import {
@@ -16,7 +15,7 @@ import { AvailableBenefitCard } from '../benefit-card/benefit-card';
 
 @Component({
   selector: 'app-available-benefits',
-  imports: [Icon, AvailableBenefitCard, CartButton, ThemeToggle],
+  imports: [AvailableBenefitCard, CartButton, ThemeToggle],
   templateUrl: './available-benefits.html',
   styleUrl: './available-benefits.css',
   host: { class: 'block' },

@@ -10,7 +10,7 @@ const validation = (errors: Record<string, string>) =>
 describe('toBenefitFormatFormErrors', () => {
   it('maps the missing format to the code field', () => {
     expect(toBenefitFormatFormErrors(validation({ code: 'El formato es obligatorio' }))).toEqual({
-      code: 'Elige un formato.',
+      code: 'Elegí un formato.',
     });
   });
 
@@ -45,7 +45,7 @@ describe('toBenefitFormatFormErrors', () => {
         }),
       ),
     ).toEqual({
-      code: 'Elige un formato.',
+      code: 'Elegí un formato.',
       displayName: 'El nombre es obligatorio.',
       description: 'La descripción es obligatoria.',
     });
@@ -92,7 +92,7 @@ describe('toBenefitFormatFormErrors', () => {
   });
 
   it('falls back for an unknown conflict, a missing format or a bad request', () => {
-    const generic = { form: 'No pudimos guardar el tipo de beneficio. Inténtalo de nuevo.' };
+    const generic = { form: 'No pudimos guardar el tipo de beneficio. Intentalo de nuevo.' };
 
     expect(
       toBenefitFormatFormErrors(new HttpErrorResponse({ status: 409, error: { detail: 'Mensaje nuevo' } })),

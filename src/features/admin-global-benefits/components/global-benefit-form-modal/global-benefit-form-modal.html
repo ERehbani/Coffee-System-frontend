@@ -11,9 +11,6 @@
     >
       <div class="flex items-center justify-between border-b border-border bg-bg/50 px-6 py-4">
         <div class="flex items-center gap-3">
-          <span class="inline-flex size-10 items-center justify-center rounded-2xl bg-primary text-white shadow-sm">
-            <app-icon [name]="mode() === 'create' ? 'plus' : 'edit'" [size]="18" />
-          </span>
           <div>
             <div class="flex items-center gap-2">
               <h2 class="text-lg font-black text-text">
@@ -82,7 +79,6 @@
                     [class.border-border]="form().type !== opt.value"
                     [class.bg-surface]="form().type !== opt.value"
                   >
-                    <app-icon [name]="opt.icon" [size]="15" [class.text-primary]="form().type === opt.value" />
                     <span class="truncate">{{ opt.shortLabel }}</span>
                   </button>
                 }
@@ -206,7 +202,7 @@
             <div class="rounded-3xl border border-border bg-surface p-5 shadow-lg space-y-3">
               <div class="flex items-center justify-between">
                 <span class="inline-flex items-center gap-1 rounded-full bg-purple-100 px-2 py-0.5 text-[11px] font-extrabold text-purple-900">
-                  <app-icon name="globe" [size]="11" /> Red Global
+                  Red Global
                 </span>
                 <span class="rounded-full px-2 py-0.5 text-[10px] font-bold" [class.bg-emerald-100]="form().isPublic" [class.text-emerald-800]="form().isPublic" [class.bg-stone-100]="!form().isPublic" [class.text-stone-600]="!form().isPublic">
                   {{ form().isPublic ? 'Público' : 'Borrador' }}
@@ -214,9 +210,6 @@
               </div>
 
               <div class="flex items-start gap-3">
-                <div class="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary text-white shadow-sm">
-                  <app-icon [name]="getTypeMeta(form().type).icon" [size]="18" />
-                </div>
                 <div>
                   <h3 class="font-extrabold text-text text-sm leading-tight">{{ form().name || 'Nombre de la Promoción' }}</h3>
                   <p class="text-[11px] text-muted line-clamp-2 mt-0.5">{{ form().description || 'Descripción del beneficio...' }}</p>
@@ -231,7 +224,7 @@
               </div>
 
               <div class="flex items-center justify-between text-xs text-muted border-t border-border pt-2">
-                <span>Hasta {{ form().endDate || '2026-12-31' }}</span>
+                <span>{{ form().endDate ? 'Hasta ' + form().endDate : 'Sin fecha de fin' }}</span>
                 <span class="font-bold text-primary">Toda la red</span>
               </div>
             </div>
@@ -249,7 +242,6 @@
           [disabled]="isProcessing()"
           class="cursor-pointer inline-flex items-center gap-1.5 rounded-xl bg-primary px-5 py-2 text-xs font-extrabold text-white shadow-md hover:bg-primary-dark active:scale-95 disabled:opacity-50 select-none"
         >
-          <app-icon [name]="mode() === 'create' ? 'plus' : 'save'" [size]="14" />
           <span>{{ mode() === 'create' ? 'Crear Beneficio' : 'Guardar Cambios' }}</span>
         </button>
       </div>

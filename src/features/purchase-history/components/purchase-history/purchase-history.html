@@ -8,10 +8,7 @@
       <app-icon name="arrow-left" [size]="20" />
     </a>
     <div>
-      <span class="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-accent">
-        <app-icon name="history" [size]="14" />
-        Mis consumos
-      </span>
+      <span class="text-xs font-semibold uppercase tracking-wider text-accent">Mis consumos</span>
       <h1 class="text-2xl font-bold tracking-tight text-text">Historial de compras</h1>
     </div>
   </header>
@@ -22,9 +19,6 @@
       class="flex items-center justify-between gap-3 rounded-2xl border border-emerald-300 bg-emerald-50 px-5 py-4 text-emerald-800 shadow-xs"
     >
       <div class="flex items-center gap-3">
-        <span class="inline-flex size-8 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-white">
-          <app-icon name="check" [size]="16" />
-        </span>
         <p class="text-sm font-bold text-emerald-950">{{ successMessage() }}</p>
       </div>
       <button
@@ -72,7 +66,6 @@
           (click)="loadPurchases()"
           class="mt-1 inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-primary-dark cursor-pointer"
         >
-          <app-icon name="refresh-cw" [size]="14" />
           Reintentar
         </button>
       </div>
@@ -89,10 +82,7 @@
         />
       } @empty {
         <div class="rounded-2xl border border-dashed border-border bg-surface p-12 text-center">
-          <div class="mx-auto flex size-14 items-center justify-center rounded-full bg-accent-light text-primary">
-            <app-icon name="shopping-bag" [size]="28" />
-          </div>
-          <h3 class="mt-4 text-base font-bold text-text">Todavía no hiciste compras</h3>
+          <h3 class="text-base font-bold text-text">Todavía no hiciste compras</h3>
           <p class="mt-1.5 text-xs text-muted max-w-sm mx-auto">
             Cuando compres en alguna cafetería, vas a ver acá el detalle y los puntos que ganaste.
           </p>

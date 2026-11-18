@@ -1,12 +1,11 @@
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { Component, computed, input } from '@angular/core';
-import { Icon } from '../../../../shared/components/icon/icon';
 import { benefitFormatLabel } from '../../../admin-benefit-types/utils/benefit-format-labels';
 import { AvailableBenefit } from '../../model/available-benefit.model';
 
 @Component({
   selector: 'app-available-benefit-card',
-  imports: [DatePipe, DecimalPipe, Icon],
+  imports: [DatePipe, DecimalPipe],
   templateUrl: './benefit-card.html',
   styleUrl: './benefit-card.css',
   host: { class: 'block h-full' },

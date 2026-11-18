@@ -91,7 +91,7 @@ describe('CouponsPage', () => {
     await render(() => of(dashboardWith([])));
 
     expect(element.querySelector('app-coupon-item')).toBeNull();
-    expect(element.textContent).toContain('Todavía no tienes cupones listos para usar.');
+    expect(element.textContent).toContain('Todavía no tenés cupones listos para usar.');
     const activate = Array.from(element.querySelectorAll('a')).find((link) =>
       link.textContent?.includes('Activar beneficios'),
     );

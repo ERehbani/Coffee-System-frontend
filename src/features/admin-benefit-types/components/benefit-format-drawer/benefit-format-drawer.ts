@@ -75,7 +75,7 @@ export class BenefitFormatDrawer {
   );
 
   private readonly clientCodeError = computed(() =>
-    this.format() || this.code() ? null : 'Elige un formato.',
+    this.format() || this.code() ? null : 'Elegí un formato.',
   );
 
   private readonly clientNameError = computed(() => {

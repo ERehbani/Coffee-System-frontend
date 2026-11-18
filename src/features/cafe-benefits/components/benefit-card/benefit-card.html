@@ -5,12 +5,10 @@
         <div class="flex flex-wrap items-center gap-2">
           @if (benefit().pointsCost > 0) {
             <span class="inline-flex items-center gap-1 rounded-full bg-accent/10 px-2.5 py-0.5 text-xs font-bold text-accent">
-              <app-icon name="coffee" [size]="12" />
               {{ benefit().pointsCost }} pts
             </span>
           } @else {
             <span class="inline-flex items-center gap-1 rounded-full bg-accent/10 px-2.5 py-0.5 text-xs font-bold text-accent">
-              <app-icon name="tag" [size]="12" />
               @if (benefit().discountPercentage) {
                 {{ benefit().discountPercentage }}% OFF
               } @else {
@@ -58,14 +56,20 @@
   </div>
 
   <div class="mt-4 pt-3 border-t border-border flex flex-wrap items-center justify-between gap-2 text-[11px] text-muted">
-    @if (benefit().startDate || benefit().endDate) {
-      <div class="flex items-center gap-1.5 font-medium">
-        <app-icon name="calendar" [size]="13" />
-        <span>Vigencia: {{ benefit().startDate ?? 'Sin inicio' }} al {{ benefit().endDate ?? 'Sin límite' }}</span>
-      </div>
-    }
+    <div class="flex items-center gap-1.5 font-medium">
+      <span data-testid="benefit-validity">
+        @if (benefit().startDate && benefit().endDate) {
+          Vigencia: {{ benefit().startDate | date: 'dd/MM/yyyy' }} al {{ benefit().endDate | date: 'dd/MM/yyyy' }}
+        } @else if (benefit().startDate) {
+          Desde {{ benefit().startDate | date: 'dd/MM/yyyy' }}
+        } @else if (benefit().endDate) {
+          Hasta {{ benefit().endDate | date: 'dd/MM/yyyy' }}
+        } @else {
+          Sin vencimiento
+        }
+      </span>
+    </div>
     <div class="flex items-center gap-1.5">
-      <app-icon name="ticket" [size]="13" />
       <span>Cupo: {{ benefit().maxRedemptions }} canjes</span>
     </div>
   </div>

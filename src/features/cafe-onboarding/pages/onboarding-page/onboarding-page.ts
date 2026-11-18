@@ -11,7 +11,6 @@ import {
   viewChildren,
 } from '@angular/core';
 import { Router } from '@angular/router';
-import { Icon } from '../../../../shared/components/icon/icon';
 import { ImageInput } from '../../../../shared/components/image-input/image-input';
 import { OpeningHoursEditor } from '../../../../shared/components/opening-hours-editor/opening-hours-editor';
 import { ThemeToggle } from '../../../../shared/components/theme-toggle/theme-toggle';
@@ -50,7 +49,7 @@ const PHONE_PATTERN = /^\d{10}$/;
 
 @Component({
   selector: 'app-onboarding-page',
-  imports: [CurrencyPipe, Icon, ImageInput, OpeningHoursEditor, ThemeToggle, LogoutButton, ProductForm, BenefitForm],
+  imports: [CurrencyPipe, ImageInput, OpeningHoursEditor, ThemeToggle, LogoutButton, ProductForm, BenefitForm],
   templateUrl: './onboarding-page.html',
   styleUrl: './onboarding-page.css',
   host: { class: 'block min-h-dvh bg-bg text-text' },

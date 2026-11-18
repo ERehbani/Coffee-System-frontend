@@ -3,6 +3,7 @@ import { provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { HttpCafeProfileRepository } from '../../../cafe-profile/services/http-cafe-profile.repository';
 import { CAFE_PROFILE_FIXTURE } from '../../../cafe-profile/utils/cafe-profile.fixture';
+import { PurchaseService } from '../../../purchase-history/services/purchase.service';
 import { toCafeProfile } from '../../../cafe-profile/utils/cafe-profile.mapper';
 import { CafeDashboardService } from '../../services/cafe-dashboard.service';
 import { CafeDashboard } from '../../types/cafe-dashboard.model';
@@ -29,6 +30,7 @@ describe('CafeDashboardPage', () => {
         provideRouter([]),
         { provide: CafeDashboardService, useValue: { getMine } },
         { provide: HttpCafeProfileRepository, useValue: { getProfile: () => of(toCafeProfile(CAFE_PROFILE_FIXTURE)) } },
+        { provide: PurchaseService, useValue: { getOpenOrders: () => of([]), updateStatus: vi.fn() } },
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(CafeDashboardPage);
@@ -53,13 +55,25 @@ describe('CafeDashboardPage', () => {
     expect(text).toContain('Ventas de hoy');
   });
 
+  it('shows the orders the cafe has to handle', async () => {
+    await render();
+
+    expect(fixture.nativeElement.textContent).toContain('Pedidos en curso');
+  });
+
   it('links each card to the section it summarizes', async () => {
     await render();
     const hrefs = Array.from(fixture.nativeElement.querySelectorAll('section a')).map((a) =>
       (a as HTMLAnchorElement).getAttribute('href'),
     );
 
-    expect(hrefs).toEqual(['/cafe/products', '/cafe/products', '/cafe/benefits', '/cafe/validate']);
+    expect(hrefs).toEqual([
+      '/cafe/purchases',
+      '/cafe/validate',
+      '/cafe/products',
+      '/cafe/products',
+      '/cafe/benefits',
+    ]);
   });
 
   it('offers to retry when the dashboard cannot be loaded', async () => {

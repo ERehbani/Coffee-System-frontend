@@ -35,7 +35,6 @@
           role="alert"
           class="flex items-start gap-3 rounded-xl border border-rose-600 bg-surface px-4 py-3 text-sm text-rose-700"
         >
-          <app-icon name="alert-circle" [size]="18" class="mt-0.5" />
           <p>{{ formError }}</p>
         </div>
       }
@@ -64,7 +63,7 @@
             [class.border-rose-600]="codeError()"
             class="w-full rounded-xl border bg-surface px-4 py-2.5 text-sm text-text transition focus:border-primary focus:outline-hidden focus:ring-2 focus:ring-primary/20"
           >
-            <option value="">Elige un formato</option>
+            <option value="">Elegí un formato</option>
             @for (option of availableCodes(); track option) {
               <option [value]="option">{{ formatLabel(option) }}</option>
             }

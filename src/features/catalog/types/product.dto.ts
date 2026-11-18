@@ -33,6 +33,20 @@ export interface UpdateProductRequest {
   tags?: string[];
 }
 
+export interface PointsRange {
+  readonly suggested: number;
+  readonly min: number;
+  readonly max: number;
+  readonly referencePrice: number;
+  readonly cafesSelling: number;
+}
+
+export interface PointsRangeQuery {
+  readonly price: number;
+  readonly catalogProductId?: string | null;
+  readonly name?: string | null;
+}
+
 export interface CategoryOption {
   categoryId: string;
   name: string;

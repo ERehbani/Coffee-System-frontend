@@ -7,7 +7,7 @@ export const ADMIN_NAV_ITEMS: readonly AdminNavItem[] = [
   { label: 'Usuarios', path: 'users' },
   { label: 'Clientes', path: 'clients' },
   { label: 'Cafeterías', path: 'cafes' },
-  { label: 'Tiers', path: 'tiers' },
+  { label: 'Niveles', path: 'tiers' },
   { label: 'Categorías', path: 'categories' },
   { label: 'Tipos de beneficio', path: 'benefit-types' },
   { label: 'Beneficios globales', path: 'global-benefits' },

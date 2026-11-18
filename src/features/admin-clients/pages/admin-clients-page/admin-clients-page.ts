@@ -2,7 +2,6 @@ import { DecimalPipe } from '@angular/common';
 import { Component, computed, inject } from '@angular/core';
 import { AdminPageHeader } from '../../../../shared/components/admin-page-header/admin-page-header';
 import { Icon } from '../../../../shared/components/icon/icon';
-import { IconName } from '../../../../shared/components/icon/icon-registry';
 import { ClientDetailModal } from '../../components/client-detail-modal/client-detail-modal';
 import { ClientTable } from '../../components/client-table/client-table';
 import { AdminClientStore, ClientStatusFilter } from '../../services/admin-client.store';
@@ -11,7 +10,6 @@ interface StatCard {
   readonly label: string;
   readonly value: number;
   readonly hint: string;
-  readonly icon: IconName;
 }
 
 @Component({
@@ -26,10 +24,10 @@ export class AdminClientsPage {
   protected readonly statCards = computed<readonly StatCard[]>(() => {
     const stats = this.store.stats();
     return [
-      { label: 'Clientes', value: stats.totalClients, hint: 'Registrados', icon: 'users' },
-      { label: 'Activos', value: stats.activeClients, hint: 'Cuentas operativas', icon: 'check-circle' },
-      { label: 'Puntos disponibles', value: stats.availablePoints, hint: 'Sin canjear', icon: 'star' },
-      { label: 'Puntos históricos', value: stats.historicalPoints, hint: 'Acumulados en total', icon: 'history' },
+      { label: 'Clientes', value: stats.totalClients, hint: 'Registrados' },
+      { label: 'Activos', value: stats.activeClients, hint: 'Cuentas operativas' },
+      { label: 'Puntos disponibles', value: stats.availablePoints, hint: 'Sin canjear' },
+      { label: 'Puntos históricos', value: stats.historicalPoints, hint: 'Acumulados en total' },
     ];
   });
 

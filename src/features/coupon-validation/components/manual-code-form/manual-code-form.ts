@@ -1,9 +1,8 @@
 import { Component, computed, input, output, signal } from '@angular/core';
-import { Icon } from '../../../../shared/components/icon/icon';
 
 @Component({
   selector: 'app-manual-code-form',
-  imports: [Icon],
+  imports: [],
   templateUrl: './manual-code-form.html',
   host: { class: 'block' },
 })

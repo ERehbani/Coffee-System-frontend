@@ -2,7 +2,6 @@ import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
 import { Component, DestroyRef, computed, inject, input, model, signal } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { ImageUpload, UploadTarget } from '../../services/image-upload';
-import { Icon } from '../icon/icon';
 
 const MAX_FILE_BYTES = 5 * 1024 * 1024;
 
@@ -13,7 +12,7 @@ const UPLOAD_ERROR_MESSAGES: ReadonlyMap<number, string> = new Map([
 
 @Component({
   selector: 'app-image-input',
-  imports: [Icon],
+  imports: [],
   templateUrl: './image-input.html',
   host: { class: 'block' },
 })

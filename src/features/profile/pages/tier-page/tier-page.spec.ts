@@ -134,7 +134,7 @@ describe('TierPage', () => {
       expect(items[1].textContent).toContain('Taza de edición limitada');
       expect(items[1].textContent).toContain('Cafe Central');
       expect(items[1].textContent).toContain('1.200 pts');
-      expect(benefitsSection().textContent).toContain('Tienes 1.850 pts disponibles');
+      expect(benefitsSection().textContent).toContain('Tenés 1.850 pts disponibles');
     });
 
     it('keeps the "Niveles y beneficios" section', async () => {
@@ -250,14 +250,14 @@ describe('TierPage', () => {
 
     it('refreshes the available points and the missing points after redeeming', async () => {
       await render();
-      expect(benefitsSection().textContent).toContain('Tienes 850 pts disponibles');
+      expect(benefitsSection().textContent).toContain('Tenés 850 pts disponibles');
       buttonByText('Activar', itemByName('Café de cortesía'))!.click();
       await settle();
 
       buttonByText('Confirmar')!.click();
       await settle();
 
-      expect(benefitsSection().textContent).toContain('Tienes 550 pts disponibles');
+      expect(benefitsSection().textContent).toContain('Tenés 550 pts disponibles');
       expect(itemByName('Taza de edición limitada').textContent).toContain('Te faltan 650 pts');
       expect(getTierDetail).toHaveBeenCalledTimes(2);
       expect(getTierBenefits).toHaveBeenCalledTimes(2);
@@ -289,13 +289,13 @@ describe('TierPage', () => {
       await settle();
 
       expect(itemByName('Café de cortesía').textContent).toContain(
-        'No pudimos activar este beneficio. Inténtalo de nuevo.',
+        'No pudimos activar este beneficio. Intentalo de nuevo.',
       );
       expect(itemByName('Taza de edición limitada').textContent).not.toContain(
         'No pudimos activar',
       );
       expect(element.querySelector('[data-testid="redeem-success"]')).toBeNull();
-      expect(benefitsSection().textContent).toContain('Tienes 850 pts disponibles');
+      expect(benefitsSection().textContent).toContain('Tenés 850 pts disponibles');
       expect(buttonByText('Activar', itemByName('Café de cortesía'))!.disabled).toBe(false);
     });
 
@@ -384,7 +384,7 @@ describe('TierPage', () => {
       await settle();
 
       expect(element.querySelector('[data-testid="refresh-error"]')).toBeNull();
-      expect(benefitsSection().textContent).toContain('Tienes 550 pts disponibles');
+      expect(benefitsSection().textContent).toContain('Tenés 550 pts disponibles');
       expect(element.querySelector('[data-testid="redeem-success"]')).not.toBeNull();
     });
   });
@@ -471,7 +471,7 @@ describe('TierPage', () => {
       expect(element.querySelector('[data-testid="redeem-code"]')?.textContent?.trim()).toBe(
         'VLD-0009-MOCK',
       );
-      expect(benefitsSection().textContent).toContain('Tienes 550 pts disponibles');
+      expect(benefitsSection().textContent).toContain('Tenés 550 pts disponibles');
       expect(getTierDetail).toHaveBeenCalledTimes(2);
     });
   });

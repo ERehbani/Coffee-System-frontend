@@ -1,7 +1,6 @@
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { Component, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { Icon } from '../../../../shared/components/icon/icon';
 import { AuthService } from '../../../auth/services/auth.service';
 import { CheckoutStore } from '../../services/checkout.store';
 import { HOME_PATH, PURCHASES_PATH } from '../../utils/checkout-paths';
@@ -9,7 +8,7 @@ import { toOrderStatusLabel } from '../../utils/order-status-label';
 
 @Component({
   selector: 'app-checkout-success-page',
-  imports: [CurrencyPipe, DatePipe, RouterLink, Icon],
+  imports: [CurrencyPipe, DatePipe, RouterLink],
   templateUrl: './checkout-success-page.html',
   host: { class: 'block' },
 })

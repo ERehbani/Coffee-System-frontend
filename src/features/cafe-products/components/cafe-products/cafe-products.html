@@ -1,9 +1,6 @@
 <main class="mx-auto max-w-5xl px-4 py-8 space-y-6">
   <div class="flex flex-wrap items-center justify-between gap-3 pb-2 border-b border-border">
     <div class="flex items-center gap-2.5">
-      <span class="inline-flex size-9 items-center justify-center rounded-xl bg-primary text-white">
-        <app-icon name="coffee" [size]="20" />
-      </span>
       <div>
         <h1 class="text-lg font-extrabold text-text">Productos del Local</h1>
         <p class="text-xs text-muted">Administrá el catálogo del menú con opciones de alta, edición y baja</p>
@@ -15,7 +12,6 @@
         (click)="toggleForm()"
         class="cursor-pointer inline-flex items-center gap-1.5 rounded-xl bg-primary px-3.5 py-1.5 text-xs font-bold text-white transition hover:bg-primary-dark active:scale-95 select-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
       >
-        <app-icon [name]="showForm() ? 'x' : 'plus'" [size]="14" />
         <span>{{ showForm() ? 'Cerrar formulario' : 'Nuevo Producto' }}</span>
       </button>
     </div>
@@ -27,9 +23,6 @@
       class="flex items-center justify-between gap-3 rounded-2xl border border-success/30 bg-emerald-50 px-5 py-3.5 text-success transition"
     >
       <div class="flex items-center gap-3">
-        <span class="inline-flex size-7 shrink-0 items-center justify-center rounded-full bg-success text-white">
-          <app-icon name="check" [size]="14" />
-        </span>
         <p class="text-sm font-bold text-emerald-900">{{ successMsg }}</p>
       </div>
       <button
@@ -49,9 +42,6 @@
       class="flex items-center justify-between gap-3 rounded-2xl border border-rose-300 bg-rose-50 px-5 py-3.5 text-rose-800 transition"
     >
       <div class="flex items-center gap-3">
-        <span class="inline-flex size-7 shrink-0 items-center justify-center rounded-full bg-rose-600 text-white">
-          <app-icon name="x" [size]="14" />
-        </span>
         <p class="text-sm font-bold text-rose-900">{{ errorMsg }}</p>
       </div>
       <button
@@ -69,9 +59,6 @@
     <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-xs">
       <div class="w-full max-w-md rounded-3xl border border-border bg-surface p-6 shadow-xl space-y-4">
         <div class="flex items-center gap-3">
-          <span class="inline-flex size-10 items-center justify-center rounded-2xl bg-rose-100 text-rose-600">
-            <app-icon name="trash" [size]="20" />
-          </span>
           <div>
             <h3 class="text-base font-bold text-text">¿Dar de baja producto?</h3>
             <p class="text-xs text-muted truncate">{{ toDelete.name }}</p>
@@ -101,7 +88,6 @@
               <span class="size-3.5 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
               <span>Dando de baja...</span>
             } @else {
-              <app-icon name="trash" [size]="14" />
               <span>Confirmar baja</span>
             }
           </button>
@@ -112,6 +98,7 @@
 
   @if (showForm()) {
     <app-product-form
+      [cafeId]="cafeId()"
       [isSaving]="isSaving()"
       [categories]="categories()"
       [productToEdit]="editingProduct()"
@@ -215,9 +202,6 @@
     </div>
   } @else if (filteredProducts().length === 0) {
     <div class="flex flex-col items-center justify-center gap-3 rounded-3xl border border-dashed border-border bg-surface p-10 text-center shadow-xs">
-      <span class="inline-flex size-12 items-center justify-center rounded-2xl bg-accent-light text-primary">
-        <app-icon name="coffee" [size]="24" />
-      </span>
       <h3 class="text-base font-bold text-text">No se encontraron productos</h3>
       <p class="text-xs text-muted max-w-sm">
         @if (searchQuery() || filterState() !== 'all' || selectedCategory() !== 'all') {
@@ -240,7 +224,6 @@
           (click)="openCreateForm()"
           class="mt-2 inline-flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-xs font-bold text-white transition hover:bg-primary-dark"
         >
-          <app-icon name="plus" [size]="14" />
           Nuevo Producto
         </button>
       }

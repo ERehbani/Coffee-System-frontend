@@ -1,12 +1,11 @@
 import { DatePipe } from '@angular/common';
 import { Component, computed, input, output } from '@angular/core';
-import { Icon } from '../../../../shared/components/icon/icon';
 import { ApplicableCoupon, CouponsStatus } from '../../types/coupon.model';
 import { describeCouponReward } from '../../utils/coupon-label';
 
 @Component({
   selector: 'app-coupon-selector',
-  imports: [DatePipe, Icon],
+  imports: [DatePipe],
   templateUrl: './coupon-selector.html',
   host: { class: 'block' },
 })

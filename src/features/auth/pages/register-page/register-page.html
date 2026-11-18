@@ -5,7 +5,6 @@
   <div class="w-full max-w-sm space-y-6 rounded-3xl border border-border bg-surface p-6 shadow-xl">
     <header class="space-y-2 text-center">
       <span class="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-accent">
-        <app-icon name="coffee" [size]="14" />
         Coffee System
       </span>
       <h1 class="text-2xl font-bold tracking-tight text-text">Crear cuenta</h1>
@@ -17,7 +16,6 @@
         role="alert"
         class="flex items-center gap-2 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-xs font-bold text-rose-800"
       >
-        <app-icon name="alert-circle" [size]="16" class="text-rose-600" />
         <span>{{ errorMessage() }}</span>
       </div>
     }
@@ -36,7 +34,6 @@
         />
         @if (attemptedSubmit() && nameError()) {
           <p role="alert" class="flex items-center gap-1 text-[11px] font-semibold text-rose-600">
-            <app-icon name="alert-circle" [size]="12" />
             <span>{{ nameError() }}</span>
           </p>
         }
@@ -55,7 +52,6 @@
         />
         @if (attemptedSubmit() && emailError()) {
           <p role="alert" class="flex items-center gap-1 text-[11px] font-semibold text-rose-600">
-            <app-icon name="alert-circle" [size]="12" />
             <span>{{ emailError() }}</span>
           </p>
         }
@@ -83,7 +79,6 @@
         </div>
         @if (attemptedSubmit() && passwordError()) {
           <p role="alert" class="flex items-center gap-1 text-[11px] font-semibold text-rose-600">
-            <app-icon name="alert-circle" [size]="12" />
             <span>{{ passwordError() }}</span>
           </p>
         } @else {

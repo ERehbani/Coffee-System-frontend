@@ -2,9 +2,9 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { BenefitFormatFormErrors } from '../types/benefit-format.model';
 
 export const BENEFIT_FORMAT_SAVE_ERROR_MESSAGE =
-  'No pudimos guardar el tipo de beneficio. Inténtalo de nuevo.';
+  'No pudimos guardar el tipo de beneficio. Intentalo de nuevo.';
 
-const CODE_REQUIRED = 'Elige un formato.';
+const CODE_REQUIRED = 'Elegí un formato.';
 const NAME_REQUIRED = 'El nombre es obligatorio.';
 const NAME_TOO_LONG = 'El nombre puede tener hasta 40 caracteres.';
 const DESCRIPTION_REQUIRED = 'La descripción es obligatoria.';

@@ -36,7 +36,7 @@ describe('toTierFormErrors', () => {
   it('puts a duplicate name on the name field', () => {
     const error = new HttpErrorResponse({ status: 409, error: { detail: 'Ya existe un tier llamado Oro' } });
 
-    expect(toTierFormErrors(error)).toEqual({ name: 'Ya existe un tier con ese nombre.' });
+    expect(toTierFormErrors(error)).toEqual({ name: 'Ya existe un nivel con ese nombre.' });
   });
 
   it('puts duplicate points on the points field', () => {
@@ -46,7 +46,7 @@ describe('toTierFormErrors', () => {
     });
 
     expect(toTierFormErrors(error)).toEqual({
-      minPoints: 'Ya existe un tier con esa cantidad de puntos.',
+      minPoints: 'Ya existe un nivel con esa cantidad de puntos.',
     });
   });
 
@@ -56,7 +56,7 @@ describe('toTierFormErrors', () => {
       error: { detail: '  YA EXISTE UN TIER LLAMADO oro ' },
     });
 
-    expect(toTierFormErrors(error)).toEqual({ name: 'Ya existe un tier con ese nombre.' });
+    expect(toTierFormErrors(error)).toEqual({ name: 'Ya existe un nivel con ese nombre.' });
   });
 
   it('explains that the base tier keeps 0 points', () => {
@@ -65,7 +65,7 @@ describe('toTierFormErrors', () => {
       error: { title: 'Regla de negocio incumplida', detail: 'El tier base debe mantener 0 puntos' },
     });
 
-    expect(toTierFormErrors(error)).toEqual({ form: 'El tier base debe mantener 0 puntos.' });
+    expect(toTierFormErrors(error)).toEqual({ form: 'El nivel base debe mantener 0 puntos.' });
   });
 
   it('falls back for an unknown conflict or bad request', () => {
@@ -96,6 +96,6 @@ describe('toTierFormErrors', () => {
   });
 
   it('uses the agreed generic copy', () => {
-    expect(TIER_SAVE_ERROR_MESSAGE).toBe('No pudimos guardar el tier. Inténtalo de nuevo.');
+    expect(TIER_SAVE_ERROR_MESSAGE).toBe('No pudimos guardar el nivel. Intentalo de nuevo.');
   });
 });

@@ -5,8 +5,8 @@ import { BottomNav } from './bottom-nav';
 const EXPECTED_ITEMS = [
   { label: 'Inicio', href: '/home' },
   { label: 'Catálogo', href: '/catalog' },
-  { label: 'Carrito', href: '/cart' },
   { label: 'Beneficios', href: '/rewards' },
+  { label: 'Mi perfil', href: '/profile' },
 ];
 
 describe('BottomNav', () => {

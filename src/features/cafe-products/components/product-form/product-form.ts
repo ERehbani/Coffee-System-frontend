@@ -1,8 +1,18 @@
-import { Component, computed, effect, input, output, signal } from '@angular/core';
+import { CurrencyPipe } from '@angular/common';
+import { Component, computed, effect, inject, input, output, signal } from '@angular/core';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { FormField, form, max, maxLength, min, minLength, pattern, required } from '@angular/forms/signals';
+import { catchError, debounceTime, distinctUntilChanged, of, switchMap } from 'rxjs';
 import { Icon } from '../../../../shared/components/icon/icon';
 import { ImageInput } from '../../../../shared/components/image-input/image-input';
-import { CategoryOption, CreateProductRequest, ProductDto } from '../../../catalog/types/product.dto';
+import { ProductService } from '../../../catalog/services/product.service';
+import {
+  CategoryOption,
+  CreateProductRequest,
+  PointsRange,
+  PointsRangeQuery,
+  ProductDto,
+} from '../../../catalog/types/product.dto';
 
 interface ProductFormModel {
   name: string;
@@ -17,12 +27,15 @@ interface ProductFormModel {
 
 @Component({
   selector: 'app-product-form',
-  imports: [FormField, Icon, ImageInput],
+  imports: [CurrencyPipe, FormField, Icon, ImageInput],
   templateUrl: './product-form.html',
   styleUrl: './product-form.css',
   host: { class: 'block' },
 })
 export class ProductForm {
+  private readonly productService = inject(ProductService);
+
+  readonly cafeId = input<string | null>(null);
   readonly isSaving = input<boolean>(false);
   readonly categories = input<CategoryOption[]>([]);
   readonly productToEdit = input<ProductDto | null>(null);
@@ -33,15 +46,33 @@ export class ProductForm {
   attemptedSubmit = signal(false);
   imageUploading = signal(false);
 
+  readonly pointsRange = signal<PointsRange | null>(null);
+  private autoPoints: number | null = 0;
+
   formModel = signal<ProductFormModel>({
     name: '',
     description: '',
     price: 1500,
-    awardedPoints: 60,
+    awardedPoints: 0,
     categoryId: '',
     image: '',
     tags: '',
     state: true,
+  });
+
+  private readonly pointsRangeQuery = computed<(PointsRangeQuery & { cafeId: string }) | null>(() => {
+    const cafeId = this.cafeId();
+    const { price, name } = this.formModel();
+    const toEdit = this.productToEdit();
+    if (!cafeId || !price || price < 500 || price > 50000) {
+      return null;
+    }
+    return {
+      cafeId,
+      price: Number(price),
+      catalogProductId: toEdit?.catalogProductId ?? null,
+      name: toEdit ? null : name.trim() || null,
+    };
   });
 
   productForm = form(this.formModel, (f) => {
@@ -57,7 +88,7 @@ export class ProductForm {
     max(f.price, 50000, { message: 'El precio no puede superar los $50.000.' });
 
     required(f.awardedPoints, { message: 'Los puntos que otorga son obligatorios.' });
-    min(f.awardedPoints, 50, { message: 'Debe otorgar al menos 50 puntos.' });
+    min(f.awardedPoints, 1, { message: 'Debe otorgar al menos 1 punto.' });
     max(f.awardedPoints, 3000, { message: 'No puede otorgar más de 3.000 puntos.' });
 
     required(f.categoryId, { message: 'Debes seleccionar una categoría.' });
@@ -85,7 +116,21 @@ export class ProductForm {
 
   priceError = computed(() => this.productForm.price().errors()[0]?.message ?? null);
 
-  awardedPointsError = computed(() => this.productForm.awardedPoints().errors()[0]?.message ?? null);
+  pointsOutOfRange = computed(() => {
+    const range = this.pointsRange();
+    const points = Number(this.formModel().awardedPoints);
+    if (!range || !points) {
+      return null;
+    }
+    if (points < range.min || points > range.max) {
+      return `Para este precio los puntos tienen que estar entre ${range.min} y ${range.max}.`;
+    }
+    return null;
+  });
+
+  awardedPointsError = computed(
+    () => this.productForm.awardedPoints().errors()[0]?.message ?? this.pointsOutOfRange(),
+  );
 
   categoryError = computed(() => {
     if (this.isEditing()) {
@@ -121,7 +166,7 @@ export class ProductForm {
           name: toEdit.name,
           description: toEdit.description ?? '',
           price: toEdit.price,
-          awardedPoints: toEdit.awardedPoints ?? 60,
+          awardedPoints: toEdit.awardedPoints ?? 0,
           categoryId: toEdit.categoryId ?? '',
           image: toEdit.image ?? '',
           tags: toEdit.tags ? toEdit.tags.join(', ') : '',
@@ -133,15 +178,30 @@ export class ProductForm {
           name: '',
           description: '',
           price: 1500,
-          awardedPoints: 60,
+          awardedPoints: 0,
           categoryId: firstCategory,
           image: '',
           tags: '',
           state: true,
         });
       }
+      this.autoPoints = toEdit ? null : 0;
+      this.pointsRange.set(null);
       this.attemptedSubmit.set(false);
     });
+
+    toObservable(this.pointsRangeQuery)
+      .pipe(
+        debounceTime(400),
+        distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)),
+        switchMap((query) =>
+          query
+            ? this.productService.getPointsRange(query.cafeId, query).pipe(catchError(() => of(null)))
+            : of(null),
+        ),
+        takeUntilDestroyed(),
+      )
+      .subscribe((range) => this.applyPointsRange(range));
 
     effect(() => {
       const cats = this.categories();
@@ -149,6 +209,22 @@ export class ProductForm {
         this.formModel.update((m) => ({ ...m, categoryId: cats[0].categoryId }));
       }
     });
+  }
+
+  useSuggestedPoints(): void {
+    const range = this.pointsRange();
+    if (range) {
+      this.autoPoints = range.suggested;
+      this.formModel.update((m) => ({ ...m, awardedPoints: range.suggested }));
+    }
+  }
+
+  private applyPointsRange(range: PointsRange | null): void {
+    this.pointsRange.set(range);
+    if (range && this.autoPoints !== null && Number(this.formModel().awardedPoints) === this.autoPoints) {
+      this.autoPoints = range.suggested;
+      this.formModel.update((m) => ({ ...m, awardedPoints: range.suggested }));
+    }
   }
 
   toggleState(): void {

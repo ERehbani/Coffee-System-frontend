@@ -1,5 +1,3 @@
-import { IconName } from '../../../shared/components/icon/icon-registry';
-
 export type GlobalBenefitType = 'CODIGO_DESCUENTO' | 'DOS_POR_UNO' | 'PRODUCTO_POR_PUNTOS' | 'PRODUCTO_GRATIS_SOCIO';
 export type GlobalBenefitTier = 'ALL' | 'BRONCE' | 'PLATA' | 'ORO' | 'DIAMANTE';
 
@@ -15,7 +13,6 @@ export interface GlobalBenefitTypeOption {
   readonly label: string;
   readonly shortLabel: string;
   readonly description: string;
-  readonly icon: IconName;
 }
 
 export interface GlobalBenefitTierOption {

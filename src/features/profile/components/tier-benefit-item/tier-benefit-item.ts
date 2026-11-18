@@ -11,11 +11,10 @@ import {
   output,
   viewChild,
 } from '@angular/core';
-import { Icon } from '../../../../shared/components/icon/icon';
 import { TierBenefitView } from '../../services/tier.store';
 
 @Component({
-  imports: [DatePipe, DecimalPipe, Icon],
+  imports: [DatePipe, DecimalPipe],
   selector: 'app-tier-benefit-item',
   templateUrl: './tier-benefit-item.html',
   host: { class: 'block' },

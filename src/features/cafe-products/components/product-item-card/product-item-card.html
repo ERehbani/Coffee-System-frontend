@@ -16,7 +16,6 @@
 
       <div class="absolute top-3 left-3 flex flex-wrap items-center gap-1.5">
         <span class="inline-flex items-center gap-1 rounded-full bg-surface/90 px-2.5 py-1 text-[11px] font-bold text-text backdrop-blur-xs shadow-xs">
-          <app-icon name="tag" [size]="12" />
           {{ product().category || 'Sin categoría' }}
         </span>
       </div>
@@ -59,7 +58,6 @@
 
       <div class="flex flex-wrap items-center gap-2 pt-1">
         <span class="inline-flex items-center gap-1 rounded-lg bg-amber-500/10 px-2 py-0.5 text-[11px] font-bold text-amber-700">
-          <app-icon name="sparkles" [size]="12" />
           +{{ product().awardedPoints ?? 0 }} pts
         </span>
 
@@ -78,7 +76,6 @@
       (click)="onEdit()"
       class="cursor-pointer inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface px-3 py-1.5 text-xs font-bold text-text transition hover:border-primary hover:text-primary active:scale-95 select-none"
     >
-      <app-icon name="edit" [size]="14" />
       Editar
     </button>
 
@@ -95,7 +92,6 @@
         (click)="onDelete()"
         class="cursor-pointer inline-flex items-center gap-1.5 rounded-xl border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-bold text-rose-700 transition hover:bg-rose-100 active:scale-95 select-none"
       >
-        <app-icon name="trash" [size]="14" />
         Dar de baja
       </button>
     } @else {
@@ -104,7 +100,6 @@
         (click)="onActivate()"
         class="cursor-pointer inline-flex items-center gap-1.5 rounded-xl border border-emerald-300 bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-800 transition hover:bg-emerald-100 active:scale-95 select-none"
       >
-        <app-icon name="check" [size]="14" />
         Activar
       </button>
     }

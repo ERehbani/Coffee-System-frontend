@@ -1,5 +1,4 @@
 import { Component, inject } from '@angular/core';
-import { Icon } from '../../../../shared/components/icon/icon';
 import { ManualCodeForm } from '../../components/manual-code-form/manual-code-form';
 import { QrScanner } from '../../components/qr-scanner/qr-scanner';
 import { ValidationResult } from '../../components/validation-result/validation-result';
@@ -7,7 +6,7 @@ import { CouponValidationStore } from '../../services/coupon-validation.store';
 
 @Component({
   selector: 'app-coupon-validation-page',
-  imports: [Icon, QrScanner, ManualCodeForm, ValidationResult],
+  imports: [QrScanner, ManualCodeForm, ValidationResult],
   templateUrl: './coupon-validation-page.html',
   providers: [CouponValidationStore],
   host: { class: 'block' },

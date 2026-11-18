@@ -1,12 +1,11 @@
 import { CurrencyPipe } from '@angular/common';
 import { Component, computed, input } from '@angular/core';
-import { Icon } from '../../../../shared/components/icon/icon';
 import { CheckoutSummary } from '../../types/checkout.model';
 import { CouponPreview } from '../../types/coupon.model';
 
 @Component({
   selector: 'app-checkout-summary',
-  imports: [CurrencyPipe, Icon],
+  imports: [CurrencyPipe],
   templateUrl: './checkout-summary.html',
   host: { class: 'block' },
 })
