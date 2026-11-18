@@ -11,7 +11,6 @@ export type CouponBenefit =
   | { readonly kind: 'two-for-one'; readonly product: CouponProduct }
   | { readonly kind: 'free-product'; readonly product: CouponProduct };
 
-/** A global product coupon names a catalog product; the cart line of that product says which one is rewarded. */
 export interface CatalogProductBenefit {
   readonly kind: 'two-for-one' | 'free-product';
   readonly catalogProductId: string;
