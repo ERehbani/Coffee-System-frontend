@@ -1,11 +1,11 @@
 import { CurrencyPipe, DatePipe } from '@angular/common';
-import { Component, DestroyRef, afterNextRender, computed, inject, output, signal } from '@angular/core';
+import { Component, DestroyRef, afterNextRender, computed, inject, signal } from '@angular/core';
 import { Observable, catchError, interval, map, of, startWith, switchMap, tap } from 'rxjs';
 import { Icon } from '../../../../shared/components/icon/icon';
 import { backendErrorMessage } from '../../../../shared/utils/backend-error';
 import { Purchase, PurchaseStatus } from '../../../purchase-history/model/purchase.model';
 import { PurchaseService } from '../../../purchase-history/services/purchase.service';
-import { OPEN_ORDER_STATUSES, isCancellation } from '../../../purchase-history/utils/purchase-status';
+import { OPEN_ORDER_STATUSES } from '../../../purchase-history/utils/purchase-status';
 
 interface OrderColumn {
   readonly status: PurchaseStatus;
@@ -44,8 +44,6 @@ export const ORDERS_REFRESH_MS = 20_000;
 export class OrdersBoard {
   private readonly purchaseService = inject(PurchaseService);
   private readonly destroyRef = inject(DestroyRef);
-
-  readonly changed = output<void>();
 
   protected readonly columns = COLUMNS;
   protected readonly orders = signal<Purchase[]>([]);
@@ -99,9 +97,6 @@ export class OrdersBoard {
         );
         this.busyId.set(null);
         this.confirmingCancelId.set(null);
-        if (isCancellation(updated.status) || !stillOpen) {
-          this.changed.emit();
-        }
       },
       error: (error) => {
         this.actionError.set(backendErrorMessage(error) ?? 'No pudimos actualizar el pedido. Probá de nuevo.');
