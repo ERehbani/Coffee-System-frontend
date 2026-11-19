@@ -1,7 +1,9 @@
-import { Component, ElementRef, computed, inject, signal, viewChild } from '@angular/core';
+import { Component, ElementRef, inject, signal, viewChild } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { catchError, map, of } from 'rxjs';
 import { LogoutButton } from '../../../features/auth/components/logout-button/logout-button';
-import { AuthService } from '../../../features/auth/services/auth.service';
+import { HttpCafeProfileRepository } from '../../../features/cafe-profile/services/http-cafe-profile.repository';
 import { Icon } from '../icon/icon';
 import { ThemeToggle } from '../theme-toggle/theme-toggle';
 import { CAFE_NAV_ITEMS } from './cafe-nav';
@@ -16,11 +18,18 @@ import { CAFE_NAV_ITEMS } from './cafe-nav';
   },
 })
 export class CafeLayout {
-  private readonly auth = inject(AuthService);
-
   protected readonly items = CAFE_NAV_ITEMS;
   protected readonly menuOpen = signal(false);
-  protected readonly canOpenClientApp = computed(() => this.auth.hasRole('ROLE_CLIENTE'));
+  // The name is not editable by the cafe itself, so reading it once per session is enough.
+  protected readonly cafeName = toSignal(
+    inject(HttpCafeProfileRepository)
+      .getProfile()
+      .pipe(
+        map((profile) => profile.name),
+        catchError(() => of(null)),
+      ),
+    { initialValue: null },
+  );
 
   private readonly menuButton = viewChild.required<ElementRef<HTMLButtonElement>>('menuButton');
 

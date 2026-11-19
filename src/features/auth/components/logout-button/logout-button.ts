@@ -1,11 +1,12 @@
 import { Component, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
+import { Icon } from '../../../../shared/components/icon/icon';
 import { AuthService } from '../../services/auth.service';
 import { getLoginForRoles } from '../../utils/role-home';
 
 @Component({
   selector: 'app-logout-button',
-  imports: [],
+  imports: [Icon],
   templateUrl: './logout-button.html',
 })
 export class LogoutButton {

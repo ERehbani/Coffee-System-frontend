@@ -67,13 +67,11 @@ describe('AdminLayout', () => {
     expect(passwordLink?.textContent?.trim()).toBe('Cambiar contraseña');
   });
 
-  it('shows a link back to the client app when the user is also a client', async () => {
+  it('does not link back to the client app, even when the user is also a client', async () => {
     signInForTest(['ROLE_SUPERADMIN', 'ROLE_CLIENTE']);
     await fixture.whenStable();
-    const backLink = root.querySelector<HTMLAnchorElement>('aside footer a');
 
-    expect(backLink?.textContent?.trim()).toBe('Volver a la app');
-    expect(backLink?.getAttribute('href')).toBe('/home');
+    expect(root.querySelector('aside footer a[href="/home"]')).toBeNull();
   });
 
   it('renders the routed content outside of a nested main landmark', () => {
