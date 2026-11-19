@@ -1,6 +1,6 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { switchMap } from 'rxjs';
+import { Observable, switchMap } from 'rxjs';
 import { Icon } from '../../../../shared/components/icon/icon';
 import { backendErrorMessage } from '../../../../shared/utils/backend-error';
 import { ProductService } from '../../../catalog/services/product.service';
@@ -13,6 +13,7 @@ import {
   TierOption,
 } from '../../model/cafe-benefit.model';
 import { CafeBenefitService } from '../../services/cafe-benefit.service';
+import { toDeletionErrorMessage, toVisibilityErrorMessage } from '../../utils/benefit-action-error';
 import { BenefitCard } from '../benefit-card/benefit-card';
 import { BenefitForm } from '../benefit-form/benefit-form';
 
@@ -38,6 +39,7 @@ export class CafeBenefits implements OnInit {
 
   isLoading = signal(true);
   isSaving = signal(false);
+  busyBenefitId = signal<string | null>(null);
   showForm = signal(false);
   editingBenefit = signal<CafeBenefit | null>(null);
   searchQuery = signal('');
@@ -158,6 +160,40 @@ export class CafeBenefits implements OnInit {
     this.successMessage.set(null);
   }
 
+  onPauseBenefit(benefit: CafeBenefit): void {
+    this.changeVisibility(
+      benefit,
+      this.cafeBenefitService.pause(benefit.externalId),
+      'Pausaste la promoción: los clientes ya no pueden canjearla, pero los cupones que ya tienen siguen valiendo.',
+    );
+  }
+
+  onResumeBenefit(benefit: CafeBenefit): void {
+    this.changeVisibility(
+      benefit,
+      this.cafeBenefitService.resume(benefit.externalId),
+      'La promoción volvió a estar disponible para los clientes.',
+    );
+  }
+
+  onRemoveBenefit(benefit: CafeBenefit): void {
+    this.startAction(benefit);
+    this.cafeBenefitService.delete(benefit.externalId).subscribe({
+      next: () => {
+        this.benefits.update((list) => list.filter((item) => item.externalId !== benefit.externalId));
+        if (this.editingBenefit()?.externalId === benefit.externalId) {
+          this.closeForm();
+        }
+        this.busyBenefitId.set(null);
+        this.successMessage.set('Eliminaste la promoción.');
+      },
+      error: (err) => {
+        this.busyBenefitId.set(null);
+        this.errorMessage.set(toDeletionErrorMessage(err));
+      },
+    });
+  }
+
   toggleForm(): void {
     this.showForm.update((open) => !open);
     this.editingBenefit.set(null);
@@ -175,9 +211,7 @@ export class CafeBenefits implements OnInit {
       .update(editing.externalId, { ...request, maxPerClient: editing.maxPerClient ?? null })
       .subscribe({
         next: (updated) => {
-          this.benefits.update((list) =>
-            list.map((benefit) => (benefit.externalId === updated.externalId ? updated : benefit)),
-          );
+          this.replaceBenefit(updated);
           this.isSaving.set(false);
           this.closeForm();
           this.successMessage.set('¡Promoción actualizada exitosamente!');
@@ -190,6 +224,33 @@ export class CafeBenefits implements OnInit {
           );
         },
       });
+  }
+
+  private changeVisibility(benefit: CafeBenefit, request: Observable<CafeBenefit>, successMessage: string): void {
+    this.startAction(benefit);
+    request.subscribe({
+      next: (updated) => {
+        this.replaceBenefit(updated);
+        this.busyBenefitId.set(null);
+        this.successMessage.set(successMessage);
+      },
+      error: (err) => {
+        this.busyBenefitId.set(null);
+        this.errorMessage.set(toVisibilityErrorMessage(err));
+      },
+    });
+  }
+
+  private startAction(benefit: CafeBenefit): void {
+    this.busyBenefitId.set(benefit.externalId);
+    this.errorMessage.set(null);
+    this.successMessage.set(null);
+  }
+
+  private replaceBenefit(updated: CafeBenefit): void {
+    this.benefits.update((list) =>
+      list.map((benefit) => (benefit.externalId === updated.externalId ? updated : benefit)),
+    );
   }
 
   onSearchChange(value: string): void {

@@ -162,7 +162,14 @@
   } @else {
     <section aria-label="Listado de promociones del local" class="grid grid-cols-1 gap-4 md:grid-cols-2">
       @for (benefit of filteredBenefits(); track benefit.externalId) {
-        <app-benefit-card [benefit]="benefit" (edit)="onEditBenefit($event)" />
+        <app-benefit-card
+          [benefit]="benefit"
+          [busy]="busyBenefitId() === benefit.externalId"
+          (edit)="onEditBenefit($event)"
+          (pause)="onPauseBenefit($event)"
+          (resume)="onResumeBenefit($event)"
+          (remove)="onRemoveBenefit($event)"
+        />
       }
     </section>
   }
