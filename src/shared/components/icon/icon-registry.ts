@@ -4,6 +4,7 @@ export const ICONS = {
     'M12 8v4',
     'M12 16h.01',
   ],
+  'arrow-down': ['M12 5v14', 'm19 12-7 7-7-7'],
   'arrow-left': ['m12 19-7-7 7-7', 'M19 12H5'],
   'arrow-right': ['M5 12h14', 'm12 5 7 7-7 7'],
   check: ['M20 6 9 17l-5-5'],

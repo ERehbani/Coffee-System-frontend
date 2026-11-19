@@ -1,6 +1,7 @@
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { Component, DestroyRef, afterNextRender, computed, inject, output, signal } from '@angular/core';
 import { Observable, catchError, interval, map, of, startWith, switchMap, tap } from 'rxjs';
+import { Icon } from '../../../../shared/components/icon/icon';
 import { backendErrorMessage } from '../../../../shared/utils/backend-error';
 import { Purchase, PurchaseStatus } from '../../../purchase-history/model/purchase.model';
 import { PurchaseService } from '../../../purchase-history/services/purchase.service';
@@ -36,7 +37,7 @@ export const ORDERS_REFRESH_MS = 20_000;
 
 @Component({
   selector: 'app-orders-board',
-  imports: [CurrencyPipe, DatePipe],
+  imports: [CurrencyPipe, DatePipe, Icon],
   templateUrl: './orders-board.html',
   host: { class: 'block' },
 })
