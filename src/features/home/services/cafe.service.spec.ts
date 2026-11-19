@@ -66,4 +66,38 @@ describe('CafeService', () => {
       state: true,
     });
   });
+
+  it('update() reemplaza los datos editables de la cafetería', () => {
+    const request = {
+      name: 'Cafe Central Palermo',
+      address: 'Av Siempreviva 123',
+      phoneNumber: '1122334455',
+      description: null,
+      logo: 'https://img/logo.png',
+      image: null,
+    };
+
+    service.update('cafe-central-001', request).subscribe();
+
+    const req = http.expectOne(`${environment.apiBaseUrl}/cafes/cafe-central-001`);
+    expect(req.request.method).toBe('PUT');
+    expect(req.request.body).toEqual(request);
+    req.flush(CAFE_CENTRAL_FIXTURE);
+  });
+
+  it('deactivate() desactiva la cafetería con el DELETE del backend', () => {
+    service.deactivate('cafe-central-001').subscribe();
+
+    const req = http.expectOne(`${environment.apiBaseUrl}/cafes/cafe-central-001`);
+    expect(req.request.method).toBe('DELETE');
+    req.flush(null, { status: 204, statusText: 'No Content' });
+  });
+
+  it('reactivate() vuelve a activar la cafetería', () => {
+    service.reactivate('cafe-central-001').subscribe();
+
+    const req = http.expectOne(`${environment.apiBaseUrl}/cafes/cafe-central-001/activate`);
+    expect(req.request.method).toBe('PATCH');
+    req.flush(CAFE_CENTRAL_FIXTURE);
+  });
 });

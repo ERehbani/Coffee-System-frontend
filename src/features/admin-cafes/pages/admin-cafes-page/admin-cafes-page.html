@@ -278,7 +278,19 @@
 
   <app-cafe-detail-modal
     [cafe]="selectedCafe()"
+    [busy]="busyCafeId() === selectedCafe()?.externalId"
     (close)="closeDetail()"
+    (edit)="openEdit($event)"
+    (deactivate)="onDeactivateCafe($event)"
+    (reactivate)="onReactivateCafe($event)"
+  />
+
+  <app-cafe-edit-modal
+    [cafe]="editingCafe()"
+    [isSubmitting]="isUpdating()"
+    [errorMessage]="editError()"
+    (submitted)="onUpdateCafe($event)"
+    (cancelled)="closeEdit()"
   />
 
   <app-cafe-register-modal
