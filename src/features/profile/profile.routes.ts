@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { ChangePasswordPage } from '../auth/pages/change-password-page/change-password-page';
 import { RedemptionDetail } from '../redemption-detail/components/redemption-detail/redemption-detail';
 import { CouponsPage } from './pages/coupons-page/coupons-page';
 import { ProfileEditPage } from './pages/profile-edit-page/profile-edit-page';
@@ -25,6 +26,7 @@ export default [
         providers: [RedemptionHistoryStore],
       },
       { path: 'coupons', component: CouponsPage },
+      { path: 'password', component: ChangePasswordPage },
       { path: 'redemptions/:id', component: RedemptionDetail },
     ],
   },

@@ -56,7 +56,15 @@ describe('AdminLayout', () => {
     const footer = root.querySelector('aside footer');
 
     expect(footer?.textContent).toContain('Superadmin');
-    expect(footer?.querySelector('a')).toBeNull();
+    expect(footer?.querySelector('a[href="/home"]')).toBeNull();
+  });
+
+  it('always offers changing the password next to the logout', async () => {
+    signInForTest(['ROLE_SUPERADMIN']);
+    await fixture.whenStable();
+    const passwordLink = root.querySelector<HTMLAnchorElement>('aside footer a[href="/admin/password"]');
+
+    expect(passwordLink?.textContent?.trim()).toBe('Cambiar contraseña');
   });
 
   it('shows a link back to the client app when the user is also a client', async () => {
