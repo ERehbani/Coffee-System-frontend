@@ -26,13 +26,12 @@
       class="flex flex-col items-center gap-3 rounded-2xl border border-border bg-surface p-6 text-center"
     >
       <h2 class="text-lg font-bold text-text">No pudimos cargar tu historial</h2>
-      <p class="text-sm text-muted">Revisa tu conexión e inténtalo de nuevo.</p>
+      <p class="text-sm text-muted">Revisá tu conexión e intentalo de nuevo.</p>
       <button
         type="button"
         (click)="store.reload()"
         class="mt-2 inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
       >
-        <app-icon name="refresh-cw" [size]="16" />
         Reintentar
       </button>
     </section>
@@ -41,7 +40,6 @@
     <div class="space-y-4">
       @if (store.usedBenefits().length > 0) {
         <p class="flex items-center gap-2 rounded-2xl bg-accent-light px-4 py-3 text-sm text-primary-dark">
-          <app-icon name="history" [size]="16" />
           <span>
             <strong>{{ store.usedBenefits().length }}</strong>
             {{ store.usedBenefits().length === 1 ? 'beneficio canjeado' : 'beneficios canjeados' }} ·

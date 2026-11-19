@@ -12,7 +12,6 @@ import { ReviewFormData } from '../../model/purchase.model';
 export class ReviewForm {
   readonly cafeName = input.required<string>();
   readonly isSubmitting = input(false);
-  readonly errorMessage = input<string | null>(null);
 
   readonly submitted = output<ReviewFormData>();
   readonly cancelled = output<void>();

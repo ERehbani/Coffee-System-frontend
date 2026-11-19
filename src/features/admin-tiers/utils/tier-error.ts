@@ -1,15 +1,15 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { TierFormErrors } from '../types/tier.model';
 
-export const TIER_SAVE_ERROR_MESSAGE = 'No pudimos guardar el tier. Inténtalo de nuevo.';
+export const TIER_SAVE_ERROR_MESSAGE = 'No pudimos guardar el nivel. Intentalo de nuevo.';
 
 const NAME_REQUIRED = 'El nombre es obligatorio.';
 const NAME_TOO_LONG = 'El nombre puede tener hasta 50 caracteres.';
 const POINTS_REQUIRED = 'Los puntos son obligatorios.';
 const POINTS_NEGATIVE = 'Los puntos no pueden ser negativos.';
-const DUPLICATE_NAME = 'Ya existe un tier con ese nombre.';
-const DUPLICATE_POINTS = 'Ya existe un tier con esa cantidad de puntos.';
-const BASE_TIER_POINTS = 'El tier base debe mantener 0 puntos.';
+const DUPLICATE_NAME = 'Ya existe un nivel con ese nombre.';
+const DUPLICATE_POINTS = 'Ya existe un nivel con esa cantidad de puntos.';
+const BASE_TIER_POINTS = 'El nivel base debe mantener 0 puntos.';
 
 const GENERIC: TierFormErrors = { form: TIER_SAVE_ERROR_MESSAGE };
 
@@ -30,11 +30,11 @@ function fieldErrorsOf(body: unknown): Record<string, unknown> | null {
 }
 
 function nameError(message: string): string {
-  return /blank|empty|null|required/.test(message) ? NAME_REQUIRED : NAME_TOO_LONG;
+  return /obligatori/.test(message) ? NAME_REQUIRED : NAME_TOO_LONG;
 }
 
 function pointsError(message: string): string {
-  return /null|required|blank|empty/.test(message) ? POINTS_REQUIRED : POINTS_NEGATIVE;
+  return /obligatori/.test(message) ? POINTS_REQUIRED : POINTS_NEGATIVE;
 }
 
 function validationErrors(body: unknown): TierFormErrors | null {
@@ -55,7 +55,7 @@ export function toTierFormErrors(error: unknown): TierFormErrors {
   if (!(error instanceof HttpErrorResponse)) {
     return GENERIC;
   }
-  if (error.status === 422 && stringOf(error.error, 'detail') === 'the base tier must keep 0 points') {
+  if (error.status === 422 && stringOf(error.error, 'detail') === 'el tier base debe mantener 0 puntos') {
     return { form: BASE_TIER_POINTS };
   }
   if (error.status === 400) {
@@ -63,10 +63,10 @@ export function toTierFormErrors(error: unknown): TierFormErrors {
   }
   const message = stringOf(error.error, 'detail');
   if (error.status === 409 && message) {
-    if (/^a tier named .+ already exists$/.test(message)) {
+    if (/^ya existe un tier llamado .+$/.test(message)) {
       return { name: DUPLICATE_NAME };
     }
-    if (/^a tier with .+ points already exists$/.test(message)) {
+    if (/^ya existe un tier con .+ puntos$/.test(message)) {
       return { minPoints: DUPLICATE_POINTS };
     }
   }

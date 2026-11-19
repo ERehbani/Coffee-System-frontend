@@ -1,3 +1,4 @@
+import { DecimalPipe } from '@angular/common';
 import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
@@ -6,6 +7,7 @@ import { Subject, Subscription, merge, of } from 'rxjs';
 import { catchError, distinctUntilChanged, map, switchMap, tap } from 'rxjs/operators';
 import { Icon } from '../../../../shared/components/icon/icon';
 import { ThemeToggle } from '../../../../shared/components/theme-toggle/theme-toggle';
+import { ToastService } from '../../../../shared/components/toast/toast.service';
 import { formatOpeningHours } from '../../../../shared/utils/opening-hours';
 import { CartButton } from '../../../cart/components/cart-button/cart-button';
 import { CartService } from '../../../cart/services/cart.service';
@@ -18,7 +20,7 @@ import { ProductService } from '../../services/product.service';
 
 @Component({
   selector: 'app-catalog-page',
-  imports: [RouterLink, FormsModule, Icon, ProductCard, ProductDetailModal, CartButton, ThemeToggle],
+  imports: [DecimalPipe, RouterLink, FormsModule, Icon, ProductCard, ProductDetailModal, CartButton, ThemeToggle],
   templateUrl: './catalog-page.html',
   host: { class: 'block' },
 })
@@ -28,6 +30,7 @@ export class CatalogPage implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly toast = inject(ToastService);
   readonly cartService = inject(CartService);
 
   readonly formatHours = formatOpeningHours;
@@ -49,11 +52,8 @@ export class CatalogPage implements OnInit {
 
   selectedCategory = signal('Todas');
   productSearchQuery = signal('');
-  addedProductMessage = signal<string | null>(null);
-  addErrorMessage = signal<string | null>(null);
   pendingProduct = signal<Product | null>(null);
   selectedProduct = signal<Product | null>(null);
-  private messageTimeout?: ReturnType<typeof setTimeout>;
 
   categories = computed(() => {
     const set = new Set(this.products().map((p) => p.category));
@@ -130,7 +130,7 @@ export class CatalogPage implements OnInit {
               }
               return this.productService.getProductsByCafe(cafe.externalId).pipe(
                 catchError((error) => {
-                  console.error('Error loading products:', error);
+                  console.error('Error al cargar los productos:', error);
                   this.hasProductsError.set(true);
                   return of([]);
                 })
@@ -146,7 +146,7 @@ export class CatalogPage implements OnInit {
           this.isLoadingProducts.set(false);
         },
         error: (err) => {
-          console.error('Error loading catalog data:', err);
+          console.error('Error al cargar los datos del catálogo:', err);
           this.hasCafesError.set(true);
           this.isLoadingCafes.set(false);
           this.isLoadingProducts.set(false);
@@ -193,7 +193,6 @@ export class CatalogPage implements OnInit {
       return;
     }
 
-    this.addErrorMessage.set(null);
     if (this.cartService.addProduct(product, cafe, (reason) => this.showAddError(product, reason))) {
       this.showAddedMessage(product);
     }
@@ -219,7 +218,6 @@ export class CatalogPage implements OnInit {
       return;
     }
 
-    this.addErrorMessage.set(null);
     if (this.cartService.replaceWithProduct(product, cafe, (reason) => this.showAddError(product, reason))) {
       this.showAddedMessage(product);
     }
@@ -230,18 +228,11 @@ export class CatalogPage implements OnInit {
     this.pendingProduct.set(null);
   }
 
-  /** A rejected add cancels its optimistic success toast, so dismissing the error shows nothing stale. */
   private showAddError(product: Product, reason: string | null): void {
-    clearTimeout(this.messageTimeout);
-    this.addedProductMessage.set(null);
-    this.addErrorMessage.set(`No pudimos agregar ${product.name} al carrito.${reason ? ` ${reason}` : ''}`);
+    this.toast.error(`No pudimos agregar ${product.name} al carrito.${reason ? ` ${reason}` : ''}`);
   }
 
   private showAddedMessage(product: Product): void {
-    clearTimeout(this.messageTimeout);
-    this.addedProductMessage.set(`¡${product.name} agregado al carrito!`);
-    this.messageTimeout = setTimeout(() => {
-      this.addedProductMessage.set(null);
-    }, 2500);
+    this.toast.success(`¡${product.name} agregado al carrito!`);
   }
 }

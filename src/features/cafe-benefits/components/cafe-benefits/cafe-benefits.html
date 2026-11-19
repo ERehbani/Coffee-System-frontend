@@ -1,9 +1,6 @@
 <main class="mx-auto max-w-4xl px-4 py-8 space-y-6">
   <div class="flex flex-wrap items-center justify-between gap-3 pb-2 border-b border-border">
     <div class="flex items-center gap-2.5">
-      <span class="inline-flex size-9 items-center justify-center rounded-xl bg-primary text-white">
-        <app-icon name="ticket" [size]="20" />
-      </span>
       <div>
         <h1 class="text-lg font-extrabold text-text">Promociones del Local</h1>
         <p class="text-xs text-muted">Creá y publicá beneficios propios exclusivos para tu cafetería</p>
@@ -15,7 +12,6 @@
         (click)="toggleForm()"
         class="cursor-pointer inline-flex items-center gap-1.5 rounded-xl bg-primary px-3.5 py-1.5 text-xs font-bold text-white transition hover:bg-primary-dark active:scale-95 select-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
       >
-        <app-icon [name]="showForm() ? 'x' : 'plus'" [size]="14" />
         <span>{{ showForm() ? 'Cerrar formulario' : 'Nueva Promoción' }}</span>
       </button>
     </div>
@@ -27,9 +23,6 @@
       class="flex items-center justify-between gap-3 rounded-2xl border border-success/30 bg-emerald-50 px-5 py-3.5 text-success transition"
     >
       <div class="flex items-center gap-3">
-        <span class="inline-flex size-7 shrink-0 items-center justify-center rounded-full bg-success text-white">
-          <app-icon name="check" [size]="14" />
-        </span>
         <p class="text-sm font-bold text-emerald-900">{{ successMsg }}</p>
       </div>
       <button
@@ -49,9 +42,6 @@
       class="flex items-center justify-between gap-3 rounded-2xl border border-rose-300 bg-rose-50 px-5 py-3.5 text-rose-800 transition"
     >
       <div class="flex items-center gap-3">
-        <span class="inline-flex size-7 shrink-0 items-center justify-center rounded-full bg-rose-600 text-white">
-          <app-icon name="x" [size]="14" />
-        </span>
         <p class="text-sm font-bold text-rose-900">{{ errorMsg }}</p>
       </div>
       <button
@@ -67,6 +57,7 @@
 
   @if (showForm()) {
     <app-benefit-form
+      [benefit]="editingBenefit()"
       [isSaving]="isSaving()"
       [benefitTypes]="benefitTypes()"
       [tiers]="tiers()"
@@ -142,9 +133,6 @@
     </div>
   } @else if (filteredBenefits().length === 0) {
     <div class="flex flex-col items-center justify-center gap-3 rounded-3xl border border-dashed border-border bg-surface p-10 text-center shadow-xs">
-      <span class="inline-flex size-12 items-center justify-center rounded-2xl bg-accent-light text-primary">
-        <app-icon name="ticket" [size]="24" />
-      </span>
       <h3 class="text-base font-bold text-text">No se encontraron promociones</h3>
       <p class="text-xs text-muted max-w-sm">
         @if (searchQuery() || filterState() !== 'all') {
@@ -167,7 +155,6 @@
           (click)="toggleForm()"
           class="mt-2 inline-flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-xs font-bold text-white transition hover:bg-primary-dark"
         >
-          <app-icon name="plus" [size]="14" />
           Nueva Promoción
         </button>
       }
@@ -175,7 +162,7 @@
   } @else {
     <section aria-label="Listado de promociones del local" class="grid grid-cols-1 gap-4 md:grid-cols-2">
       @for (benefit of filteredBenefits(); track benefit.externalId) {
-        <app-benefit-card [benefit]="benefit" />
+        <app-benefit-card [benefit]="benefit" (edit)="onEditBenefit($event)" />
       }
     </section>
   }

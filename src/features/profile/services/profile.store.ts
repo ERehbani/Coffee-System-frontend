@@ -1,5 +1,6 @@
 import { computed, inject, Service, signal } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
+import { ToastService } from '../../../shared/components/toast/toast.service';
 import {
   ActiveRedemption,
   ClientProfile,
@@ -18,11 +19,10 @@ export interface ActiveRedemptionView extends ActiveRedemption {
 @Service({ autoProvided: false })
 export class ProfileStore {
   private readonly repository = inject(ProfileRepository);
+  private readonly toast = inject(ToastService);
   private readonly resource = rxResource({ stream: () => this.repository.getDashboard() });
 
   readonly isSaving = signal<boolean>(false);
-  readonly errorMessage = signal<string | null>(null);
-  readonly successMessage = signal<string | null>(null);
   private readonly updatedProfile = signal<ClientProfile | null>(null);
 
   readonly dashboard = computed<ProfileDashboard | null>(() => {
@@ -79,31 +79,24 @@ export class ProfileStore {
     }
 
     this.isSaving.set(true);
-    this.errorMessage.set(null);
-    this.successMessage.set(null);
 
     this.repository.updateProfile(current.id, input).subscribe({
       next: (savedProfile) => {
         this.updatedProfile.set({ ...savedProfile, email: current.email });
         this.isSaving.set(false);
-        this.successMessage.set('¡Tus datos personales se han actualizado correctamente!');
+        this.toast.success('¡Tus datos personales se han actualizado correctamente!', {
+          label: 'Ver en perfil',
+          route: '/profile',
+        });
         if (onSuccess) {
           onSuccess();
         }
       },
       error: () => {
         this.isSaving.set(false);
-        this.errorMessage.set('Ocurrió un error al intentar guardar los cambios.');
+        this.toast.error('Ocurrió un error al intentar guardar los cambios.');
       },
     });
-  }
-
-  dismissSuccess(): void {
-    this.successMessage.set(null);
-  }
-
-  dismissError(): void {
-    this.errorMessage.set(null);
   }
 
   reload(): void {

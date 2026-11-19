@@ -11,7 +11,7 @@ export function toCafeReview(dto: ReviewResponseDto): CafeReview {
   };
 }
 
-/** Newest first: ISO dates sort lexically, and the id keeps same-day reviews in a stable order. */
+// Las fechas ISO se ordenan como texto; el id desempata las reseñas del mismo día.
 export function toCafeReviews(dtos: readonly ReviewResponseDto[]): CafeReview[] {
   return dtos.map(toCafeReview).sort((a, b) => b.date.localeCompare(a.date) || a.id.localeCompare(b.id));
 }

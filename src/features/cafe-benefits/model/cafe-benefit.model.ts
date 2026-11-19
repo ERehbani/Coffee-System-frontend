@@ -13,11 +13,15 @@ export interface CreateCafeBenefitRequest {
   pointsCost: number;
   startDate: string;
   endDate: string;
-  maxRedemptions: number;
+  maxRedemptions: number | null;
   type: BenefitType;
   tierId: string;
   productId?: string | null;
   discountPercentage?: number | null;
+}
+
+export interface UpdateCafeBenefitRequest extends CreateCafeBenefitRequest {
+  maxPerClient?: number | null;
 }
 
 export interface CafeBenefit {
@@ -28,7 +32,8 @@ export interface CafeBenefit {
   pointsCost: number;
   status: boolean;
   isPublic: boolean;
-  maxRedemptions: number;
+  maxRedemptions: number | null;
+  maxPerClient?: number | null;
   redeemedCount?: number | null;
   remainingRedemptions?: number | null;
   soldOut?: boolean;
@@ -47,7 +52,6 @@ export interface CafeBenefit {
 
 export interface CafeBenefitCreation {
   benefit: CafeBenefit;
-  /** Null when the benefit was published; otherwise the error of the publish request. */
   publishError: unknown;
 }
 

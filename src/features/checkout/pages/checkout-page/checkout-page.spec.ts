@@ -7,6 +7,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { Observable, of, Subject, throwError } from 'rxjs';
 import type { Mock } from 'vitest';
+import { ToastService } from '../../../../shared/components/toast/toast.service';
 import { CartService } from '../../../cart/services/cart.service';
 import { CheckoutRepository } from '../../services/checkout.repository';
 import { CheckoutStore } from '../../services/checkout.store';
@@ -35,6 +36,7 @@ describe('CheckoutPage', () => {
   let element: HTMLElement;
   let cart: CartService;
   let navigateByUrl: Mock;
+  let toastError: Mock;
   let createPurchase: Mock<(input: CreatePurchaseInput) => Observable<ConfirmedOrder>>;
   let findCoupons: Mock<() => Observable<readonly CheckoutCoupon[]>>;
 
@@ -64,6 +66,7 @@ describe('CheckoutPage', () => {
       cart.cafe.set(CHECKOUT_CAFE_FIXTURE);
     }
     navigateByUrl = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
+    toastError = vi.spyOn(TestBed.inject(ToastService), 'error');
 
     fixture = TestBed.createComponent(CheckoutPage);
     fixture.detectChanges();
@@ -169,9 +172,7 @@ describe('CheckoutPage', () => {
 
     clickConfirm();
 
-    expect(element.querySelector('[role="alert"]')?.textContent).toContain(
-      'No pudimos confirmar tu pago',
-    );
+    expect(toastError).toHaveBeenCalledWith(expect.stringContaining('No pudimos confirmar tu pago'));
     expect(navigateByUrl).not.toHaveBeenCalled();
     expect(cart.items().length).toBe(2);
     expect(element.querySelector('app-checkout-summary')).not.toBeNull();
@@ -292,25 +293,23 @@ describe('CheckoutPage', () => {
 
     it('explains a rejected coupon and lets the client remove it and pay again', async () => {
       createPurchase.mockReturnValueOnce(
-        throwError(() => new HttpErrorResponse({ status: 404, error: { detail: 'Invalid code' } })),
+        throwError(() => new HttpErrorResponse({ status: 404, error: { detail: 'Código inválido' } })),
       );
       await render();
       chooseCoupon('15% de descuento');
 
       clickConfirm();
 
-      expect(element.querySelector('[role="alert"]')?.textContent).toContain(
-        'No encontramos ese cupón',
-      );
+      expect(toastError).toHaveBeenCalledWith(expect.stringContaining('No encontramos ese cupón'));
       expect(navigateByUrl).not.toHaveBeenCalled();
       expect(couponOptions()[0].getAttribute('aria-pressed')).toBe('true');
 
       element.querySelector<HTMLButtonElement>('[data-testid="coupon-clear"]')!.click();
       fixture.detectChanges();
-      expect(element.querySelector('[role="alert"]')).toBeNull();
 
       clickConfirm();
 
+      expect(toastError).toHaveBeenCalledOnce();
       expect(createPurchase).toHaveBeenLastCalledWith({ cartId: 'cart-1', validationCode: undefined });
       expect(navigateByUrl).toHaveBeenCalledWith(CHECKOUT_SUCCESS_PATH);
     });

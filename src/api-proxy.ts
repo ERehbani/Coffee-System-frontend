@@ -11,7 +11,7 @@ export function resolveApiUrl(env: NodeJS.ProcessEnv): string {
     return apiUrl;
   }
   if (env['NODE_ENV'] === 'production') {
-    throw new Error('API_URL is required in production');
+    throw new Error('API_URL es obligatoria en producción');
   }
   return LOCAL_API_URL;
 }

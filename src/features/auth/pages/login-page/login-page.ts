@@ -1,12 +1,12 @@
 import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormField, email, form, required } from '@angular/forms/signals';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Icon } from '../../../../shared/components/icon/icon';
-import { ThemeToggle } from '../../../../shared/components/theme-toggle/theme-toggle';
+import { AuthPanel, AuthShell, CLIENT_PANEL } from '../../components/auth-shell/auth-shell';
 import { SESSION_EXPIRED_REASON } from '../../interceptors/auth.interceptor';
 import { AuthService } from '../../services/auth.service';
-import { LoginCredentials } from '../../types/auth.model';
+import { LoginCredentials, UserRole } from '../../types/auth.model';
 import { ACCOUNT_CREATED_REASON, LOGIN_PATH, REGISTER_PATH, getHomeForRoles } from '../../utils/role-home';
 
 const INVALID_CREDENTIALS_MESSAGE = 'El correo o la contraseña son incorrectos.';
@@ -15,6 +15,43 @@ const NO_ROLE_MESSAGE = 'Tu usuario no tiene un rol habilitado para ingresar.';
 const SESSION_EXPIRED_MESSAGE = 'Tu sesión expiró, volvé a iniciar sesión.';
 
 const ACCOUNT_CREATED_MESSAGE = 'Tu cuenta se creó correctamente. Iniciá sesión para continuar.';
+
+interface Audience {
+  panel: AuthPanel;
+  role: UserRole;
+  wrongRoleMessage: string;
+}
+
+const WRONG_ROLE_HINT = 'Ingresá desde el acceso de tu tipo de cuenta.';
+
+const CLIENT_AUDIENCE: Audience = {
+  panel: CLIENT_PANEL,
+  role: 'ROLE_CLIENTE',
+  wrongRoleMessage: `Esta cuenta no es de cliente. ${WRONG_ROLE_HINT}`,
+};
+
+const AUDIENCES: Partial<Record<string, Audience>> = {
+  cafe: {
+    panel: {
+      image: '/auth/coffee-panel.jpg',
+      tagline: 'Gestioná tus productos, promociones y pedidos desde un solo lugar.',
+      title: ['Fidelizá', 'a tus clientes'],
+      fullScreen: true,
+    },
+    role: 'ROLE_CAFETERIA',
+    wrongRoleMessage: `Esta cuenta no es de una cafetería. ${WRONG_ROLE_HINT}`,
+  },
+  superadmin: {
+    panel: {
+      image: '/auth/cafe-superadmin.jpg',
+      tagline: 'Gestioná cafeterías, usuarios, niveles y beneficios de la plataforma.',
+      title: ['Panel de', 'administración'],
+      fullScreen: true,
+    },
+    role: 'ROLE_SUPERADMIN',
+    wrongRoleMessage: `Esta cuenta no es de administración. ${WRONG_ROLE_HINT}`,
+  },
+};
 
 interface ReasonNotice {
   message: string;
@@ -33,7 +70,7 @@ function toReasonNotice(reason: string | null): ReasonNotice | null {
 
 @Component({
   selector: 'app-login-page',
-  imports: [FormField, Icon, RouterLink, ThemeToggle],
+  imports: [AuthShell, FormField, Icon],
   templateUrl: './login-page.html',
   host: { class: 'block' },
 })
@@ -41,8 +78,13 @@ export class LoginPage {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
 
-  readonly notice = toReasonNotice(inject(ActivatedRoute).snapshot.queryParamMap.get('reason'));
-  readonly registerPath = REGISTER_PATH;
+  private readonly route = inject(ActivatedRoute).snapshot;
+
+  readonly notice = toReasonNotice(this.route.queryParamMap.get('reason'));
+  // Route data `audience` picks the panel and the only role admitted; without it (the client login) the register link stays.
+  private readonly audience = AUDIENCES[this.route.data['audience']] ?? CLIENT_AUDIENCE;
+  readonly panel = this.audience.panel;
+  readonly registerPath = this.audience === CLIENT_AUDIENCE ? REGISTER_PATH : undefined;
 
   readonly credentials = signal<LoginCredentials>({ email: '', password: '' });
   readonly loginForm = form(this.credentials, (field) => {
@@ -86,12 +128,14 @@ export class LoginPage {
   private goToRoleHome(): void {
     this.isSubmitting.set(false);
     const home = getHomeForRoles(this.auth.roles());
-    if (home === LOGIN_PATH) {
+    const isOwnRole = this.auth.hasRole(this.audience.role);
+    const rejection = home === LOGIN_PATH ? NO_ROLE_MESSAGE : isOwnRole ? null : this.audience.wrongRoleMessage;
+    if (rejection) {
       this.auth.logout().subscribe();
-      this.errorMessage.set(NO_ROLE_MESSAGE);
+      this.errorMessage.set(rejection);
       return;
     }
-    this.router.navigateByUrl(home);
+    this.router.navigateByUrl(getHomeForRoles([this.audience.role]));
   }
 
   private toErrorMessage(error: unknown): string {

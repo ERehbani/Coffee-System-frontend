@@ -7,7 +7,7 @@ const EXPECTED_ITEMS = [
   { label: 'Usuarios', href: '/admin/users' },
   { label: 'Clientes', href: '/admin/clients' },
   { label: 'Cafeterías', href: '/admin/cafes' },
-  { label: 'Tiers', href: '/admin/tiers' },
+  { label: 'Niveles', href: '/admin/tiers' },
   { label: 'Categorías', href: '/admin/categories' },
   { label: 'Tipos de beneficio', href: '/admin/benefit-types' },
   { label: 'Beneficios globales', href: '/admin/global-benefits' },
@@ -79,7 +79,7 @@ describe('AdminLayout', () => {
 
     const current = navLinks().filter((link) => link.getAttribute('aria-current') === 'page');
 
-    expect(current.map((link) => link.textContent?.trim())).toEqual(['Tiers']);
+    expect(current.map((link) => link.textContent?.trim())).toEqual(['Niveles']);
   });
 
   describe('off-canvas menu below lg', () => {

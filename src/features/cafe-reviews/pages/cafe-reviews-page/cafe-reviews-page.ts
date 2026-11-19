@@ -1,7 +1,6 @@
 import { DecimalPipe, formatNumber } from '@angular/common';
 import { Component, LOCALE_ID, OnInit, computed, inject, signal } from '@angular/core';
 import { switchMap } from 'rxjs';
-import { Icon } from '../../../../shared/components/icon/icon';
 import { ProductService } from '../../../catalog/services/product.service';
 import { ReviewCard } from '../../components/review-card/review-card';
 import { CafeReviewService } from '../../services/cafe-review.service';
@@ -9,7 +8,7 @@ import { CafeReview } from '../../types/cafe-review.model';
 
 @Component({
   selector: 'app-cafe-reviews-page',
-  imports: [DecimalPipe, Icon, ReviewCard],
+  imports: [DecimalPipe, ReviewCard],
   templateUrl: './cafe-reviews-page.html',
   host: { class: 'block' },
 })

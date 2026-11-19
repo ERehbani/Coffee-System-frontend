@@ -3,7 +3,6 @@
     <div class="flex items-center justify-between">
       <div>
         <span class="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-accent">
-          <app-icon name="cup" [size]="14" />
           Coffee System • Menú
         </span>
         <h1 class="text-2xl font-bold tracking-tight text-text md:text-3xl">Catálogo de Productos</h1>
@@ -25,37 +24,6 @@
     </p>
   </header>
 
-  @if (addErrorMessage(); as addError) {
-    <div
-      role="alert"
-      class="sticky top-4 z-30 flex items-center justify-between rounded-2xl bg-rose-700 px-4 py-3 text-sm font-semibold text-white shadow-lg animate-in fade-in slide-in-from-top-2 duration-200"
-    >
-      <span>{{ addError }}</span>
-      <button
-        type="button"
-        (click)="addErrorMessage.set(null)"
-        aria-label="Cerrar alerta"
-        class="rounded-lg p-1 text-white/80 hover:bg-white/20 hover:text-white cursor-pointer"
-      >
-        <app-icon name="x" [size]="16" />
-      </button>
-    </div>
-  } @else if (addedProductMessage(); as msg) {
-    <div class="sticky top-4 z-30 flex items-center justify-between rounded-2xl bg-emerald-700 px-4 py-3 text-sm font-semibold text-white shadow-lg animate-in fade-in slide-in-from-top-2 duration-200">
-      <span class="flex items-center gap-2">
-        <app-icon name="check" [size]="18" />
-        {{ msg }}
-      </span>
-      <button
-        type="button"
-        (click)="addedProductMessage.set(null)"
-        class="rounded-lg p-1 text-white/80 hover:bg-white/20 hover:text-white cursor-pointer"
-      >
-        <app-icon name="x" [size]="16" />
-      </button>
-    </div>
-  }
-
   @if (selectedProduct(); as detail) {
     <app-product-detail-modal
       [product]="detail"
@@ -73,9 +41,6 @@
         class="w-full max-w-sm rounded-2xl bg-surface p-5 shadow-lg space-y-4"
       >
         <div class="flex items-start gap-3">
-          <div class="flex size-10 shrink-0 items-center justify-center rounded-full bg-accent-light text-primary">
-            <app-icon name="alert-circle" [size]="20" />
-          </div>
           <div class="space-y-1">
             <h2 id="titulo-cambiar-carrito" class="text-base font-bold text-text">
               Tu carrito es de otra cafetería
@@ -119,7 +84,6 @@
         (click)="loadCatalog()"
         class="mt-1 inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-primary-dark cursor-pointer"
       >
-        <app-icon name="refresh-cw" [size]="14" />
         Reintentar
       </button>
     </div>
@@ -128,9 +92,6 @@
   <section aria-label="Selector de Cafetería" [class.hidden]="hasCafesError()" class="rounded-2xl border border-border bg-surface p-4 sm:p-5 shadow-xs space-y-3.5">
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
       <div class="flex items-center gap-2">
-        <div class="flex size-8 items-center justify-center rounded-xl bg-accent-light text-primary">
-          <app-icon name="store" [size]="18" />
-        </div>
         <div>
           <h2 class="text-sm font-bold text-text">Cambiar Cafetería</h2>
           <p class="text-xs text-muted">Elegí una cafetería para ver su menú exclusivo</p>
@@ -196,9 +157,6 @@
           </div>
 
           @if (selectedCafe()?.externalId === cafe.externalId) {
-            <span class="ml-1 flex size-5 items-center justify-center rounded-full bg-white/20 text-white">
-              <app-icon name="check" [size]="12" />
-            </span>
           }
         </button>
       }
@@ -208,7 +166,6 @@
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl bg-accent-light/30 border border-primary/20 p-3 text-xs">
         <div class="flex items-center gap-2.5">
           <div class="flex items-center gap-1.5 font-bold text-primary-dark">
-            <app-icon name="store" [size]="15" />
             <span>Mostrando productos de {{ activeCafe.name }}</span>
           </div>
           @if (activeCafe.openNow) {
@@ -224,19 +181,18 @@
 
         <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-muted">
           <span class="flex items-center gap-1">
-            <app-icon name="map-pin" [size]="13" class="text-accent" />
             {{ activeCafe.address }}
           </span>
           @if (activeCafe.openingHours?.length) {
             <span class="flex items-center gap-1">
-              <app-icon name="clock" [size]="13" />
               {{ formatHours(activeCafe.openingHours) }}
             </span>
           }
-          @if (activeCafe.rating; as rating) {
+          @if (activeCafe.reviewCount; as reviewCount) {
             <div class="flex items-center gap-1 text-text font-bold">
               <app-icon name="star" [size]="13" class="text-amber-400" />
-              <span>{{ rating }}</span>
+              <span><span class="sr-only">Calificación </span>{{ activeCafe.rating | number: '1.1-1' }}</span>
+              <span class="font-normal text-muted">({{ reviewCount | number }} opiniones)</span>
             </div>
           }
           <a
@@ -330,7 +286,6 @@
           (click)="loadCatalog()"
           class="mt-1 inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-primary-dark cursor-pointer"
         >
-          <app-icon name="refresh-cw" [size]="14" />
           Reintentar
         </button>
       </div>
@@ -344,10 +299,7 @@
           />
         } @empty {
           <div class="col-span-full rounded-2xl border border-dashed border-border bg-surface p-10 text-center">
-            <div class="mx-auto flex size-12 items-center justify-center rounded-full bg-accent-light text-primary">
-              <app-icon name="cup" [size]="24" />
-            </div>
-            <h4 class="mt-3 text-sm font-bold text-text">No hay productos disponibles</h4>
+            <h4 class="text-sm font-bold text-text">No hay productos disponibles</h4>
             <p class="mt-1 text-xs text-muted max-w-sm mx-auto">
               No encontramos productos para la categoría o término buscado en esta cafetería.
             </p>

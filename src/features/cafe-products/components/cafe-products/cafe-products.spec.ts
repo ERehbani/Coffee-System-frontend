@@ -75,14 +75,14 @@ describe('CafeProducts', () => {
   it('shows the detail of the backend when reactivating fails', () => {
     service['activate'].mockReturnValue(
       throwError(
-        () => new HttpErrorResponse({ status: 409, error: { title: 'Conflict', detail: 'The cafe already sells Espresso' } }),
+        () => new HttpErrorResponse({ status: 409, error: { title: 'Conflicto de datos', detail: 'La cafetería ya vende Espresso' } }),
       ),
     );
     const component = render().componentInstance;
 
     component.onActivateProduct(inactive);
 
-    expect(component.errorMessage()).toBe('The cafe already sells Espresso');
+    expect(component.errorMessage()).toBe('La cafetería ya vende Espresso');
   });
 
   it('marks the product as inactive after taking it down', () => {

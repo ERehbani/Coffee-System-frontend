@@ -1,11 +1,12 @@
 import { formatOpeningHours } from '../../../../shared/utils/opening-hours';
+import { DecimalPipe } from '@angular/common';
 import { Component, computed, input, output } from '@angular/core';
 import { Icon } from '../../../../shared/components/icon/icon';
 import { Cafe } from '../../../home/model/cafe.model';
 
 @Component({
   selector: 'app-cafe-detail-modal',
-  imports: [Icon],
+  imports: [Icon, DecimalPipe],
   templateUrl: './cafe-detail-modal.html',
   styleUrl: './cafe-detail-modal.css',
   host: {

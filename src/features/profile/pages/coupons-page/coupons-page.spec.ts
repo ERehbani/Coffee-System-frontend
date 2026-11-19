@@ -91,7 +91,7 @@ describe('CouponsPage', () => {
     await render(() => of(dashboardWith([])));
 
     expect(element.querySelector('app-coupon-item')).toBeNull();
-    expect(element.textContent).toContain('Todavía no tienes cupones listos para usar.');
+    expect(element.textContent).toContain('Todavía no tenés cupones listos para usar.');
     const activate = Array.from(element.querySelectorAll('a')).find((link) =>
       link.textContent?.includes('Activar beneficios'),
     );
@@ -104,6 +104,21 @@ describe('CouponsPage', () => {
     expect(element.querySelector('[aria-busy="true"]')).not.toBeNull();
     expect(element.textContent).toContain('Cargando tus cupones');
     expect(element.querySelector('app-coupon-item')).toBeNull();
+  });
+
+  it('fetches once on the first visit and reloads the list when the page is opened again', async () => {
+    let calls = 0;
+    await render(() => {
+      calls++;
+      return of(dashboardWith(coupons));
+    });
+    expect(calls).toBe(1);
+
+    fixture = TestBed.createComponent(CouponsPage);
+    TestBed.flushEffects();
+    await fixture.whenStable();
+
+    expect(calls).toBe(2);
   });
 
   it('shows an error and reloads the dashboard when "Reintentar" is clicked', async () => {

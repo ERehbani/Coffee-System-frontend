@@ -69,7 +69,7 @@ describe('HttpTierRepository', () => {
 
     http
       .expectOne(url)
-      .flush('A tier named Oro already exists', { status: 409, statusText: 'Conflict' });
+      .flush('Ya existe un tier llamado Oro', { status: 409, statusText: 'Conflict' });
 
     expect(failure).toBeInstanceOf(HttpErrorResponse);
     expect((failure as HttpErrorResponse).status).toBe(409);

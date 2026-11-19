@@ -1,3 +1,4 @@
+import { DecimalPipe } from '@angular/common';
 import { Component, computed, input } from '@angular/core';
 import { formatOpeningHours, hoursOfToday } from '../../../../shared/utils/opening-hours';
 import { RouterLink } from '@angular/router';
@@ -6,7 +7,7 @@ import { Cafe } from '../../model/cafe.model';
 
 @Component({
   selector: 'app-cafe-card',
-  imports: [RouterLink, Icon],
+  imports: [DecimalPipe, RouterLink, Icon],
   templateUrl: './cafe-card.html',
   host: { class: 'block h-full' },
 })

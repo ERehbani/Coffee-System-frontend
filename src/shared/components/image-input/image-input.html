@@ -26,7 +26,6 @@
     <label
       class="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-primary px-4 py-2 text-sm font-bold text-primary transition hover:bg-accent-light has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-primary"
     >
-      <app-icon name="image" [size]="16" />
       Subir desde tu computadora
       <input type="file" accept="image/*" class="sr-only" (change)="pickFile($any($event.target))" />
     </label>
@@ -36,7 +35,6 @@
         (click)="remove()"
         class="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-border px-4 py-2 text-sm font-semibold text-muted transition hover:bg-bg hover:text-text"
       >
-        <app-icon name="trash" [size]="16" />
         Quitar imagen
       </button>
     }

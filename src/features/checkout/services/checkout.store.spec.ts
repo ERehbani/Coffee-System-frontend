@@ -3,6 +3,7 @@ import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { Observable, of, Subject, throwError } from 'rxjs';
 import type { Mock } from 'vitest';
+import { ToastService } from '../../../shared/components/toast/toast.service';
 import { CartService } from '../../cart/services/cart.service';
 import { ConfirmedOrder, CreatePurchaseInput, ServerCart } from '../types/checkout.model';
 import { CheckoutCoupon } from '../types/coupon.model';
@@ -30,6 +31,7 @@ const order: ConfirmedOrder = toConfirmedOrder(
 describe('CheckoutStore', () => {
   let store: CheckoutStore;
   let cart: CartService;
+  let toastError: Mock;
   let findCart: Mock<(cafeId: string) => Observable<ServerCart>>;
   let findCoupons: Mock<() => Observable<readonly CheckoutCoupon[]>>;
   let createPurchase: Mock<
@@ -54,6 +56,7 @@ describe('CheckoutStore', () => {
     cart.items.set([...CHECKOUT_ITEMS_FIXTURE]);
     cart.cafe.set(CHECKOUT_CAFE_FIXTURE);
     store = TestBed.inject(CheckoutStore);
+    toastError = vi.spyOn(TestBed.inject(ToastService), 'error');
   });
 
   afterEach(() => localStorage.clear());
@@ -125,13 +128,13 @@ describe('CheckoutStore', () => {
 
   it('shows the error and keeps the cart when the backend rejects the purchase', () => {
     createPurchase.mockReturnValue(
-      throwError(() => new HttpErrorResponse({ status: 400, error: { detail: 'Cart cannot be empty' } })),
+      throwError(() => new HttpErrorResponse({ status: 400, error: { detail: 'El carrito no puede estar vacío' } })),
     );
     const onSuccess = vi.fn();
 
     store.confirm(onSuccess);
 
-    expect(store.errorMessage()).toContain('No encontramos productos en tu carrito');
+    expect(toastError).toHaveBeenCalledWith(expect.stringContaining('No encontramos productos en tu carrito'));
     expect(store.status()).toBe('idle');
     expect(store.canConfirm()).toBe(true);
     expect(store.confirmedOrder()).toBeNull();
@@ -141,12 +144,12 @@ describe('CheckoutStore', () => {
 
   it('shows the error when the cart cannot be found', () => {
     findCart.mockReturnValue(
-      throwError(() => new HttpErrorResponse({ status: 404, error: 'Cart not found' })),
+      throwError(() => new HttpErrorResponse({ status: 404, error: 'Carrito no encontrado' })),
     );
 
     store.confirm(vi.fn());
 
-    expect(store.errorMessage()).toContain('No encontramos tu carrito');
+    expect(toastError).toHaveBeenCalledWith(expect.stringContaining('No encontramos tu carrito'));
     expect(createPurchase).not.toHaveBeenCalled();
     expect(cart.items().length).toBe(2);
   });
@@ -169,14 +172,14 @@ describe('CheckoutStore', () => {
 
       expect(createPurchase).not.toHaveBeenCalled();
       expect(onSuccess).not.toHaveBeenCalled();
-      expect(store.errorMessage()).toContain('Tu carrito cambió');
+      expect(toastError).toHaveBeenCalledWith(expect.stringContaining('Tu carrito cambió'));
     });
 
     it('does not pay when the backend has another total', () => {
       confirmAgainst({ ...CHECKOUT_SERVER_CART_FIXTURE, total: 9900 });
 
       expect(createPurchase).not.toHaveBeenCalled();
-      expect(store.errorMessage()).toContain('Tu carrito cambió');
+      expect(toastError).toHaveBeenCalledWith(expect.stringContaining('Tu carrito cambió'));
     });
 
     it('keeps the cart and lets the client try again', () => {
@@ -188,14 +191,14 @@ describe('CheckoutStore', () => {
     });
   });
 
-  it('clears the previous error when confirming again', () => {
+  it('lets the client confirm again after an error', () => {
     createPurchase.mockReturnValueOnce(throwError(() => new HttpErrorResponse({ status: 500 })));
     store.confirm(vi.fn());
-    expect(store.errorMessage()).not.toBeNull();
+    expect(toastError).toHaveBeenCalledOnce();
 
     store.confirm(vi.fn());
 
-    expect(store.errorMessage()).toBeNull();
+    expect(toastError).toHaveBeenCalledOnce();
     expect(store.status()).toBe('confirmed');
   });
 
@@ -205,7 +208,6 @@ describe('CheckoutStore', () => {
     store.startCheckout();
 
     expect(store.status()).toBe('idle');
-    expect(store.errorMessage()).toBeNull();
     expect(store.confirmedOrder()).toEqual(order);
   });
 
@@ -356,19 +358,6 @@ describe('CheckoutStore', () => {
       expect(store.couponPreview()?.discount).toBe(5600);
     });
 
-    it('clears the previous error when the coupon changes', () => {
-      createPurchase.mockReturnValueOnce(
-        throwError(() => new HttpErrorResponse({ status: 404, error: { detail: 'Invalid code' } })),
-      );
-      startAndSelect('coupon-discount');
-      store.confirm(vi.fn());
-      expect(store.errorMessage()).toContain('No encontramos ese cupón');
-
-      store.selectCoupon(null);
-
-      expect(store.errorMessage()).toBeNull();
-    });
-
     it('sends the code of the chosen coupon when confirming', () => {
       startAndSelect('coupon-discount');
 
@@ -406,7 +395,7 @@ describe('CheckoutStore', () => {
           () =>
             new HttpErrorResponse({
               status: 422,
-              error: { title: 'Business rule violated', status: 422, detail: 'Code already used' },
+              error: { title: 'Regla de negocio incumplida', status: 422, detail: 'El código ya fue usado' },
             }),
         ),
       );
@@ -414,7 +403,7 @@ describe('CheckoutStore', () => {
 
       store.confirm(vi.fn());
 
-      expect(store.errorMessage()).toContain('Ese cupón ya fue usado');
+      expect(toastError).toHaveBeenCalledWith(expect.stringContaining('Ese cupón ya fue usado'));
       expect(store.selectedCoupon()?.id).toBe('coupon-discount');
       expect(store.canConfirm()).toBe(true);
       expect(cart.items().length).toBe(2);

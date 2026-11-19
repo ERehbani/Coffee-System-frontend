@@ -45,6 +45,15 @@ describe('LogoutButton', () => {
     expect(router.navigateByUrl).toHaveBeenCalledWith('/login');
   });
 
+  it('goes to the login of the role that closed the session', () => {
+    signInForTest(['ROLE_CAFETERIA']);
+
+    button().click();
+    http.expectOne(logoutUrl).flush(null, { status: 204, statusText: 'No Content' });
+
+    expect(router.navigateByUrl).toHaveBeenCalledWith('/cafe/login');
+  });
+
   it('disables the button while logging out', () => {
     button().click();
     fixture.detectChanges();

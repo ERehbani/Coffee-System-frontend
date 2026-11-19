@@ -1,16 +1,17 @@
-import { Component, computed, input } from '@angular/core';
-import { Icon } from '../../../../shared/components/icon/icon';
+import { DatePipe } from '@angular/common';
+import { Component, computed, input, output } from '@angular/core';
 import { CafeBenefit } from '../../model/cafe-benefit.model';
 
 @Component({
   selector: 'app-benefit-card',
-  imports: [Icon],
+  imports: [DatePipe],
   templateUrl: './benefit-card.html',
   styleUrl: './benefit-card.css',
   host: { class: 'block' },
 })
 export class BenefitCard {
   readonly benefit = input.required<CafeBenefit>();
+  readonly edit = output<CafeBenefit>();
 
   tierBadgeClass = computed(() => {
     const tier = this.benefit().tierName?.toUpperCase().trim();

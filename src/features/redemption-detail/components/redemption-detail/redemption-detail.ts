@@ -83,7 +83,7 @@ export class RedemptionDetail implements OnInit {
         this.isLoading.set(false);
       },
       error: (error) => {
-        console.error('error loading redemption:', error);
+        console.error('Error al cargar el canje:', error);
         this.hasError.set(true);
         this.isLoading.set(false);
       },

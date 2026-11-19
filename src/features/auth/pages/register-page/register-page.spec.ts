@@ -120,7 +120,7 @@ describe('RegisterPage', () => {
 
   it('shows that the email is taken when the back answers 409', () => {
     fillAndSubmit('Ana', 'ana@test.com', 'Secret123');
-    http.expectOne(registerUrl).flush('Email already exists', { status: 409, statusText: 'Conflict' });
+    http.expectOne(registerUrl).flush('Ya existe una cuenta con ese email', { status: 409, statusText: 'Conflict' });
     fixture.detectChanges();
 
     expect(element.querySelector('[role="alert"]')?.textContent).toContain(
@@ -134,7 +134,7 @@ describe('RegisterPage', () => {
     fillAndSubmit('Ana', 'ana@test.com', 'Secret123');
     http
       .expectOne(registerUrl)
-      .flush({ errors: { email: 'Invalid email' }, status: 400 }, { status: 400, statusText: 'Bad Request' });
+      .flush({ errors: { email: 'El email no es válido' }, status: 400 }, { status: 400, statusText: 'Bad Request' });
     fixture.detectChanges();
 
     expect(element.querySelector('[role="alert"]')?.textContent).toContain(
@@ -170,7 +170,7 @@ describe('RegisterPage', () => {
   });
 
   it('links to the login page', () => {
-    expect(element.querySelector('a[href="/login"]')?.textContent).toContain('Iniciá sesión');
+    expect(element.querySelector('a[href="/login"]')?.textContent).toContain('Iniciar sesión');
   });
 
   it('switches between the light and the night theme', () => {

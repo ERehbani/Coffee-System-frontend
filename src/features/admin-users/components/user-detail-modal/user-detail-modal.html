@@ -9,10 +9,8 @@
     class="relative flex max-h-[92vh] w-full max-w-2xl flex-col rounded-3xl border border-border bg-surface shadow-2xl overflow-hidden"
     (click)="$event.stopPropagation()"
   >
-    <!-- Header Modal -->
     <div class="flex items-start justify-between border-b border-border bg-bg/50 px-6 py-5">
       <div class="flex items-center gap-4">
-        <!-- Initial -->
         <div
           class="flex size-16 items-center justify-center rounded-2xl text-xl font-black text-white shadow-sm ring-2 ring-border"
           [class.bg-muted]="!user().role"
@@ -31,7 +29,6 @@
           </div>
 
           <div class="mt-1 flex items-center gap-2 flex-wrap">
-            <!-- Role Badge -->
             <span
               class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-bold"
               [class.bg-purple-100]="user().role === 'superadmin'"
@@ -41,17 +38,9 @@
               [class.bg-sky-100]="user().role === 'client'"
               [class.text-sky-900]="user().role === 'client'"
             >
-              @if (user().role === 'superadmin') {
-                <app-icon name="shield" [size]="12" />
-              } @else if (user().role === 'cafe_admin') {
-                <app-icon name="store" [size]="12" />
-              } @else {
-                <app-icon name="user" [size]="12" />
-              }
               {{ getRoleLabel(user().role) }}
             </span>
 
-            <!-- Status Badge -->
             <span
               class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-bold"
               [class.bg-emerald-100]="user().status === 'active'"
@@ -70,7 +59,6 @@
         </div>
       </div>
 
-      <!-- Close Button -->
       <button
         type="button"
         (click)="close.emit()"
@@ -81,7 +69,6 @@
       </button>
     </div>
 
-    <!-- Action feedback notification (if any) -->
     @if (actionMessage(); as msg) {
       <div
         role="status"
@@ -95,11 +82,6 @@
         [class.border-rose-200]="msg.type === 'error'"
       >
         <div class="flex items-center gap-2">
-          @if (msg.type === 'success') {
-            <app-icon name="check-circle" [size]="16" class="text-emerald-600 shrink-0" />
-          } @else {
-            <app-icon name="alert-circle" [size]="16" class="text-rose-600 shrink-0" />
-          }
           <span>{{ msg.text }}</span>
         </div>
         <button
@@ -113,45 +95,23 @@
       </div>
     }
 
-    <!-- Scrollable Body -->
     <div class="flex-1 overflow-y-auto px-6 py-5 space-y-6">
 
-      <!-- Special Action Banner: Inactive user reactivation -->
       @if (user().status === 'inactive') {
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-2xl border border-slate-300 bg-slate-50 p-4 shadow-xs">
           <div class="flex items-center gap-3">
-            <span class="inline-flex size-10 shrink-0 items-center justify-center rounded-xl bg-slate-500 text-white shadow-2xs">
-              <app-icon name="alert-circle" [size]="20" />
-            </span>
             <div>
               <p class="text-xs font-black text-slate-900">Usuario Dado de Baja</p>
               <p class="text-[11px] text-slate-600">
-                Esta cuenta actualmente se encuentra en estado inactivo. Puedes reactivarla cuando sea necesario.
+                Esta cuenta actualmente se encuentra en estado inactivo. Podés reactivarla cuando sea necesario.
               </p>
             </div>
           </div>
-          <button
-            type="button"
-            (click)="onReactivateUser()"
-            [disabled]="isProcessing()"
-            class="cursor-pointer shrink-0 inline-flex items-center justify-center gap-1.5 rounded-xl bg-emerald-700 px-4 py-2 text-xs font-bold text-white hover:bg-emerald-800 active:scale-95 transition disabled:opacity-50 shadow-xs select-none"
-          >
-            @if (isProcessing()) {
-              <app-icon name="refresh-cw" [size]="14" class="animate-spin" />
-              <span>Reactivando...</span>
-            } @else {
-              <app-icon name="check-circle" [size]="14" />
-              <span>Reactivar Usuario</span>
-            }
-          </button>
         </div>
       }
 
-
-      <!-- Account Info: only what the backend sends -->
       <section class="space-y-3">
         <h3 class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted">
-          <app-icon name="user" [size]="14" />
           Información de la Cuenta
         </h3>
 
@@ -171,9 +131,7 @@
       </section>
     </div>
 
-    <!-- Modal Footer Actions -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-t border-border bg-bg/40 px-6 py-4">
-      <!-- Left side: Administrative Actions (Dar de baja, Activar, etc.) -->
       <div class="flex items-center gap-2 flex-wrap">
 
         @if (user().status === 'active') {
@@ -184,7 +142,6 @@
               [disabled]="isProcessing()"
               class="cursor-pointer inline-flex items-center gap-1.5 rounded-xl border border-rose-200 bg-rose-50 px-3.5 py-2 text-xs font-bold text-rose-700 hover:bg-rose-100 hover:border-rose-300 active:scale-95 transition disabled:opacity-50 shadow-2xs select-none"
             >
-              <app-icon name="alert-circle" [size]="14" />
               <span>Dar de baja usuario</span>
             </button>
           } @else {
@@ -215,13 +172,16 @@
             [disabled]="isProcessing()"
             class="cursor-pointer inline-flex items-center gap-1.5 rounded-xl border border-emerald-300 bg-emerald-50 px-3.5 py-2 text-xs font-bold text-emerald-800 hover:bg-emerald-100 active:scale-95 transition disabled:opacity-50 shadow-2xs select-none"
           >
-            <app-icon name="check-circle" [size]="14" />
-            <span>Reactivar usuario</span>
+            @if (isProcessing()) {
+              <app-icon name="refresh-cw" [size]="14" class="animate-spin" />
+              <span>Reactivando...</span>
+            } @else {
+              <span>Reactivar usuario</span>
+            }
           </button>
         }
       </div>
 
-      <!-- Right side: Close button -->
       <div class="flex items-center justify-end">
         <button
           type="button"

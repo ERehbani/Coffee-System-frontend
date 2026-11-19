@@ -27,7 +27,6 @@ const DESCRIPTION_MAX_LENGTH = 200;
 const FOCUSABLE =
   'button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled])';
 
-/** Whether the element is on the page and can take the focus. */
 function isFocusable(element: HTMLElement | null): element is HTMLElement {
   return element !== null && element.isConnected && !(element as HTMLButtonElement).disabled;
 }
@@ -41,21 +40,15 @@ type EditableField = 'code' | 'displayName' | 'description';
   host: { '(document:keydown.escape)': 'onEscape()' },
 })
 export class BenefitFormatDrawer {
-  /** The format being edited; `null` to register one. */
   readonly format = input<BenefitFormat | null>(null);
-  /** The formats a new type can register: the ones not yet in the catalog. */
   readonly availableCodes = input.required<readonly BenefitFormatCode[]>();
   readonly isProcessing = input(false);
-  /** Errors the server answered the last save with. */
   readonly errors = input<BenefitFormatFormErrors>({});
-  /** The button that opened the drawer; it gets the focus back when the drawer goes away. */
   readonly returnFocusTo = input<HTMLElement | null>(null);
-  /** Gets the focus instead when that button is gone or disabled by the very change that closed the drawer. */
   readonly fallbackFocus = input<HTMLElement | null>(null);
 
   readonly save = output<SaveBenefitFormatInput>();
   readonly cancel = output<void>();
-  /** Fires when the user edits a field, so its server error can be dropped. */
   readonly fieldEdited = output<EditableField>();
 
   protected readonly nameMaxLength = NAME_MAX_LENGTH;
@@ -70,13 +63,11 @@ export class BenefitFormatDrawer {
 
   protected readonly title = computed(() => (this.format() ? 'Editar tipo' : 'Nuevo tipo'));
 
-  /** Deactivating a type that benefits already use does not touch them; it only stops new ones. */
   protected readonly showInactiveNote = computed(() => {
     const format = this.format();
     return format !== null && format.usageCount > 0 && !this.active();
   });
 
-  /** Characters that count against the limit: the text is trimmed before it is validated. */
   protected readonly descriptionLength = computed(() => this.description().trim().length);
 
   protected readonly descriptionTooLong = computed(
@@ -84,7 +75,7 @@ export class BenefitFormatDrawer {
   );
 
   private readonly clientCodeError = computed(() =>
-    this.format() || this.code() ? null : 'Elige un formato.',
+    this.format() || this.code() ? null : 'Elegí un formato.',
   );
 
   private readonly clientNameError = computed(() => {
@@ -170,7 +161,6 @@ export class BenefitFormatDrawer {
     this.onCancel();
   }
 
-  /** Keeps Tab inside the drawer while it is open. */
   protected onKeydown(event: KeyboardEvent): void {
     if (event.key !== 'Tab') {
       return;

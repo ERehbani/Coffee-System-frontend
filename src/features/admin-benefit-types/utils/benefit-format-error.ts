@@ -2,9 +2,9 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { BenefitFormatFormErrors } from '../types/benefit-format.model';
 
 export const BENEFIT_FORMAT_SAVE_ERROR_MESSAGE =
-  'No pudimos guardar el tipo de beneficio. Inténtalo de nuevo.';
+  'No pudimos guardar el tipo de beneficio. Intentalo de nuevo.';
 
-const CODE_REQUIRED = 'Elige un formato.';
+const CODE_REQUIRED = 'Elegí un formato.';
 const NAME_REQUIRED = 'El nombre es obligatorio.';
 const NAME_TOO_LONG = 'El nombre puede tener hasta 40 caracteres.';
 const DESCRIPTION_REQUIRED = 'La descripción es obligatoria.';
@@ -30,7 +30,7 @@ function fieldErrorsOf(body: unknown): Record<string, unknown> | null {
 }
 
 function isMissing(message: string): boolean {
-  return /blank|empty|null|required/.test(message);
+  return /obligatori/.test(message);
 }
 
 function fieldError(
@@ -74,10 +74,10 @@ export function toBenefitFormatFormErrors(error: unknown): BenefitFormatFormErro
   }
   const message = detailOf(error.error);
   if (error.status === 409 && message) {
-    if (/^the format .+ is already in the catalog$/.test(message)) {
+    if (/^el formato .+ ya está en el catálogo$/.test(message)) {
       return { code: CODE_TAKEN };
     }
-    if (/^a benefit type named .+ already exists$/.test(message)) {
+    if (/^ya existe un tipo de beneficio llamado .+$/.test(message)) {
       return { displayName: DUPLICATE_NAME };
     }
   }

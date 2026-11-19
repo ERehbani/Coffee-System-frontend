@@ -120,13 +120,13 @@ describe('OnboardingPage', () => {
   it('keeps the cafe in the opening hours step with the error of the backend', async () => {
     await render();
     updateProfile.mockReturnValue(
-      throwError(() => new HttpErrorResponse({ status: 422, error: { detail: 'The cafe must open before it closes on MONDAY' } })),
+      throwError(() => new HttpErrorResponse({ status: 422, error: { detail: 'La cafetería debe abrir antes de cerrar el día MONDAY' } })),
     );
 
     fillEverything();
 
     expect(page.step()).toBe(1);
     expect(page.status()).toBe('ready');
-    expect(page.errorMessage()).toBe('The cafe must open before it closes on MONDAY');
+    expect(page.errorMessage()).toBe('La cafetería debe abrir antes de cerrar el día MONDAY');
   });
 });

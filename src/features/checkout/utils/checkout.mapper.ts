@@ -19,6 +19,9 @@ const ORDER_STATUS_BY_DTO: Record<PurchaseStatusDto, OrderStatus> = {
   CONFIRMED: 'confirmed',
   CANCELLED: 'cancelled',
   REFUNDED: 'refunded',
+  IN_PREPARATION: 'in-preparation',
+  READY: 'ready',
+  DELIVERED: 'delivered',
 };
 
 function toCheckoutLine(item: CartItem): CheckoutLine {

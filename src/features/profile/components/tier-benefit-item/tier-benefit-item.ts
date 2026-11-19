@@ -11,11 +11,10 @@ import {
   output,
   viewChild,
 } from '@angular/core';
-import { Icon } from '../../../../shared/components/icon/icon';
 import { TierBenefitView } from '../../services/tier.store';
 
 @Component({
-  imports: [DatePipe, DecimalPipe, Icon],
+  imports: [DatePipe, DecimalPipe],
   selector: 'app-tier-benefit-item',
   templateUrl: './tier-benefit-item.html',
   host: { class: 'block' },
@@ -24,7 +23,6 @@ export class TierBenefitItem {
   private readonly injector = inject(Injector);
 
   readonly benefit = input.required<TierBenefitView>();
-  /** Emits the benefit id when the client asks to activate it. */
   readonly redeemRequested = output<string>();
   readonly redeemConfirmed = output<void>();
   readonly redeemCancelled = output<void>();
@@ -41,15 +39,13 @@ export class TierBenefitItem {
   });
 
   constructor() {
-    // The confirm step replaces the "Activar" button, so the focus follows it.
     afterRenderEffect(() => {
       if (this.benefit().phase === 'confirming') {
         this.confirmButton()?.nativeElement.focus();
       }
     });
-    // A failed redemption leaves the client on the same benefit, ready to try again.
     afterRenderEffect(() => {
-      if (this.benefit().errorMessage) {
+      if (this.benefit().failed) {
         this.activateButton()?.nativeElement.focus();
       }
     });

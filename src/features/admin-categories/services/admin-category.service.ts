@@ -5,7 +5,6 @@ import { environment } from '../../../environments/environment';
 import { backendErrorMessage } from '../../../shared/utils/backend-error';
 import { AdminCategory } from '../models/admin-category.model';
 
-/** `CategoryResponse` of the backend. */
 interface CategoryDto {
   readonly categoryId: string;
   readonly name: string;
@@ -103,7 +102,6 @@ export class AdminCategoryService {
     this.message.set({ text, error });
   }
 
-  /** Shows why the backend rejected the change (409 category in use or duplicated, 400 invalid name). */
   private notifyError(action: 'crear' | 'actualizar' | 'eliminar', error: unknown): void {
     const reason = backendErrorMessage(error);
     this.notify(

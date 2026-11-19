@@ -38,7 +38,6 @@
         <h2 id="titulo-carrito" class="text-base font-bold text-text">Mi carrito</h2>
         @if (cartService.cafe(); as cafe) {
           <p class="flex items-center gap-1 text-xs text-muted">
-            <app-icon name="store" [size]="12" />
             {{ cafe.name }}
           </p>
         }
@@ -55,10 +54,7 @@
 
     @if (cartService.items().length === 0) {
       <div class="flex flex-1 flex-col items-center justify-center p-6 text-center">
-        <div class="flex size-12 items-center justify-center rounded-full bg-accent-light text-primary">
-          <app-icon name="shopping-bag" [size]="22" />
-        </div>
-        <p class="mt-3 text-sm font-semibold text-text">Tu carrito está vacío</p>
+        <p class="text-sm font-semibold text-text">Tu carrito está vacío</p>
         <p class="mt-1 text-xs text-muted">Agregá productos desde el catálogo de una cafetería.</p>
       </div>
     } @else {
@@ -157,7 +153,6 @@
         class="flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-primary-dark disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
       >
         Ir a pagar
-        <app-icon name="arrow-right" [size]="16" />
       </button>
     </div>
   </aside>

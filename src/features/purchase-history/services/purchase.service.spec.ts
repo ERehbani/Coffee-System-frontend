@@ -53,6 +53,27 @@ describe('PurchaseService', () => {
     expect(purchases).toEqual(PURCHASES_FIXTURE);
   });
 
+  it('asks only for the orders the cafe still has to handle, oldest first', () => {
+    let orders: Purchase[] | undefined;
+    service.getOpenOrders().subscribe((value) => (orders = value));
+
+    const request = http.expectOne((req) => req.url === `${environment.apiBaseUrl}/purchases`);
+    expect(request.request.params.get('status')).toBe('CONFIRMED,IN_PREPARATION,READY');
+    expect(request.request.params.get('sort')).toBe('date,asc');
+    request.flush(pageOf(PURCHASES_FIXTURE));
+
+    expect(orders).toEqual(PURCHASES_FIXTURE);
+  });
+
+  it('moves an order to its next state', () => {
+    service.updateStatus('purchase-001', 'IN_PREPARATION').subscribe();
+
+    const sent = http.expectOne(`${environment.apiBaseUrl}/purchases/purchase-001/status`);
+    expect(sent.request.method).toBe('PATCH');
+    expect(sent.request.body).toEqual({ status: 'IN_PREPARATION' });
+    sent.flush({ ...PURCHASES_FIXTURE[0], status: 'IN_PREPARATION' });
+  });
+
   it('posts the review and returns the one the backend created', () => {
     const request: ReviewRequest = {
       cafeId: REVIEW_FIXTURE.cafeId,

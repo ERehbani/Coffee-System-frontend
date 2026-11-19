@@ -24,13 +24,11 @@
       }
     </div>
 
-    @if (cafe().rating; as rating) {
+    @if (cafe().reviewCount; as reviewCount) {
       <div class="absolute top-3 right-3 flex items-center gap-1 rounded-full bg-black/60 px-3 py-1 text-xs font-bold text-white shadow-sm backdrop-blur-md">
         <app-icon name="star" [size]="14" class="text-amber-400" />
-        <span>{{ rating }}</span>
-        @if (cafe().reviewCount; as reviewCount) {
-          <span class="text-[11px] font-normal text-white/80">({{ reviewCount }})</span>
-        }
+        <span><span class="sr-only">Calificación </span>{{ cafe().rating | number: '1.1-1' }}</span>
+        <span class="text-[11px] font-normal text-white/80">({{ reviewCount | number }}<span class="sr-only"> opiniones</span>)</span>
       </div>
     }
 
@@ -52,25 +50,21 @@
 
     <div class="space-y-2 rounded-xl bg-bg/50 p-3.5 border border-border/60 text-xs">
       <div class="flex items-start gap-2.5 text-text">
-        <app-icon name="map-pin" [size]="15" class="mt-0.5 shrink-0 text-primary" />
         <span class="font-medium leading-tight">{{ cafe().address }}</span>
       </div>
 
       <div class="flex items-center gap-2.5 text-muted" [title]="hoursSummary()">
-        <app-icon name="clock" [size]="15" class="shrink-0 text-muted" />
         <span>{{ todayHours() ? 'Hoy ' + todayHours() : 'Hoy no abre' }}</span>
       </div>
 
       @if (cafe().phoneNumber) {
         <div class="flex items-center gap-2.5 text-muted">
-          <app-icon name="phone" [size]="15" class="shrink-0 text-muted" />
           <span>{{ cafe().phoneNumber }}</span>
         </div>
       }
 
       @if (cafe().email) {
         <div class="flex items-center gap-2.5 text-muted">
-          <app-icon name="mail" [size]="15" class="shrink-0 text-muted" />
           <span class="truncate">{{ cafe().email }}</span>
         </div>
       }
@@ -83,7 +77,6 @@
         class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-xs transition-all duration-200 hover:bg-primary-dark hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-[0.99]"
       >
         <span>Ver catálogo y productos</span>
-        <app-icon name="arrow-right" [size]="16" />
       </a>
     </div>
   </div>

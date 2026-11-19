@@ -1,7 +1,7 @@
 <main class="mx-auto w-full max-w-6xl space-y-6 px-4 py-8 lg:px-8">
   <app-admin-page-header
-    title="Tiers"
-    subtitle="Configura los niveles y los puntos necesarios para alcanzarlos."
+    title="Niveles"
+    subtitle="Configurá los niveles y los puntos necesarios para alcanzarlos."
   >
     <button
       actions
@@ -9,8 +9,7 @@
       (click)="store.openCreateDrawer()"
       class="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
     >
-      <app-icon name="plus" [size]="16" />
-      Nuevo tier
+      Nuevo nivel
     </button>
   </app-admin-page-header>
 
@@ -24,10 +23,6 @@
       [class.text-rose-700]="message.type === 'error'"
     >
       <span class="flex items-center gap-2 font-medium">
-        <app-icon
-          [name]="message.type === 'success' ? 'check-circle' : 'alert-circle'"
-          [size]="18"
-        />
         {{ message.text }}
       </span>
       <button
@@ -44,7 +39,7 @@
   @switch (store.status()) {
     @case ('loading') {
       <div aria-busy="true">
-        <p role="status" class="sr-only">Cargando tiers…</p>
+        <p role="status" class="sr-only">Cargando niveles…</p>
         <div aria-hidden="true" class="space-y-2 motion-safe:animate-pulse">
           @for (item of [1, 2, 3, 4]; track item) {
             <div class="h-12 rounded-xl bg-border"></div>
@@ -57,14 +52,13 @@
         role="alert"
         class="flex flex-col items-center gap-3 rounded-2xl border border-border bg-surface p-6 text-center"
       >
-        <h2 class="text-lg font-semibold text-text">No pudimos cargar los tiers</h2>
-        <p class="text-sm text-muted">Revisa tu conexión e inténtalo de nuevo.</p>
+        <h2 class="text-lg font-semibold text-text">No pudimos cargar los niveles</h2>
+        <p class="text-sm text-muted">Revisá tu conexión e intentalo de nuevo.</p>
         <button
           type="button"
           (click)="store.loadTiers()"
           class="mt-2 inline-flex cursor-pointer items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
         >
-          <app-icon name="refresh-cw" [size]="16" />
           Reintentar
         </button>
       </section>
@@ -74,7 +68,7 @@
         <section
           class="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-border bg-surface px-6 py-12 text-center"
         >
-          <p class="text-sm text-muted">Todavía no hay tiers.</p>
+          <p class="text-sm text-muted">Todavía no hay niveles.</p>
         </section>
       } @else {
         <app-tier-table

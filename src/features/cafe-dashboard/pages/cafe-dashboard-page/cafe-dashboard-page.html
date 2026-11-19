@@ -1,4 +1,4 @@
-<main class="mx-auto max-w-5xl space-y-6 px-4 py-8">
+<main class="mx-auto max-w-6xl space-y-6 px-4 py-8">
   @switch (status()) {
     @case ('loading') {
       <p role="status" class="text-sm text-muted">Cargando el panel…</p>
@@ -9,9 +9,8 @@
         <button
           type="button"
           (click)="load()"
-          class="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary-dark"
+          class="cursor-pointer rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary-dark"
         >
-          <app-icon name="refresh-cw" [size]="16" />
           Reintentar
         </button>
       </div>
@@ -49,41 +48,36 @@
         </header>
       }
 
+      <app-orders-board (changed)="refreshStats()" />
+
       @if (dashboard(); as data) {
-        <section aria-label="Resumen del local" class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          @for (card of cards(); track card.label) {
-            <ng-template #content>
-              <span class="flex size-11 shrink-0 items-center justify-center rounded-xl bg-accent-light text-primary">
-                <app-icon [name]="card.icon" [size]="22" />
-              </span>
-              <span>
-                <span class="block text-2xl font-extrabold text-text">{{ card.value | number }}</span>
-                <span class="block text-xs font-semibold text-muted">{{ card.label }}</span>
-              </span>
-            </ng-template>
-            @if (card.link) {
-              <a
-                [routerLink]="card.link"
-                class="flex items-center gap-4 rounded-2xl border border-border bg-surface p-5 shadow-xs transition hover:border-primary/50 hover:shadow-md"
-              >
-                <ng-container [ngTemplateOutlet]="content" />
-              </a>
-            } @else {
-              <div class="flex items-center gap-4 rounded-2xl border border-border bg-surface p-5 shadow-xs">
-                <ng-container [ngTemplateOutlet]="content" />
-              </div>
-            }
-          }
-          <div class="flex items-center gap-4 rounded-2xl border border-border bg-surface p-5 shadow-xs">
-            <span class="flex size-11 shrink-0 items-center justify-center rounded-xl bg-accent-light text-primary">
-              <app-icon name="tag" [size]="22" />
-            </span>
-            <span>
+        <section aria-labelledby="summary-heading" class="space-y-3">
+          <h2 id="summary-heading" class="text-lg font-extrabold text-text">Resumen de hoy</h2>
+          <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+            <div class="rounded-2xl border border-border bg-surface p-4 shadow-xs">
               <span class="block text-2xl font-extrabold text-text">
                 {{ data.salesToday | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}
               </span>
               <span class="block text-xs font-semibold text-muted">Ventas de hoy</span>
-            </span>
+            </div>
+            @for (card of cards(); track card.label) {
+              <ng-template #content>
+                <span class="block text-2xl font-extrabold text-text">{{ card.value | number }}</span>
+                <span class="block text-xs font-semibold text-muted">{{ card.label }}</span>
+              </ng-template>
+              @if (card.link) {
+                <a
+                  [routerLink]="card.link"
+                  class="block rounded-2xl border border-border bg-surface p-4 shadow-xs transition hover:border-primary/50 hover:shadow-md"
+                >
+                  <ng-container [ngTemplateOutlet]="content" />
+                </a>
+              } @else {
+                <div class="rounded-2xl border border-border bg-surface p-4 shadow-xs">
+                  <ng-container [ngTemplateOutlet]="content" />
+                </div>
+              }
+            }
           </div>
         </section>
       }

@@ -39,7 +39,7 @@ export class TierFormDrawer {
   protected readonly minPoints = linkedSignal<number | null>(() => this.tier()?.minPoints ?? null);
   protected readonly submitted = signal(false);
 
-  protected readonly title = computed(() => (this.tier() ? 'Editar tier' : 'Nuevo tier'));
+  protected readonly title = computed(() => (this.tier() ? 'Editar nivel' : 'Nuevo nivel'));
 
   private readonly clientNameError = computed(() => {
     const name = this.name().trim();

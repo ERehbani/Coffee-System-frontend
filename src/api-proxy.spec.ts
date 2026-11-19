@@ -10,6 +10,6 @@ describe('resolveApiUrl', () => {
   });
 
   it('fails in production when API_URL is missing', () => {
-    expect(() => resolveApiUrl({ NODE_ENV: 'production' })).toThrow('API_URL is required in production');
+    expect(() => resolveApiUrl({ NODE_ENV: 'production' })).toThrow('API_URL es obligatoria en producción');
   });
 });

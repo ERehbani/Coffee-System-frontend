@@ -3,7 +3,6 @@
     <div class="flex items-center justify-between">
       <div>
         <span class="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-accent">
-          <app-icon name="gift" [size]="14" />
           Coffee System
         </span>
         <h1 class="text-2xl font-bold tracking-tight text-text md:text-3xl">Beneficios</h1>
@@ -90,20 +89,25 @@
           (click)="loadBenefits()"
           class="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-dark"
         >
-          <app-icon name="refresh-cw" [size]="16" />
           Reintentar
         </button>
       </div>
     } @else {
       <div class="benefits-grid">
         @for (benefit of benefits(); track benefit.externalId) {
-          <app-available-benefit-card [benefit]="benefit" [clientTierPoints]="clientTierPoints()" />
+          <app-available-benefit-card
+            [benefit]="benefit"
+            [clientTierPoints]="clientTierPoints()"
+            [availablePoints]="availablePoints()"
+            [phase]="phaseOf(benefit.externalId)"
+            [locked]="redeemTarget()?.phase === 'redeeming'"
+            (redeemRequested)="requestRedeem($event)"
+            (redeemConfirmed)="confirmRedeem()"
+            (redeemCancelled)="cancelRedeem()"
+          />
         } @empty {
           <div class="col-span-full rounded-2xl border border-dashed border-border bg-surface p-12 text-center">
-            <div class="mx-auto flex size-14 items-center justify-center rounded-full bg-accent-light text-primary">
-              <app-icon name="gift" [size]="28" />
-            </div>
-            <h3 class="mt-4 text-base font-bold text-text">No encontramos beneficios</h3>
+            <h3 class="text-base font-bold text-text">No encontramos beneficios</h3>
             <p class="mx-auto mt-1.5 max-w-sm text-xs text-muted">
               No hay beneficios para los filtros elegidos. Probá con otra cafetería u otro tipo.
             </p>

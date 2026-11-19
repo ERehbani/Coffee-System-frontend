@@ -39,6 +39,45 @@ describe('register route', () => {
   });
 });
 
+describe('login routes', () => {
+  let harness: RouterTestingHarness;
+  let router: Router;
+
+  const page = () => harness.fixture.nativeElement as HTMLElement;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      providers: [provideRouter(routes), provideHttpClient(), provideHttpClientTesting()],
+    }).compileComponents();
+    signOutForTest();
+    harness = await RouterTestingHarness.create();
+    router = TestBed.inject(Router);
+  });
+
+  it('renders the client login with the register link at /login', async () => {
+    await harness.navigateByUrl('/login');
+
+    expect(page().querySelector('app-login-page')).not.toBeNull();
+    expect(page().querySelector('a[href="/register"]')).not.toBeNull();
+  });
+
+  it('renders the cafe login without the register link at /cafe/login', async () => {
+    await harness.navigateByUrl('/cafe/login');
+
+    expect(router.url).toBe('/cafe/login');
+    expect(page().querySelector('app-login-page')).not.toBeNull();
+    expect(page().querySelector('a[href="/register"]')).toBeNull();
+  });
+
+  it('renders the superadmin login with its own photo at /superadmin/login', async () => {
+    await harness.navigateByUrl('/superadmin/login');
+
+    expect(router.url).toBe('/superadmin/login');
+    expect(page().querySelector('app-login-page')).not.toBeNull();
+    expect(page().querySelector('img')?.getAttribute('src')).toBe('/auth/cafe-superadmin.jpg');
+  });
+});
+
 describe('admin routes', () => {
   let harness: RouterTestingHarness;
   let router: Router;
@@ -73,7 +112,7 @@ describe('admin routes', () => {
 
     expect(page().querySelector('app-admin-layout app-admin-tiers-page')).not.toBeNull();
     expect(page().querySelector('app-admin-placeholder-page')).toBeNull();
-    expect(page().querySelector('h1')?.textContent?.trim()).toBe('Tiers');
+    expect(page().querySelector('h1')?.textContent?.trim()).toBe('Niveles');
   });
 
   it('renders the benefit types page inside the admin layout', async () => {
@@ -228,5 +267,40 @@ describe('checkout route', () => {
     await harness.navigateByUrl('/checkout/success');
 
     expect(router.url).toBe('/purchases');
+  });
+});
+
+describe('unknown routes', () => {
+  let harness: RouterTestingHarness;
+  let router: Router;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      providers: [provideRouter(routes), provideHttpClient(), provideHttpClientTesting()],
+    }).compileComponents();
+    harness = await RouterTestingHarness.create();
+    router = TestBed.inject(Router);
+  });
+
+  it('shows the not found page and keeps the address', async () => {
+    signInForTest(['ROLE_CLIENTE']);
+
+    await harness.navigateByUrl('/esta-pagina-no-existe');
+
+    expect(router.url).toBe('/esta-pagina-no-existe');
+    const page = harness.fixture.nativeElement as HTMLElement;
+    expect(page.querySelector('app-not-found-page')).not.toBeNull();
+    expect(page.textContent).toContain('No encontramos esta página');
+    expect(page.querySelector('a')?.getAttribute('href')).toBe('/home');
+  });
+
+  it('offers the login to a visitor without a session', async () => {
+    signOutForTest();
+
+    await harness.navigateByUrl('/cualquier-cosa');
+
+    const page = harness.fixture.nativeElement as HTMLElement;
+    expect(page.querySelector('app-not-found-page')).not.toBeNull();
+    expect(page.querySelector('a')?.getAttribute('href')).toBe('/login');
   });
 });

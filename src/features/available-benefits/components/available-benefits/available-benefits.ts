@@ -1,7 +1,7 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
-import { Icon } from '../../../../shared/components/icon/icon';
 import { CartButton } from '../../../cart/components/cart-button/cart-button';
 import { ThemeToggle } from '../../../../shared/components/theme-toggle/theme-toggle';
+import { ToastService } from '../../../../shared/components/toast/toast.service';
 import {
   BENEFIT_FORMAT_CODES,
   BenefitFormatCode,
@@ -10,13 +10,19 @@ import { benefitFormatLabel } from '../../../admin-benefit-types/utils/benefit-f
 import { Cafe } from '../../../home/model/cafe.model';
 import { CafeService } from '../../../home/services/cafe.service';
 import { ProfileRepository } from '../../../profile/services/profile.repository';
+import { toRedeemErrorMessage } from '../../../profile/utils/redeem-error';
 import { AvailableBenefit } from '../../model/available-benefit.model';
 import { AvailableBenefitService } from '../../services/available-benefit.service';
-import { AvailableBenefitCard } from '../benefit-card/benefit-card';
+import { AvailableBenefitCard, BenefitRedeemPhase } from '../benefit-card/benefit-card';
+
+interface RedeemTarget {
+  readonly id: string;
+  readonly phase: Exclude<BenefitRedeemPhase, 'idle'>;
+}
 
 @Component({
   selector: 'app-available-benefits',
-  imports: [Icon, AvailableBenefitCard, CartButton, ThemeToggle],
+  imports: [AvailableBenefitCard, CartButton, ThemeToggle],
   templateUrl: './available-benefits.html',
   styleUrl: './available-benefits.css',
   host: { class: 'block' },
@@ -25,14 +31,17 @@ export class AvailableBenefits implements OnInit {
   private readonly benefitService = inject(AvailableBenefitService);
   private readonly cafeService = inject(CafeService);
   private readonly profileRepository = inject(ProfileRepository);
+  private readonly toast = inject(ToastService);
 
   benefits = signal<AvailableBenefit[]>([]);
   cafes = signal<Cafe[]>([]);
   clientTierPoints = signal<number | null>(null);
+  availablePoints = signal<number | null>(null);
   isLoading = signal(true);
   hasError = signal(false);
   selectedCafeId = signal('');
   selectedType = signal<BenefitFormatCode | ''>('');
+  redeemTarget = signal<RedeemTarget | null>(null);
 
   readonly typeOptions = BENEFIT_FORMAT_CODES.map((code) => ({
     value: code,
@@ -57,8 +66,11 @@ export class AvailableBenefits implements OnInit {
     this.loadBenefits();
   }
 
-  loadBenefits(): void {
-    this.isLoading.set(true);
+  /** Con `quiet` se refresca la lista sin cambiarla por el esqueleto, para no perder el lugar al terminar un canje. */
+  loadBenefits(quiet = false): void {
+    if (!quiet) {
+      this.isLoading.set(true);
+    }
     this.hasError.set(false);
 
     this.benefitService.getAvailable(this.selectedCafeId(), this.selectedType()).subscribe({
@@ -67,10 +79,57 @@ export class AvailableBenefits implements OnInit {
         this.isLoading.set(false);
       },
       error: () => {
-        this.hasError.set(true);
+        this.hasError.set(!quiet);
         this.isLoading.set(false);
       },
     });
+  }
+
+  phaseOf(benefitId: string): BenefitRedeemPhase {
+    const target = this.redeemTarget();
+    return target?.id === benefitId ? target.phase : 'idle';
+  }
+
+  requestRedeem(benefitId: string): void {
+    if (this.redeemTarget()?.phase === 'redeeming') {
+      return;
+    }
+    this.redeemTarget.set({ id: benefitId, phase: 'confirming' });
+  }
+
+  cancelRedeem(): void {
+    if (this.redeemTarget()?.phase === 'confirming') {
+      this.redeemTarget.set(null);
+    }
+  }
+
+  confirmRedeem(): void {
+    const target = this.redeemTarget();
+    if (target?.phase !== 'confirming') {
+      return;
+    }
+    this.redeemTarget.set({ id: target.id, phase: 'redeeming' });
+    this.profileRepository.redeemBenefit(target.id).subscribe({
+      next: (redeemed) => {
+        this.redeemTarget.set(null);
+        this.toast.success(
+          `¡Canjeaste ${redeemed.benefitName} por ${redeemed.usedPoints.toLocaleString('es-AR')} pts! Tu cupón ya está en Mis cupones.`,
+          { label: 'Ver mis cupones', route: '/profile/coupons' },
+        );
+        this.refreshAfterRedeem();
+      },
+      error: (error: unknown) => {
+        this.redeemTarget.set(null);
+        this.toast.error(toRedeemErrorMessage(error));
+        this.refreshAfterRedeem();
+      },
+    });
+  }
+
+  // Los puntos del cliente y el cupo del beneficio cambian con el canje, y un rechazo puede deberse a que ya cambiaron.
+  private refreshAfterRedeem(): void {
+    this.loadClientTier();
+    this.loadBenefits(true);
   }
 
   selectCafe(cafeId: string): void {
@@ -97,7 +156,10 @@ export class AvailableBenefits implements OnInit {
 
   private loadClientTier(): void {
     this.profileRepository.getTierDetail().subscribe({
-      next: (detail) => this.clientTierPoints.set(detail.currentTierThreshold),
+      next: (detail) => {
+        this.clientTierPoints.set(detail.currentTierThreshold);
+        this.availablePoints.set(detail.availablePoints);
+      },
     });
   }
 }

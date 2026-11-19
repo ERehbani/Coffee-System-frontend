@@ -12,7 +12,6 @@ const POINTS_FORMAT = new Intl.NumberFormat('es-AR');
 })
 export class TierTable {
   readonly tiers = input.required<readonly Tier[]>();
-  /** Id of the tier every client starts on; it is marked in the list. */
   readonly baseTierId = input<string | null>(null);
 
   readonly edit = output<Tier>();

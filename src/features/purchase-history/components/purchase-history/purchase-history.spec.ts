@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { Observable, of, throwError } from 'rxjs';
 import type { Mock } from 'vitest';
+import { ToastService } from '../../../../shared/components/toast/toast.service';
 import { Purchase, Review, ReviewRequest } from '../../model/purchase.model';
 import { PurchaseService } from '../../services/purchase.service';
 import {
@@ -54,6 +55,7 @@ describe('PurchaseHistory', () => {
 
   it('should mark the purchase as reviewed after sending the review', () => {
     const component = render().componentInstance;
+    const success = vi.spyOn(TestBed.inject(ToastService), 'success');
     const purchase = PENDING_REVIEW_PURCHASE_FIXTURE;
 
     component.openReview(purchase.externalId);
@@ -68,18 +70,19 @@ describe('PurchaseHistory', () => {
     });
     expect(updated?.reviewed).toBe(true);
     expect(component.reviewingPurchaseId()).toBeNull();
-    expect(component.successMessage()).toContain(purchase.cafeName);
+    expect(success).toHaveBeenCalledWith(`¡Gracias! Tu reseña de ${purchase.cafeName} fue enviada.`);
   });
 
   it('keeps the review open and explains it when the backend rejects it', () => {
     createReview.mockReturnValueOnce(throwError(() => new Error('400')));
     const component = render().componentInstance;
+    const error = vi.spyOn(TestBed.inject(ToastService), 'error');
     const purchase = PENDING_REVIEW_PURCHASE_FIXTURE;
 
     component.openReview(purchase.externalId);
     component.submitReview(purchase, { rating: 5, message: 'Excelente atención' });
 
-    expect(component.reviewError()).toBe('No pudimos enviar tu reseña. Intentá de nuevo.');
+    expect(error).toHaveBeenCalledWith('No pudimos enviar tu reseña. Intentá de nuevo.');
     expect(component.reviewingPurchaseId()).toBe(purchase.externalId);
     expect(component.isSubmitting()).toBe(false);
   });

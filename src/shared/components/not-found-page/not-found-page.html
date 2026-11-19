@@ -1,0 +1,57 @@
+<main class="flex min-h-dvh items-center justify-center bg-bg px-4 py-12">
+  <div class="w-full max-w-md rounded-3xl border border-border bg-surface p-8 text-center shadow-xs">
+    <svg viewBox="0 0 320 200" aria-hidden="true" class="mx-auto mb-4 w-full max-w-xs">
+      <!-- Spilled coffee -->
+      <path
+        class="fill-primary-dark"
+        d="M70 118C78 96 120 92 150 100C190 84 236 92 244 112C252 132 222 140 204 146C196 166 150 172 128 158C104 160 62 142 70 118Z"
+      />
+      <path
+        class="fill-primary opacity-60"
+        d="M96 120C104 108 132 106 150 112C140 120 118 128 100 128C96 126 94 123 96 120Z"
+      />
+      <circle class="fill-primary-dark" cx="56" cy="152" r="4" />
+      <circle class="fill-primary-dark" cx="272" cy="162" r="3" />
+      <circle class="fill-primary-dark" cx="254" cy="96" r="2.5" />
+
+      <g stroke="#cdb99d" stroke-width="2" stroke-linejoin="round">
+        <!-- Piece with the handle, lying on its side -->
+        <path d="M64 100C50 84 56 62 72 62C86 62 90 76 86 86" fill="none" stroke="#e6d6c1" stroke-width="8" stroke-linecap="round" />
+        <path d="M52 108L96 78L104 90L98 98L106 108L100 118L70 132C58 130 50 120 52 108Z" fill="#f7efe3" />
+
+        <!-- Half of the cup, still holding some coffee -->
+        <path d="M128 72C150 58 190 60 212 76L204 88L212 96C204 122 150 126 132 102L138 92Z" fill="#f7efe3" />
+        <ellipse cx="170" cy="88" rx="36" ry="15" fill="#e6d6c1" />
+        <ellipse class="fill-primary-dark" cx="170" cy="94" rx="26" ry="9" stroke="none" />
+
+        <!-- Loose shards -->
+        <path d="M232 118L262 110L286 124L270 140L240 138Z" fill="#f7efe3" />
+        <ellipse class="fill-primary-dark" cx="258" cy="126" rx="12" ry="5" stroke="none" />
+        <path d="M150 150L208 144L222 166L176 176L148 168Z" fill="#f7efe3" />
+      </g>
+    </svg>
+    <p class="text-6xl font-extrabold tracking-tight text-primary">404</p>
+    <h1 class="mt-3 text-2xl font-bold text-text">No encontramos esta página</h1>
+    <p class="mt-2 text-sm text-muted">
+      Puede que el enlace esté mal escrito o que la página ya no exista.
+    </p>
+    @if (path && path !== '/') {
+      <p class="mt-3 break-all rounded-lg bg-bg px-3 py-2 font-mono text-xs text-muted">{{ path }}</p>
+    }
+    <div class="mt-6 flex flex-col gap-2 sm:flex-row sm:justify-center">
+      <a
+        [routerLink]="homeLink()"
+        class="rounded-xl bg-primary px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+      >
+        {{ homeLabel() }}
+      </a>
+      <button
+        type="button"
+        (click)="goBack()"
+        class="cursor-pointer rounded-xl border border-border px-5 py-2.5 text-sm font-bold text-text transition-colors hover:border-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+      >
+        Volver atrás
+      </button>
+    </div>
+  </div>
+</main>

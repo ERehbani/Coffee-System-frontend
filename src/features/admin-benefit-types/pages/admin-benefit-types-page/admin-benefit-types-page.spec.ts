@@ -92,7 +92,7 @@ describe('AdminBenefitTypesPage', () => {
 
       expect(element.querySelector('h1')?.textContent?.trim()).toBe('Tipos de beneficio');
       expect(element.querySelector('app-admin-page-header p')?.textContent).toContain(
-        'Define qué formatos de cupón pueden usar los beneficios.',
+        'Definí qué formatos de cupón pueden usar los beneficios.',
       );
       expect(button('Nuevo tipo')).toBeTruthy();
     });
@@ -249,7 +249,7 @@ describe('AdminBenefitTypesPage', () => {
 
       expect(createFormat).not.toHaveBeenCalled();
       expect(dialog()).not.toBeNull();
-      expect(element.textContent).toContain('Elige un formato.');
+      expect(element.textContent).toContain('Elegí un formato.');
       expect(element.textContent).toContain('El nombre es obligatorio.');
       expect(element.textContent).toContain('La descripción es obligatoria.');
       expect(nameInput().getAttribute('aria-describedby')).toBeTruthy();
@@ -258,7 +258,7 @@ describe('AdminBenefitTypesPage', () => {
     it('shows a duplicate name from the server under the name input and keeps the drawer open', async () => {
       await render();
       createFormat.mockReturnValue(
-        throwError(() => conflict('A benefit type named Descuento already exists')),
+        throwError(() => conflict('Ya existe un tipo de beneficio llamado Descuento')),
       );
       await click(button('Nuevo tipo'));
       await choose('PRODUCTO_POR_PUNTOS');
@@ -284,7 +284,7 @@ describe('AdminBenefitTypesPage', () => {
     it('shows a format already in the catalog under the format select', async () => {
       await render();
       createFormat.mockReturnValue(
-        throwError(() => conflict('The format PRODUCTO_POR_PUNTOS is already in the catalog')),
+        throwError(() => conflict('El formato PRODUCTO_POR_PUNTOS ya está en el catálogo')),
       );
       await click(button('Nuevo tipo'));
       await choose('PRODUCTO_POR_PUNTOS');
@@ -308,7 +308,7 @@ describe('AdminBenefitTypesPage', () => {
       await click(button('Guardar'));
 
       expect(dialog()!.querySelector('[role="alert"]')?.textContent).toContain(
-        'No pudimos guardar el tipo de beneficio. Inténtalo de nuevo.',
+        'No pudimos guardar el tipo de beneficio. Intentalo de nuevo.',
       );
     });
 
@@ -384,7 +384,7 @@ describe('AdminBenefitTypesPage', () => {
     it('shows a duplicate name from the server when renaming', async () => {
       await render();
       updateFormat.mockReturnValue(
-        throwError(() => conflict('A benefit type named 2x1 already exists')),
+        throwError(() => conflict('Ya existe un tipo de beneficio llamado 2x1')),
       );
       await click(button('Editar Descuento'));
       await type(nameInput(), '2x1');

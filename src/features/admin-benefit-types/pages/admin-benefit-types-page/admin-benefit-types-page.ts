@@ -17,10 +17,8 @@ import { AdminBenefitFormatStore } from '../../services/benefit-format.store';
 export class AdminBenefitTypesPage {
   protected readonly store = inject(AdminBenefitFormatStore);
 
-  /** The button that opened the drawer; clicking does not focus a button in every browser. */
   protected readonly drawerTrigger = signal<HTMLElement | null>(null);
 
-  /** Every format is registered already: there is nothing left for "Nuevo tipo" to add. */
   protected readonly isCatalogComplete = computed(
     () => this.store.status() === 'ready' && this.store.availableCodes().length === 0,
   );

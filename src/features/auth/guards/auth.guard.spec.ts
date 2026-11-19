@@ -25,6 +25,8 @@ describe('auth guards', () => {
         provideHttpClientTesting(),
         provideRouter([
           { path: 'login', component: EmptyPage, canActivate: [guestGuard] },
+          { path: 'cafe/login', component: EmptyPage, canActivate: [guestGuard] },
+          { path: 'superadmin/login', component: EmptyPage, canActivate: [guestGuard] },
           { path: 'admin', component: EmptyPage, canActivate: [roleGuard('ROLE_SUPERADMIN')] },
           { path: 'cafe/dashboard', component: EmptyPage, canActivate: [roleGuard('ROLE_CAFETERIA')] },
           { path: 'home', component: EmptyPage, canActivate: [roleGuard('ROLE_CLIENTE')] },
@@ -49,12 +51,28 @@ describe('auth guards', () => {
   afterEach(() => http.verify());
 
   describe('roleGuard', () => {
-    it('sends to the login when there is no session', async () => {
+    it('sends a visitor without a session that opens the client area to the client login', async () => {
+      await setupSignedOut();
+
+      await harness.navigateByUrl('/home');
+
+      expect(router.url).toBe('/login');
+    });
+
+    it('sends a visitor without a session that opens the cafe area to the cafe login', async () => {
+      await setupSignedOut();
+
+      await harness.navigateByUrl('/cafe/dashboard');
+
+      expect(router.url).toBe('/cafe/login');
+    });
+
+    it('sends a visitor without a session that opens the admin panel to the superadmin login', async () => {
       await setupSignedOut();
 
       await harness.navigateByUrl('/admin');
 
-      expect(router.url).toBe('/login');
+      expect(router.url).toBe('/superadmin/login');
     });
 
     it('lets in a user with the required role', async () => {

@@ -1,8 +1,5 @@
 <main class="mx-auto max-w-4xl space-y-6 px-4 py-8">
   <div class="flex items-center gap-2.5 border-b border-border pb-2">
-    <span class="inline-flex size-9 items-center justify-center rounded-xl bg-primary text-white">
-      <app-icon name="star" [size]="20" />
-    </span>
     <div>
       <h1 class="text-lg font-extrabold text-text">Reseñas</h1>
       <p class="text-xs text-muted">Lo que opinan tus clientes sobre tu cafetería</p>
@@ -21,7 +18,6 @@
           (click)="load()"
           class="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary-dark"
         >
-          <app-icon name="refresh-cw" [size]="16" />
           Reintentar
         </button>
       </div>
@@ -32,9 +28,6 @@
           role="status"
           class="flex flex-col items-center justify-center gap-3 rounded-3xl border border-dashed border-border bg-surface p-10 text-center shadow-xs"
         >
-          <span class="inline-flex size-12 items-center justify-center rounded-2xl bg-accent-light text-primary">
-            <app-icon name="message-square-text" [size]="24" />
-          </span>
           <p class="text-base font-bold text-text">Todavía no tenés reseñas</p>
           <p class="max-w-sm text-xs text-muted">Cuando tus clientes califiquen sus compras, vas a ver sus opiniones acá.</p>
         </div>
@@ -43,9 +36,6 @@
           aria-label="Resumen de las reseñas"
           class="flex items-center gap-4 rounded-2xl border border-border bg-surface p-5 shadow-xs"
         >
-          <span class="flex size-11 shrink-0 items-center justify-center rounded-xl bg-accent-light text-gold">
-            <app-icon name="star" [size]="22" [filled]="true" />
-          </span>
           <p>
             <span class="block text-2xl font-extrabold text-text">
               {{ averageRating() | number: '1.1-1' }}

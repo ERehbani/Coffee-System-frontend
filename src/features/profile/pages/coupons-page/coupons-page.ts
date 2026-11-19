@@ -12,4 +12,9 @@ import { ProfileStore } from '../../services/profile.store';
 })
 export class CouponsPage {
   protected readonly store = inject(ProfileStore);
+
+  constructor() {
+    // El store de la ruta vive toda la sesión: sin recargar, un canje reciente no aparece en la lista.
+    this.store.reload();
+  }
 }

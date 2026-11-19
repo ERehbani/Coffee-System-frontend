@@ -3,6 +3,7 @@ import { Type } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Observable, of, Subject, throwError } from 'rxjs';
 import type { Mock } from 'vitest';
+import { ToastService } from '../../../shared/components/toast/toast.service';
 import { ProfileDashboard, RedeemedBenefit, TierBenefit, TierDetail } from '../types/profile.model';
 import { buildProfileDashboardFixture, buildTierDetailFixture } from '../utils/profile.fixture';
 import { toProfileDashboard, toTierDetail } from '../utils/profile.mapper';
@@ -98,13 +99,13 @@ describe('TierStore', () => {
       expect(store.availablePoints()).toBe(850);
     });
 
-    it('starts with every benefit idle, unlocked and without error', () => {
+    it('starts with every benefit idle, unlocked and not failed', () => {
       const store = createStore();
 
       for (const benefit of store.benefits()) {
         expect(benefit.phase).toBe('idle');
         expect(benefit.locked).toBe(false);
-        expect(benefit.errorMessage).toBeNull();
+        expect(benefit.failed).toBe(false);
       }
     });
 
@@ -298,9 +299,10 @@ describe('TierStore', () => {
       expect(store.redeemed()).toBeNull();
     });
 
-    it('on failure keeps the points and shows an error on that benefit only', async () => {
+    it('on failure keeps the points, flags that benefit only and shows the error in a toast', async () => {
       redeemBenefit = vi.fn(() => throwError(() => new Error('400')));
       const store = createStore();
+      const error = vi.spyOn(TestBed.inject(ToastService), 'error');
       store.requestRedeem('benefit-coffee');
 
       store.confirmRedeem();
@@ -308,8 +310,9 @@ describe('TierStore', () => {
 
       const [first, second] = store.benefits();
       expect(first.phase).toBe('idle');
-      expect(first.errorMessage).toBe(REDEEM_ERROR_MESSAGE);
-      expect(second.errorMessage).toBeNull();
+      expect(first.failed).toBe(true);
+      expect(error).toHaveBeenCalledExactlyOnceWith(REDEEM_ERROR_MESSAGE);
+      expect(second.failed).toBe(false);
       expect(second.locked).toBe(false);
       expect(store.redeemed()).toBeNull();
       expect(store.availablePoints()).toBe(850);
@@ -322,29 +325,29 @@ describe('TierStore', () => {
           () =>
             new HttpErrorResponse({
               status: 422,
-              error: { title: 'Business rule violated', status: 422, detail: 'Benefit has expired' },
+              error: { title: 'Regla de negocio incumplida', status: 422, detail: 'El beneficio está vencido' },
             }),
         ),
       );
       const store = createStore();
+      const error = vi.spyOn(TestBed.inject(ToastService), 'error');
       store.requestRedeem('benefit-coffee');
 
       store.confirmRedeem();
 
-      expect(store.benefits()[0].errorMessage).toBe('Este beneficio venció.');
-      expect(store.benefits()[1].errorMessage).toBeNull();
+      expect(error).toHaveBeenCalledWith('Este beneficio venció.');
     });
 
-    it('clears the error when the client tries again', () => {
+    it('clears the failed flag when the client tries again', () => {
       redeemBenefit = vi.fn(() => throwError(() => new Error('400')));
       const store = createStore();
       store.requestRedeem('benefit-coffee');
       store.confirmRedeem();
-      expect(store.benefits()[0].errorMessage).toBe(REDEEM_ERROR_MESSAGE);
+      expect(store.benefits()[0].failed).toBe(true);
 
       store.requestRedeem('benefit-coffee');
 
-      expect(store.benefits()[0].errorMessage).toBeNull();
+      expect(store.benefits()[0].failed).toBe(false);
       expect(store.benefits()[0].phase).toBe('confirming');
     });
 
@@ -450,12 +453,12 @@ describe('TierStore', () => {
       const store = createStore();
       store.requestRedeem('benefit-coffee');
       store.confirmRedeem();
-      expect(store.benefits()[0].errorMessage).not.toBeNull();
+      expect(store.benefits()[0].failed).toBe(true);
 
       store.leave();
       store.enter();
 
-      expect(store.benefits().every((benefit) => benefit.errorMessage === null)).toBe(true);
+      expect(store.benefits().every((benefit) => !benefit.failed)).toBe(true);
     });
 
     it('keeps a redemption in flight and shows its code when it lands while the page is away', async () => {
@@ -482,6 +485,7 @@ describe('TierStore', () => {
       const pending = new Subject<RedeemedBenefit>();
       redeemBenefit = vi.fn(() => pending);
       const store = createStore();
+      const error = vi.spyOn(TestBed.inject(ToastService), 'error');
       store.requestRedeem('benefit-coffee');
       store.confirmRedeem();
 
@@ -489,7 +493,8 @@ describe('TierStore', () => {
       pending.error(new Error('400'));
       store.enter();
 
-      expect(store.benefits().every((benefit) => benefit.errorMessage === null)).toBe(true);
+      expect(error).not.toHaveBeenCalled();
+      expect(store.benefits().every((benefit) => !benefit.failed)).toBe(true);
       expect(store.benefits().every((benefit) => benefit.phase === 'idle')).toBe(true);
     });
 
@@ -497,6 +502,7 @@ describe('TierStore', () => {
       const pending = new Subject<RedeemedBenefit>();
       redeemBenefit = vi.fn(() => pending);
       const store = createStore();
+      const error = vi.spyOn(TestBed.inject(ToastService), 'error');
       store.leave();
       store.enter();
       store.requestRedeem('benefit-coffee');
@@ -504,7 +510,8 @@ describe('TierStore', () => {
 
       pending.error(new Error('400'));
 
-      expect(store.benefits()[0].errorMessage).toBe(REDEEM_ERROR_MESSAGE);
+      expect(error).toHaveBeenCalledWith(REDEEM_ERROR_MESSAGE);
+      expect(store.benefits()[0].failed).toBe(true);
     });
   });
 });

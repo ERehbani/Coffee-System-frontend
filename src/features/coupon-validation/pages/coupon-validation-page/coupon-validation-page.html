@@ -1,9 +1,6 @@
 <main class="mx-auto max-w-4xl px-4 py-8 space-y-6">
   <div class="flex flex-wrap items-center justify-between gap-3 pb-2 border-b border-border">
     <div class="flex items-center gap-2">
-      <span class="inline-flex size-8 items-center justify-center rounded-lg bg-primary text-white">
-        <app-icon name="scan-qr-code" [size]="18" />
-      </span>
       <div>
         <h1 class="text-lg font-extrabold text-text">Validar cupones</h1>
         <p class="text-xs text-muted">Escaneá el QR del cliente o escribí el código</p>
@@ -29,11 +26,6 @@
         <div
           class="hidden flex-col items-center gap-2 rounded-3xl border border-dashed border-border bg-surface p-8 text-center md:flex"
         >
-          <span
-            class="inline-flex size-12 items-center justify-center rounded-2xl bg-accent-light text-primary"
-          >
-            <app-icon name="ticket" [size]="24" />
-          </span>
           <p class="text-sm font-bold text-text">Todavía no validaste ningún cupón</p>
           <p class="text-xs text-muted">
             Acá vas a ver si el cupón es válido, ya se usó o no existe.
@@ -49,7 +41,6 @@
         (submitted)="onCodeReceived($event)"
       />
       <p class="flex items-start gap-2 text-xs text-muted">
-        <app-icon name="alert-circle" [size]="14" class="mt-0.5" />
         Validar un cupón lo marca como usado: hacelo cuando vayas a entregar el beneficio.
       </p>
     </div>

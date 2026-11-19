@@ -1,6 +1,5 @@
 <div class="w-full overflow-hidden rounded-2xl border border-border bg-surface shadow-xs">
   @if (status() === 'loading') {
-    <!-- Loading skeleton -->
     <div class="p-8 space-y-4">
       <div class="flex items-center justify-between animate-pulse">
         <div class="h-5 w-48 rounded-lg bg-border/60"></div>
@@ -25,18 +24,13 @@
       </div>
     </div>
   } @else if (users().length === 0) {
-    <!-- Empty state -->
     <div class="flex flex-col items-center justify-center py-16 px-4 text-center">
-      <div class="flex size-14 items-center justify-center rounded-2xl bg-bg border border-border text-muted mb-3">
-        <app-icon name="user" [size]="28" />
-      </div>
       <h3 class="text-base font-bold text-text">No se encontraron usuarios</h3>
       <p class="mt-1 text-xs text-muted max-w-sm">
         No hay registros que coincidan con los criterios de búsqueda o filtros seleccionados.
       </p>
     </div>
   } @else {
-    <!-- Table -->
     <div class="overflow-x-auto">
       <table class="w-full text-left border-collapse text-xs">
         <thead>
@@ -59,7 +53,6 @@
               class="group cursor-pointer hover:bg-bg/60 transition-colors focus:bg-bg focus:outline-hidden focus:ring-2 focus:ring-primary/40"
               [attr.aria-label]="'Ver detalles de ' + user.email"
             >
-              <!-- Usuario (Inicial + Email) -->
               <td class="py-3.5 px-4">
                 <div class="flex items-center gap-3">
                   <div
@@ -77,12 +70,10 @@
                 </div>
               </td>
 
-              <!-- ID -->
               <td class="py-3.5 px-4 font-mono font-semibold text-muted text-[11px] whitespace-nowrap">
                 {{ user.id }}
               </td>
 
-              <!-- Rol -->
               <td class="py-3.5 px-4 whitespace-nowrap">
                 <span
                   class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold"
@@ -93,18 +84,10 @@
                   [class.bg-sky-100]="user.role === 'client'"
                   [class.text-sky-900]="user.role === 'client'"
                 >
-                  @if (user.role === 'superadmin') {
-                    <app-icon name="shield" [size]="12" />
-                  } @else if (user.role === 'cafe_admin') {
-                    <app-icon name="store" [size]="12" />
-                  } @else {
-                    <app-icon name="user" [size]="12" />
-                  }
                   {{ getRoleLabel(user.role) }}
                 </span>
               </td>
 
-              <!-- Estado -->
               <td class="py-3.5 px-4 whitespace-nowrap">
                 <span
                   class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold"
@@ -122,12 +105,10 @@
                 </span>
               </td>
 
-              <!-- Fecha Registro -->
               <td class="py-3.5 px-4 text-muted hidden lg:table-cell whitespace-nowrap">
                 {{ (user.createdAt | date: 'dd/MM/yyyy') ?? '—' }}
               </td>
 
-              <!-- Acción -->
               <td class="py-3.5 px-4 text-right whitespace-nowrap">
                 <button
                   type="button"
@@ -135,7 +116,6 @@
                   class="cursor-pointer inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface px-3 py-1.5 text-[11px] font-bold text-muted transition-all hover:bg-bg hover:text-text hover:border-primary/40 active:scale-95 shadow-2xs group-hover:border-primary/30"
                   aria-label="Ver detalle"
                 >
-                  <app-icon name="eye" [size]="14" />
                   <span>Ver detalle</span>
                 </button>
               </td>
@@ -145,10 +125,9 @@
       </table>
     </div>
 
-    <!-- Table Footer / Count -->
     <div class="flex items-center justify-between border-t border-border bg-bg/40 px-4 py-3 text-xs text-muted">
       <span>Mostrando <strong>{{ users().length }}</strong> usuario(s) registrado(s)</span>
-      <span class="text-[11px]">Haga clic en cualquier fila para auditar el perfil</span>
+      <span class="text-[11px]">Hacé clic en cualquier fila para auditar el perfil</span>
     </div>
   }
 </div>

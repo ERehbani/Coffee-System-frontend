@@ -112,7 +112,7 @@ describe('AdminTierStore', () => {
     ]);
     expect(store.isDrawerOpen()).toBe(false);
     expect(store.isProcessing()).toBe(false);
-    expect(store.actionMessage()).toEqual({ type: 'success', text: 'Tier creado.' });
+    expect(store.actionMessage()).toEqual({ type: 'success', text: 'Nivel creado.' });
   });
 
   it('updates the edited tier, re-sorts the list and confirms', () => {
@@ -126,7 +126,7 @@ describe('AdminTierStore', () => {
     expect(store.tiers().at(-1)?.name).toBe('Plata plus');
     expect(store.tiers()).toHaveLength(4);
     expect(store.isDrawerOpen()).toBe(false);
-    expect(store.actionMessage()).toEqual({ type: 'success', text: 'Tier actualizado.' });
+    expect(store.actionMessage()).toEqual({ type: 'success', text: 'Nivel actualizado.' });
   });
 
   it('is processing while the save is in flight and ignores a second save', () => {
@@ -148,14 +148,14 @@ describe('AdminTierStore', () => {
 
   it('keeps the drawer open and shows a duplicate name under the name field', () => {
     const store = create();
-    createTier.mockReturnValue(throwError(() => conflict('A tier named Oro already exists')));
+    createTier.mockReturnValue(throwError(() => conflict('Ya existe un tier llamado Oro')));
     store.openCreateDrawer();
 
     store.saveTier({ name: 'Oro', minPoints: 4000 });
 
     expect(store.isDrawerOpen()).toBe(true);
     expect(store.isProcessing()).toBe(false);
-    expect(store.formErrors()).toEqual({ name: 'Ya existe un tier con ese nombre.' });
+    expect(store.formErrors()).toEqual({ name: 'Ya existe un nivel con ese nombre.' });
     expect(store.actionMessage()).toBeNull();
     expect(store.tiers()).toHaveLength(4);
   });
@@ -163,14 +163,14 @@ describe('AdminTierStore', () => {
   it('shows duplicate points under the points field', () => {
     const store = create();
     updateTier.mockReturnValue(
-      throwError(() => conflict('A tier with 3000 points already exists')),
+      throwError(() => conflict('Ya existe un tier con 3000 puntos')),
     );
     store.openEditDrawer(plata);
 
     store.saveTier({ name: 'PLATA', minPoints: 3000 });
 
     expect(store.formErrors()).toEqual({
-      minPoints: 'Ya existe un tier con esa cantidad de puntos.',
+      minPoints: 'Ya existe un nivel con esa cantidad de puntos.',
     });
   });
 
@@ -181,14 +181,14 @@ describe('AdminTierStore', () => {
 
     store.saveTier({ name: 'Nuevo', minPoints: 10 });
 
-    expect(store.formErrors()).toEqual({ form: 'No pudimos guardar el tier. Inténtalo de nuevo.' });
+    expect(store.formErrors()).toEqual({ form: 'No pudimos guardar el nivel. Intentalo de nuevo.' });
     expect(store.isDrawerOpen()).toBe(true);
   });
 
   it('clears the previous server errors when a new save starts', () => {
     const store = create();
     store.openCreateDrawer();
-    createTier.mockReturnValueOnce(throwError(() => conflict('A tier named Oro already exists')));
+    createTier.mockReturnValueOnce(throwError(() => conflict('Ya existe un tier llamado Oro')));
     store.saveTier({ name: 'Oro', minPoints: 4000 });
     const response = new Subject<Tier>();
     createTier.mockReturnValueOnce(response);

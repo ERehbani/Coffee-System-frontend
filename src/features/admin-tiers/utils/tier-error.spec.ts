@@ -6,25 +6,25 @@ const validation = (errors: Record<string, string>) =>
 
 describe('toTierFormErrors', () => {
   it.each([
-    ['must not be blank', 'El nombre es obligatorio.'],
-    ['must not be empty', 'El nombre es obligatorio.'],
-    ['size must be between 0 and 50', 'El nombre puede tener hasta 50 caracteres.'],
-    ['length must not exceed 50 characters', 'El nombre puede tener hasta 50 caracteres.'],
+    ['El nombre es obligatorio', 'El nombre es obligatorio.'],
+    ['El nombre puede tener hasta 50 caracteres', 'El nombre puede tener hasta 50 caracteres.'],
   ])('maps the name validation "%s"', (message, expected) => {
     expect(toTierFormErrors(validation({ name: message }))).toEqual({ name: expected });
   });
 
   it.each([
-    ['must not be null', 'Los puntos son obligatorios.'],
-    ['must be greater than or equal to 0', 'Los puntos no pueden ser negativos.'],
-    ['must not be negative', 'Los puntos no pueden ser negativos.'],
+    ['Los puntos mínimos son obligatorios', 'Los puntos son obligatorios.'],
+    ['Los puntos mínimos no pueden ser negativos', 'Los puntos no pueden ser negativos.'],
   ])('maps the points validation "%s"', (message, expected) => {
     expect(toTierFormErrors(validation({ minPoints: message }))).toEqual({ minPoints: expected });
   });
 
   it('keeps both field errors of one response', () => {
     expect(
-      toTierFormErrors(validation({ name: 'must not be blank', minPoints: 'must not be null' })),
+      toTierFormErrors(validation({
+        name: 'El nombre es obligatorio',
+        minPoints: 'Los puntos mínimos son obligatorios',
+      })),
     ).toEqual({ name: 'El nombre es obligatorio.', minPoints: 'Los puntos son obligatorios.' });
   });
 
@@ -34,49 +34,49 @@ describe('toTierFormErrors', () => {
   });
 
   it('puts a duplicate name on the name field', () => {
-    const error = new HttpErrorResponse({ status: 409, error: { detail: 'A tier named Oro already exists' } });
+    const error = new HttpErrorResponse({ status: 409, error: { detail: 'Ya existe un tier llamado Oro' } });
 
-    expect(toTierFormErrors(error)).toEqual({ name: 'Ya existe un tier con ese nombre.' });
+    expect(toTierFormErrors(error)).toEqual({ name: 'Ya existe un nivel con ese nombre.' });
   });
 
   it('puts duplicate points on the points field', () => {
     const error = new HttpErrorResponse({
       status: 409,
-      error: { detail: 'A tier with 3000 points already exists' },
+      error: { detail: 'Ya existe un tier con 3000 puntos' },
     });
 
     expect(toTierFormErrors(error)).toEqual({
-      minPoints: 'Ya existe un tier con esa cantidad de puntos.',
+      minPoints: 'Ya existe un nivel con esa cantidad de puntos.',
     });
   });
 
   it('ignores the letter case and the spacing of a conflict message', () => {
     const error = new HttpErrorResponse({
       status: 409,
-      error: { detail: '  A TIER NAMED oro ALREADY EXISTS ' },
+      error: { detail: '  YA EXISTE UN TIER LLAMADO oro ' },
     });
 
-    expect(toTierFormErrors(error)).toEqual({ name: 'Ya existe un tier con ese nombre.' });
+    expect(toTierFormErrors(error)).toEqual({ name: 'Ya existe un nivel con ese nombre.' });
   });
 
   it('explains that the base tier keeps 0 points', () => {
     const error = new HttpErrorResponse({
       status: 422,
-      error: { title: 'Business rule violated', detail: 'The base tier must keep 0 points' },
+      error: { title: 'Regla de negocio incumplida', detail: 'El tier base debe mantener 0 puntos' },
     });
 
-    expect(toTierFormErrors(error)).toEqual({ form: 'El tier base debe mantener 0 puntos.' });
+    expect(toTierFormErrors(error)).toEqual({ form: 'El nivel base debe mantener 0 puntos.' });
   });
 
   it('falls back for an unknown conflict or bad request', () => {
     expect(
-      toTierFormErrors(new HttpErrorResponse({ status: 409, error: { detail: 'Something new' } })),
+      toTierFormErrors(new HttpErrorResponse({ status: 409, error: { detail: 'Mensaje nuevo' } })),
     ).toEqual({
       form: TIER_SAVE_ERROR_MESSAGE,
     });
     expect(
       toTierFormErrors(
-        new HttpErrorResponse({ status: 422, error: { detail: 'Other' } }),
+        new HttpErrorResponse({ status: 422, error: { detail: 'Otro' } }),
       ),
     ).toEqual({ form: TIER_SAVE_ERROR_MESSAGE });
     expect(toTierFormErrors(new HttpErrorResponse({ status: 400, error: null }))).toEqual({
@@ -96,6 +96,6 @@ describe('toTierFormErrors', () => {
   });
 
   it('uses the agreed generic copy', () => {
-    expect(TIER_SAVE_ERROR_MESSAGE).toBe('No pudimos guardar el tier. Inténtalo de nuevo.');
+    expect(TIER_SAVE_ERROR_MESSAGE).toBe('No pudimos guardar el nivel. Intentalo de nuevo.');
   });
 });

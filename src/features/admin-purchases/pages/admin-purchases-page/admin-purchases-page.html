@@ -1,9 +1,6 @@
 <main class="mx-auto max-w-6xl px-4 py-8 space-y-6">
   <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-border">
     <div class="flex items-center gap-3">
-      <span class="inline-flex size-10 items-center justify-center rounded-xl bg-primary text-white shadow-xs">
-        <app-icon name="history" [size]="20" />
-      </span>
       <div>
         <div class="flex items-center gap-2">
           <h1 class="text-xl font-extrabold text-text">Historial de Compras Global</h1>
@@ -22,7 +19,6 @@
         class="cursor-pointer inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface px-3 py-2 text-xs font-bold text-muted hover:bg-bg hover:text-text transition active:scale-95 shadow-2xs select-none"
         title="Actualizar listado"
       >
-        <app-icon name="refresh-cw" [size]="14" />
         <span>Actualizar</span>
       </button>
 
@@ -30,7 +26,6 @@
         routerLink="/admin/users"
         class="cursor-pointer inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface px-3 py-2 text-xs font-bold text-muted hover:bg-bg hover:text-text transition active:scale-95 shadow-2xs select-none"
       >
-        <app-icon name="shield" [size]="14" />
         <span>Usuarios</span>
       </a>
     </div>
@@ -42,9 +37,6 @@
         <p class="text-xs font-medium text-muted">Total de Compras</p>
         <p class="text-2xl font-extrabold text-text mt-1">{{ totalPurchasesCount() }}</p>
       </div>
-      <div class="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
-        <app-icon name="shopping-bag" [size]="20" />
-      </div>
     </div>
 
     <div class="rounded-2xl border border-border bg-surface p-4 shadow-xs flex items-center justify-between">
@@ -52,18 +44,12 @@
         <p class="text-xs font-medium text-muted">Monto Total Auditado</p>
         <p class="text-2xl font-extrabold text-text mt-1">{{ formatPrice(totalAmount()) }}</p>
       </div>
-      <div class="flex size-10 items-center justify-center rounded-xl bg-emerald-100 text-emerald-800">
-        <app-icon name="check-circle" [size]="20" />
-      </div>
     </div>
 
     <div class="rounded-2xl border border-border bg-surface p-4 shadow-xs flex items-center justify-between">
       <div>
-        <p class="text-xs font-medium text-muted">Transacciones Confirmadas</p>
+        <p class="text-xs font-medium text-muted">Transacciones válidas</p>
         <p class="text-2xl font-extrabold text-text mt-1">{{ confirmedCount() }}</p>
-      </div>
-      <div class="flex size-10 items-center justify-center rounded-xl bg-purple-100 text-purple-800">
-        <app-icon name="coffee" [size]="20" />
       </div>
     </div>
   </div>
@@ -108,65 +94,22 @@
           Todas ({{ purchases().length }})
         </button>
 
-        <button
-          type="button"
-          (click)="setFilterStatus('CONFIRMED')"
-          class="rounded-lg px-3 py-1.5 text-xs font-semibold transition cursor-pointer select-none"
-          [class.bg-primary]="filterStatus() === 'CONFIRMED'"
-          [class.text-white]="filterStatus() === 'CONFIRMED'"
-          [class.shadow-xs]="filterStatus() === 'CONFIRMED'"
-          [class.bg-surface]="filterStatus() !== 'CONFIRMED'"
-          [class.text-muted]="filterStatus() !== 'CONFIRMED'"
-          [class.border]="filterStatus() !== 'CONFIRMED'"
-          [class.border-border]="filterStatus() !== 'CONFIRMED'"
-        >
-          Confirmadas
-        </button>
-
-        <button
-          type="button"
-          (click)="setFilterStatus('PENDING')"
-          class="rounded-lg px-3 py-1.5 text-xs font-semibold transition cursor-pointer select-none"
-          [class.bg-primary]="filterStatus() === 'PENDING'"
-          [class.text-white]="filterStatus() === 'PENDING'"
-          [class.shadow-xs]="filterStatus() === 'PENDING'"
-          [class.bg-surface]="filterStatus() !== 'PENDING'"
-          [class.text-muted]="filterStatus() !== 'PENDING'"
-          [class.border]="filterStatus() !== 'PENDING'"
-          [class.border-border]="filterStatus() !== 'PENDING'"
-        >
-          Pendientes
-        </button>
-
-        <button
-          type="button"
-          (click)="setFilterStatus('CANCELLED')"
-          class="rounded-lg px-3 py-1.5 text-xs font-semibold transition cursor-pointer select-none"
-          [class.bg-primary]="filterStatus() === 'CANCELLED'"
-          [class.text-white]="filterStatus() === 'CANCELLED'"
-          [class.shadow-xs]="filterStatus() === 'CANCELLED'"
-          [class.bg-surface]="filterStatus() !== 'CANCELLED'"
-          [class.text-muted]="filterStatus() !== 'CANCELLED'"
-          [class.border]="filterStatus() !== 'CANCELLED'"
-          [class.border-border]="filterStatus() !== 'CANCELLED'"
-        >
-          Canceladas
-        </button>
-
-        <button
-          type="button"
-          (click)="setFilterStatus('REFUNDED')"
-          class="rounded-lg px-3 py-1.5 text-xs font-semibold transition cursor-pointer select-none"
-          [class.bg-primary]="filterStatus() === 'REFUNDED'"
-          [class.text-white]="filterStatus() === 'REFUNDED'"
-          [class.shadow-xs]="filterStatus() === 'REFUNDED'"
-          [class.bg-surface]="filterStatus() !== 'REFUNDED'"
-          [class.text-muted]="filterStatus() !== 'REFUNDED'"
-          [class.border]="filterStatus() !== 'REFUNDED'"
-          [class.border-border]="filterStatus() !== 'REFUNDED'"
-        >
-          Reembolsadas
-        </button>
+        @for (status of statusFilters; track status) {
+          <button
+            type="button"
+            (click)="setFilterStatus(status)"
+            class="rounded-lg px-3 py-1.5 text-xs font-semibold transition cursor-pointer select-none"
+            [class.bg-primary]="filterStatus() === status"
+            [class.text-white]="filterStatus() === status"
+            [class.shadow-xs]="filterStatus() === status"
+            [class.bg-surface]="filterStatus() !== status"
+            [class.text-muted]="filterStatus() !== status"
+            [class.border]="filterStatus() !== status"
+            [class.border-border]="filterStatus() !== status"
+          >
+            {{ statusView(status).filterLabel }}
+          </button>
+        }
       </div>
     </div>
 
@@ -180,9 +123,6 @@
         </div>
       } @else if (filteredPurchases().length === 0) {
         <div class="flex flex-col items-center justify-center p-12 text-center">
-          <div class="flex size-14 items-center justify-center rounded-2xl bg-primary/10 text-primary mb-3">
-            <app-icon name="history" [size]="24" />
-          </div>
           <p class="text-sm font-bold text-text">No se encontraron compras</p>
           <p class="text-xs text-muted mt-1">No hay transacciones registradas que coincidan con la búsqueda o filtro seleccionado.</p>
         </div>
@@ -194,7 +134,7 @@
                 <th scope="col" class="py-3.5 px-4">Fecha</th>
                 <th scope="col" class="py-3.5 px-4">Cafetería</th>
                 <th scope="col" class="py-3.5 px-4">Cliente</th>
-                <th scope="col" class="py-3.5 px-4">Items</th>
+                <th scope="col" class="py-3.5 px-4">Ítems</th>
                 <th scope="col" class="py-3.5 px-4">Monto Final</th>
                 <th scope="col" class="py-3.5 px-4">Estado</th>
                 <th scope="col" class="py-3.5 px-4 text-right">Detalle</th>
@@ -209,18 +149,12 @@
 
                   <td class="py-3.5 px-4 whitespace-nowrap">
                     <div class="flex items-center gap-2">
-                      <span class="flex size-6 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                        <app-icon name="coffee" [size]="14" />
-                      </span>
                       <span class="font-semibold text-text">{{ purchase.cafeName || 'Sin cafetería' }}</span>
                     </div>
                   </td>
 
                   <td class="py-3.5 px-4 whitespace-nowrap">
                     <div class="flex items-center gap-2">
-                      <span class="flex size-6 items-center justify-center rounded-lg bg-surface border border-border text-muted">
-                        <app-icon name="user" [size]="14" />
-                      </span>
                       <div>
                         <p class="font-medium text-text">{{ purchase.clientName || 'Cliente' }}</p>
                         <p class="text-[10px] text-muted">{{ purchase.clientId }}</p>
@@ -231,7 +165,6 @@
                   <td class="py-3.5 px-4">
                     <div class="max-w-xs">
                       <span class="inline-flex items-center gap-1 rounded-md bg-bg px-2 py-0.5 text-[11px] font-semibold text-text">
-                        <app-icon name="shopping-bag" [size]="12" />
                         {{ purchase.details.length }} {{ purchase.details.length === 1 ? 'producto' : 'productos' }}
                       </span>
                       <p class="text-[11px] text-muted truncate mt-0.5">
@@ -251,9 +184,9 @@
                   <td class="py-3.5 px-4 whitespace-nowrap">
                     <span
                       class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider"
-                      [class]="getStatusBadgeClass(purchase.status)"
+                      [class]="statusView(purchase.status).badgeClass"
                     >
-                      {{ getStatusLabel(purchase.status) }}
+                      {{ statusView(purchase.status).label }}
                     </span>
                   </td>
 
@@ -264,7 +197,6 @@
                       class="cursor-pointer inline-flex items-center gap-1 rounded-lg border border-border bg-surface px-2.5 py-1.5 text-xs font-bold text-muted hover:bg-bg hover:text-text transition active:scale-95 shadow-2xs"
                       title="Ver detalle del pedido"
                     >
-                      <app-icon name="eye" [size]="14" />
                       <span>Ver</span>
                     </button>
                   </td>
@@ -286,9 +218,6 @@
       <div class="w-full max-w-2xl rounded-3xl border border-border bg-surface p-6 shadow-xl space-y-5 animate-in fade-in zoom-in-95 duration-150">
         <div class="flex items-center justify-between pb-3 border-b border-border">
           <div class="flex items-center gap-2.5">
-            <span class="flex size-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
-              <app-icon name="shopping-bag" [size]="18" />
-            </span>
             <div>
               <h2 class="text-base font-bold text-text">Detalle del Pedido</h2>
               <p class="text-xs text-muted">ID: {{ item.externalId }}</p>
@@ -324,15 +253,15 @@
             <span class="text-muted text-[11px] block">Estado</span>
             <span
               class="inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-bold mt-0.5"
-              [class]="getStatusBadgeClass(item.status)"
+              [class]="statusView(item.status).badgeClass"
             >
-              {{ getStatusLabel(item.status) }}
+              {{ statusView(item.status).label }}
             </span>
           </div>
         </div>
 
         <div class="space-y-2">
-          <h3 class="text-xs font-bold uppercase tracking-wider text-muted">Items del Pedido</h3>
+          <h3 class="text-xs font-bold uppercase tracking-wider text-muted">Ítems del Pedido</h3>
           <div class="overflow-hidden rounded-2xl border border-border">
             <table class="w-full text-left text-xs border-collapse">
               <thead class="bg-bg/60 text-muted border-b border-border text-[11px] font-semibold">
@@ -361,7 +290,7 @@
 
         <div class="flex items-center justify-between pt-3 border-t border-border">
           <div class="flex items-center gap-2">
-            <span class="text-xs text-muted">Total a pagar:</span>
+            <span class="text-xs text-muted">Total:</span>
             <span class="text-lg font-extrabold text-primary">{{ formatPrice(item.price) }}</span>
           </div>
 

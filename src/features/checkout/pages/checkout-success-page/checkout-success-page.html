@@ -1,9 +1,6 @@
 @if (order(); as order) {
   <div class="mx-auto max-w-2xl space-y-6 pb-12">
     <header class="space-y-3 text-center">
-      <div class="mx-auto flex size-16 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
-        <app-icon name="check-circle" [size]="36" />
-      </div>
       <h1 class="text-2xl font-bold tracking-tight text-text md:text-3xl">¡Pago exitoso!</h1>
       <p class="text-sm text-muted">Tu compra fue confirmada y ya sumaste tus puntos.</p>
     </header>
@@ -12,7 +9,6 @@
       data-testid="success-email-notice"
       class="flex items-center justify-center gap-2 rounded-2xl border border-border bg-surface px-4 py-3 text-sm text-muted"
     >
-      <app-icon name="mail" [size]="16" />
       @if (email(); as email) {
         <span>Te enviamos el comprobante de la compra a <strong class="text-text">{{ email }}</strong></span>
       } @else {
@@ -58,7 +54,6 @@
             data-testid="success-points"
             class="inline-flex items-center gap-1.5 rounded-full bg-accent-light px-3 py-1 text-xs font-semibold text-primary"
           >
-            <app-icon name="star" [size]="14" />
             +{{ order.generatedPoints }} puntos
           </dd>
         </div>
@@ -88,14 +83,12 @@
         [routerLink]="purchasesPath"
         class="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-3 text-sm font-bold text-white transition hover:bg-primary-dark active:scale-[0.98]"
       >
-        <app-icon name="history" [size]="16" />
         Ver mis compras
       </a>
       <a
         [routerLink]="homePath"
         class="flex flex-1 items-center justify-center gap-2 rounded-2xl border border-primary px-4 py-3 text-sm font-bold text-primary transition hover:bg-accent-light/40 active:scale-[0.98]"
       >
-        <app-icon name="coffee" [size]="16" />
         Volver al inicio
       </a>
     </div>

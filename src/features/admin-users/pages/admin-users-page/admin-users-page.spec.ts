@@ -143,7 +143,6 @@ describe('AdminUsersPage', () => {
 
     const modal = fixture.nativeElement.querySelector('app-user-detail-modal');
 
-    // Click "Dar de baja usuario"
     const buttons = modal.querySelectorAll('button');
     const deactivateBtn = Array.from(buttons).find((b: any) =>
       b.textContent?.includes('Dar de baja usuario')
@@ -153,10 +152,8 @@ describe('AdminUsersPage', () => {
     deactivateBtn.click();
     fixture.detectChanges();
 
-    // Confirmation prompt appears
     expect(modal.textContent).toContain('¿Confirmar baja?');
 
-    // Click confirm button
     const confirmBtn = Array.from(modal.querySelectorAll('button')).find((b: any) =>
       b.textContent?.includes('Sí, dar de baja')
     ) as HTMLButtonElement;

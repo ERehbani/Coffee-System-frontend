@@ -13,4 +13,9 @@ import { RedemptionHistoryStore } from '../../services/redemption-history.store'
 })
 export class RedemptionHistoryPage {
   protected readonly store = inject(RedemptionHistoryStore);
+
+  constructor() {
+    // El store de la ruta vive toda la sesión: sin recargar, un cupón recién usado no aparece en el historial.
+    this.store.reload();
+  }
 }
