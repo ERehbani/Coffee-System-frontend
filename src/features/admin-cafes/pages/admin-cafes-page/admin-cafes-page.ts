@@ -1,7 +1,6 @@
 import { formatOpeningHours } from '../../../../shared/utils/opening-hours';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import { Icon } from '../../../../shared/components/icon/icon';
 import { Cafe, CreateCafeAccountRequest, UpdateCafeRequest } from '../../../home/model/cafe.model';
 import { CafeService } from '../../../home/services/cafe.service';
@@ -12,7 +11,7 @@ import { toCafeAdminErrorMessage } from '../../utils/cafe-admin-error';
 
 @Component({
   selector: 'app-admin-cafes-page',
-  imports: [RouterLink, Icon, CafeDetailModal, CafeEditModal, CafeRegisterModal],
+  imports: [Icon, CafeDetailModal, CafeEditModal, CafeRegisterModal],
   templateUrl: './admin-cafes-page.html',
   styleUrl: './admin-cafes-page.css',
   host: { class: 'block' },

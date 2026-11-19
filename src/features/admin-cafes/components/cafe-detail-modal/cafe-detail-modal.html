@@ -1,144 +1,114 @@
 @if (cafe(); as item) {
   <div
-    class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs"
+    class="modal-backdrop"
     role="dialog"
     aria-modal="true"
     aria-labelledby="modal-cafe-title"
     (click)="onClose()"
   >
-    <div
-      class="relative w-full max-w-lg rounded-3xl border border-border bg-surface p-6 shadow-2xl space-y-5"
-      (click)="$event.stopPropagation()"
-    >
-      <div class="flex items-start justify-between gap-4 pb-3 border-b border-border">
-        <div class="flex items-center gap-3 min-w-0">
+    <div class="modal-panel max-w-lg" (click)="$event.stopPropagation()">
+      <div class="modal-header items-center">
+        <div class="flex min-w-0 items-center gap-3">
           @if (item.logo) {
-            <img [src]="item.logo" [alt]="'Logo de ' + item.name" class="size-12 shrink-0 rounded-2xl object-cover ring-1 ring-border" />
+            <img [src]="item.logo" [alt]="'Logo de ' + item.name" class="size-10 shrink-0 rounded-md object-cover ring-1 ring-border" />
           }
           <div class="min-w-0">
-            <h2 id="modal-cafe-title" class="text-lg font-extrabold text-text truncate">
+            <h2 id="modal-cafe-title" class="modal-title truncate">
               {{ item.name }}
             </h2>
-            <div class="flex items-center gap-2 mt-0.5">
+            <div class="mt-0.5 flex items-center gap-2">
               @if (isActive()) {
-                <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-bold text-emerald-700 border border-emerald-200">
+                <span class="badge border border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-500/40 dark:bg-emerald-500/10 dark:text-emerald-300">
                   <span class="size-1.5 rounded-full bg-emerald-500"></span>
                   Activa
                 </span>
               } @else {
-                <span class="inline-flex items-center gap-1.5 rounded-full bg-rose-50 px-2.5 py-0.5 text-[11px] font-bold text-rose-700 border border-rose-200">
+                <span class="badge border border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-500/40 dark:bg-rose-500/10 dark:text-rose-300">
                   <span class="size-1.5 rounded-full bg-rose-500"></span>
                   Inactiva
                 </span>
               }
-              <span class="text-xs text-muted truncate">ID: {{ item.externalId }}</span>
+              <span class="truncate text-[11px] text-muted">ID: {{ item.externalId }}</span>
             </div>
           </div>
         </div>
 
-        <button
-          type="button"
-          (click)="onClose()"
-          class="cursor-pointer rounded-xl p-1.5 text-muted hover:bg-border/40 hover:text-text transition active:scale-95"
-          aria-label="Cerrar modal"
-        >
-          <app-icon name="x" [size]="18" />
+        <button type="button" (click)="onClose()" class="icon-btn" aria-label="Cerrar modal" title="Cerrar">
+          <app-icon name="x" [size]="14" />
         </button>
       </div>
 
-      @if (item.image) {
-        <div class="relative h-44 w-full overflow-hidden rounded-2xl border border-border bg-border/20">
-          <img
-            [src]="item.image"
-            [alt]="'Foto de ' + item.name"
-            class="h-full w-full object-cover"
-          />
-        </div>
-      }
+      <div class="modal-body space-y-4">
+        @if (item.image) {
+          <div class="h-32 w-full overflow-hidden rounded-md border border-border bg-border/20">
+            <img
+              [src]="item.image"
+              [alt]="'Foto de ' + item.name"
+              class="h-full w-full object-cover"
+            />
+          </div>
+        }
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 text-xs">
-        <div class="rounded-2xl border border-border bg-bg/50 p-3 space-y-1">
-          <span class="inline-flex items-center gap-1.5 font-bold text-muted">
-            Dirección
-          </span>
-          <p class="font-semibold text-text break-words">{{ item.address }}</p>
-        </div>
+        <section>
+          <h3 class="form-section-title">Datos del comercio</h3>
+          <dl class="form-grid text-xs">
+            <div>
+              <dt class="text-[11px] text-muted">Dirección</dt>
+              <dd class="font-semibold break-words text-text">{{ item.address }}</dd>
+            </div>
 
-        <div class="rounded-2xl border border-border bg-bg/50 p-3 space-y-1">
-          <span class="inline-flex items-center gap-1.5 font-bold text-muted">
-            Correo electrónico
-          </span>
-          <p class="font-semibold text-text break-words">{{ item.email }}</p>
-        </div>
+            <div>
+              <dt class="text-[11px] text-muted">Correo electrónico</dt>
+              <dd class="font-semibold break-words text-text">{{ item.email }}</dd>
+            </div>
 
-        <div class="rounded-2xl border border-border bg-bg/50 p-3 space-y-1">
-          <span class="inline-flex items-center gap-1.5 font-bold text-muted">
-            Teléfono
-          </span>
-          <p class="font-semibold text-text">{{ item.phoneNumber || 'No especificado' }}</p>
-        </div>
+            <div>
+              <dt class="text-[11px] text-muted">Teléfono</dt>
+              <dd class="font-semibold text-text">{{ item.phoneNumber || 'No especificado' }}</dd>
+            </div>
 
-        <div class="rounded-2xl border border-border bg-bg/50 p-3 space-y-1">
-          <span class="inline-flex items-center gap-1.5 font-bold text-muted">
-            Horarios
-          </span>
-          <p class="font-semibold text-text">{{ formatHours(item.openingHours) || 'No especificado' }}</p>
-        </div>
+            <div>
+              <dt class="text-[11px] text-muted">Horarios</dt>
+              <dd class="font-semibold text-text">{{ formatHours(item.openingHours) || 'No especificado' }}</dd>
+            </div>
+
+            @if (item.description) {
+              <div class="sm:col-span-2">
+                <dt class="text-[11px] text-muted">Descripción</dt>
+                <dd class="leading-relaxed text-text">{{ item.description }}</dd>
+              </div>
+            }
+          </dl>
+        </section>
+
+        @if (item.reviewCount) {
+          <div class="flex items-center justify-between border-t border-border pt-3 text-xs">
+            <span class="font-bold text-muted">Calificación promedio</span>
+            <div class="flex items-center gap-1.5">
+              <span class="font-bold text-text">{{ item.rating | number: '1.1-1' }}</span>
+              <span class="text-muted">({{ item.reviewCount | number }} opiniones)</span>
+            </div>
+          </div>
+        }
+
+        @if (isConfirmingDeactivation()) {
+          <div data-testid="deactivation-warning" class="space-y-2 border-l-2 border-rose-600 bg-rose-50 px-3 py-2 dark:bg-rose-500/10">
+            <p class="text-xs font-bold text-rose-900 dark:text-rose-200">¿Desactivar {{ item.name }}?</p>
+            <p class="text-xs text-rose-800 dark:text-rose-300">
+              Deja de aparecer para los clientes, no puede iniciar sesión ni vender, y sus promociones no se pueden
+              canjear. Podés reactivarla cuando quieras.
+            </p>
+            <div class="flex justify-end gap-2">
+              <button type="button" (click)="cancelDeactivation()" class="btn-secondary">Cancelar</button>
+              <button type="button" (click)="confirmDeactivation(item)" class="btn-danger">Sí, desactivar</button>
+            </div>
+          </div>
+        }
       </div>
 
-      @if (item.description) {
-        <div class="rounded-2xl border border-border bg-bg/50 p-3 space-y-1 text-xs">
-          <span class="inline-flex items-center gap-1.5 font-bold text-muted">
-            Descripción
-          </span>
-          <p class="text-text leading-relaxed">{{ item.description }}</p>
-        </div>
-      }
-
-      @if (item.reviewCount) {
-        <div class="flex items-center justify-between rounded-2xl border border-border bg-bg/40 px-3.5 py-2.5 text-xs">
-          <span class="font-bold text-muted">Calificación promedio</span>
-          <div class="flex items-center gap-1.5">
-            <span class="font-extrabold text-text">{{ item.rating | number: '1.1-1' }}</span>
-            <span class="text-muted">({{ item.reviewCount | number }} opiniones)</span>
-          </div>
-        </div>
-      }
-
-      @if (isConfirmingDeactivation()) {
-        <div data-testid="deactivation-warning" class="space-y-3 rounded-2xl border border-rose-200 bg-rose-50 p-4">
-          <p class="text-xs font-bold text-rose-900">¿Desactivar {{ item.name }}?</p>
-          <p class="text-xs text-rose-800">
-            Deja de aparecer para los clientes, no puede iniciar sesión ni vender, y sus promociones no se pueden
-            canjear. Podés reactivarla cuando quieras.
-          </p>
-          <div class="flex justify-end gap-2">
-            <button
-              type="button"
-              (click)="cancelDeactivation()"
-              class="cursor-pointer rounded-xl px-3 py-1.5 text-xs font-semibold text-muted hover:text-text"
-            >
-              Cancelar
-            </button>
-            <button
-              type="button"
-              (click)="confirmDeactivation(item)"
-              class="cursor-pointer rounded-xl bg-rose-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-rose-700"
-            >
-              Sí, desactivar
-            </button>
-          </div>
-        </div>
-      }
-
-      <div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-border">
+      <div class="modal-footer justify-between">
         <div class="flex flex-wrap gap-2">
-          <button
-            type="button"
-            (click)="edit.emit(item)"
-            [disabled]="busy()"
-            class="cursor-pointer rounded-xl border border-border bg-surface px-4 py-2 text-xs font-bold text-text transition hover:border-primary active:scale-95 disabled:cursor-not-allowed disabled:opacity-60"
-          >
+          <button type="button" (click)="edit.emit(item)" [disabled]="busy()" class="btn-secondary">
             Editar
           </button>
           @if (isActive()) {
@@ -146,7 +116,7 @@
               type="button"
               (click)="askDeactivation()"
               [disabled]="busy() || isConfirmingDeactivation()"
-              class="cursor-pointer rounded-xl px-4 py-2 text-xs font-bold text-rose-600 transition hover:bg-rose-50 active:scale-95 disabled:cursor-not-allowed disabled:opacity-60"
+              class="btn-secondary border-rose-300 text-rose-700 hover:bg-rose-50 dark:border-rose-500/40 dark:text-rose-300 dark:hover:bg-rose-500/10"
             >
               Desactivar
             </button>
@@ -155,19 +125,13 @@
               type="button"
               (click)="reactivate.emit(item)"
               [disabled]="busy()"
-              class="cursor-pointer rounded-xl px-4 py-2 text-xs font-bold text-emerald-700 transition hover:bg-emerald-50 active:scale-95 disabled:cursor-not-allowed disabled:opacity-60"
+              class="btn-secondary border-emerald-400 text-emerald-800 hover:bg-emerald-50 dark:border-emerald-500/40 dark:text-emerald-300 dark:hover:bg-emerald-500/10"
             >
               {{ busy() ? 'Reactivando...' : 'Reactivar' }}
             </button>
           }
         </div>
-        <button
-          type="button"
-          (click)="onClose()"
-          class="cursor-pointer inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface px-4 py-2 text-xs font-bold text-muted hover:bg-bg hover:text-text transition active:scale-95 shadow-2xs"
-        >
-          Cerrar
-        </button>
+        <button type="button" (click)="onClose()" class="btn-primary">Cerrar</button>
       </div>
     </div>
   </div>
