@@ -3,10 +3,11 @@ import { FormsModule } from '@angular/forms';
 import { Icon } from '../../../../shared/components/icon/icon';
 import { Purchase } from '../../../purchase-history/model/purchase.model';
 import { PurchaseService } from '../../../purchase-history/services/purchase.service';
+import { RefundPurchase } from '../../../purchase-history/components/refund-purchase/refund-purchase';
 
 @Component({
   selector: 'app-cafe-purchases-page',
-  imports: [FormsModule, Icon],
+  imports: [FormsModule, Icon, RefundPurchase],
   templateUrl: './cafe-purchases-page.html',
   styleUrl: './cafe-purchases-page.css',
   host: { class: 'block' },
@@ -153,6 +154,11 @@ export class CafePurchasesPage implements OnInit {
 
   closeDetails(): void {
     this.selectedPurchase.set(null);
+  }
+
+  onRefunded(refunded: Purchase): void {
+    this.purchases.update((list) => list.map((p) => (p.externalId === refunded.externalId ? refunded : p)));
+    this.selectedPurchase.set(refunded);
   }
 
   formatDate(dateStr: string): string {

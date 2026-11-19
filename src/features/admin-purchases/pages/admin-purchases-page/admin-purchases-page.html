@@ -288,6 +288,8 @@
           </div>
         </div>
 
+        <app-refund-purchase [purchase]="item" (refunded)="onRefunded($event)" />
+
         <div class="flex items-center justify-between pt-3 border-t border-border">
           <div class="flex items-center gap-2">
             <span class="text-xs text-muted">Total:</span>
