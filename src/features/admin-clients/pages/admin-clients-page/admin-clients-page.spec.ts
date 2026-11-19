@@ -52,9 +52,7 @@ describe('AdminClientsPage', () => {
 
   function openDetailOf(name: string): void {
     const row = page().querySelector(`tr[aria-label="Ver detalle de ${name}"]`) as HTMLElement;
-    const button = Array.from(row.querySelectorAll('button')).find((b) =>
-      b.textContent?.includes('Ver detalle'),
-    ) as HTMLButtonElement;
+    const button = row.querySelector('button[aria-label="Ver detalle"]') as HTMLButtonElement;
     button.click();
     fixture.detectChanges();
   }

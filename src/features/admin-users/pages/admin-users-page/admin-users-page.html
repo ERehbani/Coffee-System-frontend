@@ -1,18 +1,11 @@
-<main class="mx-auto max-w-6xl px-4 py-8 space-y-6">
-  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-border">
-    <div class="flex items-center gap-3">
-      <div>
-        <div class="flex items-center gap-2">
-          <h1 class="text-xl font-extrabold text-text">Auditoría de Usuarios</h1>
-          <span class="rounded-lg bg-purple-100 px-2 py-0.5 text-xs font-bold text-purple-800">
-            Superadmin
-          </span>
-        </div>
-        <p class="text-xs text-muted">Control centralizado y auditoría de perfiles registrados en la plataforma</p>
-      </div>
+<main class="page-shell">
+  <header class="page-header">
+    <div class="min-w-0">
+      <h1 class="page-title">Auditoría de Usuarios</h1>
+      <p class="text-xs text-muted">Control centralizado y auditoría de perfiles registrados en la plataforma</p>
     </div>
 
-    <div class="flex items-center gap-2 flex-wrap">
+    <div class="toolbar">
       <button
         type="button"
         (click)="onRefresh()"
@@ -22,121 +15,92 @@
         <app-icon name="refresh-cw" [size]="14" />
         <span>Actualizar</span>
       </button>
-
     </div>
-  </div>
+  </header>
 
-  <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-    <div class="rounded-2xl border border-border bg-surface p-4 shadow-2xs">
-      <div class="flex items-center justify-between text-muted mb-1">
-        <span class="text-xs font-bold">Total Registrados</span>
-      </div>
-      <p class="text-2xl font-black text-text">{{ store.stats().totalUsers }}</p>
-      <span class="text-[11px] text-muted">En el sistema</span>
+  <section aria-label="Resumen de usuarios" class="summary-strip">
+    <div class="summary-item">
+      <p class="text-[11px] font-bold text-muted">Total Registrados</p>
+      <p class="text-xl font-bold text-text">{{ store.stats().totalUsers }}</p>
+      <p class="text-[11px] text-muted">En el sistema</p>
     </div>
-
-    <div class="rounded-2xl border border-border bg-surface p-4 shadow-2xs">
-      <div class="flex items-center justify-between text-muted mb-1">
-        <span class="text-xs font-bold">Activos</span>
-      </div>
-      <p class="text-2xl font-black text-emerald-700">{{ store.stats().activeUsers }}</p>
-      <span class="text-[11px] text-muted">Cuentas operativas</span>
+    <div class="summary-item">
+      <p class="text-[11px] font-bold text-muted">Activos</p>
+      <p class="text-xl font-bold text-emerald-700 dark:text-emerald-400">{{ store.stats().activeUsers }}</p>
+      <p class="text-[11px] text-muted">Cuentas operativas</p>
     </div>
-
-    <div class="rounded-2xl border border-border bg-surface p-4 shadow-2xs">
-      <div class="flex items-center justify-between text-muted mb-1">
-        <span class="text-xs font-bold">Clientes</span>
-      </div>
-      <p class="text-2xl font-black text-sky-800">{{ store.stats().clientUsers }}</p>
-      <span class="text-[11px] text-muted">Fidelizados</span>
+    <div class="summary-item">
+      <p class="text-[11px] font-bold text-muted">Clientes</p>
+      <p class="text-xl font-bold text-sky-800 dark:text-sky-300">{{ store.stats().clientUsers }}</p>
+      <p class="text-[11px] text-muted">Fidelizados</p>
     </div>
-
-    <div class="rounded-2xl border border-border bg-surface p-4 shadow-2xs">
-      <div class="flex items-center justify-between text-muted mb-1">
-        <span class="text-xs font-bold">Comercios</span>
-      </div>
-      <p class="text-2xl font-black text-amber-800">{{ store.stats().cafeAdminUsers }}</p>
-      <span class="text-[11px] text-muted">Cafeterías aliadas</span>
+    <div class="summary-item">
+      <p class="text-[11px] font-bold text-muted">Comercios</p>
+      <p class="text-xl font-bold text-amber-800 dark:text-amber-300">{{ store.stats().cafeAdminUsers }}</p>
+      <p class="text-[11px] text-muted">Cafeterías aliadas</p>
     </div>
-
-    <div class="col-span-2 sm:col-span-1 rounded-2xl border border-border bg-surface p-4 shadow-2xs">
-      <div class="flex items-center justify-between text-muted mb-1">
-        <span class="text-xs font-bold">Superadmins</span>
-      </div>
-      <p class="text-2xl font-black text-purple-800">{{ store.stats().superadminUsers }}</p>
-      <span class="text-[11px] text-muted">Auditores raíz</span>
+    <div class="summary-item">
+      <p class="text-[11px] font-bold text-muted">Superadmins</p>
+      <p class="text-xl font-bold text-purple-800 dark:text-purple-300">{{ store.stats().superadminUsers }}</p>
+      <p class="text-[11px] text-muted">Auditores raíz</p>
     </div>
-  </div>
+  </section>
 
-  <div class="rounded-2xl border border-border bg-surface p-4 shadow-2xs space-y-3">
-    <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
-      <div class="md:col-span-6 relative">
-        <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-muted">
-          <app-icon name="search" [size]="16" />
-        </span>
+  <div class="space-y-2">
+    <div class="toolbar">
+      <div class="search-field sm:max-w-xs">
+        <app-icon name="search" [size]="14" />
         <input
           type="text"
           placeholder="Buscar por email o ID..."
+          aria-label="Buscar por email o ID"
           [value]="store.searchQuery()"
           (input)="onSearchChange($event)"
-          class="w-full rounded-xl border border-border bg-bg/50 pl-10 pr-4 py-2.5 text-xs text-text placeholder:text-muted focus:border-primary focus:bg-surface focus:outline-hidden focus:ring-2 focus:ring-primary/20 transition"
+          class="form-control"
         />
       </div>
 
-      <div class="md:col-span-3">
-        <select
-          [value]="store.roleFilter()"
-          (change)="onRoleChange($event)"
-          class="w-full rounded-xl border border-border bg-bg/50 px-3.5 py-2.5 text-xs font-medium text-text focus:border-primary focus:bg-surface focus:outline-hidden focus:ring-2 focus:ring-primary/20 transition cursor-pointer"
-          aria-label="Filtrar por rol de usuario"
-        >
-          <option value="all">Todos los roles</option>
-          @for (option of roleOptions; track option.value) {
-            <option [value]="option.value" [selected]="option.value === store.roleFilter()">{{ option.label }}</option>
-          }
-        </select>
-      </div>
+      <select
+        [value]="store.roleFilter()"
+        (change)="onRoleChange($event)"
+        class="form-control w-auto cursor-pointer"
+        aria-label="Filtrar por rol de usuario"
+      >
+        <option value="all">Todos los roles</option>
+        @for (option of roleOptions; track option.value) {
+          <option [value]="option.value" [selected]="option.value === store.roleFilter()">{{ option.label }}</option>
+        }
+      </select>
 
-      <div class="md:col-span-3">
-        <select
-          [value]="store.statusFilter()"
-          (change)="onStatusChange($event)"
-          class="w-full rounded-xl border border-border bg-bg/50 px-3.5 py-2.5 text-xs font-medium text-text focus:border-primary focus:bg-surface focus:outline-hidden focus:ring-2 focus:ring-primary/20 transition cursor-pointer"
-          aria-label="Filtrar por estado de la cuenta"
-        >
-          <option value="all">Todos los estados</option>
-          @for (option of statusOptions; track option.value) {
-            <option [value]="option.value" [selected]="option.value === store.statusFilter()">{{ option.label }}</option>
-          }
-        </select>
-      </div>
+      <select
+        [value]="store.statusFilter()"
+        (change)="onStatusChange($event)"
+        class="form-control w-auto cursor-pointer"
+        aria-label="Filtrar por estado de la cuenta"
+      >
+        <option value="all">Todos los estados</option>
+        @for (option of statusOptions; track option.value) {
+          <option [value]="option.value" [selected]="option.value === store.statusFilter()">{{ option.label }}</option>
+        }
+      </select>
     </div>
 
     @if (store.searchQuery() || store.roleFilter() !== 'all' || store.statusFilter() !== 'all') {
-      <div class="flex items-center justify-between pt-2 border-t border-border/50 text-xs text-muted">
-        <div class="flex items-center gap-2 flex-wrap">
-          <span class="font-bold text-text">Filtros activos:</span>
-          @if (store.searchQuery(); as q) {
-            <span class="rounded-lg bg-bg px-2.5 py-1 text-[11px] font-medium border border-border">
-              Búsqueda: "{{ q }}"
-            </span>
-          }
-          @if (roleFilterLabel(); as roleLabel) {
-            <span class="rounded-lg bg-bg px-2.5 py-1 text-[11px] font-medium border border-border">
-              Rol: {{ roleLabel }}
-            </span>
-          }
-          @if (statusFilterLabel(); as statusLabel) {
-            <span class="rounded-lg bg-bg px-2.5 py-1 text-[11px] font-medium border border-border">
-              Estado: {{ statusLabel }}
-            </span>
-          }
-        </div>
-
+      <div class="toolbar text-xs text-muted">
+        <span class="font-bold text-text">Filtros activos:</span>
+        @if (store.searchQuery(); as q) {
+          <span class="badge bg-bg font-medium ring-1 ring-border">Búsqueda: "{{ q }}"</span>
+        }
+        @if (roleFilterLabel(); as roleLabel) {
+          <span class="badge bg-bg font-medium ring-1 ring-border">Rol: {{ roleLabel }}</span>
+        }
+        @if (statusFilterLabel(); as statusLabel) {
+          <span class="badge bg-bg font-medium ring-1 ring-border">Estado: {{ statusLabel }}</span>
+        }
         <button
           type="button"
           (click)="onClearFilters()"
-          class="cursor-pointer text-[11px] font-bold text-primary hover:underline hover:text-primary-dark transition select-none"
+          class="cursor-pointer text-[11px] font-bold text-primary select-none hover:text-primary-dark hover:underline"
         >
           Restablecer filtros
         </button>
@@ -145,18 +109,9 @@
   </div>
 
   @if (store.errorMessage(); as errorMsg) {
-    <div
-      role="alert"
-      class="flex items-center justify-between gap-3 rounded-2xl border border-rose-300 bg-rose-50 px-5 py-3.5 text-rose-800 transition"
-    >
-      <div class="flex items-center gap-3">
-        <p class="text-xs font-bold text-rose-900">{{ errorMsg }}</p>
-      </div>
-      <button
-        type="button"
-        (click)="onRefresh()"
-        class="cursor-pointer text-xs font-bold underline hover:text-rose-950"
-      >
+    <div role="alert" class="notice notice-error">
+      <span>{{ errorMsg }}</span>
+      <button type="button" (click)="onRefresh()" class="cursor-pointer font-bold underline">
         Reintentar
       </button>
     </div>

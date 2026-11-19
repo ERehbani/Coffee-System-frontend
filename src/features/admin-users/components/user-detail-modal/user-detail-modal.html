@@ -1,18 +1,15 @@
 <div
-  class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs"
+  class="modal-backdrop"
   role="dialog"
   aria-modal="true"
   [attr.aria-labelledby]="'modal-title-' + user().id"
   (click)="close.emit()"
 >
-  <div
-    class="relative flex max-h-[92vh] w-full max-w-2xl flex-col rounded-3xl border border-border bg-surface shadow-2xl overflow-hidden"
-    (click)="$event.stopPropagation()"
-  >
-    <div class="flex items-start justify-between border-b border-border bg-bg/50 px-6 py-5">
-      <div class="flex items-center gap-4">
+  <div class="modal-panel max-w-lg" (click)="$event.stopPropagation()">
+    <div class="modal-header items-center">
+      <div class="flex min-w-0 items-center gap-3">
         <div
-          class="flex size-16 items-center justify-center rounded-2xl text-xl font-black text-white shadow-sm ring-2 ring-border"
+          class="flex size-10 shrink-0 items-center justify-center rounded-md text-sm font-bold text-white"
           [class.bg-muted]="!user().role"
           [class.bg-purple-600]="user().role === 'superadmin'"
           [class.bg-primary]="user().role === 'cafe_admin'"
@@ -22,15 +19,13 @@
         </div>
 
         <div class="min-w-0">
-          <div class="flex items-center gap-2 flex-wrap">
-            <h2 [id]="'modal-title-' + user().id" class="text-xl font-black text-text break-all">
-              {{ user().email }}
-            </h2>
-          </div>
+          <h2 [id]="'modal-title-' + user().id" class="modal-title break-all">
+            {{ user().email }}
+          </h2>
 
-          <div class="mt-1 flex items-center gap-2 flex-wrap">
+          <div class="mt-1 flex flex-wrap items-center gap-1.5">
             <span
-              class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-bold"
+              class="badge"
               [class.bg-purple-100]="user().role === 'superadmin'"
               [class.text-purple-800]="user().role === 'superadmin'"
               [class.bg-amber-100]="user().role === 'cafe_admin'"
@@ -42,7 +37,7 @@
             </span>
 
             <span
-              class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-bold"
+              class="badge"
               [class.bg-emerald-100]="user().status === 'active'"
               [class.text-emerald-800]="user().status === 'active'"
               [class.bg-slate-100]="user().status === 'inactive'"
@@ -62,96 +57,82 @@
       <button
         type="button"
         (click)="close.emit()"
-        class="cursor-pointer rounded-xl p-2 text-muted hover:bg-border/40 hover:text-text transition active:scale-95"
+        class="icon-btn"
         aria-label="Cerrar ventana de detalles"
+        title="Cerrar"
       >
-        <app-icon name="x" [size]="20" />
+        <app-icon name="x" [size]="14" />
       </button>
     </div>
 
-    @if (actionMessage(); as msg) {
-      <div
-        role="status"
-        class="flex items-center justify-between gap-3 px-6 py-3 transition text-xs font-bold"
-        [class.bg-emerald-50]="msg.type === 'success'"
-        [class.text-emerald-900]="msg.type === 'success'"
-        [class.border-b]="true"
-        [class.border-emerald-200]="msg.type === 'success'"
-        [class.bg-rose-50]="msg.type === 'error'"
-        [class.text-rose-900]="msg.type === 'error'"
-        [class.border-rose-200]="msg.type === 'error'"
-      >
-        <div class="flex items-center gap-2">
-          <span>{{ msg.text }}</span>
-        </div>
-        <button
-          type="button"
-          (click)="dismissMessage.emit()"
-          class="cursor-pointer rounded-lg p-1 hover:bg-black/5 active:scale-95"
-          aria-label="Cerrar mensaje"
+    <div class="modal-body space-y-4">
+      @if (actionMessage(); as msg) {
+        <div
+          role="status"
+          class="notice"
+          [class.notice-success]="msg.type === 'success'"
+          [class.notice-error]="msg.type === 'error'"
         >
-          <app-icon name="x" [size]="14" />
-        </button>
-      </div>
-    }
-
-    <div class="flex-1 overflow-y-auto px-6 py-5 space-y-6">
-
-      @if (user().status === 'inactive') {
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-2xl border border-slate-300 bg-slate-50 p-4 shadow-xs">
-          <div class="flex items-center gap-3">
-            <div>
-              <p class="text-xs font-black text-slate-900">Usuario Dado de Baja</p>
-              <p class="text-[11px] text-slate-600">
-                Esta cuenta actualmente se encuentra en estado inactivo. Podés reactivarla cuando sea necesario.
-              </p>
-            </div>
-          </div>
+          <span>{{ msg.text }}</span>
+          <button
+            type="button"
+            (click)="dismissMessage.emit()"
+            class="icon-btn"
+            aria-label="Cerrar mensaje"
+          >
+            <app-icon name="x" [size]="14" />
+          </button>
         </div>
       }
 
-      <section class="space-y-3">
-        <h3 class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted">
-          Información de la Cuenta
-        </h3>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 rounded-2xl border border-border bg-surface p-4">
-          <div>
-            <span class="text-xs text-muted block">Correo Electrónico</span>
-            <span class="text-sm font-bold text-text break-all">{{ user().email }}</span>
-          </div>
-
-          <div>
-            <span class="text-xs text-muted block">Fecha de Registro</span>
-            <span class="text-sm font-bold text-text">
-              {{ (user().createdAt | date: 'dd/MM/yyyy HH:mm') ?? '—' }}
-            </span>
-          </div>
+      @if (user().status === 'inactive') {
+        <div class="border-l-2 border-slate-400 bg-slate-100/60 px-3 py-2 dark:bg-slate-500/10">
+          <p class="text-xs font-bold text-text">Usuario dado de baja</p>
+          <p class="text-[11px] text-muted">
+            Esta cuenta actualmente se encuentra en estado inactivo. Podés reactivarla cuando sea necesario.
+          </p>
         </div>
+      }
+
+      <section>
+        <h3 class="form-section-title">Información de la cuenta</h3>
+
+        <dl class="form-grid">
+          <div>
+            <dt class="text-[11px] text-muted">Correo electrónico</dt>
+            <dd class="text-sm font-bold break-all text-text">{{ user().email }}</dd>
+          </div>
+
+          <div>
+            <dt class="text-[11px] text-muted">Fecha de registro</dt>
+            <dd class="text-sm font-bold text-text">
+              {{ (user().createdAt | date: 'dd/MM/yyyy HH:mm') ?? '—' }}
+            </dd>
+          </div>
+        </dl>
       </section>
     </div>
 
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-t border-border bg-bg/40 px-6 py-4">
-      <div class="flex items-center gap-2 flex-wrap">
-
+    <div class="modal-footer justify-between">
+      <div class="flex flex-wrap items-center gap-2">
         @if (user().status === 'active') {
           @if (!confirmingDeactivate()) {
             <button
               type="button"
               (click)="onRequestDeactivate()"
               [disabled]="isProcessing()"
-              class="cursor-pointer inline-flex items-center gap-1.5 rounded-xl border border-rose-200 bg-rose-50 px-3.5 py-2 text-xs font-bold text-rose-700 hover:bg-rose-100 hover:border-rose-300 active:scale-95 transition disabled:opacity-50 shadow-2xs select-none"
+              class="btn-secondary border-rose-300 text-rose-700 hover:bg-rose-50 dark:border-rose-500/40 dark:text-rose-300 dark:hover:bg-rose-500/10"
             >
-              <span>Dar de baja usuario</span>
+              Dar de baja usuario
             </button>
           } @else {
-            <div class="inline-flex items-center gap-2 rounded-xl bg-rose-50 border border-rose-300 p-1.5">
-              <span class="text-[11px] font-bold text-rose-900 px-2">¿Confirmar baja?</span>
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-bold text-rose-800 dark:text-rose-300">¿Confirmar baja?</span>
               <button
                 type="button"
                 (click)="onConfirmDeactivate()"
                 [disabled]="isProcessing()"
-                class="cursor-pointer rounded-lg bg-rose-600 px-3 py-1 text-[11px] font-bold text-white hover:bg-rose-700 active:scale-95 transition disabled:opacity-50 shadow-xs select-none"
+                class="btn-danger"
               >
                 Sí, dar de baja
               </button>
@@ -159,7 +140,7 @@
                 type="button"
                 (click)="onCancelDeactivate()"
                 [disabled]="isProcessing()"
-                class="cursor-pointer rounded-lg border border-border bg-surface px-2.5 py-1 text-[11px] font-bold text-muted hover:bg-bg active:scale-95 transition select-none"
+                class="btn-secondary"
               >
                 Cancelar
               </button>
@@ -170,7 +151,7 @@
             type="button"
             (click)="onReactivateUser()"
             [disabled]="isProcessing()"
-            class="cursor-pointer inline-flex items-center gap-1.5 rounded-xl border border-emerald-300 bg-emerald-50 px-3.5 py-2 text-xs font-bold text-emerald-800 hover:bg-emerald-100 active:scale-95 transition disabled:opacity-50 shadow-2xs select-none"
+            class="btn-secondary border-emerald-400 text-emerald-800 hover:bg-emerald-50 dark:border-emerald-500/40 dark:text-emerald-300 dark:hover:bg-emerald-500/10"
           >
             @if (isProcessing()) {
               <app-icon name="refresh-cw" [size]="14" class="animate-spin" />
@@ -182,15 +163,7 @@
         }
       </div>
 
-      <div class="flex items-center justify-end">
-        <button
-          type="button"
-          (click)="close.emit()"
-          class="cursor-pointer rounded-xl bg-primary px-5 py-2 text-xs font-bold text-white transition hover:bg-primary-dark active:scale-95 shadow-sm select-none"
-        >
-          Cerrar Detalle
-        </button>
-      </div>
+      <button type="button" (click)="close.emit()" class="btn-primary">Cerrar</button>
     </div>
   </div>
 </div>
