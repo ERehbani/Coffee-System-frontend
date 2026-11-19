@@ -139,4 +139,16 @@ describe('AuthService', () => {
     expect(completed).toBe(true);
     expect(service.isAuthenticated()).toBe(false);
   });
+
+  it('changePassword() sends the current and the new password and keeps the session', () => {
+    service.startSession({ email: 'user@test.com', roles: ['ROLE_CLIENTE'] });
+
+    service.changePassword({ currentPassword: 'Actual123', newPassword: 'Nueva1234' }).subscribe();
+
+    const req = http.expectOne(`${authUrl}/password`);
+    expect(req.request.method).toBe('PUT');
+    expect(req.request.body).toEqual({ currentPassword: 'Actual123', newPassword: 'Nueva1234' });
+    req.flush(null, { status: 204, statusText: 'No Content' });
+    expect(service.isAuthenticated()).toBe(true);
+  });
 });

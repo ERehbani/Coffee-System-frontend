@@ -3,7 +3,14 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, PLATFORM_ID, computed, inject, signal } from '@angular/core';
 import { Observable, catchError, map, of, shareReplay, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { LoginCredentials, RegisterRequest, RegisteredUser, SessionUser, UserRole } from '../types/auth.model';
+import {
+  ChangePasswordRequest,
+  LoginCredentials,
+  RegisterRequest,
+  RegisteredUser,
+  SessionUser,
+  UserRole,
+} from '../types/auth.model';
 
 const KNOWN_ROLES: readonly string[] = ['ROLE_SUPERADMIN', 'ROLE_CAFETERIA', 'ROLE_CLIENTE'];
 
@@ -70,6 +77,10 @@ export class AuthService {
 
   register(request: RegisterRequest): Observable<RegisteredUser> {
     return this.http.post<RegisteredUser>(`${this.url}/register`, request);
+  }
+
+  changePassword(request: ChangePasswordRequest): Observable<void> {
+    return this.http.put<void>(`${this.url}/password`, request);
   }
 
   logout(): Observable<void> {
