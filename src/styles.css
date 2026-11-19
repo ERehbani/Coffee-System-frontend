@@ -81,6 +81,9 @@
  *   btn-danger          Compact solid destructive button (confirm a delete or deactivation).
  *   toggle-chip         Small outlined toggle (filters, option pickers); aria-pressed="true" paints the selected state.
  *   badge               Small square-cornered tag; add the color utilities (bg-*, text-*) on the element.
+ *   badge-success       Add next to badge for a ready-made status color (active, available). Readable in both themes.
+ *   badge-warning       Add next to badge for the attention status color (sold out).
+ *   badge-neutral       Add next to badge for the muted status color (inactive, paused).
  * Page chrome
  *   toolbar             Wrapping row for search, filters and chips above a table.
  *   search-field        Relative wrapper for a search input: <div class="search-field"><app-icon name="search" [size]="14" /><input class="form-control" /></div>.
@@ -222,6 +225,18 @@
 
   .badge {
     @apply inline-flex items-center gap-1.5 rounded-md px-2 py-0.5 text-[11px] font-bold whitespace-nowrap;
+  }
+
+  .badge-success {
+    @apply bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300;
+  }
+
+  .badge-warning {
+    @apply bg-amber-100 text-amber-900 dark:bg-amber-500/20 dark:text-amber-300;
+  }
+
+  .badge-neutral {
+    @apply bg-stone-200 text-stone-700 dark:bg-stone-500/25 dark:text-stone-300;
   }
 
   .toolbar {

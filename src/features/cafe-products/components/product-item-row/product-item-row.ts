@@ -4,13 +4,11 @@ import { Icon } from '../../../../shared/components/icon/icon';
 import { ProductDto } from '../../../catalog/types/product.dto';
 
 @Component({
-  selector: 'app-product-item-card',
+  selector: 'tr[app-product-item-row]',
   imports: [DecimalPipe, Icon],
-  templateUrl: './product-item-card.html',
-  styleUrl: './product-item-card.css',
-  host: { class: 'block h-full' },
+  templateUrl: './product-item-row.html',
 })
-export class ProductItemCard {
+export class ProductItemRow {
   readonly product = input.required<ProductDto>();
 
   readonly edit = output<ProductDto>();
