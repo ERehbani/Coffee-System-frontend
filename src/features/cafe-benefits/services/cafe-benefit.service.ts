@@ -9,6 +9,7 @@ import {
   CafeBenefitCreation,
   CreateCafeBenefitRequest,
   TierOption,
+  UpdateCafeBenefitRequest,
 } from '../model/cafe-benefit.model';
 
 @Injectable({
@@ -25,21 +26,7 @@ export class CafeBenefitService {
   }
 
   create(request: CreateCafeBenefitRequest): Observable<CafeBenefitCreation> {
-    const payload = {
-      name: request.name,
-      description: request.description,
-      conditions: request.conditions || null,
-      pointsCost: request.pointsCost,
-      startDate: request.startDate,
-      endDate: request.endDate,
-      maxRedemptions: request.maxRedemptions,
-      type: request.type,
-      discountPercentage: request.discountPercentage ?? null,
-      productId: request.productId ?? null,
-      tierId: request.tierId,
-    };
-
-    return this.http.post<CafeBenefit>(this.baseUrl, payload).pipe(
+    return this.http.post<CafeBenefit>(this.baseUrl, this.toPayload(request)).pipe(
       switchMap((created) =>
         this.http.post<CafeBenefit>(`${this.baseUrl}/${created.externalId}/publish`, {}).pipe(
           map((benefit) => ({ benefit, publishError: null })),
@@ -47,6 +34,13 @@ export class CafeBenefitService {
         ),
       ),
     );
+  }
+
+  update(externalId: string, request: UpdateCafeBenefitRequest): Observable<CafeBenefit> {
+    // El PUT reemplaza el beneficio completo: sin maxPerClient se borraría el límite por cliente.
+    const payload = { ...this.toPayload(request), maxPerClient: request.maxPerClient ?? null };
+
+    return this.http.put<CafeBenefit>(`${this.baseUrl}/${externalId}`, payload);
   }
 
   getBenefitTypes(): Observable<BenefitTypeOption[]> {
@@ -74,6 +68,22 @@ export class CafeBenefitService {
         })),
       ),
     );
+  }
+
+  private toPayload(request: CreateCafeBenefitRequest) {
+    return {
+      name: request.name,
+      description: request.description,
+      conditions: request.conditions || null,
+      pointsCost: request.pointsCost,
+      startDate: request.startDate,
+      endDate: request.endDate,
+      maxRedemptions: request.maxRedemptions,
+      type: request.type,
+      discountPercentage: request.discountPercentage ?? null,
+      productId: request.productId ?? null,
+      tierId: request.tierId,
+    };
   }
 
   private formatTypeName(name: string): string {

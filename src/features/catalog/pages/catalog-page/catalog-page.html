@@ -24,36 +24,6 @@
     </p>
   </header>
 
-  @if (addErrorMessage(); as addError) {
-    <div
-      role="alert"
-      class="sticky top-4 z-30 flex items-center justify-between rounded-2xl bg-rose-700 px-4 py-3 text-sm font-semibold text-white shadow-lg animate-in fade-in slide-in-from-top-2 duration-200"
-    >
-      <span>{{ addError }}</span>
-      <button
-        type="button"
-        (click)="addErrorMessage.set(null)"
-        aria-label="Cerrar alerta"
-        class="rounded-lg p-1 text-white/80 hover:bg-white/20 hover:text-white cursor-pointer"
-      >
-        <app-icon name="x" [size]="16" />
-      </button>
-    </div>
-  } @else if (addedProductMessage(); as msg) {
-    <div class="sticky top-4 z-30 flex items-center justify-between rounded-2xl bg-emerald-700 px-4 py-3 text-sm font-semibold text-white shadow-lg animate-in fade-in slide-in-from-top-2 duration-200">
-      <span class="flex items-center gap-2">
-        {{ msg }}
-      </span>
-      <button
-        type="button"
-        (click)="addedProductMessage.set(null)"
-        class="rounded-lg p-1 text-white/80 hover:bg-white/20 hover:text-white cursor-pointer"
-      >
-        <app-icon name="x" [size]="16" />
-      </button>
-    </div>
-  }
-
   @if (selectedProduct(); as detail) {
     <app-product-detail-modal
       [product]="detail"

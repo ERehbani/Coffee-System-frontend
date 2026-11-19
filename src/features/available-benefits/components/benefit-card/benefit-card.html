@@ -67,4 +67,45 @@
       </div>
     }
   </div>
+
+  @if (phase() === 'confirming') {
+    <div role="group" [attr.aria-labelledby]="confirmId()" class="space-y-3">
+      <p [id]="confirmId()" class="text-sm font-bold text-text">
+        ¿Canjear {{ benefit().name }} por {{ benefit().pointsCost | number }} pts?
+      </p>
+      <div class="flex flex-wrap gap-2">
+        <button
+          #confirmButton
+          type="button"
+          (click)="redeemConfirmed.emit()"
+          class="inline-flex min-h-11 cursor-pointer items-center justify-center rounded-xl bg-primary px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+        >
+          Confirmar
+        </button>
+        <button
+          type="button"
+          (click)="cancel()"
+          class="inline-flex min-h-11 cursor-pointer items-center justify-center rounded-xl border border-border bg-surface px-4 py-2 text-sm font-bold text-text transition-colors hover:bg-accent-light focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+        >
+          Cancelar
+        </button>
+      </div>
+    </div>
+  } @else if (canRedeem()) {
+    <div class="flex justify-end">
+      <button
+        #activateButton
+        type="button"
+        [disabled]="locked() || phase() === 'redeeming'"
+        [attr.aria-busy]="phase() === 'redeeming' ? 'true' : null"
+        [attr.aria-label]="'Canjear ' + benefit().name"
+        (click)="redeemRequested.emit(benefit().externalId)"
+        class="inline-flex min-h-11 cursor-pointer items-center justify-center rounded-xl border border-primary px-4 py-2 text-sm font-bold text-primary transition-colors hover:bg-accent-light focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:border-border disabled:text-muted disabled:hover:bg-transparent"
+      >
+        {{ phase() === 'redeeming' ? 'Canjeando…' : 'Canjear' }}
+      </button>
+    </div>
+  } @else if (blockedReason(); as reason) {
+    <p class="text-sm font-semibold text-muted">{{ reason }}</p>
+  }
 </article>

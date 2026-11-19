@@ -6,6 +6,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { Observable, of, Subject, throwError } from 'rxjs';
 import type { Mock } from 'vitest';
+import { ToastService } from '../../../../shared/components/toast/toast.service';
 import { ProfileRepository } from '../../services/profile.repository';
 import { TierStore } from '../../services/tier.store';
 import { RedeemedBenefit, TierBenefit, TierDetail } from '../../types/profile.model';
@@ -52,6 +53,7 @@ describe('TierPage', () => {
   let redeemBenefit: Mock<(id: string) => Observable<RedeemedBenefit>>;
   let getTierBenefits: Mock<() => Observable<readonly TierBenefit[]>>;
   let getTierDetail: Mock<() => Observable<TierDetail>>;
+  let toastError: Mock;
 
   async function render() {
     await TestBed.configureTestingModule({
@@ -67,6 +69,7 @@ describe('TierPage', () => {
       ],
     }).compileComponents();
 
+    toastError = vi.spyOn(TestBed.inject(ToastService), 'error');
     fixture = TestBed.createComponent(TierPage);
     TestBed.flushEffects();
     fixture.detectChanges();
@@ -279,7 +282,7 @@ describe('TierPage', () => {
       expect(element.querySelector('[data-testid="redeem-success"]')).toBeNull();
     });
 
-    it('shows an error on the benefit and keeps the points when the redemption fails', async () => {
+    it('shows the error in a toast and keeps the points when the redemption fails', async () => {
       redeemBenefit = vi.fn(() => throwError(() => new Error('400')));
       await render();
       buttonByText('Activar', itemByName('Café de cortesía'))!.click();
@@ -288,11 +291,8 @@ describe('TierPage', () => {
       buttonByText('Confirmar')!.click();
       await settle();
 
-      expect(itemByName('Café de cortesía').textContent).toContain(
+      expect(toastError).toHaveBeenCalledExactlyOnceWith(
         'No pudimos activar este beneficio. Intentalo de nuevo.',
-      );
-      expect(itemByName('Taza de edición limitada').textContent).not.toContain(
-        'No pudimos activar',
       );
       expect(element.querySelector('[data-testid="redeem-success"]')).toBeNull();
       expect(benefitsSection().textContent).toContain('Tenés 850 pts disponibles');
@@ -320,10 +320,7 @@ describe('TierPage', () => {
       buttonByText('Confirmar')!.click();
       await settle();
 
-      expect(itemByName('Café de cortesía').textContent).toContain(
-        'Este beneficio ya no tiene canjes disponibles.',
-      );
-      expect(itemByName('Café de cortesía').textContent).not.toContain('Revisa tus puntos');
+      expect(toastError).toHaveBeenCalledExactlyOnceWith('Este beneficio ya no tiene canjes disponibles.');
     });
 
     it('closes the success message', async () => {
@@ -435,18 +432,18 @@ describe('TierPage', () => {
       expect(element.querySelector('[data-testid="redeem-success"]')).toBeNull();
     });
 
-    it('does not bring back a redemption error', async () => {
+    it('does not repeat a redemption error', async () => {
       redeemBenefit = vi.fn(() => throwError(() => new Error('400')));
       await render();
       buttonByText('Activar', itemByName('Café de cortesía'))!.click();
       await settle();
       buttonByText('Confirmar')!.click();
       await settle();
-      expect(itemByName('Café de cortesía').textContent).toContain('No pudimos');
+      expect(toastError).toHaveBeenCalledOnce();
 
       await revisit();
 
-      expect(itemByName('Café de cortesía').textContent).not.toContain('No pudimos');
+      expect(toastError).toHaveBeenCalledOnce();
     });
 
     it('shows the code of a redemption that was still in flight when the page was left', async () => {

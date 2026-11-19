@@ -95,7 +95,16 @@
     } @else {
       <div class="benefits-grid">
         @for (benefit of benefits(); track benefit.externalId) {
-          <app-available-benefit-card [benefit]="benefit" [clientTierPoints]="clientTierPoints()" />
+          <app-available-benefit-card
+            [benefit]="benefit"
+            [clientTierPoints]="clientTierPoints()"
+            [availablePoints]="availablePoints()"
+            [phase]="phaseOf(benefit.externalId)"
+            [locked]="redeemTarget()?.phase === 'redeeming'"
+            (redeemRequested)="requestRedeem($event)"
+            (redeemConfirmed)="confirmRedeem()"
+            (redeemCancelled)="cancelRedeem()"
+          />
         } @empty {
           <div class="col-span-full rounded-2xl border border-dashed border-border bg-surface p-12 text-center">
             <h3 class="text-base font-bold text-text">No encontramos beneficios</h3>

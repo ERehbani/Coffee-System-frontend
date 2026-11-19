@@ -63,4 +63,40 @@ describe('CafeBenefitService', () => {
     expect(publish.request.method).toBe('POST');
     publish.flush({ externalId: 'benefit-1' });
   });
+
+  it('updates the benefit keeping its limit per client', () => {
+    service
+      .update('benefit-1', {
+        name: '2x1 Espresso',
+        description: 'Dos por uno',
+        conditions: '',
+        pointsCost: 120,
+        startDate: '2026-11-15',
+        endDate: '2026-12-15',
+        maxRedemptions: 20,
+        type: 'DOS_POR_UNO',
+        productId: 'product-espresso',
+        tierId: 'tier-bronce',
+        maxPerClient: 2,
+      })
+      .subscribe();
+
+    const req = http.expectOne(`${environment.apiBaseUrl}/benefits/benefit-1`);
+    expect(req.request.method).toBe('PUT');
+    expect(req.request.body).toEqual({
+      name: '2x1 Espresso',
+      description: 'Dos por uno',
+      conditions: null,
+      pointsCost: 120,
+      startDate: '2026-11-15',
+      endDate: '2026-12-15',
+      maxRedemptions: 20,
+      type: 'DOS_POR_UNO',
+      discountPercentage: null,
+      productId: 'product-espresso',
+      tierId: 'tier-bronce',
+      maxPerClient: 2,
+    });
+    req.flush({ externalId: 'benefit-1' });
+  });
 });

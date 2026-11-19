@@ -39,6 +39,14 @@
         </div>
         <h3 class="text-base font-bold text-text">{{ benefit().name }}</h3>
       </div>
+      <button
+        type="button"
+        (click)="edit.emit(benefit())"
+        [attr.aria-label]="'Editar promoción ' + benefit().name"
+        class="cursor-pointer shrink-0 rounded-lg border border-border px-2.5 py-1 text-xs font-bold text-text transition hover:border-primary active:scale-95 select-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+      >
+        Editar
+      </button>
     </div>
 
     <p class="text-xs text-muted leading-relaxed">{{ benefit().description }}</p>
@@ -70,7 +78,7 @@
       </span>
     </div>
     <div class="flex items-center gap-1.5">
-      <span>Cupo: {{ benefit().maxRedemptions }} canjes</span>
+      <span>Cupo: {{ benefit().maxRedemptions === null ? 'sin límite' : benefit().maxRedemptions + ' canjes' }}</span>
     </div>
   </div>
 </article>

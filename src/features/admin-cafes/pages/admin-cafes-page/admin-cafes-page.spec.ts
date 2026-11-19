@@ -21,6 +21,7 @@ describe('AdminCafesPage', () => {
       description: 'Café de especialidad',
       state: true,
       openNow: true,
+      logo: 'https://res.cloudinary.com/demo/aroma.png',
       openingHours: [{ day: 'MONDAY', opensAt: '08:00', closesAt: '20:00' }],
     },
     {
@@ -74,6 +75,28 @@ describe('AdminCafesPage', () => {
 
     expect(rows[1].textContent).toContain('Café Luna');
     expect(rows[1].textContent).toContain('Inactiva');
+  });
+
+  it('muestra el logo de la cafetería en la fila y el ícono cuando no tiene', () => {
+    const rows = (fixture.nativeElement as HTMLElement).querySelectorAll('tbody tr');
+
+    expect(rows[0].querySelector('img')?.getAttribute('src')).toBe('https://res.cloudinary.com/demo/aroma.png');
+    expect(rows[1].querySelector('img')).toBeNull();
+    expect(rows[1].querySelector('app-icon')).not.toBeNull();
+  });
+
+  it('muestra el logo en el detalle sólo cuando la cafetería tiene uno', () => {
+    const compiled = fixture.nativeElement as HTMLElement;
+    const logoInDetail = () => compiled.querySelector('[role="dialog"] img');
+
+    component.openDetail(mockCafes[0]);
+    fixture.detectChanges();
+    expect(logoInDetail()?.getAttribute('src')).toBe('https://res.cloudinary.com/demo/aroma.png');
+    expect(logoInDetail()?.getAttribute('alt')).toBe('Logo de Café Aroma');
+
+    component.openDetail(mockCafes[1]);
+    fixture.detectChanges();
+    expect(logoInDetail()).toBeNull();
   });
 
   it('el filtro «Inactivas» deja sólo las de state: false', () => {

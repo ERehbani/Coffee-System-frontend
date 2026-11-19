@@ -15,7 +15,6 @@ export class PurchaseCard {
   readonly purchase = input.required<Purchase>();
   readonly isReviewing = input(false);
   readonly isSubmitting = input(false);
-  readonly reviewError = input<string | null>(null);
 
   readonly reviewRequested = output<void>();
   readonly reviewCancelled = output<void>();

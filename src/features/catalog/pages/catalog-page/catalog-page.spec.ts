@@ -5,6 +5,7 @@ import { provideRouter } from '@angular/router';
 import { Observable, of, Subject, throwError } from 'rxjs';
 import type { Mock } from 'vitest';
 import { CartService } from '../../../cart/services/cart.service';
+import { ToastService } from '../../../../shared/components/toast/toast.service';
 import { Cafe } from '../../../home/model/cafe.model';
 import { CafeService } from '../../../home/services/cafe.service';
 import {
@@ -87,13 +88,29 @@ describe('CatalogPage', () => {
   it('adds a product of the selected cafe to the cart', () => {
     const fixture = render();
     const cart = TestBed.inject(CartService);
+    const success = vi.spyOn(TestBed.inject(ToastService), 'success');
 
     fixture.componentInstance.onAddToOrder(ESPRESSO_FIXTURE);
 
     expect(cart.items().map((item) => item.product.externalId)).toEqual([
       ESPRESSO_FIXTURE.externalId,
     ]);
-    expect(fixture.componentInstance.addedProductMessage()).toContain('Espresso Doble');
+    expect(success).toHaveBeenCalledWith('¡Espresso Doble agregado al carrito!');
+  });
+
+  it('tells the client when the cart rejects the product', () => {
+    const fixture = render();
+    const error = vi.spyOn(TestBed.inject(ToastService), 'error');
+    vi.spyOn(TestBed.inject(CartService), 'addProduct').mockImplementation(
+      (_product, _cafe, onRejected) => {
+        onRejected?.('Sin stock.');
+        return false;
+      },
+    );
+
+    fixture.componentInstance.onAddToOrder(ESPRESSO_FIXTURE);
+
+    expect(error).toHaveBeenCalledWith('No pudimos agregar Espresso Doble al carrito. Sin stock.');
   });
 
   it('does not show a rating the backend did not send', () => {

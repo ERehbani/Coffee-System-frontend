@@ -47,6 +47,7 @@ describe('CafeBenefits', () => {
       getBenefitTypes: vi.fn(() => of([])),
       getTiers: vi.fn(() => of([])),
       create: vi.fn(() => of({ benefit, publishError: null })),
+      update: vi.fn(() => of({ ...benefit, name: 'Espresso 2x1' })),
     };
     productService = {
       getMyCafeId: vi.fn(() => of(PRODUCT_CAFE_ID)),
@@ -90,5 +91,85 @@ describe('CafeBenefits', () => {
     component.onSaveBenefit(request);
 
     expect(component.errorMessage()).toBe('Un beneficio de producto necesita un producto de la cafetería');
+  });
+
+  describe('editing', () => {
+    const withLimit: CafeBenefit = { ...benefit, maxPerClient: 3 };
+
+    beforeEach(() => {
+      benefitService['getAll'].mockReturnValue(of([withLimit]));
+    });
+
+    it('opens the form pre-filled from the "Editar" button of a card', () => {
+      const fixture = render();
+      const root = fixture.nativeElement as HTMLElement;
+
+      root.querySelector<HTMLButtonElement>('app-benefit-card button')!.click();
+      fixture.detectChanges();
+
+      expect(fixture.componentInstance.editingBenefit()).toEqual(withLimit);
+      expect(root.querySelector('app-benefit-form h2')?.textContent?.trim()).toBe('Editar Promoción');
+      expect(root.querySelector<HTMLInputElement>('#benefit-name')?.value).toBe('2x1 Espresso');
+    });
+
+    it('replaces the benefit in the list keeping its limit per client', () => {
+      const component = render().componentInstance;
+      component.onEditBenefit(withLimit);
+
+      component.onSaveBenefit(request);
+
+      expect(benefitService['update']).toHaveBeenCalledWith('benefit-1', { ...request, maxPerClient: 3 });
+      expect(benefitService['create']).not.toHaveBeenCalled();
+      expect(component.benefits().map((b) => b.name)).toEqual(['Espresso 2x1']);
+      expect(component.showForm()).toBe(false);
+      expect(component.editingBenefit()).toBeNull();
+      expect(component.successMessage()).toBe('¡Promoción actualizada exitosamente!');
+    });
+
+    it('keeps the form open and shows the detail of the backend when the update is rejected', () => {
+      benefitService['update'].mockReturnValue(
+        throwError(
+          () =>
+            new HttpErrorResponse({
+              status: 422,
+              error: { detail: 'El límite no puede ser menor que los canjes ya realizados' },
+            }),
+        ),
+      );
+      const component = render().componentInstance;
+      component.onEditBenefit(withLimit);
+
+      component.onSaveBenefit(request);
+
+      expect(component.errorMessage()).toBe('El límite no puede ser menor que los canjes ya realizados');
+      expect(component.showForm()).toBe(true);
+      expect(component.editingBenefit()).toEqual(withLimit);
+      expect(component.benefits()).toEqual([withLimit]);
+    });
+
+    it('drops the error of a failed update when the form is cancelled', () => {
+      benefitService['update'].mockReturnValue(
+        throwError(() => new HttpErrorResponse({ status: 422, error: { detail: 'Datos inválidos' } })),
+      );
+      const component = render().componentInstance;
+      component.onEditBenefit(withLimit);
+      component.onSaveBenefit(request);
+      expect(component.errorMessage()).toBe('Datos inválidos');
+
+      component.closeForm();
+
+      expect(component.errorMessage()).toBeNull();
+    });
+
+    it('goes back to creating after closing the form', () => {
+      const component = render().componentInstance;
+      component.onEditBenefit(withLimit);
+
+      component.closeForm();
+      component.onSaveBenefit(request);
+
+      expect(benefitService['create']).toHaveBeenCalledWith(request);
+      expect(benefitService['update']).not.toHaveBeenCalled();
+    });
   });
 });

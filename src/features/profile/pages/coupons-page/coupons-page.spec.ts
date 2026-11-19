@@ -106,6 +106,21 @@ describe('CouponsPage', () => {
     expect(element.querySelector('app-coupon-item')).toBeNull();
   });
 
+  it('fetches once on the first visit and reloads the list when the page is opened again', async () => {
+    let calls = 0;
+    await render(() => {
+      calls++;
+      return of(dashboardWith(coupons));
+    });
+    expect(calls).toBe(1);
+
+    fixture = TestBed.createComponent(CouponsPage);
+    TestBed.flushEffects();
+    await fixture.whenStable();
+
+    expect(calls).toBe(2);
+  });
+
   it('shows an error and reloads the dashboard when "Reintentar" is clicked', async () => {
     let calls = 0;
     await render(() =>

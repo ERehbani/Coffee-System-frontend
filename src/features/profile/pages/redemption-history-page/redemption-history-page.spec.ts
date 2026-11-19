@@ -125,6 +125,21 @@ describe('RedemptionHistoryPage', () => {
     );
   });
 
+  it('fetches once on the first visit and reloads the history when the page is opened again', async () => {
+    let calls = 0;
+    await render(() => {
+      calls++;
+      return of(usedBenefits);
+    });
+    expect(calls).toBe(1);
+
+    fixture = TestBed.createComponent(RedemptionHistoryPage);
+    TestBed.flushEffects();
+    await fixture.whenStable();
+
+    expect(calls).toBe(2);
+  });
+
   it('reloads the history when "Reintentar" is clicked', async () => {
     let calls = 0;
     await render(() => (++calls === 1 ? throwError(() => new Error('500')) : of(usedBenefits)));

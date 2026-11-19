@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { of } from 'rxjs';
+import { ToastService } from '../../../../shared/components/toast/toast.service';
 import { ProfileRepository } from '../../services/profile.repository';
 import { ProfileStore } from '../../services/profile.store';
 import { ClientProfile, ProfileDashboard, UpdateClientProfileInput } from '../../types/profile.model';
@@ -69,7 +70,8 @@ describe('ProfileEditPage', () => {
     expect(formElement).not.toBeNull();
   });
 
-  it('should show success notification and update profile on save', () => {
+  it('should show a success toast and update profile on save', () => {
+    const success = vi.spyOn(TestBed.inject(ToastService), 'success');
     const updateInput: UpdateClientProfileInput = {
       firstName: 'Ana',
       lastName: 'Silva',
@@ -80,10 +82,11 @@ describe('ProfileEditPage', () => {
     component['onSave'](updateInput);
     fixture.detectChanges();
 
-    expect(store.successMessage()).toBe('¡Tus datos personales se han actualizado correctamente!');
-    const successBanner = fixture.nativeElement.querySelector('[role="status"]');
-    expect(successBanner).not.toBeNull();
-    expect(successBanner.textContent).toContain('actualizado correctamente');
+    expect(success).toHaveBeenCalledWith('¡Tus datos personales se han actualizado correctamente!', {
+      label: 'Ver en perfil',
+      route: '/profile',
+    });
+    expect(store.profile()?.firstName).toBe('Ana');
   });
 
   it('should navigate to /profile on cancel', () => {

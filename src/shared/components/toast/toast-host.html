@@ -1,0 +1,32 @@
+<div
+  class="pointer-events-none fixed inset-x-0 top-0 z-[60] mx-auto flex max-w-md flex-col gap-2 px-4 pt-[calc(env(safe-area-inset-top)+0.75rem)]"
+>
+  @for (toast of toastService.toasts(); track toast.id) {
+    <div
+      [attr.role]="toast.kind === 'error' ? 'alert' : 'status'"
+      animate.enter="toast-enter"
+      animate.leave="toast-leave"
+      class="pointer-events-auto flex items-center gap-3 rounded-2xl border px-4 py-3 text-sm font-bold shadow-lg"
+      [class]="tone[toast.kind]"
+    >
+      <p class="min-w-0 flex-1">{{ toast.message }}</p>
+      @if (toast.action; as action) {
+        <a
+          [routerLink]="action.route"
+          (click)="toastService.dismiss(toast.id)"
+          class="shrink-0 rounded-lg px-2 py-1 underline hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
+        >
+          {{ action.label }}
+        </a>
+      }
+      <button
+        type="button"
+        (click)="toastService.dismiss(toast.id)"
+        aria-label="Cerrar"
+        class="shrink-0 cursor-pointer rounded-lg p-1 hover:bg-black/5 active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
+      >
+        <app-icon name="x" [size]="16" />
+      </button>
+    </div>
+  }
+</div>

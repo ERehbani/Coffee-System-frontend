@@ -1,5 +1,6 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { map, Subscription, switchMap } from 'rxjs';
+import { ToastService } from '../../../shared/components/toast/toast.service';
 import { CartService } from '../../cart/services/cart.service';
 import { CheckoutSummary, ConfirmedOrder, ServerCart } from '../types/checkout.model';
 import {
@@ -28,11 +29,11 @@ function toMatchingCartId(summary: CheckoutSummary, cart: ServerCart): string {
 export class CheckoutStore {
   private readonly repository = inject(CheckoutRepository);
   private readonly cart = inject(CartService);
+  private readonly toast = inject(ToastService);
   private couponsRequest: Subscription | null = null;
   private cartRequest: Subscription | null = null;
 
   readonly status = signal<CheckoutStatus>('idle');
-  readonly errorMessage = signal<string | null>(null);
   readonly confirmedOrder = signal<ConfirmedOrder | null>(null);
 
   readonly couponsStatus = signal<CouponsStatus>('loading');
@@ -70,14 +71,12 @@ export class CheckoutStore {
 
   startCheckout(): void {
     this.status.set('idle');
-    this.errorMessage.set(null);
     this.selectedCouponId.set(null);
     this.loadCoupons();
   }
 
   selectCoupon(couponId: string | null): void {
     this.selectedCouponId.set(couponId);
-    this.errorMessage.set(null);
   }
 
   confirm(onSuccess: () => void, validationCode?: string): void {
@@ -88,7 +87,6 @@ export class CheckoutStore {
 
     const couponCode = validationCode ?? this.selectedCoupon()?.validationCode;
     this.status.set('confirming');
-    this.errorMessage.set(null);
 
     this.repository
       .findCart(summary.cafeId)
@@ -105,7 +103,7 @@ export class CheckoutStore {
         },
         error: (error: unknown) => {
           this.status.set('idle');
-          this.errorMessage.set(toCheckoutErrorMessage(error));
+          this.toast.error(toCheckoutErrorMessage(error));
         },
       });
   }

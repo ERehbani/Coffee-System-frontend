@@ -45,7 +45,7 @@ export class TierBenefitItem {
       }
     });
     afterRenderEffect(() => {
-      if (this.benefit().errorMessage) {
+      if (this.benefit().failed) {
         this.activateButton()?.nativeElement.focus();
       }
     });
