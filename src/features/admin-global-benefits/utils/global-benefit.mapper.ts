@@ -61,6 +61,7 @@ export function toGlobalBenefit(dto: GlobalBenefitDto): GlobalBenefit {
     catalogProductId: dto.catalogProductId ?? undefined,
     productName: dto.productName ?? undefined,
     termsAndConditions: dto.conditions ?? '',
+    image: dto.image ?? undefined,
     createdAt: today,
   };
 }
@@ -82,6 +83,7 @@ function toRequestDto(input: CreateGlobalBenefitInput): BenefitCreateRequestDto 
     cafeId: null,
     tierId: resolveTierId(input.tier, input.tierId),
     conditions: input.termsAndConditions?.trim() || null,
+    image: input.image?.trim() || null,
   };
 }
 

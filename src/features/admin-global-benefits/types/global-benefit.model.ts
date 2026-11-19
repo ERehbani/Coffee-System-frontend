@@ -42,6 +42,7 @@ export interface GlobalBenefit {
   readonly catalogProductId?: string;
   readonly productName?: string;
   readonly termsAndConditions?: string;
+  readonly image?: string;
   readonly createdAt: string;
   readonly updatedAt?: string;
 }
@@ -61,6 +62,7 @@ export interface CreateGlobalBenefitInput {
   readonly status: boolean;
   readonly isPublic: boolean;
   readonly termsAndConditions?: string;
+  readonly image?: string;
 }
 
 export interface UpdateGlobalBenefitInput extends CreateGlobalBenefitInput {
@@ -96,6 +98,7 @@ export interface GlobalBenefitDto {
   readonly catalogProductId?: string | null;
   readonly productName?: string | null;
   readonly conditions?: string | null;
+  readonly image?: string | null;
 }
 
 export interface BenefitCreateRequestDto {
@@ -111,6 +114,7 @@ export interface BenefitCreateRequestDto {
   readonly cafeId: null;
   readonly tierId: string;
   readonly conditions: string | null;
+  readonly image: string | null;
 }
 
 export interface BenefitUpdateRequestDto {
@@ -126,6 +130,8 @@ export interface BenefitUpdateRequestDto {
   readonly cafeId: null;
   readonly tierId: string;
   readonly conditions: string | null;
+  // PUT replaces the whole benefit, so this carries the current image on every update or the backend clears it.
+  readonly image: string | null;
 }
 
 export interface NewEndDateRequestDto {
