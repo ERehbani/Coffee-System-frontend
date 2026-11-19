@@ -1,8 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { provideRouter } from '@angular/router';
-import { of } from 'rxjs';
-import { Cafe } from '../../../home/model/cafe.model';
+import { HttpErrorResponse } from '@angular/common/http';
+import { of, throwError } from 'rxjs';
+import { Cafe, UpdateCafeRequest } from '../../../home/model/cafe.model';
 import { CafeService } from '../../../home/services/cafe.service';
 import { CafeRegisterModal } from '../../components/cafe-register-modal/cafe-register-modal';
 import { AdminCafesPage } from './admin-cafes-page';
@@ -44,6 +45,13 @@ describe('AdminCafesPage', () => {
     ),
     register: vi.fn().mockReturnValue(
       of({ externalId: 'cafe-3', email: 'nuevo@cafe.com', state: true })
+    ),
+    update: vi.fn().mockImplementation((id: string, request: UpdateCafeRequest) =>
+      of({ ...mockCafes.find((c) => c.externalId === id)!, ...request })
+    ),
+    deactivate: vi.fn().mockReturnValue(of(undefined)),
+    reactivate: vi.fn().mockImplementation((id: string) =>
+      of({ ...mockCafes.find((c) => c.externalId === id)!, state: true })
     ),
   };
 
@@ -160,6 +168,83 @@ describe('AdminCafesPage', () => {
     expect(emailInputAfter.value).toBe('');
     expect(modalComponent.attemptedSubmit()).toBe(false);
     expect(modalComponent.cafeModel().name).toBe('');
+  });
+
+  describe('desactivar, reactivar y editar', () => {
+    beforeEach(() => vi.clearAllMocks());
+
+    const buttonWithText = (text: string) =>
+      Array.from((fixture.nativeElement as HTMLElement).querySelectorAll<HTMLButtonElement>('[role="dialog"] button')).find(
+        (button) => button.textContent?.trim() === text,
+      );
+
+    it('pide confirmación y, al desactivar, muestra la cafetería como inactiva', () => {
+      component.openDetail(mockCafes[0]);
+      fixture.detectChanges();
+
+      buttonWithText('Desactivar')!.click();
+      fixture.detectChanges();
+      expect(fixture.nativeElement.querySelector('[data-testid="deactivation-warning"]')).not.toBeNull();
+      expect(mockCafeService.deactivate).not.toHaveBeenCalled();
+
+      buttonWithText('Sí, desactivar')!.click();
+      fixture.detectChanges();
+
+      expect(mockCafeService.deactivate).toHaveBeenCalledWith('cafe-1');
+      expect(component.cafes().find((c) => c.externalId === 'cafe-1')?.state).toBe(false);
+      expect(component.selectedCafe()?.state).toBe(false);
+      expect(buttonWithText('Reactivar')).toBeTruthy();
+    });
+
+    it('reactiva una cafetería inactiva', () => {
+      component.openDetail(mockCafes[1]);
+      fixture.detectChanges();
+
+      buttonWithText('Reactivar')!.click();
+      fixture.detectChanges();
+
+      expect(mockCafeService.reactivate).toHaveBeenCalledWith('cafe-2');
+      expect(component.cafes().find((c) => c.externalId === 'cafe-2')?.state).toBe(true);
+      expect(component.feedbackMessage()?.type).toBe('success');
+    });
+
+    it('explica en español por qué no pudo desactivar, sin repetir el texto del backend', () => {
+      mockCafeService.deactivate.mockReturnValueOnce(
+        throwError(() => new HttpErrorResponse({ status: 404, error: { detail: 'Cafe not found' } }))
+      );
+
+      component.onDeactivateCafe(mockCafes[0]);
+
+      expect(component.feedbackMessage()).toEqual({
+        type: 'error',
+        text: 'La cafetería ya no existe. Recargá la página.',
+      });
+      expect(component.busyCafeId()).toBeNull();
+    });
+
+    it('abre la edición desde el detalle y guarda los cambios en el listado', () => {
+      component.openDetail(mockCafes[0]);
+      fixture.detectChanges();
+
+      buttonWithText('Editar')!.click();
+      fixture.detectChanges();
+      expect(component.selectedCafe()).toBeNull();
+      expect(component.editingCafe()?.externalId).toBe('cafe-1');
+
+      component.onUpdateCafe({
+        name: 'Café Aroma Palermo',
+        address: 'Calle San Martín 100',
+        phoneNumber: null,
+        description: null,
+        logo: 'https://res.cloudinary.com/demo/aroma.png',
+        image: null,
+      });
+      fixture.detectChanges();
+
+      expect(component.cafes()[0].name).toBe('Café Aroma Palermo');
+      expect(component.editingCafe()).toBeNull();
+      expect(component.feedbackMessage()?.text).toContain('Café Aroma Palermo');
+    });
   });
 });
 
