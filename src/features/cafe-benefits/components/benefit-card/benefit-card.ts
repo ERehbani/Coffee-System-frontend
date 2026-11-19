@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, computed, input, output } from '@angular/core';
+import { Component, computed, input, output, signal } from '@angular/core';
 import { CafeBenefit } from '../../model/cafe-benefit.model';
 
 @Component({
@@ -11,7 +11,13 @@ import { CafeBenefit } from '../../model/cafe-benefit.model';
 })
 export class BenefitCard {
   readonly benefit = input.required<CafeBenefit>();
+  readonly busy = input(false);
   readonly edit = output<CafeBenefit>();
+  readonly pause = output<CafeBenefit>();
+  readonly resume = output<CafeBenefit>();
+  readonly remove = output<CafeBenefit>();
+
+  readonly isConfirmingRemoval = signal(false);
 
   tierBadgeClass = computed(() => {
     const tier = this.benefit().tierName?.toUpperCase().trim();
@@ -36,5 +42,17 @@ export class BenefitCard {
     }
     return raw.charAt(0).toUpperCase() + raw.slice(1).toLowerCase();
   });
-}
 
+  askRemoval(): void {
+    this.isConfirmingRemoval.set(true);
+  }
+
+  cancelRemoval(): void {
+    this.isConfirmingRemoval.set(false);
+  }
+
+  confirmRemoval(): void {
+    this.isConfirmingRemoval.set(false);
+    this.remove.emit(this.benefit());
+  }
+}

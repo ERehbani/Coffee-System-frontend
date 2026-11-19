@@ -99,4 +99,28 @@ describe('CafeBenefitService', () => {
     });
     req.flush({ externalId: 'benefit-1' });
   });
+
+  it('pauses the benefit through the cancel endpoint of the backend', () => {
+    service.pause('benefit-1').subscribe();
+
+    const req = http.expectOne(`${environment.apiBaseUrl}/benefits/benefit-1/cancel`);
+    expect(req.request.method).toBe('POST');
+    req.flush({ externalId: 'benefit-1', status: false });
+  });
+
+  it('resumes the benefit by publishing it again', () => {
+    service.resume('benefit-1').subscribe();
+
+    const req = http.expectOne(`${environment.apiBaseUrl}/benefits/benefit-1/publish`);
+    expect(req.request.method).toBe('POST');
+    req.flush({ externalId: 'benefit-1', status: true });
+  });
+
+  it('deletes the benefit', () => {
+    service.delete('benefit-1').subscribe();
+
+    const req = http.expectOne(`${environment.apiBaseUrl}/benefits/benefit-1`);
+    expect(req.request.method).toBe('DELETE');
+    req.flush(null, { status: 204, statusText: 'No Content' });
+  });
 });

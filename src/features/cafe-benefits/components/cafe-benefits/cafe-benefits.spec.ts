@@ -48,6 +48,9 @@ describe('CafeBenefits', () => {
       getTiers: vi.fn(() => of([])),
       create: vi.fn(() => of({ benefit, publishError: null })),
       update: vi.fn(() => of({ ...benefit, name: 'Espresso 2x1' })),
+      pause: vi.fn(() => of({ ...benefit, status: false, isPublic: false })),
+      resume: vi.fn(() => of({ ...benefit, status: true, isPublic: true })),
+      delete: vi.fn(() => of(undefined)),
     };
     productService = {
       getMyCafeId: vi.fn(() => of(PRODUCT_CAFE_ID)),
@@ -170,6 +173,78 @@ describe('CafeBenefits', () => {
 
       expect(benefitService['create']).toHaveBeenCalledWith(request);
       expect(benefitService['update']).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('pause, resume and delete', () => {
+    beforeEach(() => benefitService['getAll'].mockReturnValue(of([benefit])));
+
+    it('shows the benefit as paused once the backend confirms it', () => {
+      const component = render().componentInstance;
+
+      component.onPauseBenefit(benefit);
+
+      expect(benefitService['pause']).toHaveBeenCalledWith('benefit-1');
+      expect(component.benefits()[0].status).toBe(false);
+      expect(component.successMessage()).toContain('Pausaste la promoción');
+      expect(component.busyBenefitId()).toBeNull();
+    });
+
+    it('shows the benefit as active again after resuming it', () => {
+      benefitService['getAll'].mockReturnValue(of([{ ...benefit, status: false }]));
+      const component = render().componentInstance;
+
+      component.onResumeBenefit({ ...benefit, status: false });
+
+      expect(benefitService['resume']).toHaveBeenCalledWith('benefit-1');
+      expect(component.benefits()[0].status).toBe(true);
+    });
+
+    it('removes the deleted benefit from the list', () => {
+      const component = render().componentInstance;
+
+      component.onRemoveBenefit(benefit);
+
+      expect(benefitService['delete']).toHaveBeenCalledWith('benefit-1');
+      expect(component.benefits()).toEqual([]);
+      expect(component.successMessage()).toBe('Eliminaste la promoción.');
+    });
+
+    it('keeps the benefit and explains why when the backend refuses to delete it', () => {
+      benefitService['delete'].mockReturnValue(
+        throwError(
+          () =>
+            new HttpErrorResponse({
+              status: 422,
+              error: { detail: 'Este beneficio ya tiene canjes y no se puede eliminar. Pausalo para que no se pueda canjear más' },
+            }),
+        ),
+      );
+      const component = render().componentInstance;
+
+      component.onRemoveBenefit(benefit);
+
+      expect(component.benefits()).toEqual([benefit]);
+      expect(component.errorMessage()).toContain('Pausalo');
+      expect(component.busyBenefitId()).toBeNull();
+    });
+
+    it('explains a failed pause in Spanish instead of repeating the text of the backend', () => {
+      benefitService['pause'].mockReturnValue(
+        throwError(
+          () =>
+            new HttpErrorResponse({
+              status: 403,
+              error: { detail: 'You can only manage resources of your own cafe' },
+            }),
+        ),
+      );
+      const component = render().componentInstance;
+
+      component.onPauseBenefit(benefit);
+
+      expect(component.errorMessage()).toBe('Esta promoción no es de tu cafetería.');
+      expect(component.benefits()[0].status).toBe(true);
     });
   });
 });
