@@ -159,5 +159,17 @@ describe('CartService', () => {
       expect(request.request.method).toBe('DELETE');
       request.flush(null);
     });
+
+    it('gives the products back when the backend cannot empty the cart', () => {
+      service.items.set([{ product: ESPRESSO_FIXTURE, quantity: 2 }]);
+      service.cafe.set({ externalId: 'cafe-central-001', name: 'Cafe Central' });
+      vi.spyOn(console, 'error').mockImplementation(() => undefined);
+
+      service.clear();
+      http.expectOne(`${CARTS_URL}/clear`).flush(null, { status: 500, statusText: 'Server Error' });
+
+      expect(service.items()).toEqual([{ product: ESPRESSO_FIXTURE, quantity: 2 }]);
+      expect(service.cafe()?.name).toBe('Cafe Central');
+    });
   });
 });

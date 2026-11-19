@@ -144,10 +144,15 @@ export class CartService {
   }
 
   clear(): void {
+    const previousItems = this.items();
+    const previousCafe = this.cafe();
     this.clearLocal();
 
     this.http.delete<void>(`${this.url}/clear`).subscribe({
-      error: (error) => console.error('Error al vaciar el carrito:', error),
+      error: (error) => {
+        console.error('Error al vaciar el carrito:', error);
+        this.restore(previousItems, previousCafe);
+      },
     });
   }
 
