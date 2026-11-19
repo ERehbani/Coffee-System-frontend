@@ -1,7 +1,7 @@
 import {
   Component,
   ElementRef,
-  afterRenderEffect,
+  afterNextRender,
   computed,
   effect,
   inject,
@@ -12,6 +12,7 @@ import {
 } from '@angular/core';
 import { FormField, form, max, maxLength, min, minLength, required } from '@angular/forms/signals';
 import { Icon } from '../../../../shared/components/icon/icon';
+import { ImageInput } from '../../../../shared/components/image-input/image-input';
 import { toLocalIsoDate } from '../../../../shared/utils/local-date';
 import {
   BenefitType,
@@ -35,14 +36,16 @@ interface BenefitFormModel {
   type: BenefitType | '';
   productId: string;
   tierId: string;
+  image: string;
 }
 
+// The host is a flex column so a parent with a fixed height (the benefits modal) can scroll the body of the form.
 @Component({
   selector: 'app-benefit-form',
-  imports: [FormField, Icon],
+  imports: [FormField, Icon, ImageInput],
   templateUrl: './benefit-form.html',
   styleUrl: './benefit-form.css',
-  host: { class: 'block' },
+  host: { class: 'flex min-h-0 flex-1 flex-col' },
 })
 export class BenefitForm {
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
@@ -91,6 +94,7 @@ export class BenefitForm {
         type: benefit.benefitType ?? '',
         productId: benefit.productId ?? '',
         tierId: benefit.tierId ?? '',
+        image: benefit.image ?? '',
       };
     }
     return {
@@ -105,10 +109,12 @@ export class BenefitForm {
       type: '',
       productId: '',
       tierId: '',
+      image: '',
     };
   });
 
   attemptedSubmit = signal(false);
+  imageUploading = signal(false);
 
   benefitForm = form(this.formModel, (f) => {
     required(f.name, { message: 'El nombre de la promoción es obligatorio.' });
@@ -136,6 +142,8 @@ export class BenefitForm {
       when: () => !this.allowsNoLimit(),
     });
     min(f.maxRedemptions, 1, { message: 'Debe permitir al menos 1 canje.' });
+
+    maxLength(f.image, 500, { message: 'La URL de la imagen no puede superar los 500 caracteres.' });
   });
 
   isDiscountCode = computed(() => this.formModel().type === 'CODIGO_DESCUENTO');
@@ -174,6 +182,7 @@ export class BenefitForm {
     return this.benefitForm.discountPercentage().errors()[0]?.message ?? null;
   });
   maxRedemptionsError = computed(() => this.benefitForm.maxRedemptions().errors()[0]?.message ?? null);
+  imageError = computed(() => this.benefitForm.image().errors()[0]?.message ?? null);
 
   typeError = computed(() => {
     if (!this.formModel().type) {
@@ -207,6 +216,7 @@ export class BenefitForm {
       !this.startDateError() &&
       !this.endDateError() &&
       !this.maxRedemptionsError() &&
+      !this.imageError() &&
       costOrDiscountValid &&
       !this.typeError() &&
       !this.productError() &&
@@ -233,12 +243,8 @@ export class BenefitForm {
       }
     });
 
-    // El formulario queda arriba de la lista: al editar se lleva el foco (y la vista) al primer campo.
-    afterRenderEffect(() => {
-      if (this.benefit()) {
-        this.host.nativeElement.querySelector<HTMLInputElement>('#benefit-name')?.focus();
-      }
-    });
+    // Al abrirse el formulario (en el diálogo de promociones o en el onboarding) el foco va al primer campo.
+    afterNextRender(() => this.host.nativeElement.querySelector<HTMLInputElement>('#benefit-name')?.focus());
   }
 
   onTypeChange(value: BenefitType): void {
@@ -264,7 +270,7 @@ export class BenefitForm {
     event.preventDefault();
     this.attemptedSubmit.set(true);
 
-    if (!this.isFormValid() || this.isSaving()) {
+    if (!this.isFormValid() || this.isSaving() || this.imageUploading()) {
       return;
     }
 
@@ -285,6 +291,7 @@ export class BenefitForm {
       type: model.type,
       productId: this.needsProduct() ? model.productId : null,
       tierId: model.tierId,
+      image: model.image.trim() || null,
     });
   }
 

@@ -1,15 +1,14 @@
 import { DatePipe } from '@angular/common';
 import { Component, computed, input, output, signal } from '@angular/core';
+import { Icon } from '../../../../shared/components/icon/icon';
 import { CafeBenefit } from '../../model/cafe-benefit.model';
 
 @Component({
-  selector: 'app-benefit-card',
-  imports: [DatePipe],
-  templateUrl: './benefit-card.html',
-  styleUrl: './benefit-card.css',
-  host: { class: 'block' },
+  selector: 'tr[app-benefit-row]',
+  imports: [DatePipe, Icon],
+  templateUrl: './benefit-row.html',
 })
-export class BenefitCard {
+export class BenefitRow {
   readonly benefit = input.required<CafeBenefit>();
   readonly busy = input(false);
   readonly edit = output<CafeBenefit>();
@@ -23,15 +22,15 @@ export class BenefitCard {
     const tier = this.benefit().tierName?.toUpperCase().trim();
     switch (tier) {
       case 'BRONCE':
-        return 'bg-amber-100 text-amber-900 border-amber-300';
+        return 'bg-amber-100 text-amber-900 dark:bg-amber-500/20 dark:text-amber-300';
       case 'PLATA':
-        return 'bg-slate-100 text-slate-700 border-slate-300';
+        return 'bg-slate-200 text-slate-800 dark:bg-slate-400/20 dark:text-slate-200';
       case 'ORO':
-        return 'bg-yellow-100 text-yellow-900 border-yellow-300';
+        return 'bg-yellow-100 text-yellow-900 dark:bg-yellow-500/20 dark:text-yellow-300';
       case 'DIAMANTE':
-        return 'bg-cyan-100 text-cyan-900 border-cyan-300';
+        return 'bg-cyan-100 text-cyan-900 dark:bg-cyan-500/20 dark:text-cyan-300';
       default:
-        return 'bg-stone-100 text-stone-700 border-stone-200';
+        return 'bg-stone-200 text-stone-800 dark:bg-stone-500/25 dark:text-stone-300';
     }
   });
 

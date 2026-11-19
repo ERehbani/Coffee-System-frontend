@@ -182,14 +182,16 @@
                   }
                   @if (!benefit()) {
                     @if (showBenefitForm()) {
-                      <app-benefit-form
-                        [isSaving]="benefitSaving()"
-                        [benefitTypes]="benefitTypes()"
-                        [tiers]="tiers()"
-                        [products]="productOptions()"
-                        (save)="createBenefit($event)"
-                        (cancel)="showBenefitForm.set(false)"
-                      />
+                      <div class="flat-panel">
+                        <app-benefit-form
+                          [isSaving]="benefitSaving()"
+                          [benefitTypes]="benefitTypes()"
+                          [tiers]="tiers()"
+                          [products]="productOptions()"
+                          (save)="createBenefit($event)"
+                          (cancel)="showBenefitForm.set(false)"
+                        />
+                      </div>
                     } @else {
                       <button
                         type="button"

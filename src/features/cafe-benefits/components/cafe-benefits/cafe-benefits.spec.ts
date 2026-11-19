@@ -103,15 +103,15 @@ describe('CafeBenefits', () => {
       benefitService['getAll'].mockReturnValue(of([withLimit]));
     });
 
-    it('opens the form pre-filled from the "Editar" button of a card', () => {
+    it('opens the form pre-filled from the pencil button of a row', () => {
       const fixture = render();
       const root = fixture.nativeElement as HTMLElement;
 
-      root.querySelector<HTMLButtonElement>('app-benefit-card button')!.click();
+      root.querySelector<HTMLButtonElement>('tr[app-benefit-row] button')!.click();
       fixture.detectChanges();
 
       expect(fixture.componentInstance.editingBenefit()).toEqual(withLimit);
-      expect(root.querySelector('app-benefit-form h2')?.textContent?.trim()).toBe('Editar Promoción');
+      expect(root.querySelector('[role="dialog"] app-benefit-form h2')?.textContent?.trim()).toBe('Editar Promoción');
       expect(root.querySelector<HTMLInputElement>('#benefit-name')?.value).toBe('2x1 Espresso');
     });
 

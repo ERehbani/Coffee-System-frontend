@@ -77,6 +77,7 @@ describe('CafeBenefitService', () => {
         type: 'DOS_POR_UNO',
         productId: 'product-espresso',
         tierId: 'tier-bronce',
+        image: 'https://cdn.example.com/2x1.jpg',
         maxPerClient: 2,
       })
       .subscribe();
@@ -95,6 +96,7 @@ describe('CafeBenefitService', () => {
       discountPercentage: null,
       productId: 'product-espresso',
       tierId: 'tier-bronce',
+      image: 'https://cdn.example.com/2x1.jpg',
       maxPerClient: 2,
     });
     req.flush({ externalId: 'benefit-1' });
