@@ -8,6 +8,7 @@ import { Component, computed, input, output, signal } from '@angular/core';
 })
 export class ManualCodeForm {
   readonly disabled = input(false);
+  readonly submitLabel = input('Validar código');
   readonly submitted = output<string>();
 
   protected readonly code = signal('');

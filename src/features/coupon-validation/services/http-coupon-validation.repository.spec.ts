@@ -3,7 +3,7 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { TestBed } from '@angular/core/testing';
 import { environment } from '../../../environments/environment';
 import { RedemptionResponseDto } from '../types/coupon-validation.dto';
-import { ValidatedCoupon } from '../types/coupon-validation.model';
+import { CancelledCoupon, ValidatedCoupon } from '../types/coupon-validation.model';
 import { HttpCouponValidationRepository } from './http-coupon-validation.repository';
 
 const response: RedemptionResponseDto = {
@@ -75,5 +75,19 @@ describe('HttpCouponValidationRepository', () => {
     expect(failure).toBeInstanceOf(HttpErrorResponse);
     expect((failure as HttpErrorResponse).status).toBe(404);
     expect((failure as HttpErrorResponse).error).toBe('Canje no encontrado');
+  });
+
+  it('posts the code to /redemption/cancel/{code} and keeps the points given back', () => {
+    let cancelled: CancelledCoupon | undefined;
+    repository.cancel(response.validationCode).subscribe((value) => (cancelled = value));
+
+    const request = http.expectOne(
+      `${environment.apiBaseUrl}/redemption/cancel/${response.validationCode}`,
+    );
+    expect(request.request.method).toBe('POST');
+    request.flush({ ...response, state: false, usedDate: null });
+
+    expect(cancelled?.refundedPoints).toBe(300);
+    expect(cancelled?.coupon.benefitName).toBe('15% off');
   });
 });

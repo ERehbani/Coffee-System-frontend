@@ -68,6 +68,40 @@
         }
       </article>
     }
+    @case ('cancelled') {
+      <article
+        data-outcome="cancelled"
+        class="rounded-3xl border border-sky-300 bg-sky-50 p-5 shadow-xs"
+      >
+        <h2 #heading tabindex="-1" class="text-lg font-extrabold text-sky-900 focus:outline-hidden">
+          Canje cancelado
+        </h2>
+        @if (cancellation(); as cancelled) {
+          <p class="text-sm font-semibold text-sky-800">
+            Le devolvimos {{ cancelled.refundedPoints }} puntos al cliente. No entregues el beneficio.
+          </p>
+          <p class="mt-3 text-sm font-bold text-text">{{ cancelled.coupon.benefitName }}</p>
+        }
+        <p class="mt-1 text-xs text-sky-900">
+          Código <code class="font-mono font-semibold break-all">{{ outcome().code }}</code>
+        </p>
+      </article>
+    }
+    @case ('not-cancelled') {
+      <article
+        data-outcome="not-cancelled"
+        class="rounded-3xl border border-border bg-surface p-5 shadow-xs"
+      >
+        <h2 #heading tabindex="-1" class="text-lg font-extrabold text-text focus:outline-hidden">
+          No se pudo cancelar el canje
+        </h2>
+        <p class="text-sm font-semibold text-muted">{{ rejectionMessage() }}</p>
+        <p class="mt-3 text-xs text-muted">
+          Código
+          <code class="font-mono font-semibold break-all text-text">{{ outcome().code }}</code>
+        </p>
+      </article>
+    }
     @case ('used') {
       <article
         data-outcome="used"

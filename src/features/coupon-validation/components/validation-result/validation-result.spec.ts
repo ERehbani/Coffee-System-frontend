@@ -137,6 +137,26 @@ describe('ValidationResult', () => {
     expect(document.activeElement).toBe(heading());
   });
 
+  it('confirms a cancelled redemption with the points given back', async () => {
+    await render({ kind: 'cancelled', code: 'code-1', coupon, refundedPoints: 300 });
+
+    expect(outcomeCard()?.getAttribute('data-outcome')).toBe('cancelled');
+    expect(heading()?.textContent?.trim()).toBe('Canje cancelado');
+    expect(element.textContent).toContain('Le devolvimos 300 puntos al cliente');
+    expect(element.textContent).toContain('2x1 en medialunas');
+  });
+
+  it('explains why a redemption could not be cancelled', async () => {
+    await render({
+      kind: 'not-cancelled',
+      code: 'code-1',
+      message: 'El cupón está vencido: ya no se puede cancelar.',
+    });
+
+    expect(heading()?.textContent?.trim()).toBe('No se pudo cancelar el canje');
+    expect(element.textContent).toContain('El cupón está vencido');
+  });
+
   it('asks for the next coupon', async () => {
     await render({ kind: 'not-found', code: 'code-1' });
 
