@@ -1,7 +1,7 @@
 import type { Request as ExpressRequest, Response as ExpressResponse } from 'express';
 import type { IncomingHttpHeaders } from 'node:http';
 
-const SKIPPED_HEADERS = ['host', 'connection', 'content-length', 'transfer-encoding', 'content-encoding'];
+const SKIPPED_HEADERS = ['host', 'connection', 'content-length', 'transfer-encoding', 'content-encoding', 'expect'];
 const BAD_GATEWAY = 502;
 const LOCAL_API_URL = 'http://localhost:8080';
 
