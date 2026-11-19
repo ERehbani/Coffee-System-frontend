@@ -64,6 +64,13 @@
         Volver a la app
       </a>
     }
+    <a
+      routerLink="/admin/password"
+      (click)="closeMenu()"
+      class="block rounded-lg px-2.5 py-2 text-sm font-medium text-muted transition-colors hover:bg-bg hover:text-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+    >
+      Cambiar contraseña
+    </a>
     <app-logout-button />
   </footer>
 </aside>
