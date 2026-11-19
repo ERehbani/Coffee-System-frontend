@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { ManualCodeForm } from '../../components/manual-code-form/manual-code-form';
 import { QrScanner } from '../../components/qr-scanner/qr-scanner';
 import { ValidationResult } from '../../components/validation-result/validation-result';
@@ -13,9 +13,10 @@ import { CouponValidationStore } from '../../services/coupon-validation.store';
 })
 export class CouponValidationPage {
   protected readonly store = inject(CouponValidationStore);
+  protected readonly isCancelling = computed(() => this.store.action() === 'cancel');
 
   protected onCodeReceived(code: string): void {
-    this.store.validate(code);
+    this.store.process(code);
   }
 
   protected onValidateAnother(): void {

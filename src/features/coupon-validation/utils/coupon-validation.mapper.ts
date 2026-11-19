@@ -3,7 +3,7 @@ import {
   BenefitFormatCode,
 } from '../../admin-benefit-types/types/benefit-format.model';
 import { RedemptionResponseDto } from '../types/coupon-validation.dto';
-import { ValidatedCoupon } from '../types/coupon-validation.model';
+import { CancelledCoupon, ValidatedCoupon } from '../types/coupon-validation.model';
 
 function toBenefitType(value: string | null): BenefitFormatCode | null {
   return BENEFIT_FORMAT_CODES.find((code) => code === value) ?? null;
@@ -33,4 +33,8 @@ export function toValidatedCoupon(dto: RedemptionResponseDto): ValidatedCoupon {
     productPrice: dto.productPrice ?? null,
     usedAt: dto.usedDate ?? null,
   };
+}
+
+export function toCancelledCoupon(dto: RedemptionResponseDto): CancelledCoupon {
+  return { coupon: toValidatedCoupon(dto), refundedPoints: dto.usedPoints };
 }

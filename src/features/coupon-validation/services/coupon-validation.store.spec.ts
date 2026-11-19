@@ -168,4 +168,72 @@ describe('CouponValidationStore', () => {
       message: VALIDATION_ERROR_MESSAGE,
     });
   });
+
+  describe('cancel a redemption', () => {
+    let cancel: ReturnType<typeof vi.fn>;
+
+    function createWithCancel(response: Observable<unknown> = of({ coupon, refundedPoints: 300 })) {
+      validate = vi.fn().mockReturnValue(of(coupon));
+      cancel = vi.fn().mockReturnValue(response);
+      TestBed.configureTestingModule({
+        providers: [
+          CouponValidationStore,
+          { provide: CouponValidationRepository, useValue: { validate, cancel } },
+        ],
+      });
+      return TestBed.inject(CouponValidationStore);
+    }
+
+    it('delivers the benefit unless the cafe chose to cancel', () => {
+      const store = createWithCancel();
+
+      store.process('code-1');
+
+      expect(validate).toHaveBeenCalledWith('code-1');
+      expect(cancel).not.toHaveBeenCalled();
+    });
+
+    it('cancels the code and reports the points given back to the client', () => {
+      const store = createWithCancel();
+
+      store.chooseAction('cancel');
+      store.process(' code-1 ');
+
+      expect(cancel).toHaveBeenCalledWith('code-1');
+      expect(validate).not.toHaveBeenCalled();
+      expect(store.outcome()).toEqual({ kind: 'cancelled', code: 'code-1', coupon, refundedPoints: 300 });
+    });
+
+    it('explains why the cancellation failed', () => {
+      const store = createWithCancel(failWith(new HttpErrorResponse({ status: 409 })));
+
+      store.chooseAction('cancel');
+      store.process('code-1');
+
+      expect(store.outcome()).toEqual({
+        kind: 'not-cancelled',
+        code: 'code-1',
+        message: 'Este canje ya se usó o ya estaba cancelado, así que no se puede cancelar.',
+      });
+    });
+
+    it('goes back to delivering after each cancellation, so the next scan is not cancelled by mistake', () => {
+      const store = createWithCancel();
+
+      store.chooseAction('cancel');
+      store.process('code-1');
+      store.reset();
+
+      expect(store.action()).toBe('deliver');
+    });
+
+    it('does not change the action while a code is being processed', () => {
+      const store = createWithCancel(new Subject());
+
+      store.process('code-1');
+      store.chooseAction('cancel');
+
+      expect(store.action()).toBe('deliver');
+    });
+  });
 });
