@@ -17,7 +17,7 @@ const MESSAGES_BY_BACKEND_ERROR: ReadonlyMap<string, string> = new Map([
   ['el código está vencido', 'Este cupón está vencido y ya no se puede canjear.'],
   [
     'el producto de este beneficio está agotado por hoy, cancela el canje para devolver los puntos',
-    'El producto de este cupón está agotado hoy. Podés cancelar el canje para devolverle los puntos al cliente.',
+    'El producto de este cupón está agotado hoy. Elegí «Cancelar canje» y volvé a escanearlo para devolverle los puntos al cliente.',
   ],
   ['el usuario actual no tiene cafetería', 'Tu usuario no tiene una cafetería asociada. Consultá con el administrador.'],
 ]);
