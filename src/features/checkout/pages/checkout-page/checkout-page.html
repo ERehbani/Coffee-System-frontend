@@ -19,10 +19,7 @@
   </header>
 
   @if (store.status() === 'confirmed') {
-    <div
-      role="status"
-      class="flex items-center gap-2 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-xs font-bold text-emerald-800"
-    >
+    <div role="status" class="notice notice-success">
       <span>¡Listo! Tu pago fue confirmado.</span>
     </div>
   } @else if (store.summary(); as summary) {
@@ -41,22 +38,17 @@
       (click)="confirm()"
       [disabled]="!store.canConfirm()"
       [attr.aria-busy]="store.isConfirming()"
-      class="flex w-full cursor-pointer items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-3 text-sm font-bold text-white transition hover:bg-primary-dark active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+      class="btn-primary h-10 w-full"
     >
       {{ store.isConfirming() ? 'Confirmando pago...' : 'Confirmar pago' }}
     </button>
   } @else {
-    <div class="rounded-2xl border border-dashed border-border bg-surface p-12 text-center">
-      <h2 class="text-base font-bold text-text">Tu carrito está vacío</h2>
-      <p class="mx-auto mt-1.5 max-w-sm text-xs text-muted">
+    <div class="empty-state">
+      <h2 class="text-sm font-bold text-text">Tu carrito está vacío</h2>
+      <p class="max-w-sm text-xs text-muted">
         Agregá productos desde el catálogo de una cafetería para poder pagar.
       </p>
-      <a
-        routerLink="/catalog"
-        class="mt-4 inline-block rounded-xl bg-primary px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-primary-dark"
-      >
-        Ir al catálogo
-      </a>
+      <a routerLink="/catalog" class="btn-primary mt-2">Ir al catálogo</a>
     </div>
   }
 </div>

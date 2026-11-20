@@ -1,4 +1,4 @@
-<div class="space-y-6 pb-12">
+<div class="space-y-5 pb-12">
   <header class="space-y-2">
     <div class="flex items-center justify-between">
       <div>
@@ -23,69 +23,44 @@
   }
 
   @if (pendingProduct(); as pending) {
-    <div class="fixed inset-0 z-40 flex items-end justify-center bg-ink/40 p-4 sm:items-center">
+    <div class="modal-backdrop">
       <div
         role="alertdialog"
         aria-modal="true"
         aria-labelledby="titulo-cambiar-carrito"
-        class="w-full max-w-sm rounded-2xl bg-surface p-5 shadow-lg space-y-4"
+        class="modal-panel max-w-sm"
       >
-        <div class="flex items-start gap-3">
-          <div class="space-y-1">
-            <h2 id="titulo-cambiar-carrito" class="text-base font-bold text-text">
-              Tu carrito es de otra cafetería
-            </h2>
-            <p class="text-xs text-muted leading-relaxed">
-              Ya tenés productos de <span class="font-semibold text-text">{{ cartService.cafe()?.name }}</span>.
-              No se pueden mezclar productos de distintas cafeterías en un mismo pedido.
-              ¿Querés vaciar el carrito y agregar {{ pending.name }}?
-            </p>
-          </div>
+        <div class="modal-body space-y-1">
+          <h2 id="titulo-cambiar-carrito" class="text-base font-bold text-text">
+            Tu carrito es de otra cafetería
+          </h2>
+          <p class="text-xs text-muted leading-relaxed">
+            Ya tenés productos de <span class="font-semibold text-text">{{ cartService.cafe()?.name }}</span>.
+            No se pueden mezclar productos de distintas cafeterías en un mismo pedido.
+            ¿Querés vaciar el carrito y agregar {{ pending.name }}?
+          </p>
         </div>
-        <div class="flex justify-end gap-2">
-          <button
-            type="button"
-            (click)="cancelReplaceCart()"
-            class="rounded-xl border border-border px-4 py-2 text-xs font-semibold text-muted transition-colors hover:border-primary/50 hover:text-text cursor-pointer"
-          >
-            Cancelar
-          </button>
-          <button
-            type="button"
-            (click)="confirmReplaceCart()"
-            class="rounded-xl bg-primary px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-primary-dark cursor-pointer"
-          >
-            Vaciar y agregar
-          </button>
+        <div class="modal-footer">
+          <button type="button" (click)="cancelReplaceCart()" class="btn-secondary">Cancelar</button>
+          <button type="button" (click)="confirmReplaceCart()" class="btn-primary">Vaciar y agregar</button>
         </div>
       </div>
     </div>
   }
 
   @if (hasCafesError()) {
-    <div
-      role="alert"
-      class="col-span-full flex flex-col items-center gap-3 rounded-2xl border border-border bg-surface p-10 text-center"
-    >
-      <h3 class="text-base font-bold text-text">No pudimos cargar las cafeterías</h3>
+    <div role="alert" class="empty-state flat-panel">
+      <h3 class="text-sm font-bold text-text">No pudimos cargar las cafeterías</h3>
       <p class="text-xs text-muted">Revisá tu conexión e intentalo de nuevo.</p>
-      <button
-        type="button"
-        (click)="loadCatalog()"
-        class="mt-1 inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-primary-dark cursor-pointer"
-      >
-        Reintentar
-      </button>
+      <button type="button" (click)="loadCatalog()" class="btn-primary mt-2">Reintentar</button>
     </div>
   }
 
-  <section aria-label="Selector de Cafetería" [class.hidden]="hasCafesError()" class="rounded-2xl border border-border bg-surface p-4 sm:p-5 shadow-xs space-y-3.5">
+  <section aria-label="Selector de Cafetería" [class.hidden]="hasCafesError()" class="space-y-3">
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
-      <div class="flex items-center gap-2">
-        <div>
-          <h2 class="text-sm font-bold text-text">Cambiar Cafetería</h2>
-          <p class="text-xs text-muted">Elegí una cafetería para ver su menú exclusivo</p>
-        </div>
+      <div>
+        <h2 class="text-sm font-bold text-text">Cambiar Cafetería</h2>
+        <p class="text-xs text-muted">Elegí una cafetería para ver su menú exclusivo</p>
       </div>
       @if (!showCafeSkeletons()) {
         <span class="text-xs text-muted">
@@ -95,34 +70,32 @@
     </div>
 
     <div
-      class="flex items-center gap-2.5 overflow-x-auto pb-1.5 pt-0.5 no-scrollbar"
+      class="flex items-center gap-2 overflow-x-auto pb-1.5 pt-0.5 no-scrollbar"
       [attr.aria-busy]="showCafeSkeletons()"
     >
       @if (showCafeSkeletons()) {
         @for (item of [1, 2, 3]; track item) {
-          <div class="h-12 w-44 shrink-0 rounded-xl bg-border/40 animate-pulse"></div>
+          <div class="h-12 w-44 shrink-0 rounded-md bg-border/40 animate-pulse"></div>
         }
       }
       @for (cafe of cafes(); track cafe.externalId) {
         <button
           type="button"
           (click)="selectCafe(cafe)"
-          class="group shrink-0 flex items-center gap-2.5 rounded-xl border p-2 pr-3.5 text-left transition-all cursor-pointer"
+          class="group shrink-0 flex items-center gap-2.5 rounded-md border p-2 pr-3.5 text-left transition-colors cursor-pointer"
           [class.bg-primary]="selectedCafe()?.externalId === cafe.externalId"
           [class.border-primary]="selectedCafe()?.externalId === cafe.externalId"
           [class.text-white]="selectedCafe()?.externalId === cafe.externalId"
-          [class.shadow-sm]="selectedCafe()?.externalId === cafe.externalId"
-          [class.scale-[1.02]]="selectedCafe()?.externalId === cafe.externalId"
-          [class.bg-background/80]="selectedCafe()?.externalId !== cafe.externalId"
+          [class.dark:text-bg]="selectedCafe()?.externalId === cafe.externalId"
+          [class.bg-surface]="selectedCafe()?.externalId !== cafe.externalId"
           [class.border-border]="selectedCafe()?.externalId !== cafe.externalId"
           [class.text-text]="selectedCafe()?.externalId !== cafe.externalId"
           [class.hover:border-primary/50]="selectedCafe()?.externalId !== cafe.externalId"
-          [class.hover:bg-accent-light/20]="selectedCafe()?.externalId !== cafe.externalId"
         >
           <img
             [src]="cafe.image || 'https://images.unsplash.com/photo-1525610553991-2bede1a236e2?w=100&h=100&fit=crop&q=80&auto=format'"
             [alt]="cafe.name"
-            class="size-8 rounded-lg object-cover"
+            class="size-8 rounded-md object-cover"
           />
           <div class="min-w-0">
             <div class="flex items-center gap-1.5">
@@ -140,31 +113,23 @@
             <span
               class="text-[10px] block truncate max-w-[130px] sm:max-w-[160px]"
               [class.text-white/80]="selectedCafe()?.externalId === cafe.externalId"
+              [class.dark:text-bg/80]="selectedCafe()?.externalId === cafe.externalId"
               [class.text-muted]="selectedCafe()?.externalId !== cafe.externalId"
             >
               {{ cafe.address }}
             </span>
           </div>
-
-          @if (selectedCafe()?.externalId === cafe.externalId) {
-          }
         </button>
       }
     </div>
 
     @if (selectedCafe(); as activeCafe) {
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl bg-accent-light/30 border border-primary/20 p-3 text-xs">
-        <div class="flex items-center gap-2.5">
-          @if (activeCafe.openNow) {
-            <span class="rounded-full bg-emerald-600/10 text-emerald-700 px-2 py-0.5 text-[10px] font-semibold">
-              Abierto
-            </span>
-          } @else {
-            <span class="rounded-full bg-zinc-200 text-zinc-600 px-2 py-0.5 text-[10px] font-semibold">
-              Cerrado
-            </span>
-          }
-        </div>
+      <div class="flex flex-col gap-2 border-y border-border py-2.5 text-xs sm:flex-row sm:items-center sm:justify-between">
+        @if (activeCafe.openNow) {
+          <span class="badge badge-success self-start">Abierto</span>
+        } @else {
+          <span class="badge badge-neutral self-start">Cerrado</span>
+        }
 
         <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-muted">
           <span class="flex items-center gap-1">
@@ -206,17 +171,15 @@
         </p>
       </div>
 
-      <div class="relative w-full sm:w-64">
-        <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-muted">
-          <app-icon name="search" [size]="15" />
-        </div>
+      <div class="search-field">
+        <app-icon name="search" [size]="15" />
         <input
           id="buscador-productos"
           type="search"
           [value]="productSearchQuery()"
           (input)="onProductSearchChange($any($event.target).value)"
           placeholder="Buscar producto o ingrediente..."
-          class="w-full rounded-xl border border-border bg-surface py-2 pr-8 pl-9 text-xs text-text placeholder:text-muted/70 shadow-2xs transition-colors focus:border-primary focus:bg-surface focus:outline-none focus:ring-1 focus:ring-primary/20"
+          class="form-control pr-8"
         />
         @if (productSearchQuery()) {
           <button
@@ -236,20 +199,12 @@
         <button
           type="button"
           (click)="onSelectCategory(category)"
-          class="shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold transition-all cursor-pointer"
-          [class.bg-primary]="selectedCategory() === category"
-          [class.text-white]="selectedCategory() === category"
-          [class.shadow-xs]="selectedCategory() === category"
-          [class.bg-surface]="selectedCategory() !== category"
-          [class.text-muted]="selectedCategory() !== category"
-          [class.border]="selectedCategory() !== category"
-          [class.border-border]="selectedCategory() !== category"
-          [class.hover:border-primary/50]="selectedCategory() !== category"
-          [class.hover:text-text]="selectedCategory() !== category"
+          [attr.aria-pressed]="selectedCategory() === category"
+          class="toggle-chip shrink-0"
         >
           {{ category }}
           @if (categoryCounts()[category]; as count) {
-            <span class="ml-1 opacity-80 text-[10px]">({{ count }})</span>
+            <span class="opacity-80 text-[10px]">({{ count }})</span>
           }
         </button>
       }
@@ -258,23 +213,14 @@
     @if (isLoadingMenu()) {
       <div class="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3" aria-busy="true">
         @for (item of [1, 2, 3, 4, 5, 6]; track item) {
-          <div class="h-52 rounded-2xl bg-border/40 animate-pulse sm:h-64"></div>
+          <div class="h-52 rounded-lg bg-border/40 animate-pulse sm:h-64"></div>
         }
       </div>
     } @else if (hasProductsError()) {
-      <div
-        role="alert"
-        class="col-span-full flex flex-col items-center gap-3 rounded-2xl border border-border bg-surface p-10 text-center"
-      >
-        <h3 class="text-base font-bold text-text">No pudimos cargar los productos</h3>
+      <div role="alert" class="empty-state flat-panel">
+        <h3 class="text-sm font-bold text-text">No pudimos cargar los productos</h3>
         <p class="text-xs text-muted">Revisá tu conexión e intentalo de nuevo.</p>
-        <button
-          type="button"
-          (click)="loadCatalog()"
-          class="mt-1 inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-primary-dark cursor-pointer"
-        >
-          Reintentar
-        </button>
+        <button type="button" (click)="loadCatalog()" class="btn-primary mt-2">Reintentar</button>
       </div>
     } @else {
       <div class="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3">
@@ -285,16 +231,16 @@
             (viewDetail)="openProductDetail($event)"
           />
         } @empty {
-          <div class="col-span-full rounded-2xl border border-dashed border-border bg-surface p-10 text-center">
+          <div class="empty-state col-span-full">
             <h4 class="text-sm font-bold text-text">No hay productos disponibles</h4>
-            <p class="mt-1 text-xs text-muted max-w-sm mx-auto">
+            <p class="max-w-sm text-xs text-muted">
               No encontramos productos para la categoría o término buscado en esta cafetería.
             </p>
             @if (selectedCategory() !== 'Todas' || productSearchQuery()) {
               <button
                 type="button"
                 (click)="onSelectCategory('Todas'); clearProductSearch()"
-                class="mt-4 rounded-xl bg-accent-light px-4 py-2 text-xs font-semibold text-primary transition-colors hover:bg-primary hover:text-white cursor-pointer"
+                class="btn-secondary mt-2"
               >
                 Ver todo el menú
               </button>
