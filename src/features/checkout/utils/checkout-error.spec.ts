@@ -25,6 +25,14 @@ describe('toCheckoutErrorMessage', () => {
     expect(toCheckoutErrorMessage(error)).toBe(emptyCartMessage);
   });
 
+  it('explains a purchase rejected because the cafe is closed', () => {
+    const error = problem(422, 'The cafe is closed right now');
+
+    expect(toCheckoutErrorMessage(error)).toBe(
+      'La cafetería está cerrada en este momento. Vas a poder pagar tu pedido cuando vuelva a abrir.',
+    );
+  });
+
   it('falls back for a rule with an unknown message', () => {
     const error = problem(422, 'Otro mensaje');
 

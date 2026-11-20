@@ -55,6 +55,11 @@ export class CartService {
       return false;
     }
 
+    if (!cafe.openNow) {
+      onRejected?.('La cafetería está cerrada en este momento.');
+      return false;
+    }
+
     const previousItems = this.items();
     const previousCafe = this.cafe();
     const list = [...previousItems];
