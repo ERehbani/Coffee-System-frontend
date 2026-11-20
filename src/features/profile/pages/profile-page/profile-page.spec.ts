@@ -10,6 +10,7 @@ import { ProfileDashboard, RedeemedBenefit } from '../../types/profile.model';
 import { buildProfileDashboardFixture } from '../../utils/profile.fixture';
 import { toProfileDashboard } from '../../utils/profile.mapper';
 import { ProfilePage } from './profile-page';
+import { signInForTest } from '../../../auth/utils/auth.fixture';
 
 describe('ProfilePage coupon entry points', () => {
   let fixture: ComponentFixture<ProfilePage>;
@@ -30,6 +31,7 @@ describe('ProfilePage coupon entry points', () => {
         },
       ],
     }).compileComponents();
+    signInForTest(['ROLE_CLIENTE']);
 
     router = TestBed.inject(Router);
     vi.spyOn(router, 'navigate').mockResolvedValue(true);
@@ -106,6 +108,7 @@ describe('ProfilePage featured benefits', () => {
         { provide: ProfileRepository, useValue: { getDashboard, redeemBenefit } },
       ],
     }).compileComponents();
+    signInForTest(['ROLE_CLIENTE']);
     router = TestBed.inject(Router);
     vi.spyOn(router, 'navigate').mockResolvedValue(true);
     toast = TestBed.inject(ToastService);
@@ -196,6 +199,7 @@ describe('ProfilePage loading', () => {
         { provide: ProfileRepository, useValue: { getDashboard } },
       ],
     }).compileComponents();
+    signInForTest(['ROLE_CLIENTE']);
   });
 
   it('loads the dashboard once on the first visit', () => {

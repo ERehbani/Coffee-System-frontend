@@ -6,6 +6,7 @@ import { ProfileRepository } from '../../services/profile.repository';
 import { ProfileStore } from '../../services/profile.store';
 import { ClientProfile, ProfileDashboard, UpdateClientProfileInput } from '../../types/profile.model';
 import { ProfileEditPage } from './profile-edit-page';
+import { signInForTest } from '../../../auth/utils/auth.fixture';
 
 describe('ProfileEditPage', () => {
   let fixture: ComponentFixture<ProfileEditPage>;
@@ -56,6 +57,7 @@ describe('ProfileEditPage', () => {
         { provide: ProfileRepository, useValue: mockRepository },
       ],
     }).compileComponents();
+    signInForTest(['ROLE_CLIENTE']);
 
     fixture = TestBed.createComponent(ProfileEditPage);
     component = fixture.componentInstance;

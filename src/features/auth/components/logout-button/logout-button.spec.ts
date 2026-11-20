@@ -3,6 +3,8 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { environment } from '../../../../environments/environment';
+import { CartService } from '../../../cart/services/cart.service';
+import { ESPRESSO_FIXTURE } from '../../../catalog/utils/product.fixture';
 import { AuthService } from '../../services/auth.service';
 import { signInForTest } from '../../utils/auth.fixture';
 import { LogoutButton } from './logout-button';
@@ -43,6 +45,18 @@ describe('LogoutButton', () => {
 
     expect(TestBed.inject(AuthService).isAuthenticated()).toBe(false);
     expect(router.navigateByUrl).toHaveBeenCalledWith('/login');
+  });
+
+  it('empties the cart kept in this browser, so the next account does not find it', () => {
+    const cart = TestBed.inject(CartService);
+    cart.items.set([{ product: ESPRESSO_FIXTURE, quantity: 2 }]);
+    cart.cafe.set({ externalId: 'cafe-central-001', name: 'Cafe Central' });
+
+    button().click();
+    http.expectOne(logoutUrl).flush(null, { status: 204, statusText: 'No Content' });
+
+    expect(cart.items()).toEqual([]);
+    expect(cart.cafe()).toBeNull();
   });
 
   it('goes to the login of the role that closed the session', () => {

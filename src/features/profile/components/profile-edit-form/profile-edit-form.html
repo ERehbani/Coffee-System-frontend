@@ -120,13 +120,16 @@
   <div class="form-actions">
     <button type="button" (click)="onCancel()" [disabled]="isSaving()" class="btn-secondary">Cancelar</button>
 
-    <button type="submit" [disabled]="isSaving() || avatarUploading()" class="btn-primary">
-      @if (isSaving()) {
-        <span class="size-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
-        <span>Guardando cambios...</span>
-      } @else {
-        <span>Guardar cambios</span>
-      }
+    <!-- Both labels share one grid cell, so the button keeps its width and Cancelar does not move while saving. -->
+    <button type="submit" [disabled]="isSaving() || avatarUploading()" class="btn-primary grid">
+      <span class="col-start-1 row-start-1" [class.invisible]="isSaving()">Guardar cambios</span>
+      <span
+        class="col-start-1 row-start-1 inline-flex items-center justify-center gap-1.5"
+        [class.invisible]="!isSaving()"
+      >
+        <span class="size-3.5 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
+        <span>Guardando…</span>
+      </span>
     </button>
   </div>
 </form>

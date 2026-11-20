@@ -7,6 +7,7 @@ import { ActiveRedemption, ProfileDashboard } from '../../types/profile.model';
 import { buildProfileDashboardFixture } from '../../utils/profile.fixture';
 import { toProfileDashboard } from '../../utils/profile.mapper';
 import { CouponsPage } from './coupons-page';
+import { signInForTest } from '../../../auth/utils/auth.fixture';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -50,6 +51,7 @@ describe('CouponsPage', () => {
         { provide: ProfileRepository, useValue: { getDashboard } },
       ],
     }).compileComponents();
+    signInForTest(['ROLE_CLIENTE']);
 
     fixture = TestBed.createComponent(CouponsPage);
     TestBed.flushEffects();

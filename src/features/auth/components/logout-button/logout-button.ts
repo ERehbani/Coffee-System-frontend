@@ -1,6 +1,7 @@
 import { Component, computed, inject, input, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { Icon } from '../../../../shared/components/icon/icon';
+import { CartService } from '../../../cart/services/cart.service';
 import { AuthService } from '../../services/auth.service';
 import { getLoginForRoles } from '../../utils/role-home';
 
@@ -21,6 +22,7 @@ const APPEARANCES: Readonly<Record<LogoutButtonAppearance, string>> = {
 })
 export class LogoutButton {
   private readonly auth = inject(AuthService);
+  private readonly cart = inject(CartService);
   private readonly router = inject(Router);
 
   readonly appearance = input<LogoutButtonAppearance>('ghost');
@@ -32,6 +34,8 @@ export class LogoutButton {
     this.isLoggingOut.set(true);
     // logout() clears the session, so the role has to be read first
     const loginPath = getLoginForRoles(this.auth.roles());
+    // The cart is kept in this browser: the next account must not find the products of this one.
+    this.cart.clearLocal();
     this.auth.logout().subscribe(() => this.router.navigateByUrl(loginPath));
   }
 }
