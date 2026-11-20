@@ -1,4 +1,5 @@
 import { DatePipe, DecimalPipe, NgOptimizedImage, formatNumber } from '@angular/common';
+import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
 import {
   Component,
   ElementRef,
@@ -26,6 +27,14 @@ import { isBenefitUnlocked } from '../../utils/benefit-access';
 export type BenefitRedeemPhase = 'idle' | 'confirming' | 'redeeming';
 
 const SOLD_OUT_REASON = 'Este beneficio ya no tiene canjes disponibles.';
+
+// The backend answers 404 for a deleted or unpublished benefit and 400 for an id that is not a valid UUID.
+function isMissingBenefit(error: unknown): boolean {
+  return (
+    error instanceof HttpErrorResponse &&
+    (error.status === HttpStatusCode.NotFound || error.status === HttpStatusCode.BadRequest)
+  );
+}
 
 @Component({
   selector: 'app-benefit-detail',
@@ -113,9 +122,9 @@ export class BenefitDetail implements OnInit {
     if (loaded) {
       this.benefit.set(loaded);
       this.isLoading.set(false);
-      return;
     }
-    this.loadBenefit();
+    // A cached benefit shows at once and is revalidated quietly: the cafe may have changed it since the list loaded.
+    this.loadBenefit(!!loaded);
   }
 
   loadBenefit(quiet = false): void {
@@ -134,9 +143,14 @@ export class BenefitDetail implements OnInit {
         this.benefit.set(data);
         this.isLoading.set(false);
       },
-      error: () => {
-        // A failed quiet refresh keeps the benefit already on screen.
-        this.hasError.set(!quiet);
+      error: (error: unknown) => {
+        const missing = isMissingBenefit(error);
+        if (missing) {
+          // Gone for good: no benefit and no error leaves the template on its not-found state.
+          this.benefit.set(null);
+        }
+        // A failed quiet refresh keeps the benefit already on screen unless the benefit is gone.
+        this.hasError.set(!quiet && !missing);
         this.isLoading.set(false);
       },
     });

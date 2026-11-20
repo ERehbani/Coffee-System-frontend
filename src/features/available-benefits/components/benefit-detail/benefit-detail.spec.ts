@@ -36,6 +36,7 @@ describe('BenefitDetail', () => {
 
   function openWith(benefit: AvailableBenefit, clientTierPoints = 1000, availablePoints = 300): ComponentFixture<BenefitDetail> {
     findLoaded.mockReturnValue(benefit);
+    getById.mockReturnValue(of(benefit));
     getTierDetail.mockReturnValue(of({ currentTierThreshold: clientTierPoints, availablePoints }));
     return render();
   }
@@ -116,7 +117,7 @@ describe('BenefitDetail', () => {
         { label: 'Ver mis cupones', route: '/profile/coupons' },
       );
       expect(getTierDetail).toHaveBeenCalledTimes(2);
-      expect(getById).toHaveBeenCalledOnce();
+      expect(getById).toHaveBeenCalledTimes(2);
       expect(fixture.componentInstance.isLoading()).toBe(false);
     });
 
