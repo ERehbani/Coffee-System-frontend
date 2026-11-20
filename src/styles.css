@@ -65,6 +65,7 @@
  *   flat-section        Borderless block; consecutive flat-section siblings are split by a thin divider.
  *   summary-strip       One bordered row of stats split by thin dividers; wraps without gaps.
  *   summary-item        One stat inside a summary-strip (label, value and hint are plain text utilities).
+ *   flat-list           A ul/ol of rows split by thin dividers, closed by a border above and below. No boxes around the items.
  * Tables  (markup: div.data-table-wrap > table.data-table > thead + tbody)
  *   data-table-wrap     Scrollable bordered container around a data-table.
  *   data-table          Compact table: tinted header row with small uppercase muted headers, body rows split by bottom borders.
@@ -136,6 +137,14 @@
 
   .summary-item {
     @apply grow basis-36 border-r border-b border-border px-4 py-3;
+  }
+
+  .flat-list {
+    @apply border-y border-border;
+  }
+
+  .flat-list > li + li {
+    @apply border-t border-border;
   }
 
   .data-table-wrap {

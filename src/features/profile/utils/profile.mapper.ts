@@ -32,7 +32,7 @@ const KNOWN_TIERS_BY_CODE: ReadonlyMap<string, LoyaltyTier> = new Map<string, Lo
   ['diamond', 'diamond'],
 ]);
 
-function toLoyaltyTier(code: LoyaltyTierCodeDto): LoyaltyTier {
+export function toLoyaltyTier(code: LoyaltyTierCodeDto): LoyaltyTier {
   const name = code.trim();
   return KNOWN_TIERS_BY_CODE.get(name.toLowerCase()) ?? name;
 }
