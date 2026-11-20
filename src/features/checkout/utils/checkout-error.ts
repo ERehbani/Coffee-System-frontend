@@ -30,8 +30,11 @@ const COUPON_PRODUCT_SOLD_OUT_MESSAGE = `El producto de regalo de ese cupón se 
 const EXPIRED_COUPON_MESSAGE = `Ese cupón está vencido. ${COUPON_RETRY_HINT}`;
 const PRODUCT_UNAVAILABLE_MESSAGE =
   'Alguno de los productos de tu carrito se agotó por hoy o ya no está disponible. Quitalo e intentá de nuevo.';
+const CAFE_CLOSED_MESSAGE =
+  'La cafetería está cerrada en este momento. Vas a poder pagar tu pedido cuando vuelva a abrir.';
 
 const MESSAGES_BY_BACKEND_DETAIL: readonly (readonly [RegExp, string])[] = [
+  [/^the cafe is closed right now$/i, CAFE_CLOSED_MESSAGE],
   [/^el carrito no puede estar vacío$/i, EMPTY_CART_MESSAGE],
   [/^código inválido$/i, INVALID_COUPON_MESSAGE],
   [/^el código ya fue usado$/i, USED_COUPON_MESSAGE],

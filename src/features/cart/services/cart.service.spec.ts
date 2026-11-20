@@ -77,6 +77,17 @@ describe('CartService', () => {
       expect(service.isFromAnotherCafe(NORTE_LATTE_FIXTURE)).toBe(true);
       expect(service.items().length).toBe(1);
     });
+
+    it('rejects a product of a closed cafe without calling the backend', () => {
+      const closedCentral = { ...CAFE_CENTRAL_FIXTURE, openNow: false };
+      const onRejected = vi.fn();
+
+      const added = service.addProduct(FLAT_WHITE_FIXTURE, closedCentral, onRejected);
+
+      expect(added).toBe(false);
+      expect(onRejected).toHaveBeenCalledWith('La cafetería está cerrada en este momento.');
+      expect(service.items()).toEqual([{ product: ESPRESSO_FIXTURE, quantity: 2 }]);
+    });
   });
 
   describe('replaceWithProduct', () => {
