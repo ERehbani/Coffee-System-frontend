@@ -1,79 +1,74 @@
 <app-auth-shell heading="Crear cuenta" linkLabel="Iniciar sesión" [linkPath]="loginPath">
   @if (errorMessage()) {
-    <div
-      role="alert"
-      class="flex items-center gap-2 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-xs font-bold text-rose-800"
-    >
-      <app-icon name="alert-circle" [size]="16" class="text-rose-600" />
-      <span>{{ errorMessage() }}</span>
+    <div role="alert" class="notice notice-error">
+      <span class="flex items-center gap-2">
+        <app-icon name="alert-circle" [size]="16" />
+        <span>{{ errorMessage() }}</span>
+      </span>
     </div>
   }
 
-  <form (submit)="onSubmit($event)" novalidate class="space-y-5">
-    <div class="space-y-1.5">
-      <label for="register-name" class="block text-sm font-semibold text-text">Nombre</label>
+  <form (submit)="onSubmit($event)" novalidate class="space-y-4">
+    <div>
+      <label for="register-name" class="form-label">Nombre</label>
       <input
         id="register-name"
         type="text"
         autocomplete="name"
         [formField]="registerForm.name"
         placeholder="Tu nombre"
-        class="w-full rounded-2xl border border-border bg-surface px-5 py-3.5 text-base text-text placeholder:text-muted/60 transition focus:border-primary focus:outline-hidden focus:ring-2 focus:ring-primary/30"
-        [class.border-rose-400]="attemptedSubmit() && nameError()"
+        class="form-control"
+        [attr.aria-invalid]="attemptedSubmit() && nameError() ? 'true' : null"
       />
       @if (attemptedSubmit() && nameError()) {
-        <p role="alert" class="text-xs font-semibold text-rose-600">{{ nameError() }}</p>
+        <p role="alert" class="form-error">{{ nameError() }}</p>
       }
     </div>
 
-    <div class="space-y-1.5">
-      <label for="register-email" class="block text-sm font-semibold text-text">Correo electrónico</label>
+    <div>
+      <label for="register-email" class="form-label">Correo electrónico</label>
       <input
         id="register-email"
         type="email"
         autocomplete="username"
         [formField]="registerForm.email"
         placeholder="tu@correo.com"
-        class="w-full rounded-2xl border border-border bg-surface px-5 py-3.5 text-base text-text placeholder:text-muted/60 transition focus:border-primary focus:outline-hidden focus:ring-2 focus:ring-primary/30"
-        [class.border-rose-400]="attemptedSubmit() && emailError()"
+        class="form-control"
+        [attr.aria-invalid]="attemptedSubmit() && emailError() ? 'true' : null"
       />
       @if (attemptedSubmit() && emailError()) {
-        <p role="alert" class="text-xs font-semibold text-rose-600">{{ emailError() }}</p>
+        <p role="alert" class="form-error">{{ emailError() }}</p>
       }
     </div>
 
-    <div class="space-y-1.5">
-      <label for="register-password" class="block text-sm font-semibold text-text">Contraseña</label>
+    <div>
+      <label for="register-password" class="form-label">Contraseña</label>
       <div class="relative">
         <input
           id="register-password"
           [type]="showPassword() ? 'text' : 'password'"
           autocomplete="new-password"
           [formField]="registerForm.password"
-          class="w-full rounded-2xl border border-border bg-surface py-3.5 pr-12 pl-5 text-base text-text transition focus:border-primary focus:outline-hidden focus:ring-2 focus:ring-primary/30"
-          [class.border-rose-400]="attemptedSubmit() && passwordError()"
+          class="form-control pr-10"
+          [attr.aria-invalid]="attemptedSubmit() && passwordError() ? 'true' : null"
         />
         <button
           type="button"
           (click)="toggleShowPassword()"
-          class="absolute inset-y-0 right-0 flex cursor-pointer items-center rounded-r-2xl pr-4 pl-2 text-muted hover:text-text focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary"
+          class="absolute inset-y-0 right-0 flex cursor-pointer items-center rounded-r-md pr-3 pl-2 text-muted hover:text-text focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary"
           [attr.aria-label]="showPassword() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
         >
-          <app-icon [name]="showPassword() ? 'eye' : 'lock'" [size]="18" />
+          <app-icon [name]="showPassword() ? 'eye' : 'lock'" [size]="16" />
         </button>
       </div>
       @if (attemptedSubmit() && passwordError()) {
-        <p role="alert" class="text-xs font-semibold text-rose-600">{{ passwordError() }}</p>
+        <p role="alert" class="form-error">{{ passwordError() }}</p>
       } @else {
-        <p class="text-xs text-muted">Mínimo 6 caracteres, con mayúscula, minúscula y número.</p>
+        <p class="mt-1 text-[11px] text-muted">Mínimo 6 caracteres, con mayúscula, minúscula y número.</p>
       }
     </div>
 
-    <button
-      type="submit"
-      [disabled]="isSubmitting()"
-      class="w-full cursor-pointer rounded-2xl bg-primary px-4 py-3.5 text-base font-bold text-white transition hover:bg-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
-    >
+    <button type="submit" [disabled]="isSubmitting()" class="btn-primary w-full">
       {{ isSubmitting() ? 'Creando cuenta...' : 'Crear cuenta' }}
     </button>
   </form>

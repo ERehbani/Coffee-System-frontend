@@ -91,7 +91,7 @@
  *   toolbar             Wrapping row for search, filters and chips above a table.
  *   search-field        Relative wrapper for a search input: <div class="search-field"><app-icon name="search" [size]="14" /><input class="form-control" /></div>.
  *   empty-state         Centered "nothing here" / error block; put a title (text-sm font-bold text-text) and a hint (text-xs text-muted) inside.
- *   notice              Inline feedback banner; add notice-success or notice-error. Put role="status" or role="alert" on it.
+ *   notice              Inline feedback banner; add notice-success, notice-warning or notice-error. Put role="status" or role="alert" on it.
  * Modals and drawers
  *   modal-backdrop      Fixed full-screen dimmed layer that centers its modal-panel. Click handler on it closes the modal.
  *   modal-panel         Flat bordered dialog surface; set the width with max-w-* (max-w-sm, max-w-md, max-w-3xl...).
@@ -284,6 +284,10 @@
 
   .notice-success {
     @apply border-emerald-300 bg-emerald-50 text-emerald-900 dark:border-emerald-500/40 dark:bg-emerald-500/10 dark:text-emerald-200;
+  }
+
+  .notice-warning {
+    @apply border-amber-300 bg-amber-50 text-amber-900 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-200;
   }
 
   .notice-error {

@@ -204,7 +204,7 @@ describe('LoginPage', () => {
     const notice = element.querySelector('[role="status"]');
 
     expect(notice?.textContent).toContain('Tu cuenta se creó correctamente.');
-    expect(notice?.classList).toContain('bg-emerald-50');
+    expect(notice?.classList).toContain('notice-success');
   });
 
   it('links to the register page', async () => {
