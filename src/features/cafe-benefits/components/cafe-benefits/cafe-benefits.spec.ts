@@ -1,7 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { of, throwError } from 'rxjs';
+import { of, Subject, throwError } from 'rxjs';
 import { ProductService } from '../../../catalog/services/product.service';
 import { ESPRESSO_DTO_FIXTURE, PRODUCT_CAFE_ID } from '../../../catalog/utils/product.fixture';
 import { CafeBenefit, CreateCafeBenefitRequest } from '../../model/cafe-benefit.model';
@@ -260,6 +260,35 @@ describe('CafeBenefits', () => {
 
       expect(component.benefits()).toEqual([benefit]);
       expect(component.errorMessage()).toContain('Pausalo');
+      expect(component.busyBenefitId()).toBeNull();
+    });
+
+    it('keeps the previous notice while the next pause is in flight, so the table does not jump', () => {
+      const pending = new Subject<CafeBenefit>();
+      benefitService['pause'].mockReturnValue(pending);
+      const component = render().componentInstance;
+      component.successMessage.set('La promoción volvió a estar disponible para los clientes.');
+
+      component.onPauseBenefit(benefit);
+      component.confirmVisibilityChange();
+
+      expect(component.successMessage()).toBe('La promoción volvió a estar disponible para los clientes.');
+
+      pending.next({ ...benefit, status: false });
+
+      expect(component.successMessage()).toContain('Pausaste la promoción');
+    });
+
+    it('swaps the previous notice for the error when the pause fails', () => {
+      benefitService['pause'].mockReturnValue(throwError(() => new HttpErrorResponse({ status: 500 })));
+      const component = render().componentInstance;
+      component.successMessage.set('La promoción volvió a estar disponible para los clientes.');
+
+      component.onPauseBenefit(benefit);
+      component.confirmVisibilityChange();
+
+      expect(component.successMessage()).toBeNull();
+      expect(component.errorMessage()).not.toBeNull();
       expect(component.busyBenefitId()).toBeNull();
     });
 

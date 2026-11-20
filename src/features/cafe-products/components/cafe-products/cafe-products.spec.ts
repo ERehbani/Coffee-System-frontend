@@ -1,7 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { of, throwError } from 'rxjs';
+import { of, Subject, throwError } from 'rxjs';
 import { ProductService } from '../../../catalog/services/product.service';
 import { ProductDto } from '../../../catalog/types/product.dto';
 import { ESPRESSO_DTO_FIXTURE, PRODUCT_CAFE_ID } from '../../../catalog/utils/product.fixture';
@@ -103,6 +103,34 @@ describe('CafeProducts', () => {
     );
     expect(component.products()[0].available).toBe(false);
     expect(component.successMessage()).toContain('agotado hoy');
+  });
+
+  it('keeps the previous notice while the next change is in flight, so the table does not jump', () => {
+    const pending = new Subject<ProductDto>();
+    service['changeAvailability'].mockReturnValue(pending);
+    const component = render().componentInstance;
+    component.successMessage.set('"Latte" quedó marcado como agotado hoy.');
+
+    component.onToggleAvailability(ESPRESSO_DTO_FIXTURE);
+    component.confirmAvailabilityChange();
+
+    expect(component.successMessage()).toBe('"Latte" quedó marcado como agotado hoy.');
+
+    pending.next({ ...ESPRESSO_DTO_FIXTURE, available: false });
+
+    expect(component.successMessage()).toContain(`"${ESPRESSO_DTO_FIXTURE.name}" quedó marcado como agotado hoy.`);
+  });
+
+  it('swaps the previous notice for the error when the change fails', () => {
+    service['changeAvailability'].mockReturnValue(throwError(() => new HttpErrorResponse({ status: 500 })));
+    const component = render().componentInstance;
+    component.successMessage.set('"Latte" quedó marcado como agotado hoy.');
+
+    component.onToggleAvailability(ESPRESSO_DTO_FIXTURE);
+    component.confirmAvailabilityChange();
+
+    expect(component.successMessage()).toBeNull();
+    expect(component.errorMessage()).toBe('Ocurrió un error al cambiar la disponibilidad del producto.');
   });
 
   it('shows the detail of the backend when reactivating fails', () => {

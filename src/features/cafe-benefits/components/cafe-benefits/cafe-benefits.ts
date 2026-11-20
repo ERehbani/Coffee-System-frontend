@@ -221,10 +221,7 @@ export class CafeBenefits implements OnInit {
         this.busyBenefitId.set(null);
         this.successMessage.set('Eliminaste la promoción.');
       },
-      error: (err) => {
-        this.busyBenefitId.set(null);
-        this.errorMessage.set(toDeletionErrorMessage(err));
-      },
+      error: (err) => this.failAction(toDeletionErrorMessage(err)),
     });
   }
 
@@ -275,17 +272,20 @@ export class CafeBenefits implements OnInit {
         this.busyBenefitId.set(null);
         this.successMessage.set(successMessage);
       },
-      error: (err) => {
-        this.busyBenefitId.set(null);
-        this.errorMessage.set(toVisibilityErrorMessage(err));
-      },
+      error: (err) => this.failAction(toVisibilityErrorMessage(err)),
     });
   }
 
+  // El aviso anterior queda hasta que llegue el resultado: borrarlo antes hace saltar la tabla.
   private startAction(benefit: CafeBenefit): void {
     this.busyBenefitId.set(benefit.externalId);
     this.errorMessage.set(null);
+  }
+
+  private failAction(message: string): void {
+    this.busyBenefitId.set(null);
     this.successMessage.set(null);
+    this.errorMessage.set(message);
   }
 
   private replaceBenefit(updated: CafeBenefit): void {
