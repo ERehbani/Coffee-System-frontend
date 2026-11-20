@@ -294,8 +294,9 @@
     @apply border-rose-300 bg-rose-50 text-rose-900 dark:border-rose-500/40 dark:bg-rose-500/10 dark:text-rose-200;
   }
 
+  /* m-0: inside a space-y-* parent (page-shell) a non-last backdrop would get margin-bottom and stop short of the viewport edge. */
   .modal-backdrop {
-    @apply fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/50 p-4;
+    @apply fixed inset-0 z-50 m-0 flex items-center justify-center overflow-y-auto bg-black/50 p-4;
   }
 
   .modal-panel {
