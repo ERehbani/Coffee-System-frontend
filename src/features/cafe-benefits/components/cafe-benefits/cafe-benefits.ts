@@ -17,6 +17,12 @@ import { toDeletionErrorMessage, toVisibilityErrorMessage } from '../../utils/be
 import { BenefitRow } from '../benefit-row/benefit-row';
 import { BenefitForm } from '../benefit-form/benefit-form';
 
+/** Pausa o reanudación que espera la confirmación de la cafetería. */
+export interface PendingVisibilityChange {
+  readonly benefit: CafeBenefit;
+  readonly action: 'pause' | 'resume';
+}
+
 function toProductOptions(products: ProductDto[]): ProductOption[] {
   return products.filter((product) => product.state).map((product) => ({ id: product.externalId, name: product.name }));
 }
@@ -26,7 +32,7 @@ function toProductOptions(products: ProductDto[]): ProductOption[] {
   imports: [FormsModule, Icon, BenefitRow, BenefitForm],
   templateUrl: './cafe-benefits.html',
   styleUrl: './cafe-benefits.css',
-  host: { class: 'block', '(document:keydown.escape)': 'dismissForm()' },
+  host: { class: 'block', '(document:keydown.escape)': 'onEscape()' },
 })
 export class CafeBenefits implements OnInit {
   private readonly cafeBenefitService = inject(CafeBenefitService);
@@ -42,6 +48,7 @@ export class CafeBenefits implements OnInit {
   busyBenefitId = signal<string | null>(null);
   showForm = signal(false);
   editingBenefit = signal<CafeBenefit | null>(null);
+  pendingVisibilityChange = signal<PendingVisibilityChange | null>(null);
   searchQuery = signal('');
   filterState = signal<'all' | 'active'>('all');
   successMessage = signal<string | null>(null);
@@ -161,6 +168,33 @@ export class CafeBenefits implements OnInit {
   }
 
   onPauseBenefit(benefit: CafeBenefit): void {
+    this.pendingVisibilityChange.set({ benefit, action: 'pause' });
+  }
+
+  onResumeBenefit(benefit: CafeBenefit): void {
+    this.pendingVisibilityChange.set({ benefit, action: 'resume' });
+  }
+
+  cancelVisibilityChange(): void {
+    this.pendingVisibilityChange.set(null);
+  }
+
+  confirmVisibilityChange(): void {
+    const pending = this.pendingVisibilityChange();
+    this.pendingVisibilityChange.set(null);
+    if (pending?.action === 'pause') {
+      this.pauseBenefit(pending.benefit);
+    } else if (pending?.action === 'resume') {
+      this.resumeBenefit(pending.benefit);
+    }
+  }
+
+  onEscape(): void {
+    this.cancelVisibilityChange();
+    this.dismissForm();
+  }
+
+  private pauseBenefit(benefit: CafeBenefit): void {
     this.changeVisibility(
       benefit,
       this.cafeBenefitService.pause(benefit.externalId),
@@ -168,7 +202,7 @@ export class CafeBenefits implements OnInit {
     );
   }
 
-  onResumeBenefit(benefit: CafeBenefit): void {
+  private resumeBenefit(benefit: CafeBenefit): void {
     this.changeVisibility(
       benefit,
       this.cafeBenefitService.resume(benefit.externalId),
@@ -187,10 +221,7 @@ export class CafeBenefits implements OnInit {
         this.busyBenefitId.set(null);
         this.successMessage.set('Eliminaste la promoción.');
       },
-      error: (err) => {
-        this.busyBenefitId.set(null);
-        this.errorMessage.set(toDeletionErrorMessage(err));
-      },
+      error: (err) => this.failAction(toDeletionErrorMessage(err)),
     });
   }
 
@@ -241,17 +272,20 @@ export class CafeBenefits implements OnInit {
         this.busyBenefitId.set(null);
         this.successMessage.set(successMessage);
       },
-      error: (err) => {
-        this.busyBenefitId.set(null);
-        this.errorMessage.set(toVisibilityErrorMessage(err));
-      },
+      error: (err) => this.failAction(toVisibilityErrorMessage(err)),
     });
   }
 
+  // El aviso anterior queda hasta que llegue el resultado: borrarlo antes hace saltar la tabla.
   private startAction(benefit: CafeBenefit): void {
     this.busyBenefitId.set(benefit.externalId);
     this.errorMessage.set(null);
+  }
+
+  private failAction(message: string): void {
+    this.busyBenefitId.set(null);
     this.successMessage.set(null);
+    this.errorMessage.set(message);
   }
 
   private replaceBenefit(updated: CafeBenefit): void {

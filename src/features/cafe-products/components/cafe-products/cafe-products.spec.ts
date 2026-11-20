@@ -1,7 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { of, throwError } from 'rxjs';
+import { of, Subject, throwError } from 'rxjs';
 import { ProductService } from '../../../catalog/services/product.service';
 import { ProductDto } from '../../../catalog/types/product.dto';
 import { ESPRESSO_DTO_FIXTURE, PRODUCT_CAFE_ID } from '../../../catalog/utils/product.fixture';
@@ -58,11 +58,44 @@ describe('CafeProducts', () => {
     expect(component.products().find((p) => p.externalId === 'product-off')?.state).toBe(true);
   });
 
-  it('marks an available product as sold out for today', () => {
+  it('asks for confirmation before changing the availability of a product', () => {
+    const fixture = render();
+
+    fixture.componentInstance.onToggleAvailability(ESPRESSO_DTO_FIXTURE);
+    fixture.detectChanges();
+
+    expect(service['changeAvailability']).not.toHaveBeenCalled();
+    expect(fixture.nativeElement.textContent).toContain('¿Marcar como agotado hoy?');
+  });
+
+  it('asks for confirmation before making a sold out product available again', () => {
+    const fixture = render();
+
+    fixture.componentInstance.onToggleAvailability({ ...ESPRESSO_DTO_FIXTURE, available: false });
+    fixture.detectChanges();
+
+    expect(service['changeAvailability']).not.toHaveBeenCalled();
+    expect(fixture.nativeElement.textContent).toContain('¿Marcar como disponible?');
+  });
+
+  it('leaves the availability as it was when the change is cancelled', () => {
     const component = render().componentInstance;
 
     component.onToggleAvailability(ESPRESSO_DTO_FIXTURE);
+    component.cancelAvailabilityChange();
 
+    expect(component.availabilityProduct()).toBeNull();
+    expect(service['changeAvailability']).not.toHaveBeenCalled();
+    expect(component.products()[0].available).toBe(ESPRESSO_DTO_FIXTURE.available);
+  });
+
+  it('marks an available product as sold out for today once confirmed', () => {
+    const component = render().componentInstance;
+
+    component.onToggleAvailability(ESPRESSO_DTO_FIXTURE);
+    component.confirmAvailabilityChange();
+
+    expect(component.availabilityProduct()).toBeNull();
     expect(service['changeAvailability']).toHaveBeenCalledWith(
       PRODUCT_CAFE_ID,
       ESPRESSO_DTO_FIXTURE.externalId,
@@ -70,6 +103,34 @@ describe('CafeProducts', () => {
     );
     expect(component.products()[0].available).toBe(false);
     expect(component.successMessage()).toContain('agotado hoy');
+  });
+
+  it('keeps the previous notice while the next change is in flight, so the table does not jump', () => {
+    const pending = new Subject<ProductDto>();
+    service['changeAvailability'].mockReturnValue(pending);
+    const component = render().componentInstance;
+    component.successMessage.set('"Latte" quedó marcado como agotado hoy.');
+
+    component.onToggleAvailability(ESPRESSO_DTO_FIXTURE);
+    component.confirmAvailabilityChange();
+
+    expect(component.successMessage()).toBe('"Latte" quedó marcado como agotado hoy.');
+
+    pending.next({ ...ESPRESSO_DTO_FIXTURE, available: false });
+
+    expect(component.successMessage()).toContain(`"${ESPRESSO_DTO_FIXTURE.name}" quedó marcado como agotado hoy.`);
+  });
+
+  it('swaps the previous notice for the error when the change fails', () => {
+    service['changeAvailability'].mockReturnValue(throwError(() => new HttpErrorResponse({ status: 500 })));
+    const component = render().componentInstance;
+    component.successMessage.set('"Latte" quedó marcado como agotado hoy.');
+
+    component.onToggleAvailability(ESPRESSO_DTO_FIXTURE);
+    component.confirmAvailabilityChange();
+
+    expect(component.successMessage()).toBeNull();
+    expect(component.errorMessage()).toBe('Ocurrió un error al cambiar la disponibilidad del producto.');
   });
 
   it('shows the detail of the backend when reactivating fails', () => {

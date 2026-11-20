@@ -29,7 +29,7 @@ function normalizeText(text: string | null | undefined): string {
   imports: [FormsModule, Icon, ProductItemRow, ProductForm],
   templateUrl: './cafe-products.html',
   styleUrl: './cafe-products.css',
-  host: { class: 'block', '(document:keydown.escape)': 'cancelDelete()' },
+  host: { class: 'block', '(document:keydown.escape)': 'onEscape()' },
 })
 export class CafeProducts implements OnInit {
   private readonly productService = inject(ProductService);
@@ -44,6 +44,8 @@ export class CafeProducts implements OnInit {
   showForm = signal(false);
   editingProduct = signal<ProductDto | null>(null);
   deletingProduct = signal<ProductDto | null>(null);
+  /** Producto al que se le quiere cambiar la disponibilidad, a la espera de que la cafetería lo confirme. */
+  availabilityProduct = signal<ProductDto | null>(null);
 
   searchQuery = signal('');
   filterState = signal<'all' | 'active' | 'inactive'>('all');
@@ -267,8 +269,8 @@ export class CafeProducts implements OnInit {
     if (!cafeId) {
       return;
     }
+    // El aviso anterior queda hasta que llegue el resultado: borrarlo antes hace saltar la tabla.
     this.errorMessage.set(null);
-    this.successMessage.set(null);
 
     this.productService.activate(cafeId, product.externalId).subscribe({
       next: (updatedProduct) => {
@@ -276,6 +278,7 @@ export class CafeProducts implements OnInit {
         this.successMessage.set(`El producto "${product.name}" fue reactivado exitosamente.`);
       },
       error: (err) => {
+        this.successMessage.set(null);
         const serverError = backendErrorMessage(err);
         this.errorMessage.set(serverError || 'Ocurrió un error al activar el producto.');
       },
@@ -283,12 +286,32 @@ export class CafeProducts implements OnInit {
   }
 
   onToggleAvailability(product: ProductDto): void {
+    this.availabilityProduct.set(product);
+  }
+
+  cancelAvailabilityChange(): void {
+    this.availabilityProduct.set(null);
+  }
+
+  confirmAvailabilityChange(): void {
+    const product = this.availabilityProduct();
+    this.availabilityProduct.set(null);
+    if (product) {
+      this.changeAvailability(product);
+    }
+  }
+
+  onEscape(): void {
+    this.cancelAvailabilityChange();
+    this.cancelDelete();
+  }
+
+  private changeAvailability(product: ProductDto): void {
     const cafeId = this.cafeId();
     if (!cafeId) {
       return;
     }
     this.errorMessage.set(null);
-    this.successMessage.set(null);
 
     this.productService.changeAvailability(cafeId, product.externalId, !product.available).subscribe({
       next: (updatedProduct) => {
@@ -300,6 +323,7 @@ export class CafeProducts implements OnInit {
         );
       },
       error: (err) => {
+        this.successMessage.set(null);
         const serverError = backendErrorMessage(err);
         this.errorMessage.set(serverError || 'Ocurrió un error al cambiar la disponibilidad del producto.');
       },
@@ -333,7 +357,6 @@ export class CafeProducts implements OnInit {
 
     this.isDeleting.set(true);
     this.errorMessage.set(null);
-    this.successMessage.set(null);
 
     this.productService.delete(cafeId, toDelete.externalId).subscribe({
       next: () => {
@@ -346,6 +369,7 @@ export class CafeProducts implements OnInit {
       },
       error: (err) => {
         this.isDeleting.set(false);
+        this.successMessage.set(null);
         const serverError = backendErrorMessage(err);
         this.errorMessage.set(serverError || 'Ocurrió un error al dar de baja el producto.');
       },

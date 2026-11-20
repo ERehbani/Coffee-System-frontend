@@ -71,6 +71,47 @@
     </div>
   }
 
+  @if (availabilityProduct(); as toChange) {
+    <div
+      class="modal-backdrop"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="product-availability-title"
+      (click)="cancelAvailabilityChange()"
+    >
+      <div class="modal-panel max-w-sm" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <div class="min-w-0">
+            <h2 id="product-availability-title" class="modal-title">
+              {{ toChange.available ? '¿Marcar como agotado hoy?' : '¿Marcar como disponible?' }}
+            </h2>
+            <p class="truncate text-xs text-muted">{{ toChange.name }}</p>
+          </div>
+          <button type="button" (click)="cancelAvailabilityChange()" class="icon-btn" aria-label="Cerrar" title="Cerrar">
+            <app-icon name="x" [size]="14" />
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <p class="text-xs leading-relaxed text-muted">
+            @if (toChange.available) {
+              Los clientes no van a poder pedirlo por el resto del día. Podés volver a marcarlo como disponible cuando quieras.
+            } @else {
+              Los clientes van a poder volver a pedirlo desde el catálogo.
+            }
+          </p>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" (click)="cancelAvailabilityChange()" autofocus class="btn-secondary">Cancelar</button>
+          <button type="button" (click)="confirmAvailabilityChange()" class="btn-primary">
+            {{ toChange.available ? 'Marcar agotado' : 'Marcar disponible' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
   @if (showForm()) {
     <app-product-form
       [cafeId]="cafeId()"
