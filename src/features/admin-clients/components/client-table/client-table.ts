@@ -1,11 +1,12 @@
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { Component, input, output } from '@angular/core';
+import { Icon } from '../../../../shared/components/icon/icon';
 import { AdminClientStoreStatus } from '../../services/admin-client.store';
 import { AdminClient, CLIENT_STATUS_LABELS } from '../../types/admin-client.model';
 
 @Component({
   selector: 'app-client-table',
-  imports: [DatePipe, DecimalPipe],
+  imports: [DatePipe, DecimalPipe, Icon],
   templateUrl: './client-table.html',
 })
 export class ClientTable {

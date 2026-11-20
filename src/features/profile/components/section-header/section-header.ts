@@ -4,7 +4,7 @@ import { Component, input, output } from '@angular/core';
   selector: 'app-section-header',
   template: `
     <div class="flex items-center justify-between gap-3">
-      <h2 [id]="headingId()" class="text-xl leading-tight font-extrabold tracking-tight text-text">
+      <h2 [id]="headingId()" class="text-base leading-tight font-bold text-text">
         {{ heading() }}
       </h2>
       @if (badge(); as badge) {
@@ -15,7 +15,7 @@ import { Component, input, output } from '@angular/core';
         <button
           type="button"
           (click)="action.emit()"
-          class="shrink-0 rounded-md px-1 py-0.5 text-sm font-bold text-primary hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+          class="shrink-0 cursor-pointer rounded-md px-1 py-0.5 text-xs font-bold text-primary hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
         >
           {{ actionLabel }}
         </button>

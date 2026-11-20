@@ -11,7 +11,7 @@ import {
 } from '../../../catalog/types/product.dto';
 import { backendErrorMessage } from '../../../../shared/utils/backend-error';
 import { ProductForm } from '../product-form/product-form';
-import { ProductItemCard } from '../product-item-card/product-item-card';
+import { ProductItemRow } from '../product-item-row/product-item-row';
 
 function normalizeText(text: string | null | undefined): string {
   if (!text) {
@@ -26,10 +26,10 @@ function normalizeText(text: string | null | undefined): string {
 
 @Component({
   selector: 'app-cafe-products',
-  imports: [FormsModule, Icon, ProductItemCard, ProductForm],
+  imports: [FormsModule, Icon, ProductItemRow, ProductForm],
   templateUrl: './cafe-products.html',
   styleUrl: './cafe-products.css',
-  host: { class: 'block' },
+  host: { class: 'block', '(document:keydown.escape)': 'cancelDelete()' },
 })
 export class CafeProducts implements OnInit {
   private readonly productService = inject(ProductService);
@@ -317,6 +317,10 @@ export class CafeProducts implements OnInit {
   }
 
   cancelDelete(): void {
+    // Escape and the backdrop also land here: leave the dialog alone while the baja is in flight.
+    if (this.isDeleting()) {
+      return;
+    }
     this.deletingProduct.set(null);
   }
 

@@ -14,7 +14,7 @@ import {
 } from '../../model/cafe-benefit.model';
 import { CafeBenefitService } from '../../services/cafe-benefit.service';
 import { toDeletionErrorMessage, toVisibilityErrorMessage } from '../../utils/benefit-action-error';
-import { BenefitCard } from '../benefit-card/benefit-card';
+import { BenefitRow } from '../benefit-row/benefit-row';
 import { BenefitForm } from '../benefit-form/benefit-form';
 
 function toProductOptions(products: ProductDto[]): ProductOption[] {
@@ -23,10 +23,10 @@ function toProductOptions(products: ProductDto[]): ProductOption[] {
 
 @Component({
   selector: 'app-cafe-benefits',
-  imports: [FormsModule, Icon, BenefitCard, BenefitForm],
+  imports: [FormsModule, Icon, BenefitRow, BenefitForm],
   templateUrl: './cafe-benefits.html',
   styleUrl: './cafe-benefits.css',
-  host: { class: 'block' },
+  host: { class: 'block', '(document:keydown.escape)': 'dismissForm()' },
 })
 export class CafeBenefits implements OnInit {
   private readonly cafeBenefitService = inject(CafeBenefitService);
@@ -194,8 +194,8 @@ export class CafeBenefits implements OnInit {
     });
   }
 
-  toggleForm(): void {
-    this.showForm.update((open) => !open);
+  openCreateForm(): void {
+    this.showForm.set(true);
     this.editingBenefit.set(null);
     this.errorMessage.set(null);
   }
@@ -204,6 +204,13 @@ export class CafeBenefits implements OnInit {
     this.showForm.set(false);
     this.editingBenefit.set(null);
     this.errorMessage.set(null);
+  }
+
+  // Escape and the backdrop of the dialog: a save in flight keeps it open so its result is not lost.
+  dismissForm(): void {
+    if (this.showForm() && !this.isSaving()) {
+      this.closeForm();
+    }
   }
 
   private updateBenefit(editing: CafeBenefit, request: CreateCafeBenefitRequest): void {

@@ -1,62 +1,37 @@
-<main class="mx-auto max-w-5xl px-4 py-8 space-y-6">
-  <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-border">
-    <div class="flex items-center gap-3">
-      <div>
-        <div class="flex items-center gap-2">
-          <h1 class="text-xl font-extrabold text-text">Gestión de Categorías</h1>
-          <span class="rounded-lg bg-purple-100 px-2 py-0.5 text-xs font-bold text-purple-800">
-            Superadmin
-          </span>
-        </div>
-        <p class="text-xs text-muted">Alta, baja y modificación de categorías de productos</p>
-      </div>
+<main class="page-shell">
+  <header class="page-header">
+    <div class="min-w-0">
+      <h1 class="page-title">Gestión de Categorías</h1>
+      <p class="text-xs text-muted">Alta, baja y modificación de categorías de productos</p>
     </div>
 
-    <div class="flex items-center gap-2 flex-wrap">
-      <button
-        type="button"
-        (click)="openCreate()"
-        class="cursor-pointer inline-flex items-center gap-1.5 rounded-xl bg-primary px-3.5 py-2 text-xs font-bold text-white shadow-xs hover:bg-primary-dark transition active:scale-95 select-none"
-      >
-        <span>Nueva Categoría</span>
-      </button>
-
+    <div class="toolbar">
       <button
         type="button"
         (click)="service.load()"
-        class="cursor-pointer inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface px-3 py-2 text-xs font-bold text-muted hover:bg-bg hover:text-text transition active:scale-95 shadow-2xs select-none"
+        class="refresh-btn"
         title="Actualizar listado"
       >
+        <app-icon name="refresh-cw" [size]="14" />
         <span>Actualizar</span>
       </button>
 
-      <a
-        routerLink="/admin/users"
-        class="cursor-pointer inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface px-3 py-2 text-xs font-bold text-muted hover:bg-bg hover:text-text transition active:scale-95 shadow-2xs select-none"
-      >
-        <span>Usuarios</span>
-      </a>
+      <button type="button" (click)="openCreate()" class="btn-primary">Nueva categoría</button>
     </div>
   </header>
 
   @if (service.message(); as msg) {
     <div
       role="status"
-      class="flex items-center justify-between gap-3 rounded-2xl border px-4 py-3 text-xs font-bold shadow-2xs transition"
-      [class.bg-emerald-50]="!msg.error"
-      [class.border-emerald-300]="!msg.error"
-      [class.text-emerald-900]="!msg.error"
-      [class.bg-rose-50]="msg.error"
-      [class.border-rose-300]="msg.error"
-      [class.text-rose-900]="msg.error"
+      class="notice"
+      [class.notice-success]="!msg.error"
+      [class.notice-error]="msg.error"
     >
-      <div class="flex items-center gap-2">
-        <span>{{ msg.text }}</span>
-      </div>
+      <span>{{ msg.text }}</span>
       <button
         type="button"
         (click)="service.clearMessage()"
-        class="cursor-pointer rounded-lg p-1 hover:bg-black/5 active:scale-95"
+        class="icon-btn"
         aria-label="Cerrar notificación"
       >
         <app-icon name="x" [size]="14" />
@@ -64,122 +39,104 @@
     </div>
   }
 
-  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-    <div class="relative flex-1 max-w-md">
-      <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-muted">
-        <app-icon name="search" [size]="16" />
-      </span>
+  <div class="toolbar justify-between">
+    <div class="search-field">
+      <app-icon name="search" [size]="14" />
       <input
         type="text"
         placeholder="Buscar categoría por nombre..."
+        aria-label="Buscar categoría por nombre"
         [value]="service.searchQuery()"
         (input)="onSearch($event)"
-        class="w-full rounded-xl border border-border bg-surface pl-10 pr-4 py-2 text-xs text-text placeholder:text-muted focus:border-primary focus:outline-hidden focus:ring-2 focus:ring-primary/20 transition shadow-2xs"
+        class="form-control"
       />
     </div>
 
-    <div class="text-xs text-muted">
+    <p class="text-xs text-muted">
       Total: <strong class="text-text">{{ service.filteredCategories().length }}</strong> categoría(s)
-    </div>
+    </p>
   </div>
 
-  <div class="overflow-hidden rounded-3xl border border-border bg-surface shadow-xs">
+  <div class="data-table-wrap">
     @if (service.loading() && service.categories().length === 0) {
-      <div class="space-y-3 p-6" aria-busy="true">
+      <div class="space-y-2 p-4" aria-busy="true">
         @for (item of [1, 2, 3, 4]; track item) {
-          <div class="h-10 rounded-xl bg-border/40 animate-pulse"></div>
+          <div class="h-9 animate-pulse rounded-md bg-border/40"></div>
         }
       </div>
     } @else if (service.filteredCategories().length === 0) {
-      <div class="flex flex-col items-center justify-center p-12 text-center">
+      <div class="empty-state">
         <p class="text-sm font-bold text-text">No se encontraron categorías</p>
-        <p class="text-xs text-muted mt-1">Creá una nueva categoría o probá con otro término de búsqueda.</p>
-        <button
-          type="button"
-          (click)="openCreate()"
-          class="mt-4 cursor-pointer inline-flex items-center gap-1.5 rounded-xl bg-primary px-3.5 py-2 text-xs font-bold text-white shadow-xs hover:bg-primary-dark transition active:scale-95"
-        >
-          <span>Crear Categoría</span>
-        </button>
+        <p class="text-xs text-muted">Creá una nueva categoría o probá con otro término de búsqueda.</p>
+        <button type="button" (click)="openCreate()" class="btn-primary mt-3">Crear categoría</button>
       </div>
     } @else {
-      <div class="overflow-x-auto">
-        <table class="w-full text-left border-collapse text-xs">
-          <thead>
-            <tr class="border-b border-border bg-bg/50 text-[11px] font-black uppercase tracking-wider text-muted select-none">
-              <th scope="col" class="py-3.5 pl-6 pr-3">Nombre</th>
-              <th scope="col" class="py-3.5 px-3 text-center">Productos</th>
-              <th scope="col" class="py-3.5 pl-3 pr-6 text-right">Acciones</th>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th scope="col">Nombre</th>
+            <th scope="col" class="text-center">Productos</th>
+            <th scope="col" class="data-table-actions">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (category of service.filteredCategories(); track category.id) {
+            <tr>
+              <td class="text-sm font-bold text-text">{{ category.name }}</td>
+              <td class="text-center">
+                <span class="badge bg-bg text-text ring-1 ring-border">{{ category.productCount | number }}</span>
+              </td>
+              <td class="data-table-actions">
+                <div class="row-actions">
+                  <button
+                    type="button"
+                    (click)="openEdit(category)"
+                    class="icon-btn icon-btn-primary"
+                    [attr.aria-label]="'Editar categoría ' + category.name"
+                    title="Editar"
+                  >
+                    <app-icon name="edit" [size]="14" />
+                  </button>
+                  <button
+                    type="button"
+                    (click)="openDelete(category)"
+                    class="icon-btn icon-btn-danger"
+                    [attr.aria-label]="'Eliminar categoría ' + category.name"
+                    title="Eliminar"
+                  >
+                    <app-icon name="trash" [size]="14" />
+                  </button>
+                </div>
+              </td>
             </tr>
-          </thead>
-          <tbody class="divide-y divide-border/60">
-            @for (category of service.filteredCategories(); track category.id) {
-              <tr class="transition hover:bg-bg/40">
-                <td class="py-3.5 pl-6 pr-3">
-                  <div class="flex items-center gap-3">
-                    <span class="font-extrabold text-sm text-text">{{ category.name }}</span>
-                  </div>
-                </td>
-                <td class="py-3.5 px-3 text-center">
-                  <span class="inline-flex items-center gap-1 rounded-lg bg-bg px-2.5 py-1 text-xs font-bold text-text border border-border">
-                    {{ category.productCount | number }}
-                  </span>
-                </td>
-                <td class="py-3.5 pl-3 pr-6 text-right">
-                  <div class="flex items-center justify-end gap-1.5">
-                    <button
-                      type="button"
-                      (click)="openEdit(category)"
-                      class="cursor-pointer inline-flex items-center gap-1 rounded-xl border border-border bg-surface px-2.5 py-1.5 text-xs font-bold text-text shadow-2xs hover:bg-bg hover:text-primary transition active:scale-95"
-                      title="Editar"
-                    >
-                      <span>Editar</span>
-                    </button>
-                    <button
-                      type="button"
-                      (click)="openDelete(category)"
-                      class="cursor-pointer inline-flex items-center gap-1 rounded-xl border border-rose-200 bg-rose-50/50 px-2.5 py-1.5 text-xs font-bold text-rose-700 shadow-2xs hover:bg-rose-100 hover:border-rose-300 transition active:scale-95"
-                      title="Eliminar"
-                    >
-                      <span>Eliminar</span>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
+          }
+        </tbody>
+      </table>
     }
   </div>
 
   @if (isFormOpen()) {
     <div
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs"
+      class="modal-backdrop"
       role="dialog"
       aria-modal="true"
+      aria-labelledby="category-form-title"
       (click)="closeForm()"
     >
-      <div
-        class="relative w-full max-w-md rounded-3xl border border-border bg-surface p-6 shadow-2xl space-y-4"
-        (click)="$event.stopPropagation()"
-      >
-        <div class="flex items-center justify-between pb-3 border-b border-border">
-          <h2 class="text-base font-extrabold text-text">
-            {{ editingCategory() ? 'Editar Categoría' : 'Nueva Categoría' }}
+      <div class="modal-panel max-w-sm" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h2 id="category-form-title" class="modal-title">
+            {{ editingCategory() ? 'Editar categoría' : 'Nueva categoría' }}
           </h2>
-          <button
-            type="button"
-            (click)="closeForm()"
-            class="cursor-pointer rounded-xl p-1.5 text-muted hover:bg-border/40 hover:text-text transition active:scale-95"
-          >
-            <app-icon name="x" [size]="16" />
+          <button type="button" (click)="closeForm()" class="icon-btn" aria-label="Cerrar" title="Cerrar">
+            <app-icon name="x" [size]="14" />
           </button>
         </div>
 
-        <div>
-          <label for="category-name" class="block text-xs font-bold text-text mb-1">
-            Nombre de la categoría <span class="text-rose-500">*</span>
+        <div class="modal-body">
+          <p class="form-section-title">Datos de la categoría</p>
+          <label for="category-name" class="form-label">
+            Nombre <span class="text-rose-600">*</span>
           </label>
           <input
             id="category-name"
@@ -190,32 +147,24 @@
             placeholder="Ej: Cafetería, Pastelería, Brunch..."
             maxlength="50"
             autofocus
-            class="w-full rounded-xl border border-border bg-bg/50 px-3.5 py-2.5 text-xs text-text placeholder:text-muted focus:border-primary focus:bg-surface focus:outline-hidden focus:ring-2 focus:ring-primary/20 transition"
-            [class.border-rose-400]="getNameError() !== null"
+            class="form-control"
+            [attr.aria-invalid]="getNameError() !== null ? 'true' : null"
           />
           @if (getNameError(); as err) {
-            <p class="mt-1 flex items-center gap-1 text-[11px] font-semibold text-rose-600">
-              <span>{{ err }}</span>
-            </p>
+            <p class="form-error">{{ err }}</p>
           }
-        </div>
 
-        <div class="flex items-center justify-end gap-2 pt-2 border-t border-border">
-          <button
-            type="button"
-            (click)="closeForm()"
-            class="cursor-pointer rounded-xl border border-border bg-surface px-4 py-2 text-xs font-bold text-muted hover:bg-bg transition active:scale-95 shadow-2xs"
-          >
-            Cancelar
-          </button>
-          <button
-            type="button"
-            (click)="onSave()"
-            [disabled]="touched() && !isNameValid()"
-            class="cursor-pointer inline-flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-xs font-bold text-white shadow-xs hover:bg-primary-dark transition active:scale-95 disabled:opacity-50"
-          >
-            <span>{{ editingCategory() ? 'Guardar Cambios' : 'Crear Categoría' }}</span>
-          </button>
+          <div class="form-actions">
+            <button type="button" (click)="closeForm()" class="btn-secondary">Cancelar</button>
+            <button
+              type="button"
+              (click)="onSave()"
+              [disabled]="touched() && !isNameValid()"
+              class="btn-primary"
+            >
+              {{ editingCategory() ? 'Guardar cambios' : 'Crear categoría' }}
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -223,42 +172,33 @@
 
   @if (deletingCategory(); as toDelete) {
     <div
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs"
+      class="modal-backdrop"
       role="dialog"
       aria-modal="true"
+      aria-labelledby="category-delete-title"
       (click)="closeDelete()"
     >
-      <div
-        class="relative w-full max-w-sm rounded-3xl border border-border bg-surface p-6 shadow-2xl space-y-4"
-        (click)="$event.stopPropagation()"
-      >
-        <div class="flex items-center gap-3">
+      <div class="modal-panel max-w-sm" (click)="$event.stopPropagation()">
+        <div class="modal-header">
           <div>
-            <h2 class="text-sm font-extrabold text-text">Eliminar Categoría</h2>
+            <h2 id="category-delete-title" class="modal-title">Eliminar categoría</h2>
             <p class="text-xs text-muted">Esta acción no se puede deshacer</p>
           </div>
+          <button type="button" (click)="closeDelete()" class="icon-btn" aria-label="Cerrar" title="Cerrar">
+            <app-icon name="x" [size]="14" />
+          </button>
         </div>
 
-        <p class="text-xs text-text leading-relaxed">
-          ¿Seguro que querés eliminar permanentemente la categoría
-          <strong class="font-extrabold text-rose-700">"{{ toDelete.name }}"</strong>?
-        </p>
+        <div class="modal-body">
+          <p class="text-xs leading-relaxed text-text">
+            ¿Seguro que querés eliminar permanentemente la categoría
+            <strong class="font-bold text-rose-700 dark:text-rose-300">"{{ toDelete.name }}"</strong>?
+          </p>
 
-        <div class="flex items-center justify-end gap-2 pt-2 border-t border-border">
-          <button
-            type="button"
-            (click)="closeDelete()"
-            class="cursor-pointer rounded-xl border border-border bg-surface px-3.5 py-1.5 text-xs font-bold text-muted hover:bg-bg transition active:scale-95 shadow-2xs"
-          >
-            Cancelar
-          </button>
-          <button
-            type="button"
-            (click)="onConfirmDelete()"
-            class="cursor-pointer inline-flex items-center gap-1.5 rounded-xl bg-rose-600 px-3.5 py-1.5 text-xs font-bold text-white shadow-xs hover:bg-rose-700 transition active:scale-95"
-          >
-            <span>Sí, eliminar</span>
-          </button>
+          <div class="form-actions">
+            <button type="button" (click)="closeDelete()" class="btn-secondary">Cancelar</button>
+            <button type="button" (click)="onConfirmDelete()" class="btn-danger">Sí, eliminar</button>
+          </div>
         </div>
       </div>
     </div>

@@ -1,0 +1,144 @@
+@if (isConfirmingRemoval()) {
+  <!-- The row turns into the confirmation strip: colspan matches the six columns of the table. -->
+  <td colspan="6" class="bg-rose-50 dark:bg-rose-500/10">
+    <div class="flex flex-wrap items-center justify-between gap-2">
+      <p class="text-xs text-rose-900 dark:text-rose-200">
+        <strong class="font-bold">{{ benefit().name }}</strong>
+        ¿Eliminar esta promoción? No se puede deshacer.
+      </p>
+      <div class="flex gap-2">
+        <button type="button" (click)="cancelRemoval()" class="btn-secondary h-8 px-3 text-xs">Cancelar</button>
+        <button type="button" (click)="confirmRemoval()" class="btn-danger h-8 px-3 text-xs">Eliminar</button>
+      </div>
+    </div>
+  </td>
+} @else {
+  <td>
+    <div class="flex items-center gap-3">
+      <div class="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-md border border-border bg-bg text-muted/60">
+        @if (benefit().image) {
+          <img
+            [src]="benefit().image"
+            [alt]="benefit().name"
+            class="size-full object-cover"
+            (error)="$any($event.target).style.display = 'none'"
+          />
+        } @else {
+          <app-icon name="gift" [size]="18" />
+        }
+      </div>
+
+      <div class="min-w-0">
+        <p class="truncate text-sm font-bold text-text">{{ benefit().name }}</p>
+        <p class="line-clamp-2 max-w-xs text-[11px] leading-snug text-muted">{{ benefit().description }}</p>
+        @if (benefit().productName) {
+          <p class="mt-0.5 text-[11px] font-semibold text-text">Producto: {{ benefit().productName }}</p>
+        }
+        @if (benefit().conditions) {
+          <p class="line-clamp-1 max-w-xs text-[11px] text-muted" [title]="benefit().conditions">
+            <span class="font-bold text-text">Condiciones y reglas:</span> {{ benefit().conditions }}
+          </p>
+        }
+      </div>
+    </div>
+  </td>
+
+  <td class="whitespace-nowrap">
+    <span class="badge bg-accent-light text-primary">
+      @if (benefit().pointsCost > 0) {
+        {{ benefit().pointsCost }} pts
+      } @else if (benefit().discountPercentage) {
+        {{ benefit().discountPercentage }}% OFF
+      } @else {
+        Descuento directo
+      }
+    </span>
+  </td>
+
+  <td>
+    <div class="flex flex-wrap items-center gap-1">
+      @if (benefit().status) {
+        <span class="badge badge-success">
+          <span class="size-1.5 rounded-full bg-current"></span>
+          Activo
+        </span>
+      } @else {
+        <span class="badge badge-neutral">Pausado</span>
+      }
+      @if (benefit().soldOut) {
+        <span class="badge badge-warning">Agotado</span>
+      }
+      @if (benefit().tierName) {
+        <span class="badge" [class]="tierBadgeClass()">Nivel {{ tierDisplayName() }}</span>
+      }
+    </div>
+  </td>
+
+  <td class="text-xs whitespace-nowrap text-muted" data-testid="benefit-validity">
+    @if (benefit().startDate && benefit().endDate) {
+      {{ benefit().startDate | date: 'dd/MM/yyyy' }} al {{ benefit().endDate | date: 'dd/MM/yyyy' }}
+    } @else if (benefit().startDate) {
+      Desde {{ benefit().startDate | date: 'dd/MM/yyyy' }}
+    } @else if (benefit().endDate) {
+      Hasta {{ benefit().endDate | date: 'dd/MM/yyyy' }}
+    } @else {
+      Sin vencimiento
+    }
+  </td>
+
+  <td class="text-xs whitespace-nowrap text-muted">
+    {{ benefit().maxRedemptions === null ? 'Sin límite' : benefit().maxRedemptions + ' canjes' }}
+  </td>
+
+  <td class="data-table-actions">
+    <div class="row-actions">
+      <button
+        type="button"
+        (click)="edit.emit(benefit())"
+        class="icon-btn icon-btn-primary"
+        [attr.aria-label]="'Editar promoción ' + benefit().name"
+        title="Editar"
+      >
+        <app-icon name="edit" [size]="14" />
+      </button>
+
+      @if (benefit().status) {
+        <button
+          type="button"
+          data-testid="pause-benefit"
+          (click)="pause.emit(benefit())"
+          [disabled]="busy()"
+          class="icon-btn"
+          [attr.aria-label]="'Pausar promoción ' + benefit().name"
+          title="Pausar"
+        >
+          <app-icon name="pause" [size]="14" />
+        </button>
+      } @else {
+        <button
+          type="button"
+          data-testid="resume-benefit"
+          (click)="resume.emit(benefit())"
+          [disabled]="busy()"
+          class="icon-btn"
+          [attr.aria-label]="'Reanudar promoción ' + benefit().name"
+          title="Reanudar"
+        >
+          <app-icon name="play" [size]="14" />
+        </button>
+      }
+
+      <button
+        type="button"
+        data-testid="remove-benefit"
+        (click)="askRemoval()"
+        [disabled]="busy()"
+        class="icon-btn icon-btn-danger"
+        [attr.aria-label]="'Eliminar promoción ' + benefit().name"
+        title="Eliminar"
+      >
+        <app-icon name="trash" [size]="14" />
+      </button>
+    </div>
+  </td>
+}

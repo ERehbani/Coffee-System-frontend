@@ -1,23 +1,22 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ProductDto } from '../../../catalog/types/product.dto';
 import { ESPRESSO_DTO_FIXTURE } from '../../../catalog/utils/product.fixture';
-import { ProductItemCard } from './product-item-card';
+import { ProductItemRow } from './product-item-row';
 
-describe('ProductItemCard', () => {
-  function render(product: ProductDto): ComponentFixture<ProductItemCard> {
-    const fixture = TestBed.createComponent(ProductItemCard);
+describe('ProductItemRow', () => {
+  function render(product: ProductDto): ComponentFixture<ProductItemRow> {
+    const fixture = TestBed.createComponent(ProductItemRow);
     fixture.componentRef.setInput('product', product);
     fixture.detectChanges();
     return fixture;
   }
 
-  function buttonWithText(fixture: ComponentFixture<ProductItemCard>, text: string): HTMLButtonElement | undefined {
-    const buttons = Array.from(fixture.nativeElement.querySelectorAll('button')) as HTMLButtonElement[];
-    return buttons.find((button) => button.textContent?.trim() === text);
+  function buttonLabelled(fixture: ComponentFixture<ProductItemRow>, label: string): HTMLButtonElement | null {
+    return fixture.nativeElement.querySelector(`button[aria-label^="${label}"]`);
   }
 
   beforeEach(async () => {
-    await TestBed.configureTestingModule({ imports: [ProductItemCard] }).compileComponents();
+    await TestBed.configureTestingModule({ imports: [ProductItemRow] }).compileComponents();
   });
 
   it('offers to mark an available product as sold out for today', () => {
@@ -25,7 +24,7 @@ describe('ProductItemCard', () => {
     let toggled: ProductDto | undefined;
     fixture.componentInstance.toggleAvailability.subscribe((product) => (toggled = product));
 
-    buttonWithText(fixture, 'Agotado hoy')?.click();
+    buttonLabelled(fixture, 'Marcar como agotado hoy')?.click();
 
     expect(toggled).toEqual(ESPRESSO_DTO_FIXTURE);
   });
@@ -34,7 +33,7 @@ describe('ProductItemCard', () => {
     const fixture = render({ ...ESPRESSO_DTO_FIXTURE, available: false });
 
     expect(fixture.nativeElement.textContent).toContain('Agotado hoy');
-    expect(buttonWithText(fixture, 'Disponible')).toBeDefined();
+    expect(buttonLabelled(fixture, 'Marcar como disponible')).not.toBeNull();
   });
 
   it('offers to activate a product that was taken down', () => {
@@ -42,9 +41,9 @@ describe('ProductItemCard', () => {
     let activated: ProductDto | undefined;
     fixture.componentInstance.activate.subscribe((product) => (activated = product));
 
-    buttonWithText(fixture, 'Activar')?.click();
+    buttonLabelled(fixture, 'Activar producto')?.click();
 
     expect(activated?.state).toBe(false);
-    expect(buttonWithText(fixture, 'Agotado hoy')).toBeUndefined();
+    expect(buttonLabelled(fixture, 'Marcar como agotado hoy')).toBeNull();
   });
 });

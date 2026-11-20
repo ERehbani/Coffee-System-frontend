@@ -2,6 +2,7 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { Icon } from '../../../../shared/components/icon/icon';
 import { ToastService } from '../../../../shared/components/toast/toast.service';
+import { ThemeService } from '../../../../shared/services/theme';
 import { LogoutButton } from '../../../auth/components/logout-button/logout-button';
 import { ActiveRedemptionCard } from '../../components/active-redemption-card/active-redemption-card';
 import { DashboardHeader } from '../../components/dashboard-header/dashboard-header';
@@ -51,8 +52,10 @@ export class ProfilePage {
   private readonly repository = inject(ProfileRepository);
   private readonly router = inject(Router);
   private readonly toast = inject(ToastService);
+  protected readonly theme = inject(ThemeService);
 
   protected readonly redeemTarget = signal<RedeemTarget | null>(null);
+  protected readonly isDark = computed(() => this.theme.theme() === 'dark');
 
   constructor() {
     this.store.reload();

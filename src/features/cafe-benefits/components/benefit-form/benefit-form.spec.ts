@@ -91,6 +91,7 @@ describe('BenefitForm', () => {
       tierId: 'tier-bronce',
       startDate: '2026-11-15',
       endDate: '2026-12-15',
+      image: 'https://cdn.example.com/2x1.jpg',
     });
     fixture.detectChanges();
     const form = fixture.componentInstance;
@@ -113,6 +114,7 @@ describe('BenefitForm', () => {
       type: 'DOS_POR_UNO',
       productId: 'product-medialuna',
       tierId: 'tier-bronce',
+      image: 'https://cdn.example.com/2x1.jpg',
     });
   });
 

@@ -1,13 +1,13 @@
 import { Component, computed, input, linkedSignal, output, signal } from '@angular/core';
-import { Icon } from '../../../../shared/components/icon/icon';
 import { ImageInput } from '../../../../shared/components/image-input/image-input';
 import { OpeningHoursEditor } from '../../../../shared/components/opening-hours-editor/opening-hours-editor';
 import { hasValidOpeningHours, OpeningHours } from '../../../../shared/utils/opening-hours';
 import { CafeProfile, UpdateCafeProfileInput } from '../../types/cafe-profile.model';
+import { CafeHeader } from '../cafe-header/cafe-header';
 
 @Component({
   selector: 'app-cafe-edit-form',
-  imports: [Icon, ImageInput, OpeningHoursEditor],
+  imports: [CafeHeader, ImageInput, OpeningHoursEditor],
   templateUrl: './cafe-edit-form.html',
   host: { class: 'block' },
 })

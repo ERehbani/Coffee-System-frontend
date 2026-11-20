@@ -1,11 +1,12 @@
 import { DatePipe } from '@angular/common';
 import { Component, input, output } from '@angular/core';
+import { Icon } from '../../../../shared/components/icon/icon';
 import { AdminUserStoreStatus } from '../../services/admin-user.store';
 import { AdminUser, UserRole, UserStatus } from '../../types/admin-user.model';
 
 @Component({
   selector: 'app-user-table',
-  imports: [DatePipe],
+  imports: [DatePipe, Icon],
   templateUrl: './user-table.html',
 })
 export class UserTable {

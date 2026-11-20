@@ -1,131 +1,114 @@
-<div class="w-full overflow-hidden rounded-2xl border border-border bg-surface shadow-xs">
+<div class="data-table-wrap">
   @if (status() === 'loading') {
-    <div class="p-8 space-y-4">
-      <div class="flex items-center justify-between animate-pulse">
-        <div class="h-5 w-48 rounded-lg bg-border/60"></div>
-        <div class="h-5 w-24 rounded-lg bg-border/60"></div>
-      </div>
-      <div class="space-y-3 pt-4">
-        @for (i of [1, 2, 3, 4, 5]; track i) {
-          <div class="flex items-center justify-between gap-4 py-3 border-b border-border/40 animate-pulse">
-            <div class="flex items-center gap-3">
-              <div class="size-10 rounded-xl bg-border/60"></div>
-              <div class="space-y-1.5">
-                <div class="h-4 w-32 rounded bg-border/60"></div>
-                <div class="h-3 w-40 rounded bg-border/40"></div>
-              </div>
-            </div>
-            <div class="h-6 w-20 rounded-full bg-border/50"></div>
-            <div class="h-6 w-16 rounded-full bg-border/50"></div>
-            <div class="h-4 w-28 rounded bg-border/40 hidden md:block"></div>
-            <div class="h-8 w-24 rounded-lg bg-border/50"></div>
-          </div>
-        }
-      </div>
+    <div class="space-y-2 p-4" aria-busy="true">
+      @for (i of [1, 2, 3, 4, 5]; track i) {
+        <div class="h-9 animate-pulse rounded-md bg-border/40"></div>
+      }
     </div>
   } @else if (users().length === 0) {
-    <div class="flex flex-col items-center justify-center py-16 px-4 text-center">
-      <h3 class="text-base font-bold text-text">No se encontraron usuarios</h3>
-      <p class="mt-1 text-xs text-muted max-w-sm">
+    <div class="empty-state">
+      <h3 class="text-sm font-bold text-text">No se encontraron usuarios</h3>
+      <p class="max-w-sm text-xs text-muted">
         No hay registros que coincidan con los criterios de búsqueda o filtros seleccionados.
       </p>
     </div>
   } @else {
-    <div class="overflow-x-auto">
-      <table class="w-full text-left border-collapse text-xs">
-        <thead>
-          <tr class="border-b border-border bg-bg/60 text-muted font-bold uppercase tracking-wider text-[11px]">
-            <th scope="col" class="py-3.5 px-4">Usuario</th>
-            <th scope="col" class="py-3.5 px-4">ID</th>
-            <th scope="col" class="py-3.5 px-4">Rol</th>
-            <th scope="col" class="py-3.5 px-4">Estado</th>
-            <th scope="col" class="py-3.5 px-4 hidden lg:table-cell">Registro</th>
-            <th scope="col" class="py-3.5 px-4 text-right">Acción</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-border/60">
-          @for (user of users(); track user.id) {
-            <tr
-              tabindex="0"
-              role="button"
-              (click)="onRowClick(user)"
-              (keydown)="onRowKeyDown($event, user)"
-              class="group cursor-pointer hover:bg-bg/60 transition-colors focus:bg-bg focus:outline-hidden focus:ring-2 focus:ring-primary/40"
-              [attr.aria-label]="'Ver detalles de ' + user.email"
-            >
-              <td class="py-3.5 px-4">
-                <div class="flex items-center gap-3">
-                  <div
-                    class="flex size-9 items-center justify-center rounded-xl text-xs font-black text-white shrink-0 shadow-2xs"
-                    [class.bg-muted]="!user.role"
-                    [class.bg-purple-600]="user.role === 'superadmin'"
-                    [class.bg-primary]="user.role === 'cafe_admin'"
-                    [class.bg-accent]="user.role === 'client'"
-                  >
-                    {{ getInitials(user.email) }}
-                  </div>
-                  <p class="min-w-0 font-bold text-text truncate group-hover:text-primary transition-colors">
-                    {{ user.email }}
-                  </p>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th scope="col">Usuario</th>
+          <th scope="col">ID</th>
+          <th scope="col">Rol</th>
+          <th scope="col">Estado</th>
+          <th scope="col" class="hidden lg:table-cell">Registro</th>
+          <th scope="col" class="data-table-actions">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (user of users(); track user.id) {
+          <tr
+            tabindex="0"
+            role="button"
+            (click)="onRowClick(user)"
+            (keydown)="onRowKeyDown($event, user)"
+            class="group cursor-pointer focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary"
+            [attr.aria-label]="'Ver detalles de ' + user.email"
+          >
+            <td>
+              <div class="flex items-center gap-2.5">
+                <div
+                  class="flex size-8 shrink-0 items-center justify-center rounded-md text-[11px] font-bold text-white"
+                  [class.bg-muted]="!user.role"
+                  [class.bg-purple-600]="user.role === 'superadmin'"
+                  [class.bg-primary]="user.role === 'cafe_admin'"
+                  [class.bg-accent]="user.role === 'client'"
+                >
+                  {{ getInitials(user.email) }}
                 </div>
-              </td>
+                <p class="min-w-0 truncate font-bold text-text transition-colors group-hover:text-primary">
+                  {{ user.email }}
+                </p>
+              </div>
+            </td>
 
-              <td class="py-3.5 px-4 font-mono font-semibold text-muted text-[11px] whitespace-nowrap">
-                {{ user.id }}
-              </td>
+            <td class="font-mono text-[11px] font-semibold whitespace-nowrap text-muted">
+              {{ user.id }}
+            </td>
 
-              <td class="py-3.5 px-4 whitespace-nowrap">
+            <td class="whitespace-nowrap">
+              <span
+                class="badge"
+                [class.bg-purple-100]="user.role === 'superadmin'"
+                [class.text-purple-800]="user.role === 'superadmin'"
+                [class.bg-amber-100]="user.role === 'cafe_admin'"
+                [class.text-amber-900]="user.role === 'cafe_admin'"
+                [class.bg-sky-100]="user.role === 'client'"
+                [class.text-sky-900]="user.role === 'client'"
+              >
+                {{ getRoleLabel(user.role) }}
+              </span>
+            </td>
+
+            <td class="whitespace-nowrap">
+              <span
+                class="badge"
+                [class.bg-emerald-100]="user.status === 'active'"
+                [class.text-emerald-800]="user.status === 'active'"
+                [class.bg-slate-100]="user.status === 'inactive'"
+                [class.text-slate-700]="user.status === 'inactive'"
+              >
                 <span
-                  class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold"
-                  [class.bg-purple-100]="user.role === 'superadmin'"
-                  [class.text-purple-800]="user.role === 'superadmin'"
-                  [class.bg-amber-100]="user.role === 'cafe_admin'"
-                  [class.text-amber-900]="user.role === 'cafe_admin'"
-                  [class.bg-sky-100]="user.role === 'client'"
-                  [class.text-sky-900]="user.role === 'client'"
-                >
-                  {{ getRoleLabel(user.role) }}
-                </span>
-              </td>
+                  class="size-1.5 rounded-full"
+                  [class.bg-emerald-500]="user.status === 'active'"
+                  [class.bg-slate-400]="user.status === 'inactive'"
+                ></span>
+                {{ getStatusLabel(user.status) }}
+              </span>
+            </td>
 
-              <td class="py-3.5 px-4 whitespace-nowrap">
-                <span
-                  class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold"
-                  [class.bg-emerald-100]="user.status === 'active'"
-                  [class.text-emerald-800]="user.status === 'active'"
-                  [class.bg-slate-100]="user.status === 'inactive'"
-                  [class.text-slate-700]="user.status === 'inactive'"
-                >
-                  <span
-                    class="size-1.5 rounded-full"
-                    [class.bg-emerald-500]="user.status === 'active'"
-                    [class.bg-slate-400]="user.status === 'inactive'"
-                  ></span>
-                  {{ getStatusLabel(user.status) }}
-                </span>
-              </td>
+            <td class="hidden whitespace-nowrap text-muted lg:table-cell">
+              {{ (user.createdAt | date: 'dd/MM/yyyy') ?? '—' }}
+            </td>
 
-              <td class="py-3.5 px-4 text-muted hidden lg:table-cell whitespace-nowrap">
-                {{ (user.createdAt | date: 'dd/MM/yyyy') ?? '—' }}
-              </td>
-
-              <td class="py-3.5 px-4 text-right whitespace-nowrap">
+            <td class="data-table-actions">
+              <div class="row-actions">
                 <button
                   type="button"
                   (click)="onRowClick(user); $event.stopPropagation()"
-                  class="cursor-pointer inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface px-3 py-1.5 text-[11px] font-bold text-muted transition-all hover:bg-bg hover:text-text hover:border-primary/40 active:scale-95 shadow-2xs group-hover:border-primary/30"
+                  class="icon-btn"
                   aria-label="Ver detalle"
+                  title="Ver detalle"
                 >
-                  <span>Ver detalle</span>
+                  <app-icon name="eye" [size]="14" />
                 </button>
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
-    </div>
+              </div>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
 
-    <div class="flex items-center justify-between border-t border-border bg-bg/40 px-4 py-3 text-xs text-muted">
+    <div class="flex items-center justify-between gap-3 border-t border-border px-4 py-2.5 text-xs text-muted">
       <span>Mostrando <strong>{{ users().length }}</strong> usuario(s) registrado(s)</span>
       <span class="text-[11px]">Hacé clic en cualquier fila para auditar el perfil</span>
     </div>

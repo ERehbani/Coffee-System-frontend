@@ -4,7 +4,7 @@
   [attr.aria-expanded]="isOpen()"
   aria-controls="panel-carrito"
   [attr.aria-label]="'Ver carrito, ' + cartService.totalItems() + ' productos'"
-  class="relative flex size-11 items-center justify-center rounded-2xl border border-border bg-surface text-primary shadow-xs transition-all hover:border-primary hover:bg-accent-light/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary cursor-pointer"
+  class="relative flex size-10 items-center justify-center rounded-md border border-border bg-surface text-primary transition-colors hover:border-primary hover:bg-accent-light/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary cursor-pointer"
 >
   <app-icon name="shopping-bag" [size]="20" />
   @if (cartService.totalItems() > 0) {
@@ -182,7 +182,7 @@
         type="button"
         (click)="goToCheckout()"
         [disabled]="!canCheckout()"
-        class="flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-primary-dark disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+        class="btn-primary h-10 w-full"
       >
         Ir a pagar
       </button>

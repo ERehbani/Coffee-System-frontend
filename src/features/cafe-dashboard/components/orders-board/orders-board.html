@@ -1,8 +1,8 @@
 <section aria-labelledby="orders-heading" class="space-y-4">
-  <header class="flex flex-wrap items-end justify-between gap-3">
+  <header class="flex flex-wrap items-end justify-between gap-3 border-b border-border pb-3">
     <div>
-      <h2 id="orders-heading" class="text-lg font-extrabold text-text">Pedidos en curso</h2>
-      <p class="text-sm text-muted">
+      <h2 id="orders-heading" class="text-sm font-bold text-text">Pedidos en curso</h2>
+      <p class="text-xs text-muted">
         @if (status() === 'ready') {
           @if (openCount() === 0) {
             No hay pedidos para atender.
@@ -19,16 +19,15 @@
     <button
       type="button"
       (click)="refresh()"
-      class="cursor-pointer rounded-xl border border-border bg-surface px-3 py-1.5 text-sm font-semibold text-text transition hover:border-primary/50"
+      class="refresh-btn"
     >
-      Actualizar
+      <app-icon name="refresh-cw" [size]="14" />
+      <span>Actualizar</span>
     </button>
   </header>
 
   @if (actionError(); as message) {
-    <p role="alert" class="rounded-xl border border-rose-300 bg-rose-50 px-4 py-3 text-sm font-semibold text-rose-800">
-      {{ message }}
-    </p>
+    <p role="alert" class="notice notice-error">{{ message }}</p>
   }
 
   @switch (status()) {
@@ -36,11 +35,9 @@
       <p role="status" class="text-sm text-muted">Cargando pedidos…</p>
     }
     @case ('error') {
-      <div role="alert" class="rounded-2xl border border-border bg-surface p-5 text-sm">
-        <p class="font-semibold text-text">No pudimos cargar los pedidos.</p>
-        <button type="button" (click)="refresh()" class="mt-2 cursor-pointer font-semibold text-primary hover:underline">
-          Reintentar
-        </button>
+      <div role="alert" class="empty-state">
+        <p class="text-sm font-bold text-text">No pudimos cargar los pedidos.</p>
+        <button type="button" (click)="refresh()" class="btn-secondary mt-3">Reintentar</button>
       </div>
     }
     @default {
@@ -49,25 +46,26 @@
           @let list = ordersByStatus()[column.status] ?? [];
           <section
             [attr.aria-label]="column.title"
-            class="flex flex-col gap-3 rounded-2xl border border-border bg-bg/60 p-3"
+            class="flex flex-col gap-2 border border-border bg-bg/40 p-3"
           >
-            <h3 class="flex items-center justify-between px-1 text-sm font-bold text-text">
+            <h3 class="flex items-center justify-between px-1 text-[11px] font-bold tracking-wider text-muted uppercase">
               {{ column.title }}
               <span
-                class="rounded-full px-2 py-0.5 text-xs font-bold"
-                [class.bg-primary]="column.status === 'CONFIRMED' && list.length > 0"
-                [class.text-white]="column.status === 'CONFIRMED' && list.length > 0"
-                [class.bg-border]="column.status !== 'CONFIRMED' || list.length === 0"
-                [class.text-muted]="column.status !== 'CONFIRMED' || list.length === 0"
+                class="badge"
+                [class]="
+                  column.status === 'CONFIRMED' && list.length > 0
+                    ? 'bg-primary text-white dark:text-bg'
+                    : 'bg-border text-muted'
+                "
               >
                 {{ list.length }}
               </span>
             </h3>
 
             @for (order of list; track order.externalId) {
-              <article class="space-y-3 rounded-xl border border-border bg-surface p-4 shadow-xs">
+              <article class="space-y-2.5 border border-border bg-surface p-3">
                 <header class="flex items-start justify-between gap-2">
-                  <p class="min-w-0 truncate font-bold text-text">{{ order.clientName || 'Cliente' }}</p>
+                  <p class="min-w-0 truncate text-sm font-bold text-text">{{ order.clientName || 'Cliente' }}</p>
                   <p class="shrink-0 text-xs text-muted" [title]="order.date | date: 'd/M/y HH:mm'">
                     @if (minutesAgo(order) < 1) {
                       recién
@@ -79,45 +77,39 @@
                   </p>
                 </header>
 
-                <ul class="space-y-0.5 text-sm text-text">
+                <ul class="space-y-0.5 text-xs text-text">
                   @for (detail of order.details; track detail.externalId) {
                     <li>
                       <span class="font-semibold">{{ detail.amount }}×</span> {{ detail.productName }}
                       @if (detail.unitPrice === 0) {
-                        <span class="text-xs text-muted">(regalo del cupón)</span>
+                        <span class="text-muted">(regalo del cupón)</span>
                       }
                     </li>
                   }
                 </ul>
 
-                <p class="flex items-center justify-between text-sm">
+                <p class="flex items-center justify-between border-t border-border pt-2 text-xs">
                   <span class="text-muted">
                     @if (order.redemptionId) {
                       Con cupón
                     }
                   </span>
-                  <span class="font-bold text-text">{{ order.price | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}</span>
+                  <span class="text-sm font-bold text-text">{{ order.price | currency: 'ARS' : 'symbol-narrow' : '1.0-0' }}</span>
                 </p>
 
                 @if (confirmingCancelId() === order.externalId) {
-                  <div class="space-y-2 rounded-lg bg-rose-50 p-3 text-sm text-rose-900">
+                  <div class="notice notice-error flex-col items-stretch font-normal">
                     <p>¿Cancelar el pedido? Al cliente se le descuentan los puntos de esta compra.</p>
                     <div class="flex gap-2">
                       <button
                         type="button"
                         (click)="advance(order, 'CANCELLED')"
                         [disabled]="busyId() === order.externalId"
-                        class="cursor-pointer rounded-lg bg-rose-600 px-3 py-1.5 font-semibold text-white hover:bg-rose-700 disabled:cursor-wait disabled:opacity-60"
+                        class="btn-danger h-8 px-3 text-xs"
                       >
                         Sí, cancelar
                       </button>
-                      <button
-                        type="button"
-                        (click)="keepOrder()"
-                        class="cursor-pointer rounded-lg px-3 py-1.5 font-semibold text-rose-900 hover:bg-rose-100"
-                      >
-                        No
-                      </button>
+                      <button type="button" (click)="keepOrder()" class="btn-secondary h-8 px-3 text-xs">No</button>
                     </div>
                   </div>
                 } @else {
@@ -126,7 +118,7 @@
                       type="button"
                       (click)="advance(order, column.next)"
                       [disabled]="busyId() === order.externalId"
-                      class="flex-1 cursor-pointer rounded-lg bg-primary px-3 py-2 text-sm font-semibold text-white transition hover:bg-primary-dark disabled:cursor-wait disabled:opacity-60"
+                      class="btn-primary h-8 flex-1 px-3 text-xs"
                     >
                       {{ busyId() === order.externalId ? 'Guardando…' : column.action }}
                     </button>
@@ -134,7 +126,7 @@
                       type="button"
                       (click)="askToCancel(order)"
                       [disabled]="busyId() === order.externalId"
-                      class="cursor-pointer rounded-lg px-3 py-2 text-sm font-semibold text-muted transition hover:bg-bg hover:text-rose-700"
+                      class="btn-secondary h-8 px-3 text-xs text-muted hover:text-rose-700"
                     >
                       Cancelar
                     </button>
@@ -142,7 +134,7 @@
                 }
               </article>
             } @empty {
-              <p class="px-1 py-4 text-center text-sm text-muted">{{ column.empty }}</p>
+              <p class="px-1 py-4 text-center text-xs text-muted">{{ column.empty }}</p>
             }
           </section>
         }

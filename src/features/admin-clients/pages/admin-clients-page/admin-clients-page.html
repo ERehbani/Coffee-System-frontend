@@ -1,4 +1,4 @@
-<main class="mx-auto w-full max-w-6xl space-y-6 px-4 py-8 lg:px-8">
+<main class="page-shell">
   <app-admin-page-header
     title="Clientes"
     subtitle="Cuentas de consumidores finales con sus puntos y su nivel."
@@ -7,62 +7,59 @@
       actions
       type="button"
       (click)="store.loadClients()"
-      class="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-border bg-surface px-4 py-2.5 text-sm font-semibold text-muted transition-colors hover:bg-bg hover:text-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+      class="refresh-btn"
     >
-      Actualizar
+      <app-icon name="refresh-cw" [size]="14" />
+      <span>Actualizar</span>
     </button>
   </app-admin-page-header>
 
-  <section aria-label="Resumen de clientes" class="grid grid-cols-2 gap-3 lg:grid-cols-4">
+  <section aria-label="Resumen de clientes" class="summary-strip">
     @for (card of statCards(); track card.label) {
-      <div class="rounded-2xl border border-border bg-surface p-4 shadow-2xs">
-        <div class="mb-1 flex items-center justify-between text-muted">
-          <span class="text-xs font-bold">{{ card.label }}</span>
-        </div>
-        <p class="text-2xl font-black text-text">{{ card.value | number }}</p>
-        <span class="text-[11px] text-muted">{{ card.hint }}</span>
+      <div class="summary-item">
+        <p class="text-[11px] font-bold text-muted">{{ card.label }}</p>
+        <p class="text-xl font-bold text-text">{{ card.value | number }}</p>
+        <p class="text-[11px] text-muted">{{ card.hint }}</p>
       </div>
     }
   </section>
 
-  <div class="grid grid-cols-1 gap-3 rounded-2xl border border-border bg-surface p-4 shadow-2xs md:grid-cols-12">
-    <label class="relative md:col-span-6">
-      <span class="sr-only">Buscar clientes</span>
-      <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-muted">
-        <app-icon name="search" [size]="16" />
-      </span>
-      <input
-        type="search"
-        placeholder="Buscar por nombre, email o teléfono..."
-        [value]="store.searchQuery()"
-        (input)="onSearchChange($event)"
-        class="w-full rounded-xl border border-border bg-bg/50 py-2.5 pl-10 pr-4 text-xs text-text transition placeholder:text-muted focus:border-primary focus:bg-surface focus:outline-hidden focus:ring-2 focus:ring-primary/20"
-      />
-    </label>
+  <div class="space-y-2">
+    <div class="toolbar">
+      <label class="search-field sm:max-w-xs">
+        <span class="sr-only">Buscar clientes</span>
+        <app-icon name="search" [size]="14" />
+        <input
+          type="search"
+          placeholder="Buscar por nombre, email o teléfono..."
+          [value]="store.searchQuery()"
+          (input)="onSearchChange($event)"
+          class="form-control"
+        />
+      </label>
 
-    <select
-      aria-label="Filtrar por estado"
-      (change)="onStatusChange($event)"
-      class="cursor-pointer rounded-xl border border-border bg-bg/50 px-3.5 py-2.5 text-xs font-medium text-text transition focus:border-primary focus:bg-surface focus:outline-hidden focus:ring-2 focus:ring-primary/20 md:col-span-3"
-    >
-      <option value="all" [selected]="store.statusFilter() === 'all'">Todos los estados</option>
-      <option value="active" [selected]="store.statusFilter() === 'active'">Activos</option>
-      <option value="inactive" [selected]="store.statusFilter() === 'inactive'">Inactivos</option>
-    </select>
+      <select
+        aria-label="Filtrar por estado"
+        (change)="onStatusChange($event)"
+        class="form-control w-auto cursor-pointer"
+      >
+        <option value="all" [selected]="store.statusFilter() === 'all'">Todos los estados</option>
+        <option value="active" [selected]="store.statusFilter() === 'active'">Activos</option>
+        <option value="inactive" [selected]="store.statusFilter() === 'inactive'">Inactivos</option>
+      </select>
 
-    <select
-      aria-label="Filtrar por nivel"
-      (change)="onTierChange($event)"
-      class="cursor-pointer rounded-xl border border-border bg-bg/50 px-3.5 py-2.5 text-xs font-medium text-text transition focus:border-primary focus:bg-surface focus:outline-hidden focus:ring-2 focus:ring-primary/20 md:col-span-3"
-    >
-      <option value="all" [selected]="store.tierFilter() === 'all'">Todos los niveles</option>
-      @for (tier of store.tierOptions(); track tier) {
-        <option [value]="tier" [selected]="store.tierFilter() === tier">{{ tier }}</option>
-      }
-    </select>
+      <select
+        aria-label="Filtrar por nivel"
+        (change)="onTierChange($event)"
+        class="form-control w-auto cursor-pointer"
+      >
+        <option value="all" [selected]="store.tierFilter() === 'all'">Todos los niveles</option>
+        @for (tier of store.tierOptions(); track tier) {
+          <option [value]="tier" [selected]="store.tierFilter() === tier">{{ tier }}</option>
+        }
+      </select>
 
-    @if (store.hasActiveFilters()) {
-      <div class="flex justify-end md:col-span-12">
+      @if (store.hasActiveFilters()) {
         <button
           type="button"
           (click)="store.resetFilters()"
@@ -70,19 +67,14 @@
         >
           Restablecer filtros
         </button>
-      </div>
-    }
+      }
+    </div>
   </div>
 
   @if (store.errorMessage(); as errorMessage) {
-    <div
-      role="alert"
-      class="flex items-center justify-between gap-3 rounded-2xl border border-rose-300 bg-rose-50 px-5 py-3.5 text-xs font-bold text-rose-900"
-    >
-      <span class="flex items-center gap-2">
-        {{ errorMessage }}
-      </span>
-      <button type="button" (click)="store.loadClients()" class="cursor-pointer underline">
+    <div role="alert" class="notice notice-error">
+      <span>{{ errorMessage }}</span>
+      <button type="button" (click)="store.loadClients()" class="cursor-pointer font-bold underline">
         Reintentar
       </button>
     </div>

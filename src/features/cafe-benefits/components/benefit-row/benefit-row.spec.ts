@@ -1,8 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { CafeBenefit } from '../../model/cafe-benefit.model';
-import { BenefitCard } from './benefit-card';
+import { BenefitRow } from './benefit-row';
 
-describe('BenefitCard', () => {
+describe('BenefitRow', () => {
   const benefit: CafeBenefit = {
     externalId: 'benefit-1',
     name: '2x1 Espresso',
@@ -15,7 +15,7 @@ describe('BenefitCard', () => {
   };
 
   function validityOf(dates: Pick<CafeBenefit, 'startDate' | 'endDate'>): string {
-    const fixture = TestBed.createComponent(BenefitCard);
+    const fixture = TestBed.createComponent(BenefitRow);
     fixture.componentRef.setInput('benefit', { ...benefit, ...dates });
     fixture.detectChanges();
     const element = fixture.nativeElement as HTMLElement;
@@ -23,12 +23,12 @@ describe('BenefitCard', () => {
   }
 
   beforeEach(async () => {
-    await TestBed.configureTestingModule({ imports: [BenefitCard] }).compileComponents();
+    await TestBed.configureTestingModule({ imports: [BenefitRow] }).compileComponents();
   });
 
   it('shows the validity range when both dates are set', () => {
     expect(validityOf({ startDate: '2026-11-15', endDate: '2026-12-15' })).toBe(
-      'Vigencia: 15/11/2026 al 15/12/2026',
+      '15/11/2026 al 15/12/2026',
     );
   });
 
@@ -46,7 +46,7 @@ describe('BenefitCard', () => {
 
   describe('actions', () => {
     function render(status: boolean) {
-      const fixture = TestBed.createComponent(BenefitCard);
+      const fixture = TestBed.createComponent(BenefitRow);
       fixture.componentRef.setInput('benefit', { ...benefit, status });
       fixture.detectChanges();
       return fixture;

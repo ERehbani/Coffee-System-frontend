@@ -95,6 +95,8 @@ export class CafeBenefitService {
       discountPercentage: request.discountPercentage ?? null,
       productId: request.productId ?? null,
       tierId: request.tierId,
+      // The PUT replaces the whole benefit: an update without the current image would clear it.
+      image: request.image || null,
     };
   }
 

@@ -1,290 +1,228 @@
-<main class="mx-auto max-w-6xl px-4 py-8 space-y-6">
-  <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-border">
-    <div class="flex items-center gap-3">
-      <div>
-        <h1 class="text-xl font-extrabold text-text">Historial de Compras</h1>
-        <p class="text-xs text-muted">Auditoría de compras y pedidos cerrados de la cafetería</p>
-      </div>
+<main class="page-shell">
+  <header class="page-header">
+    <div class="min-w-0">
+      <h1 class="page-title">Historial de Compras</h1>
+      <p class="text-xs text-muted">Auditoría de compras y pedidos cerrados de la cafetería</p>
     </div>
 
-    <div class="flex items-center gap-2">
+    <div class="toolbar">
       <button
         type="button"
         (click)="loadPurchases()"
-        class="cursor-pointer inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface px-3 py-2 text-xs font-bold text-muted hover:bg-bg hover:text-text transition active:scale-95 shadow-2xs select-none"
+        class="refresh-btn"
         title="Actualizar listado"
       >
+        <app-icon name="refresh-cw" [size]="14" />
         <span>Actualizar</span>
       </button>
     </div>
   </header>
 
-  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-    <div class="rounded-2xl border border-border bg-surface p-4 shadow-xs flex items-center justify-between">
-      <div>
-        <p class="text-xs font-medium text-muted">Total de Compras</p>
-        <p class="text-2xl font-extrabold text-text mt-1">{{ totalPurchasesCount() }}</p>
+  <section aria-label="Resumen de compras" class="summary-strip">
+    <div class="summary-item">
+      <p class="text-[11px] font-bold text-muted">Total de compras</p>
+      <p class="text-xl font-bold text-text">{{ totalPurchasesCount() }}</p>
+    </div>
+    <div class="summary-item">
+      <p class="text-[11px] font-bold text-muted">Monto total auditado</p>
+      <p class="text-xl font-bold text-text">{{ formatPrice(totalAmount()) }}</p>
+    </div>
+    <div class="summary-item">
+      <p class="text-[11px] font-bold text-muted">Pedidos entregados</p>
+      <p class="text-xl font-bold text-text">{{ deliveredCount() }}</p>
+    </div>
+  </section>
+
+  <section class="space-y-3">
+    <div class="toolbar justify-between">
+      <div class="search-field">
+        <app-icon name="search" [size]="14" />
+        <input
+          type="text"
+          placeholder="Buscar por cliente, ID o producto..."
+          aria-label="Buscar compras"
+          [value]="searchQuery()"
+          (input)="onSearchChange($any($event.target).value)"
+          class="form-control pr-9"
+        />
+        @if (searchQuery()) {
+          <button
+            type="button"
+            (click)="clearSearch()"
+            class="absolute inset-y-0 right-0 flex cursor-pointer items-center pr-3 text-muted hover:text-text"
+            aria-label="Limpiar búsqueda"
+          >
+            <app-icon name="x" [size]="14" />
+          </button>
+        }
+      </div>
+
+      <div class="toolbar">
+        <button
+          type="button"
+          (click)="setFilterStatus('all')"
+          class="toggle-chip"
+          [attr.aria-pressed]="filterStatus() === 'all'"
+        >
+          Todas ({{ purchases().length }})
+        </button>
+
+        <button
+          type="button"
+          (click)="setFilterStatus('DELIVERED')"
+          class="toggle-chip"
+          [attr.aria-pressed]="filterStatus() === 'DELIVERED'"
+        >
+          Entregadas
+        </button>
+
+        <button
+          type="button"
+          (click)="setFilterStatus('CANCELLED')"
+          class="toggle-chip"
+          [attr.aria-pressed]="filterStatus() === 'CANCELLED'"
+        >
+          Canceladas
+        </button>
+
+        <button
+          type="button"
+          (click)="setFilterStatus('REFUNDED')"
+          class="toggle-chip"
+          [attr.aria-pressed]="filterStatus() === 'REFUNDED'"
+        >
+          Reembolsadas
+        </button>
       </div>
     </div>
 
-    <div class="rounded-2xl border border-border bg-surface p-4 shadow-xs flex items-center justify-between">
-      <div>
-        <p class="text-xs font-medium text-muted">Monto Total Auditado</p>
-        <p class="text-2xl font-extrabold text-text mt-1">{{ formatPrice(totalAmount()) }}</p>
+    <div class="toolbar justify-between text-xs">
+      <div class="toolbar">
+        <label for="purchases-date-from" class="font-medium text-muted">Desde:</label>
+        <input
+          id="purchases-date-from"
+          type="date"
+          [value]="dateFrom()"
+          [max]="dateTo() || null"
+          (input)="onDateFromChange($any($event.target).value)"
+          class="form-control w-auto"
+          [attr.aria-invalid]="dateError() ? 'true' : null"
+        />
+
+        <label for="purchases-date-to" class="font-medium text-muted">Hasta:</label>
+        <input
+          id="purchases-date-to"
+          type="date"
+          [value]="dateTo()"
+          [min]="dateFrom() || null"
+          (input)="onDateToChange($any($event.target).value)"
+          class="form-control w-auto"
+          [attr.aria-invalid]="dateError() ? 'true' : null"
+        />
+
+        @if (dateError()) {
+          <span role="alert" class="form-error mt-0">{{ dateError() }}</span>
+        }
       </div>
+
+      @if (hasActiveFilters()) {
+        <button
+          type="button"
+          (click)="clearFilters()"
+          class="cursor-pointer font-medium text-primary hover:underline"
+        >
+          Restablecer filtros
+        </button>
+      }
     </div>
 
-    <div class="rounded-2xl border border-border bg-surface p-4 shadow-xs flex items-center justify-between">
-      <div>
-        <p class="text-xs font-medium text-muted">Pedidos Entregados</p>
-        <p class="text-2xl font-extrabold text-text mt-1">{{ deliveredCount() }}</p>
-      </div>
-    </div>
-  </div>
-
-  <section class="space-y-4">
-    <div class="flex flex-col gap-3">
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div class="relative flex-1 max-w-md">
-          <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-muted">
-            <app-icon name="search" [size]="16" />
-          </span>
-          <input
-            type="text"
-            placeholder="Buscar por cliente, ID o producto..."
-            [value]="searchQuery()"
-            (input)="onSearchChange($any($event.target).value)"
-            class="w-full rounded-xl border border-border bg-surface pl-10 pr-10 py-2.5 text-xs text-text placeholder:text-muted focus:border-primary focus:outline-hidden focus:ring-2 focus:ring-primary/20 transition shadow-2xs"
-          />
-          @if (searchQuery()) {
-            <button
-              type="button"
-              (click)="clearSearch()"
-              class="absolute inset-y-0 right-0 flex items-center pr-3 text-muted hover:text-text cursor-pointer"
-            >
-              <app-icon name="x" [size]="16" />
-            </button>
-          }
-        </div>
-
-        <div class="flex items-center gap-1.5 flex-wrap">
-          <button
-            type="button"
-            (click)="setFilterStatus('all')"
-            class="rounded-lg px-3 py-1.5 text-xs font-semibold transition cursor-pointer select-none"
-            [class.bg-primary]="filterStatus() === 'all'"
-            [class.text-white]="filterStatus() === 'all'"
-            [class.shadow-xs]="filterStatus() === 'all'"
-            [class.bg-surface]="filterStatus() !== 'all'"
-            [class.text-muted]="filterStatus() !== 'all'"
-            [class.border]="filterStatus() !== 'all'"
-            [class.border-border]="filterStatus() !== 'all'"
-          >
-            Todas ({{ purchases().length }})
-          </button>
-
-          <button
-            type="button"
-            (click)="setFilterStatus('DELIVERED')"
-            class="rounded-lg px-3 py-1.5 text-xs font-semibold transition cursor-pointer select-none"
-            [class.bg-primary]="filterStatus() === 'DELIVERED'"
-            [class.text-white]="filterStatus() === 'DELIVERED'"
-            [class.shadow-xs]="filterStatus() === 'DELIVERED'"
-            [class.bg-surface]="filterStatus() !== 'DELIVERED'"
-            [class.text-muted]="filterStatus() !== 'DELIVERED'"
-            [class.border]="filterStatus() !== 'DELIVERED'"
-            [class.border-border]="filterStatus() !== 'DELIVERED'"
-          >
-            Entregadas
-          </button>
-
-          <button
-            type="button"
-            (click)="setFilterStatus('CANCELLED')"
-            class="rounded-lg px-3 py-1.5 text-xs font-semibold transition cursor-pointer select-none"
-            [class.bg-primary]="filterStatus() === 'CANCELLED'"
-            [class.text-white]="filterStatus() === 'CANCELLED'"
-            [class.shadow-xs]="filterStatus() === 'CANCELLED'"
-            [class.bg-surface]="filterStatus() !== 'CANCELLED'"
-            [class.text-muted]="filterStatus() !== 'CANCELLED'"
-            [class.border]="filterStatus() !== 'CANCELLED'"
-            [class.border-border]="filterStatus() !== 'CANCELLED'"
-          >
-            Canceladas
-          </button>
-
-          <button
-            type="button"
-            (click)="setFilterStatus('REFUNDED')"
-            class="rounded-lg px-3 py-1.5 text-xs font-semibold transition cursor-pointer select-none"
-            [class.bg-primary]="filterStatus() === 'REFUNDED'"
-            [class.text-white]="filterStatus() === 'REFUNDED'"
-            [class.shadow-xs]="filterStatus() === 'REFUNDED'"
-            [class.bg-surface]="filterStatus() !== 'REFUNDED'"
-            [class.text-muted]="filterStatus() !== 'REFUNDED'"
-            [class.border]="filterStatus() !== 'REFUNDED'"
-            [class.border-border]="filterStatus() !== 'REFUNDED'"
-          >
-            Reembolsadas
-          </button>
-        </div>
-      </div>
-
-      <div class="flex flex-wrap items-center justify-between gap-3 pt-1">
-        <div class="flex items-center gap-2 flex-wrap text-xs">
-          <div class="flex items-center gap-1.5">
-            <span class="text-muted font-medium">Desde:</span>
-            <input
-              type="date"
-              [value]="dateFrom()"
-              [max]="dateTo() || null"
-              (input)="onDateFromChange($any($event.target).value)"
-              class="rounded-xl border border-border bg-surface px-2.5 py-1.5 text-xs text-text shadow-2xs focus:border-primary focus:outline-hidden focus:ring-2 focus:ring-primary/20"
-              [class.border-rose-400]="dateError()"
-              [class.focus:ring-rose-200]="dateError()"
-            />
-          </div>
-
-          <div class="flex items-center gap-1.5">
-            <span class="text-muted font-medium">Hasta:</span>
-            <input
-              type="date"
-              [value]="dateTo()"
-              [min]="dateFrom() || null"
-              (input)="onDateToChange($any($event.target).value)"
-              class="rounded-xl border border-border bg-surface px-2.5 py-1.5 text-xs text-text shadow-2xs focus:border-primary focus:outline-hidden focus:ring-2 focus:ring-primary/20"
-              [class.border-rose-400]="dateError()"
-              [class.focus:ring-rose-200]="dateError()"
-            />
-          </div>
-
-          @if (dateError()) {
-            <span role="alert" class="inline-flex items-center gap-1 text-xs font-semibold text-rose-500">
-              {{ dateError() }}
-            </span>
-          }
-        </div>
-
-        <div class="text-xs text-muted">
-          @if (hasActiveFilters()) {
-            <button
-              type="button"
-              (click)="clearFilters()"
-              class="font-medium text-primary hover:underline cursor-pointer"
-            >
-              Restablecer filtros
-            </button>
-          }
-        </div>
-      </div>
-    </div>
-
-    <div class="overflow-hidden rounded-3xl border border-border bg-surface shadow-xs">
+    <div class="data-table-wrap">
       @if (isLoading()) {
-        <div class="flex flex-col items-center justify-center p-12 text-center">
-          <div class="flex size-12 items-center justify-center rounded-2xl bg-primary/10 text-primary animate-spin mb-3">
-            <app-icon name="refresh-cw" [size]="20" />
-          </div>
+        <div class="empty-state">
+          <app-icon name="refresh-cw" [size]="18" class="animate-spin text-primary" />
           <p class="text-xs font-medium text-muted">Cargando compras de la cafetería...</p>
         </div>
       } @else if (hasError()) {
-        <div role="alert" class="flex flex-col items-center justify-center p-12 text-center space-y-3">
-          <h3 class="text-base font-bold text-text">No pudimos cargar las compras</h3>
+        <div role="alert" class="empty-state">
+          <p class="text-sm font-bold text-text">No pudimos cargar las compras</p>
           <p class="text-xs text-muted">Ocurrió un error al obtener el historial. Intentá nuevamente.</p>
-          <button
-            type="button"
-            (click)="loadPurchases()"
-            class="inline-flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-xs font-bold text-white shadow-xs hover:bg-primary-dark transition cursor-pointer"
-          >
-            <span>Reintentar</span>
-          </button>
+          <button type="button" (click)="loadPurchases()" class="btn-primary mt-3">Reintentar</button>
         </div>
       } @else if (filteredPurchases().length === 0) {
-        <div class="flex flex-col items-center justify-center p-12 text-center">
+        <div class="empty-state">
           <p class="text-sm font-bold text-text">No se encontraron compras</p>
-          <p class="text-xs text-muted mt-1 max-w-sm">No hay transacciones que coincidan con la búsqueda o filtros aplicados.</p>
+          <p class="text-xs text-muted">No hay transacciones que coincidan con la búsqueda o filtros aplicados.</p>
           @if (hasActiveFilters()) {
-            <button
-              type="button"
-              (click)="clearFilters()"
-              class="mt-4 rounded-xl bg-primary px-4 py-2 text-xs font-bold text-white transition hover:bg-primary-dark cursor-pointer"
-            >
-              Ver todas las compras
-            </button>
+            <button type="button" (click)="clearFilters()" class="btn-primary mt-3">Ver todas las compras</button>
           }
         </div>
       } @else {
-        <div class="overflow-x-auto">
-          <table class="w-full text-left text-xs text-text border-collapse">
-            <thead class="bg-bg/60 text-muted border-b border-border text-[11px] uppercase tracking-wider font-bold">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th scope="col">Fecha</th>
+              <th scope="col">Cliente</th>
+              <th scope="col">Productos</th>
+              <th scope="col">Monto total</th>
+              <th scope="col">Estado</th>
+              <th scope="col" class="data-table-actions">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (purchase of filteredPurchases(); track purchase.externalId) {
               <tr>
-                <th scope="col" class="py-3.5 px-4">Fecha</th>
-                <th scope="col" class="py-3.5 px-4">Cliente</th>
-                <th scope="col" class="py-3.5 px-4">Productos</th>
-                <th scope="col" class="py-3.5 px-4">Monto Total</th>
-                <th scope="col" class="py-3.5 px-4">Estado</th>
-                <th scope="col" class="py-3.5 px-4 text-right">Detalle</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-border">
-              @for (purchase of filteredPurchases(); track purchase.externalId) {
-                <tr class="hover:bg-bg/40 transition">
-                  <td class="py-3.5 px-4 whitespace-nowrap font-medium text-text">
-                    {{ formatDate(purchase.date) }}
-                  </td>
+                <td class="font-medium whitespace-nowrap text-text">
+                  {{ formatDate(purchase.date) }}
+                </td>
 
-                  <td class="py-3.5 px-4 whitespace-nowrap">
-                    <div class="flex items-center gap-2">
-                      <div>
-                        <p class="font-semibold text-text">{{ purchase.clientName || 'Cliente' }}</p>
-                        <p class="text-[10px] text-muted font-mono">{{ purchase.clientId }}</p>
-                      </div>
-                    </div>
-                  </td>
+                <td class="whitespace-nowrap">
+                  <p class="font-semibold text-text">{{ purchase.clientName || 'Cliente' }}</p>
+                  <p class="font-mono text-[10px] text-muted">{{ purchase.clientId }}</p>
+                </td>
 
-                  <td class="py-3.5 px-4">
-                    <div class="max-w-xs">
-                      <span class="inline-flex items-center gap-1 rounded-md bg-bg px-2 py-0.5 text-[11px] font-semibold text-text">
-                        {{ purchase.details.length }} {{ purchase.details.length === 1 ? 'producto' : 'productos' }}
-                      </span>
-                      <p class="text-[11px] text-muted truncate mt-0.5">
-                        @for (detail of purchase.details; track detail.externalId; let last = $last) {
-                          {{ detail.amount }}x {{ detail.productName }}{{ last ? '' : ', ' }}
-                        }
-                      </p>
-                    </div>
-                  </td>
-
-                  <td class="py-3.5 px-4 whitespace-nowrap">
-                    <span class="font-bold text-sm text-text">
-                      {{ formatPrice(purchase.price) }}
+                <td>
+                  <div class="max-w-xs">
+                    <span class="badge bg-bg text-text ring-1 ring-border">
+                      {{ purchase.details.length }} {{ purchase.details.length === 1 ? 'producto' : 'productos' }}
                     </span>
-                  </td>
+                    <p class="mt-0.5 truncate text-[11px] text-muted">
+                      @for (detail of purchase.details; track detail.externalId; let last = $last) {
+                        {{ detail.amount }}x {{ detail.productName }}{{ last ? '' : ', ' }}
+                      }
+                    </p>
+                  </div>
+                </td>
 
-                  <td class="py-3.5 px-4 whitespace-nowrap">
-                    <span
-                      class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider"
-                      [class]="getStatusBadgeClass(purchase.status)"
-                    >
-                      {{ getStatusLabel(purchase.status) }}
-                    </span>
-                  </td>
+                <td class="text-sm font-bold whitespace-nowrap text-text">
+                  {{ formatPrice(purchase.price) }}
+                </td>
 
-                  <td class="py-3.5 px-4 whitespace-nowrap text-right">
+                <td class="whitespace-nowrap">
+                  <span
+                    class="badge border text-[10px] tracking-wider uppercase"
+                    [class]="getStatusBadgeClass(purchase.status)"
+                  >
+                    {{ getStatusLabel(purchase.status) }}
+                  </span>
+                </td>
+
+                <td class="data-table-actions">
+                  <div class="row-actions">
                     <button
                       type="button"
                       (click)="openDetails(purchase)"
-                      class="cursor-pointer inline-flex items-center gap-1 rounded-lg border border-border bg-surface px-2.5 py-1.5 text-xs font-bold text-muted hover:bg-bg hover:text-text transition active:scale-95 shadow-2xs"
+                      class="icon-btn"
+                      aria-label="Ver detalle del pedido"
                       title="Ver detalle del pedido"
                     >
-                      <span>Ver</span>
+                      <app-icon name="eye" [size]="14" />
                     </button>
-                  </td>
-                </tr>
-              }
-            </tbody>
-          </table>
-        </div>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
       }
     </div>
   </section>
@@ -293,92 +231,81 @@
     <div
       role="dialog"
       aria-modal="true"
-      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs"
+      aria-labelledby="purchase-detail-title"
+      class="modal-backdrop"
     >
-      <div class="w-full max-w-2xl rounded-3xl border border-border bg-surface p-6 shadow-xl space-y-5 animate-in fade-in zoom-in-95 duration-150">
-        <div class="flex items-center justify-between pb-3 border-b border-border">
-          <div class="flex items-center gap-2.5">
-            <div>
-              <h2 class="text-base font-bold text-text">Detalle de la Compra</h2>
-              <p class="text-xs text-muted font-mono">ID: {{ item.externalId }}</p>
+      <div class="modal-panel max-w-2xl">
+        <div class="modal-header items-center">
+          <div>
+            <h2 id="purchase-detail-title" class="modal-title">Detalle de la compra</h2>
+            <p class="text-xs text-muted">ID: {{ item.externalId }}</p>
+          </div>
+          <button type="button" (click)="closeDetails()" class="icon-btn" aria-label="Cerrar modal" title="Cerrar">
+            <app-icon name="x" [size]="14" />
+          </button>
+        </div>
+
+        <div class="modal-body space-y-4">
+          <dl class="summary-strip text-xs">
+            <div class="summary-item">
+              <dt class="text-[11px] text-muted">Fecha y hora</dt>
+              <dd class="mt-0.5 font-semibold text-text">{{ formatDate(item.date) }}</dd>
+            </div>
+
+            <div class="summary-item">
+              <dt class="text-[11px] text-muted">Cliente</dt>
+              <dd class="mt-0.5 font-semibold text-text">{{ item.clientName || 'Cliente' }}</dd>
+              <dd class="font-mono text-[10px] text-muted">{{ item.clientId }}</dd>
+            </div>
+
+            <div class="summary-item">
+              <dt class="text-[11px] text-muted">Estado</dt>
+              <dd>
+                <span class="badge mt-0.5 border text-[10px]" [class]="getStatusBadgeClass(item.status)">
+                  {{ getStatusLabel(item.status) }}
+                </span>
+              </dd>
+            </div>
+          </dl>
+
+          <div>
+            <h3 class="form-section-title">Productos de la transacción</h3>
+            <div class="data-table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th scope="col">Producto</th>
+                    <th scope="col" class="text-center">Cant.</th>
+                    <th scope="col" class="text-right">Precio unit.</th>
+                    <th scope="col" class="text-center">Puntos</th>
+                    <th scope="col" class="text-right">Subtotal</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (detail of item.details; track detail.externalId) {
+                    <tr>
+                      <td class="font-medium text-text">{{ detail.productName }}</td>
+                      <td class="text-center text-muted">{{ detail.amount }}</td>
+                      <td class="text-right text-muted">{{ formatPrice(detail.unitPrice) }}</td>
+                      <td class="text-center font-semibold text-primary">+{{ detail.generatedPoints }}</td>
+                      <td class="text-right font-semibold text-text">{{ formatPrice(detail.subtotal) }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
             </div>
           </div>
-          <button
-            type="button"
-            (click)="closeDetails()"
-            class="cursor-pointer rounded-lg p-1.5 text-muted hover:bg-bg hover:text-text transition active:scale-95"
-            aria-label="Cerrar modal"
-          >
-            <app-icon name="x" [size]="18" />
-          </button>
+
+          <app-refund-purchase [purchase]="item" (refunded)="onRefunded($event)" />
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 p-3.5 rounded-2xl bg-bg/50 border border-border text-xs">
-          <div>
-            <span class="text-muted text-[11px] block font-medium">Fecha y Hora</span>
-            <span class="font-semibold text-text mt-0.5 block">{{ formatDate(item.date) }}</span>
-          </div>
-
-          <div>
-            <span class="text-muted text-[11px] block font-medium">Cliente</span>
-            <span class="font-semibold text-text mt-0.5 block">{{ item.clientName || 'Cliente' }}</span>
-            <span class="text-[10px] text-muted font-mono block">{{ item.clientId }}</span>
-          </div>
-
-          <div>
-            <span class="text-muted text-[11px] block font-medium">Estado</span>
-            <span
-              class="inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-bold mt-0.5"
-              [class]="getStatusBadgeClass(item.status)"
-            >
-              {{ getStatusLabel(item.status) }}
-            </span>
-          </div>
-        </div>
-
-        <div class="space-y-2">
-          <h3 class="text-xs font-bold uppercase tracking-wider text-muted">Productos de la Transacción</h3>
-          <div class="overflow-hidden rounded-2xl border border-border">
-            <table class="w-full text-left text-xs border-collapse">
-              <thead class="bg-bg/60 text-muted border-b border-border text-[11px] font-semibold">
-                <tr>
-                  <th scope="col" class="py-2.5 px-3">Producto</th>
-                  <th scope="col" class="py-2.5 px-3 text-center">Cant.</th>
-                  <th scope="col" class="py-2.5 px-3 text-right">Precio Unit.</th>
-                  <th scope="col" class="py-2.5 px-3 text-center">Puntos</th>
-                  <th scope="col" class="py-2.5 px-3 text-right">Subtotal</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-border">
-                @for (detail of item.details; track detail.externalId) {
-                  <tr>
-                    <td class="py-2.5 px-3 font-medium text-text">{{ detail.productName }}</td>
-                    <td class="py-2.5 px-3 text-center text-muted">{{ detail.amount }}</td>
-                    <td class="py-2.5 px-3 text-right text-muted">{{ formatPrice(detail.unitPrice) }}</td>
-                    <td class="py-2.5 px-3 text-center text-primary font-semibold">+{{ detail.generatedPoints }}</td>
-                    <td class="py-2.5 px-3 text-right font-semibold text-text">{{ formatPrice(detail.subtotal) }}</td>
-                  </tr>
-                }
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <app-refund-purchase [purchase]="item" (refunded)="onRefunded($event)" />
-
-        <div class="flex items-center justify-between pt-3 border-t border-border">
+        <div class="modal-footer justify-between">
           <div class="flex items-center gap-2">
             <span class="text-xs text-muted">Monto total facturado:</span>
-            <span class="text-lg font-extrabold text-primary">{{ formatPrice(item.price) }}</span>
+            <span class="text-lg font-bold text-primary">{{ formatPrice(item.price) }}</span>
           </div>
 
-          <button
-            type="button"
-            (click)="closeDetails()"
-            class="cursor-pointer rounded-xl bg-primary px-4 py-2 text-xs font-bold text-white shadow-xs hover:bg-primary-dark transition active:scale-95"
-          >
-            Cerrar
-          </button>
+          <button type="button" (click)="closeDetails()" class="btn-primary">Cerrar</button>
         </div>
       </div>
     </div>

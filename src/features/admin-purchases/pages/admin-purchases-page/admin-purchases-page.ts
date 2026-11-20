@@ -1,6 +1,5 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
 import { Icon } from '../../../../shared/components/icon/icon';
 import { PURCHASE_STATUSES, Purchase, PurchaseStatus } from '../../../purchase-history/model/purchase.model';
 import { PurchaseService } from '../../../purchase-history/services/purchase.service';
@@ -10,7 +9,7 @@ import { toPurchaseStatusView } from '../../utils/purchase-status-view';
 
 @Component({
   selector: 'app-admin-purchases-page',
-  imports: [RouterLink, FormsModule, Icon, RefundPurchase],
+  imports: [FormsModule, Icon, RefundPurchase],
   templateUrl: './admin-purchases-page.html',
   host: { class: 'block' },
 })

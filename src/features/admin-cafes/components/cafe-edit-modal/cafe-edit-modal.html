@@ -1,18 +1,15 @@
 @if (cafe(); as item) {
   <div
-    class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/60 p-4 backdrop-blur-xs"
+    class="modal-backdrop"
     role="dialog"
     aria-modal="true"
     aria-labelledby="modal-edit-cafe-title"
     (click)="onCancel()"
   >
-    <div
-      class="relative my-8 max-h-[90vh] w-full max-w-xl space-y-5 overflow-y-auto rounded-3xl border border-border bg-surface p-6 shadow-2xl"
-      (click)="$event.stopPropagation()"
-    >
-      <div class="flex items-start justify-between border-b border-border pb-3">
-        <div>
-          <h2 id="modal-edit-cafe-title" class="text-base font-extrabold text-text">
+    <div class="modal-panel max-w-lg" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="min-w-0">
+          <h2 id="modal-edit-cafe-title" class="modal-title truncate">
             Editar {{ item.name }}
           </h2>
           <p class="text-xs text-muted">
@@ -23,106 +20,95 @@
           type="button"
           (click)="onCancel()"
           [disabled]="isSubmitting()"
-          class="cursor-pointer rounded-xl p-1.5 text-muted transition hover:bg-border/40 hover:text-text active:scale-95 disabled:pointer-events-none"
+          class="icon-btn"
           aria-label="Cerrar modal"
+          title="Cerrar"
         >
-          <app-icon name="x" [size]="18" />
+          <app-icon name="x" [size]="14" />
         </button>
       </div>
 
-      @if (errorMessage()) {
-        <div
-          role="alert"
-          data-testid="edit-cafe-error"
-          class="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-xs font-bold text-rose-800"
-        >
-          {{ errorMessage() }}
-        </div>
-      }
-
-      <form (submit)="onSubmit($event)" novalidate class="space-y-4">
-        <div class="space-y-1">
-          <label for="edit-cafe-name" class="block text-xs font-semibold text-text">
-            Nombre <span class="text-rose-500">*</span>
-          </label>
-          <input
-            id="edit-cafe-name"
-            type="text"
-            [formField]="cafeForm.name"
-            class="w-full rounded-xl border border-border bg-surface px-3.5 py-2.5 text-xs text-text transition focus:border-primary focus:outline-hidden focus:ring-2 focus:ring-primary/20"
-            [class.border-rose-400]="attemptedSubmit() && nameError()"
-          />
-          @if (attemptedSubmit() && nameError()) {
-            <p role="alert" class="text-[11px] font-semibold text-rose-600">{{ nameError() }}</p>
+      <form (submit)="onSubmit($event)" novalidate class="flex min-h-0 flex-1 flex-col">
+        <div class="modal-body space-y-4">
+          @if (errorMessage()) {
+            <div role="alert" data-testid="edit-cafe-error" class="notice notice-error">
+              {{ errorMessage() }}
+            </div>
           }
+
+          <div>
+            <p class="form-section-title">Datos del comercio</p>
+            <div class="form-grid">
+              <div>
+                <label for="edit-cafe-name" class="form-label">
+                  Nombre <span class="text-rose-600">*</span>
+                </label>
+                <input
+                  id="edit-cafe-name"
+                  type="text"
+                  [formField]="cafeForm.name"
+                  class="form-control"
+                  [class.border-rose-500]="attemptedSubmit() && nameError()"
+                />
+                @if (attemptedSubmit() && nameError()) {
+                  <p role="alert" class="form-error">{{ nameError() }}</p>
+                }
+              </div>
+
+              <div>
+                <label for="edit-cafe-phone" class="form-label">Teléfono</label>
+                <input
+                  id="edit-cafe-phone"
+                  type="tel"
+                  inputmode="numeric"
+                  [formField]="cafeForm.phoneNumber"
+                  placeholder="1122334455"
+                  class="form-control"
+                  [class.border-rose-500]="attemptedSubmit() && phoneError()"
+                />
+                @if (attemptedSubmit() && phoneError()) {
+                  <p role="alert" class="form-error">{{ phoneError() }}</p>
+                }
+              </div>
+
+              <div class="sm:col-span-2">
+                <label for="edit-cafe-address" class="form-label">
+                  Dirección <span class="text-rose-600">*</span>
+                </label>
+                <input
+                  id="edit-cafe-address"
+                  type="text"
+                  [formField]="cafeForm.address"
+                  class="form-control"
+                  [class.border-rose-500]="attemptedSubmit() && addressError()"
+                />
+                @if (attemptedSubmit() && addressError()) {
+                  <p role="alert" class="form-error">{{ addressError() }}</p>
+                }
+              </div>
+
+              <div class="sm:col-span-2">
+                <label for="edit-cafe-description" class="form-label">Descripción</label>
+                <textarea
+                  id="edit-cafe-description"
+                  rows="3"
+                  [formField]="cafeForm.description"
+                  class="form-control resize-none"
+                  [class.border-rose-500]="attemptedSubmit() && descriptionError()"
+                ></textarea>
+                @if (attemptedSubmit() && descriptionError()) {
+                  <p role="alert" class="form-error">{{ descriptionError() }}</p>
+                }
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div class="space-y-1">
-          <label for="edit-cafe-address" class="block text-xs font-semibold text-text">
-            Dirección <span class="text-rose-500">*</span>
-          </label>
-          <input
-            id="edit-cafe-address"
-            type="text"
-            [formField]="cafeForm.address"
-            class="w-full rounded-xl border border-border bg-surface px-3.5 py-2.5 text-xs text-text transition focus:border-primary focus:outline-hidden focus:ring-2 focus:ring-primary/20"
-            [class.border-rose-400]="attemptedSubmit() && addressError()"
-          />
-          @if (attemptedSubmit() && addressError()) {
-            <p role="alert" class="text-[11px] font-semibold text-rose-600">{{ addressError() }}</p>
-          }
-        </div>
-
-        <div class="space-y-1">
-          <label for="edit-cafe-phone" class="block text-xs font-semibold text-text"
-            >Teléfono</label
-          >
-          <input
-            id="edit-cafe-phone"
-            type="tel"
-            inputmode="numeric"
-            [formField]="cafeForm.phoneNumber"
-            placeholder="1122334455"
-            class="w-full rounded-xl border border-border bg-surface px-3.5 py-2.5 text-xs text-text placeholder:text-muted/60 transition focus:border-primary focus:outline-hidden focus:ring-2 focus:ring-primary/20"
-            [class.border-rose-400]="attemptedSubmit() && phoneError()"
-          />
-          @if (attemptedSubmit() && phoneError()) {
-            <p role="alert" class="text-[11px] font-semibold text-rose-600">{{ phoneError() }}</p>
-          }
-        </div>
-
-        <div class="space-y-1">
-          <label for="edit-cafe-description" class="block text-xs font-semibold text-text"
-            >Descripción</label
-          >
-          <textarea
-            id="edit-cafe-description"
-            rows="3"
-            [formField]="cafeForm.description"
-            class="w-full resize-none rounded-xl border border-border bg-surface px-3.5 py-2.5 text-xs text-text transition focus:border-primary focus:outline-hidden focus:ring-2 focus:ring-primary/20"
-            [class.border-rose-400]="attemptedSubmit() && descriptionError()"
-          ></textarea>
-          @if (attemptedSubmit() && descriptionError()) {
-            <p role="alert" class="text-[11px] font-semibold text-rose-600">
-              {{ descriptionError() }}
-            </p>
-          }
-        </div>
-
-        <div class="flex items-center justify-end gap-2 border-t border-border pt-4">
-          <button
-            type="button"
-            (click)="onCancel()"
-            [disabled]="isSubmitting()"
-            class="cursor-pointer rounded-xl border border-border bg-surface px-4 py-2 text-xs font-bold text-muted transition hover:bg-bg hover:text-text active:scale-95 disabled:opacity-60"
-          >
+        <div class="modal-footer">
+          <button type="button" (click)="onCancel()" [disabled]="isSubmitting()" class="btn-secondary">
             Cancelar
           </button>
-          <button
-            type="submit"
-            [disabled]="isSubmitting()"
-            class="cursor-pointer rounded-xl bg-primary px-4 py-2 text-xs font-bold text-white transition hover:bg-primary-dark active:scale-95 disabled:cursor-not-allowed disabled:opacity-60"
-          >
+          <button type="submit" [disabled]="isSubmitting()" class="btn-primary">
             {{ isSubmitting() ? 'Guardando...' : 'Guardar cambios' }}
           </button>
         </div>

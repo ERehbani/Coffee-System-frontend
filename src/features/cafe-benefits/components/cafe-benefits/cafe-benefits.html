@@ -1,177 +1,158 @@
-<main class="mx-auto max-w-4xl px-4 py-8 space-y-6">
-  <div class="flex flex-wrap items-center justify-between gap-3 pb-2 border-b border-border">
-    <div class="flex items-center gap-2.5">
-      <div>
-        <h1 class="text-lg font-extrabold text-text">Promociones del Local</h1>
-        <p class="text-xs text-muted">Creá y publicá beneficios propios exclusivos para tu cafetería</p>
-      </div>
+<main class="page-shell">
+  <header class="page-header">
+    <div class="min-w-0">
+      <h1 class="page-title">Promociones del Local</h1>
+      <p class="text-xs text-muted">Creá y publicá beneficios propios exclusivos para tu cafetería</p>
     </div>
-    <div class="flex flex-wrap items-center gap-2">
-      <button
-        type="button"
-        (click)="toggleForm()"
-        class="cursor-pointer inline-flex items-center gap-1.5 rounded-xl bg-primary px-3.5 py-1.5 text-xs font-bold text-white transition hover:bg-primary-dark active:scale-95 select-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-      >
-        <span>{{ showForm() ? 'Cerrar formulario' : 'Nueva Promoción' }}</span>
-      </button>
+    <div class="toolbar">
+      <button type="button" (click)="openCreateForm()" class="btn-primary">Nueva Promoción</button>
     </div>
-  </div>
+  </header>
 
   @if (successMessage(); as successMsg) {
-    <div
-      role="status"
-      class="flex items-center justify-between gap-3 rounded-2xl border border-success/30 bg-emerald-50 px-5 py-3.5 text-success transition"
-    >
-      <div class="flex items-center gap-3">
-        <p class="text-sm font-bold text-emerald-900">{{ successMsg }}</p>
-      </div>
-      <button
-        type="button"
-        (click)="dismissSuccess()"
-        class="cursor-pointer rounded-lg p-1 text-emerald-800 hover:bg-emerald-100 active:scale-95 transition select-none"
-        aria-label="Cerrar notificación"
-      >
-        <app-icon name="x" [size]="16" />
+    <div role="status" class="notice notice-success">
+      <span>{{ successMsg }}</span>
+      <button type="button" (click)="dismissSuccess()" class="icon-btn" aria-label="Cerrar notificación" title="Cerrar">
+        <app-icon name="x" [size]="14" />
       </button>
     </div>
   }
 
+  <!-- While the form is open the error shows inside its dialog, where the cafe is looking. -->
   @if (errorMessage(); as errorMsg) {
-    <div
-      role="alert"
-      class="flex items-center justify-between gap-3 rounded-2xl border border-rose-300 bg-rose-50 px-5 py-3.5 text-rose-800 transition"
-    >
-      <div class="flex items-center gap-3">
-        <p class="text-sm font-bold text-rose-900">{{ errorMsg }}</p>
+    @if (!showForm()) {
+      <div role="alert" class="notice notice-error">
+        <span>{{ errorMsg }}</span>
+        <button type="button" (click)="dismissError()" class="icon-btn" aria-label="Cerrar alerta" title="Cerrar">
+          <app-icon name="x" [size]="14" />
+        </button>
       </div>
-      <button
-        type="button"
-        (click)="dismissError()"
-        class="cursor-pointer rounded-lg p-1 text-rose-800 hover:bg-rose-100 active:scale-95 transition select-none"
-        aria-label="Cerrar alerta"
-      >
-        <app-icon name="x" [size]="16" />
-      </button>
-    </div>
+    }
   }
 
   @if (showForm()) {
-    <app-benefit-form
-      [benefit]="editingBenefit()"
-      [isSaving]="isSaving()"
-      [benefitTypes]="benefitTypes()"
-      [tiers]="tiers()"
-      [products]="products()"
-      (save)="onSaveBenefit($event)"
-      (cancel)="closeForm()"
-    />
+    <div
+      class="modal-backdrop"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="benefit-form-title"
+      (click)="dismissForm()"
+    >
+      <div class="modal-panel max-w-3xl" (click)="$event.stopPropagation()">
+        <app-benefit-form
+          [benefit]="editingBenefit()"
+          [isSaving]="isSaving()"
+          [benefitTypes]="benefitTypes()"
+          [tiers]="tiers()"
+          [products]="products()"
+          (save)="onSaveBenefit($event)"
+          (cancel)="closeForm()"
+        >
+          @if (errorMessage(); as errorMsg) {
+            <p role="alert" class="notice notice-error mx-5 mt-3">{{ errorMsg }}</p>
+          }
+        </app-benefit-form>
+      </div>
+    </div>
   }
 
-  <section aria-label="Búsqueda y filtros de promociones" class="space-y-3">
-    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-      <div class="relative flex-1">
-        <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-muted">
-          <app-icon name="search" [size]="16" />
-        </div>
-        <input
-          id="search-benefits-input"
-          type="search"
-          [value]="searchQuery()"
-          (input)="onSearchChange($any($event.target).value)"
-          placeholder="Buscar promociones por nombre o descripción..."
-          class="w-full rounded-2xl border border-border bg-surface py-2.5 pr-10 pl-9 text-xs text-text placeholder:text-muted/70 shadow-xs transition focus:border-primary focus:outline-hidden focus:ring-2 focus:ring-primary/20"
-        />
-        @if (searchQuery()) {
-          <button
-            type="button"
-            (click)="clearSearch()"
-            aria-label="Limpiar búsqueda"
-            class="absolute inset-y-0 right-0 flex items-center pr-3 text-muted hover:text-text cursor-pointer"
-          >
-            <app-icon name="x" [size]="16" />
-          </button>
-        }
-      </div>
-
-      <div class="flex items-center gap-2">
+  <section aria-label="Búsqueda y filtros de promociones" class="toolbar justify-between">
+    <div class="search-field">
+      <app-icon name="search" [size]="14" />
+      <input
+        id="search-benefits-input"
+        type="search"
+        [value]="searchQuery()"
+        (input)="onSearchChange($any($event.target).value)"
+        placeholder="Buscar promociones por nombre o descripción..."
+        aria-label="Buscar promociones"
+        class="form-control pr-9"
+      />
+      @if (searchQuery()) {
         <button
           type="button"
-          (click)="setFilterState('all')"
-          class="rounded-full px-3 py-1 text-xs font-semibold transition cursor-pointer"
-          [class.bg-primary]="filterState() === 'all'"
-          [class.text-white]="filterState() === 'all'"
-          [class.bg-surface]="filterState() !== 'all'"
-          [class.text-muted]="filterState() !== 'all'"
-          [class.border]="filterState() !== 'all'"
-          [class.border-border]="filterState() !== 'all'"
+          (click)="clearSearch()"
+          aria-label="Limpiar búsqueda"
+          class="absolute inset-y-0 right-0 flex cursor-pointer items-center pr-3 text-muted hover:text-text"
         >
-          Todas ({{ totalBenefitsCount() }})
+          <app-icon name="x" [size]="14" />
         </button>
+      }
+    </div>
 
-        <button
-          type="button"
-          (click)="setFilterState('active')"
-          class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold transition cursor-pointer"
-          [class.bg-primary]="filterState() === 'active'"
-          [class.text-white]="filterState() === 'active'"
-          [class.bg-surface]="filterState() !== 'active'"
-          [class.text-muted]="filterState() !== 'active'"
-          [class.border]="filterState() !== 'active'"
-          [class.border-border]="filterState() !== 'active'"
-        >
-          <span class="size-1.5 rounded-full bg-emerald-500"></span>
-          Activas ({{ activeBenefitsCount() }})
-        </button>
-      </div>
+    <div class="toolbar">
+      <button
+        type="button"
+        (click)="setFilterState('all')"
+        class="toggle-chip"
+        [attr.aria-pressed]="filterState() === 'all'"
+      >
+        Todas ({{ totalBenefitsCount() }})
+      </button>
+
+      <button
+        type="button"
+        (click)="setFilterState('active')"
+        class="toggle-chip"
+        [attr.aria-pressed]="filterState() === 'active'"
+      >
+        <span class="size-2 rounded-full bg-emerald-500"></span>
+        Activas ({{ activeBenefitsCount() }})
+      </button>
     </div>
   </section>
 
-  @if (isLoading()) {
-    <div aria-busy="true" class="grid grid-cols-1 gap-4 md:grid-cols-2">
-      <div class="h-44 rounded-3xl bg-border/40 animate-pulse"></div>
-      <div class="h-44 rounded-3xl bg-border/40 animate-pulse"></div>
-    </div>
-  } @else if (filteredBenefits().length === 0) {
-    <div class="flex flex-col items-center justify-center gap-3 rounded-3xl border border-dashed border-border bg-surface p-10 text-center shadow-xs">
-      <h3 class="text-base font-bold text-text">No se encontraron promociones</h3>
-      <p class="text-xs text-muted max-w-sm">
-        @if (searchQuery() || filterState() !== 'all') {
-          No hay resultados para el filtro actual. Podés restablecer la búsqueda o los filtros.
-        } @else {
-          Todavía no creaste promociones para tu cafetería. ¡Creá la primera para atraer más clientes!
+  <div class="data-table-wrap">
+    @if (isLoading()) {
+      <div aria-busy="true" class="space-y-2 p-4">
+        @for (item of [1, 2, 3, 4]; track item) {
+          <div class="h-12 animate-pulse rounded-md bg-border/40"></div>
         }
-      </p>
-      @if (searchQuery() || filterState() !== 'all') {
-        <button
-          type="button"
-          (click)="clearSearch(); setFilterState('all')"
-          class="mt-1 text-xs font-bold text-primary hover:underline cursor-pointer"
-        >
-          Restablecer filtros
-        </button>
-      } @else if (!showForm()) {
-        <button
-          type="button"
-          (click)="toggleForm()"
-          class="mt-2 inline-flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-xs font-bold text-white transition hover:bg-primary-dark"
-        >
-          Nueva Promoción
-        </button>
-      }
-    </div>
-  } @else {
-    <section aria-label="Listado de promociones del local" class="grid grid-cols-1 gap-4 md:grid-cols-2">
-      @for (benefit of filteredBenefits(); track benefit.externalId) {
-        <app-benefit-card
-          [benefit]="benefit"
-          [busy]="busyBenefitId() === benefit.externalId"
-          (edit)="onEditBenefit($event)"
-          (pause)="onPauseBenefit($event)"
-          (resume)="onResumeBenefit($event)"
-          (remove)="onRemoveBenefit($event)"
-        />
-      }
-    </section>
-  }
+      </div>
+    } @else if (filteredBenefits().length === 0) {
+      <div class="empty-state">
+        <p class="text-sm font-bold text-text">No se encontraron promociones</p>
+        <p class="max-w-sm text-xs text-muted">
+          @if (searchQuery() || filterState() !== 'all') {
+            No hay resultados para el filtro actual. Podés restablecer la búsqueda o los filtros.
+          } @else {
+            Todavía no creaste promociones para tu cafetería. ¡Creá la primera para atraer más clientes!
+          }
+        </p>
+        @if (searchQuery() || filterState() !== 'all') {
+          <button type="button" (click)="clearSearch(); setFilterState('all')" class="btn-secondary mt-3">
+            Restablecer filtros
+          </button>
+        } @else if (!showForm()) {
+          <button type="button" (click)="openCreateForm()" class="btn-primary mt-3">Nueva Promoción</button>
+        }
+      </div>
+    } @else {
+      <table class="data-table" aria-label="Listado de promociones del local">
+        <thead>
+          <tr>
+            <th scope="col">Promoción</th>
+            <th scope="col">Costo</th>
+            <th scope="col">Estado</th>
+            <th scope="col">Vigencia</th>
+            <th scope="col">Cupo</th>
+            <th scope="col" class="data-table-actions">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (benefit of filteredBenefits(); track benefit.externalId) {
+            <tr
+              app-benefit-row
+              [benefit]="benefit"
+              [busy]="busyBenefitId() === benefit.externalId"
+              (edit)="onEditBenefit($event)"
+              (pause)="onPauseBenefit($event)"
+              (resume)="onResumeBenefit($event)"
+              (remove)="onRemoveBenefit($event)"
+            ></tr>
+          }
+        </tbody>
+      </table>
+    }
+  </div>
 </main>
-

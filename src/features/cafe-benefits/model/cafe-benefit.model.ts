@@ -18,6 +18,7 @@ export interface CreateCafeBenefitRequest {
   tierId: string;
   productId?: string | null;
   discountPercentage?: number | null;
+  image?: string | null;
 }
 
 export interface UpdateCafeBenefitRequest extends CreateCafeBenefitRequest {
@@ -48,6 +49,7 @@ export interface CafeBenefit {
   startDate?: string | null;
   endDate?: string | null;
   discountPercentage?: number | null;
+  image?: string | null;
 }
 
 export interface CafeBenefitCreation {

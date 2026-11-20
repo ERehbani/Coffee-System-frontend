@@ -1,0 +1,104 @@
+<div class="mx-auto max-w-xl space-y-4 pb-12">
+  <a
+    routerLink="/rewards"
+    class="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+  >
+    <app-icon name="arrow-left" [size]="14" />
+    Volver a beneficios
+  </a>
+
+  @if (isLoading()) {
+    <div aria-busy="true" class="space-y-3">
+      <p role="status" class="sr-only">Cargando el beneficio…</p>
+      <div aria-hidden="true" class="space-y-3 motion-safe:animate-pulse">
+        <div class="aspect-video rounded-lg bg-border/40"></div>
+        <div class="h-6 w-2/3 rounded bg-border/40"></div>
+        <div class="h-4 w-full rounded bg-border/40"></div>
+      </div>
+    </div>
+  } @else if (hasError()) {
+    <div role="alert" class="empty-state flat-panel">
+      <h1 class="text-sm font-bold text-text">No pudimos cargar el beneficio</h1>
+      <p class="text-xs text-muted">Revisá tu conexión e intentá de nuevo.</p>
+      <button type="button" (click)="loadBenefit()" class="btn-primary mt-2">Reintentar</button>
+    </div>
+  } @else if (benefit(); as benefit) {
+    <div class="relative aspect-video overflow-hidden rounded-lg border border-border bg-accent-light">
+      @if (benefit.image) {
+        <img [ngSrc]="benefit.image" fill priority alt="" class="object-cover" />
+      } @else {
+        <span
+          aria-hidden="true"
+          data-testid="benefit-placeholder"
+          class="flex size-full items-center justify-center text-primary-dark"
+        >
+          <app-icon name="gift" [size]="48" />
+        </span>
+      }
+    </div>
+
+    <div class="space-y-1.5">
+      <h1 class="text-xl font-bold tracking-tight text-text">{{ benefit.name }}</h1>
+      @if (benefit.description) {
+        <p class="text-sm leading-relaxed text-muted">{{ benefit.description }}</p>
+      }
+      @if (benefit.conditions) {
+        <p class="text-xs leading-relaxed text-muted">{{ benefit.conditions }}</p>
+      }
+    </div>
+
+    <ul aria-label="Requisitos del beneficio" class="flex flex-wrap gap-1.5">
+      <li class="badge bg-accent-light text-primary">{{ benefit.pointsCost | number }} pts</li>
+      @if (tierLabel(); as tier) {
+        <li class="badge" [class]="tierBadgeClass()">
+          Nivel {{ tier }}
+          @if (benefit.tierMinPoints) {
+            <span class="font-medium">(desde {{ benefit.tierMinPoints | number }} pts acumulados)</span>
+          }
+        </li>
+      }
+      @if (benefit.productName) {
+        <li class="badge badge-neutral">{{ benefit.productName }}</li>
+      }
+      <li class="badge badge-neutral">{{ cafeLabel() }}</li>
+      @if (benefit.endDate) {
+        <li class="badge badge-neutral">Vence el {{ benefit.endDate | date: 'dd/MM/yyyy' }}</li>
+      }
+    </ul>
+
+    <div class="border-t border-border pt-4">
+      @if (phase() === 'confirming') {
+        <div role="group" aria-labelledby="benefit-confirm" class="space-y-3">
+          <p id="benefit-confirm" class="text-sm font-bold text-text">
+            ¿Canjear {{ benefit.name }} por {{ benefit.pointsCost | number }} pts?
+          </p>
+          <div class="flex flex-wrap gap-2">
+            <button #confirmButton type="button" (click)="confirmRedeem()" class="btn-primary">Confirmar</button>
+            <button type="button" (click)="cancelRedeem()" class="btn-secondary">Cancelar</button>
+          </div>
+        </div>
+      } @else {
+        <button
+          #redeemButton
+          type="button"
+          [disabled]="!canRedeem() || phase() === 'redeeming'"
+          [attr.aria-busy]="phase() === 'redeeming' ? 'true' : null"
+          [attr.aria-describedby]="blockedReason() ? 'benefit-redeem-reason' : null"
+          (click)="requestRedeem()"
+          class="btn-primary w-full"
+        >
+          {{ phase() === 'redeeming' ? 'Canjeando…' : 'Canjear' }}
+        </button>
+        @if (blockedReason(); as reason) {
+          <p id="benefit-redeem-reason" class="mt-2 text-center text-sm font-semibold text-muted">{{ reason }}</p>
+        }
+      }
+    </div>
+  } @else {
+    <div role="alert" class="empty-state flat-panel">
+      <h1 class="text-sm font-bold text-text">No encontramos este beneficio</h1>
+      <p class="text-xs text-muted">Puede que ya no esté disponible.</p>
+      <a routerLink="/rewards" class="btn-primary mt-2">Ver beneficios</a>
+    </div>
+  }
+</div>
