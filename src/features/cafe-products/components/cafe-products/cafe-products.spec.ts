@@ -58,11 +58,44 @@ describe('CafeProducts', () => {
     expect(component.products().find((p) => p.externalId === 'product-off')?.state).toBe(true);
   });
 
-  it('marks an available product as sold out for today', () => {
+  it('asks for confirmation before changing the availability of a product', () => {
+    const fixture = render();
+
+    fixture.componentInstance.onToggleAvailability(ESPRESSO_DTO_FIXTURE);
+    fixture.detectChanges();
+
+    expect(service['changeAvailability']).not.toHaveBeenCalled();
+    expect(fixture.nativeElement.textContent).toContain('¿Marcar como agotado hoy?');
+  });
+
+  it('asks for confirmation before making a sold out product available again', () => {
+    const fixture = render();
+
+    fixture.componentInstance.onToggleAvailability({ ...ESPRESSO_DTO_FIXTURE, available: false });
+    fixture.detectChanges();
+
+    expect(service['changeAvailability']).not.toHaveBeenCalled();
+    expect(fixture.nativeElement.textContent).toContain('¿Marcar como disponible?');
+  });
+
+  it('leaves the availability as it was when the change is cancelled', () => {
     const component = render().componentInstance;
 
     component.onToggleAvailability(ESPRESSO_DTO_FIXTURE);
+    component.cancelAvailabilityChange();
 
+    expect(component.availabilityProduct()).toBeNull();
+    expect(service['changeAvailability']).not.toHaveBeenCalled();
+    expect(component.products()[0].available).toBe(ESPRESSO_DTO_FIXTURE.available);
+  });
+
+  it('marks an available product as sold out for today once confirmed', () => {
+    const component = render().componentInstance;
+
+    component.onToggleAvailability(ESPRESSO_DTO_FIXTURE);
+    component.confirmAvailabilityChange();
+
+    expect(component.availabilityProduct()).toBeNull();
     expect(service['changeAvailability']).toHaveBeenCalledWith(
       PRODUCT_CAFE_ID,
       ESPRESSO_DTO_FIXTURE.externalId,

@@ -29,7 +29,7 @@ function normalizeText(text: string | null | undefined): string {
   imports: [FormsModule, Icon, ProductItemRow, ProductForm],
   templateUrl: './cafe-products.html',
   styleUrl: './cafe-products.css',
-  host: { class: 'block', '(document:keydown.escape)': 'cancelDelete()' },
+  host: { class: 'block', '(document:keydown.escape)': 'onEscape()' },
 })
 export class CafeProducts implements OnInit {
   private readonly productService = inject(ProductService);
@@ -44,6 +44,8 @@ export class CafeProducts implements OnInit {
   showForm = signal(false);
   editingProduct = signal<ProductDto | null>(null);
   deletingProduct = signal<ProductDto | null>(null);
+  /** Producto al que se le quiere cambiar la disponibilidad, a la espera de que la cafetería lo confirme. */
+  availabilityProduct = signal<ProductDto | null>(null);
 
   searchQuery = signal('');
   filterState = signal<'all' | 'active' | 'inactive'>('all');
@@ -283,6 +285,27 @@ export class CafeProducts implements OnInit {
   }
 
   onToggleAvailability(product: ProductDto): void {
+    this.availabilityProduct.set(product);
+  }
+
+  cancelAvailabilityChange(): void {
+    this.availabilityProduct.set(null);
+  }
+
+  confirmAvailabilityChange(): void {
+    const product = this.availabilityProduct();
+    this.availabilityProduct.set(null);
+    if (product) {
+      this.changeAvailability(product);
+    }
+  }
+
+  onEscape(): void {
+    this.cancelAvailabilityChange();
+    this.cancelDelete();
+  }
+
+  private changeAvailability(product: ProductDto): void {
     const cafeId = this.cafeId();
     if (!cafeId) {
       return;

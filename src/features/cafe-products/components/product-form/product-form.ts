@@ -108,8 +108,9 @@ export class ProductForm {
     if (raw.length > 0 && raw.length < 5) {
       return 'La descripción debe tener al menos 5 caracteres.';
     }
-    if (raw.length > 0 && !/^[\p{L}\d\s.,]+$/u.test(raw)) {
-      return 'La descripción solo puede contener letras, números, puntos y comas.';
+    // Misma regla que el back (letras, números y espacios), así el back no la rechaza con un mensaje en inglés.
+    if (raw.length > 0 && !/^[\p{L}\d\s]+$/u.test(raw)) {
+      return 'La descripción solo puede contener letras y números.';
     }
     return this.productForm.description().errors()[0]?.message ?? null;
   });

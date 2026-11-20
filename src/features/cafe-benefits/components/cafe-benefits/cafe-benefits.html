@@ -56,6 +56,47 @@
     </div>
   }
 
+  @if (pendingVisibilityChange(); as pending) {
+    <div
+      class="modal-backdrop"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="benefit-visibility-title"
+      (click)="cancelVisibilityChange()"
+    >
+      <div class="modal-panel max-w-sm" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <div class="min-w-0">
+            <h2 id="benefit-visibility-title" class="modal-title">
+              {{ pending.action === 'pause' ? '¿Pausar promoción?' : '¿Reanudar promoción?' }}
+            </h2>
+            <p class="truncate text-xs text-muted">{{ pending.benefit.name }}</p>
+          </div>
+          <button type="button" (click)="cancelVisibilityChange()" class="icon-btn" aria-label="Cerrar" title="Cerrar">
+            <app-icon name="x" [size]="14" />
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <p class="text-xs leading-relaxed text-muted">
+            @if (pending.action === 'pause') {
+              Los clientes ya no van a poder canjearla. Los cupones que ya tienen siguen valiendo. Podés reanudarla cuando quieras.
+            } @else {
+              Los clientes van a poder volver a canjearla.
+            }
+          </p>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" (click)="cancelVisibilityChange()" autofocus class="btn-secondary">Cancelar</button>
+          <button type="button" (click)="confirmVisibilityChange()" class="btn-primary">
+            {{ pending.action === 'pause' ? 'Pausar' : 'Reanudar' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
   <section aria-label="Búsqueda y filtros de promociones" class="toolbar justify-between">
     <div class="search-field">
       <app-icon name="search" [size]="14" />

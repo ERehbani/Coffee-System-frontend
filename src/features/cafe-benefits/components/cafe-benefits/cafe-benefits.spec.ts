@@ -179,11 +179,44 @@ describe('CafeBenefits', () => {
   describe('pause, resume and delete', () => {
     beforeEach(() => benefitService['getAll'].mockReturnValue(of([benefit])));
 
+    it('asks for confirmation before pausing a benefit', () => {
+      const fixture = render();
+
+      fixture.componentInstance.onPauseBenefit(benefit);
+      fixture.detectChanges();
+
+      expect(benefitService['pause']).not.toHaveBeenCalled();
+      expect(fixture.nativeElement.textContent).toContain('¿Pausar promoción?');
+    });
+
+    it('asks for confirmation before resuming a benefit', () => {
+      const fixture = render();
+
+      fixture.componentInstance.onResumeBenefit({ ...benefit, status: false });
+      fixture.detectChanges();
+
+      expect(benefitService['resume']).not.toHaveBeenCalled();
+      expect(fixture.nativeElement.textContent).toContain('¿Reanudar promoción?');
+    });
+
+    it('keeps the benefit active when the pause is cancelled', () => {
+      const component = render().componentInstance;
+
+      component.onPauseBenefit(benefit);
+      component.cancelVisibilityChange();
+
+      expect(component.pendingVisibilityChange()).toBeNull();
+      expect(benefitService['pause']).not.toHaveBeenCalled();
+      expect(component.benefits()[0].status).toBe(true);
+    });
+
     it('shows the benefit as paused once the backend confirms it', () => {
       const component = render().componentInstance;
 
       component.onPauseBenefit(benefit);
+      component.confirmVisibilityChange();
 
+      expect(component.pendingVisibilityChange()).toBeNull();
       expect(benefitService['pause']).toHaveBeenCalledWith('benefit-1');
       expect(component.benefits()[0].status).toBe(false);
       expect(component.successMessage()).toContain('Pausaste la promoción');
@@ -195,6 +228,7 @@ describe('CafeBenefits', () => {
       const component = render().componentInstance;
 
       component.onResumeBenefit({ ...benefit, status: false });
+      component.confirmVisibilityChange();
 
       expect(benefitService['resume']).toHaveBeenCalledWith('benefit-1');
       expect(component.benefits()[0].status).toBe(true);
@@ -242,6 +276,7 @@ describe('CafeBenefits', () => {
       const component = render().componentInstance;
 
       component.onPauseBenefit(benefit);
+      component.confirmVisibilityChange();
 
       expect(component.errorMessage()).toBe('Esta promoción no es de tu cafetería.');
       expect(component.benefits()[0].status).toBe(true);
