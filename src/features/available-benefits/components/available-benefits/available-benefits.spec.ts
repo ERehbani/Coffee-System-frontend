@@ -44,10 +44,11 @@ describe('AvailableBenefits', () => {
     expect(cards[1].querySelector('a')?.getAttribute('href')).toBe('/rewards/benefit-capuccino');
   });
 
-  it('puts the night mode button next to the cart in the header', () => {
+  it('keeps only the cart in the header, the night mode lives in the profile settings', () => {
     const header = render().nativeElement.querySelector('header');
 
-    expect(header.querySelector('app-theme-toggle + app-cart-button')).not.toBeNull();
+    expect(header.querySelector('app-cart-button')).not.toBeNull();
+    expect(header.querySelector('app-theme-toggle')).toBeNull();
   });
 
   it('counts the benefits the tier of the client unlocks', () => {

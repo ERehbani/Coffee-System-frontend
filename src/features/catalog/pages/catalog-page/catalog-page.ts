@@ -6,7 +6,6 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Subject, Subscription, merge, of } from 'rxjs';
 import { catchError, distinctUntilChanged, map, switchMap, tap } from 'rxjs/operators';
 import { Icon } from '../../../../shared/components/icon/icon';
-import { ThemeToggle } from '../../../../shared/components/theme-toggle/theme-toggle';
 import { ToastService } from '../../../../shared/components/toast/toast.service';
 import { formatOpeningHours } from '../../../../shared/utils/opening-hours';
 import { CartButton } from '../../../cart/components/cart-button/cart-button';
@@ -20,7 +19,7 @@ import { ProductService } from '../../services/product.service';
 
 @Component({
   selector: 'app-catalog-page',
-  imports: [DecimalPipe, RouterLink, FormsModule, Icon, ProductCard, ProductDetailModal, CartButton, ThemeToggle],
+  imports: [DecimalPipe, RouterLink, FormsModule, Icon, ProductCard, ProductDetailModal, CartButton],
   templateUrl: './catalog-page.html',
   host: { class: 'block' },
 })

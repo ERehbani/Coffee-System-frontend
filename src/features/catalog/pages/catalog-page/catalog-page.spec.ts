@@ -116,7 +116,8 @@ describe('CatalogPage', () => {
   it('does not show a rating the backend did not send', () => {
     const element: HTMLElement = render().nativeElement;
 
-    expect(element.textContent).toContain('Mostrando productos de Cafe Central');
+    expect(element.textContent).toContain('Cafe Central');
+    expect(element.textContent).not.toContain('Mostrando productos de');
     expect(element.textContent).not.toContain('4.8');
   });
 
