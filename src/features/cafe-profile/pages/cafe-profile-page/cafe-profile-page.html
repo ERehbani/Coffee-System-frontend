@@ -1,91 +1,54 @@
-<main class="mx-auto max-w-4xl px-4 py-8 space-y-6">
-  <div class="flex flex-wrap items-center justify-between gap-3 pb-2 border-b border-border">
-    <div class="flex items-center gap-2">
-      <div>
-        <h1 class="text-lg font-extrabold text-text">Perfil del local</h1>
-        <p class="text-xs text-muted">Gestión y configuración del local</p>
-      </div>
+<main class="page-shell">
+  <header class="page-header">
+    <div class="min-w-0">
+      <h1 class="page-title">Perfil del local</h1>
+      <p class="text-xs text-muted">Gestión y configuración del local</p>
     </div>
-  </div>
+  </header>
 
   @if (store.successMessage(); as successMsg) {
-    <div
-      role="status"
-      class="flex items-center justify-between gap-3 rounded-2xl border border-success/30 bg-emerald-50 px-5 py-3.5 text-success transition"
-    >
-      <div class="flex items-center gap-3">
-        <p class="text-sm font-bold text-emerald-900">{{ successMsg }}</p>
-      </div>
-      <button
-        type="button"
-        (click)="onDismissSuccess()"
-        class="cursor-pointer rounded-lg p-1 text-emerald-800 hover:bg-emerald-100 active:scale-95 transition-all select-none"
-        aria-label="Cerrar notificación"
-      >
-        <app-icon name="x" [size]="16" />
+    <div role="status" class="notice notice-success">
+      <span>{{ successMsg }}</span>
+      <button type="button" (click)="onDismissSuccess()" class="icon-btn" aria-label="Cerrar notificación" title="Cerrar">
+        <app-icon name="x" [size]="14" />
       </button>
     </div>
   }
 
   @if (store.errorMessage(); as errorMsg) {
-    <div
-      role="alert"
-      class="flex items-center justify-between gap-3 rounded-2xl border border-rose-300 bg-rose-50 px-5 py-3.5 text-rose-800 transition"
-    >
-      <div class="flex items-center gap-3">
-        <p class="text-sm font-bold text-rose-900">{{ errorMsg }}</p>
-      </div>
-      <button
-        type="button"
-        (click)="onDismissError()"
-        class="cursor-pointer rounded-lg p-1 text-rose-800 hover:bg-rose-100 active:scale-95 transition-all select-none"
-        aria-label="Cerrar alerta"
-      >
-        <app-icon name="x" [size]="16" />
+    <div role="alert" class="notice notice-error">
+      <span>{{ errorMsg }}</span>
+      <button type="button" (click)="onDismissError()" class="icon-btn" aria-label="Cerrar alerta" title="Cerrar">
+        <app-icon name="x" [size]="14" />
       </button>
     </div>
   }
 
   @if (store.status() === 'loading') {
-    <div aria-busy="true" class="space-y-6 motion-safe:animate-pulse">
-      <div class="h-64 rounded-3xl bg-border/60"></div>
-      <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
-        <div class="h-28 rounded-2xl bg-border/60"></div>
-        <div class="h-28 rounded-2xl bg-border/60"></div>
-        <div class="h-28 rounded-2xl bg-border/60 md:col-span-2"></div>
-        <div class="h-32 rounded-2xl bg-border/60 md:col-span-2"></div>
-      </div>
+    <div aria-busy="true" class="max-w-4xl space-y-4 motion-safe:animate-pulse">
+      <div class="h-40 rounded-md bg-border/60 md:h-52"></div>
+      <div class="h-6 w-1/3 rounded-md bg-border/60"></div>
+      <div class="h-16 rounded-md bg-border/60"></div>
     </div>
   } @else if (store.status() === 'error' && !store.profile()) {
-    <div class="flex flex-col items-center justify-center gap-3 rounded-3xl border border-border bg-surface p-12 text-center shadow-xs">
-      <h2 class="text-xl font-bold text-text">No se pudieron cargar los datos del local</h2>
-      <p class="text-sm text-muted">Hubo un problema al consultar la información de la cafetería.</p>
-      <button
-        type="button"
-        (click)="onReload()"
-        class="mt-2 inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-bold text-white transition hover:bg-primary-dark"
-      >
-        Reintentar
-      </button>
+    <div class="empty-state">
+      <h2 class="text-sm font-bold text-text">No se pudieron cargar los datos del local</h2>
+      <p class="text-xs text-muted">Hubo un problema al consultar la información de la cafetería.</p>
+      <button type="button" (click)="onReload()" class="btn-primary mt-3">Reintentar</button>
     </div>
   } @else if (store.profile(); as profile) {
-    <div class="space-y-6">
-      <app-cafe-header
+    @if (store.isEditing()) {
+      <app-cafe-edit-form
         [profile]="profile"
-        [isEditing]="store.isEditing()"
-        (editClicked)="onStartEdit()"
+        [isSaving]="store.status() === 'saving'"
+        (save)="onSave($event)"
+        (cancel)="onCancelEdit()"
       />
-
-      @if (store.isEditing()) {
-        <app-cafe-edit-form
-          [profile]="profile"
-          [isSaving]="store.status() === 'saving'"
-          (save)="onSave($event)"
-          (cancel)="onCancelEdit()"
-        />
-      } @else {
+    } @else {
+      <div class="max-w-4xl space-y-6">
+        <app-cafe-header [profile]="profile" (editClicked)="onStartEdit()" />
         <app-cafe-info-card [profile]="profile" />
-      }
-    </div>
+      </div>
+    }
   }
 </main>
