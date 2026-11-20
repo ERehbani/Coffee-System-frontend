@@ -1,27 +1,27 @@
 <header class="flex items-center justify-between border-b border-border bg-surface px-4 py-3">
-  <span class="text-base font-semibold text-text">Coffee System</span>
+  <span class="text-sm font-bold text-text">Coffee System</span>
   <div class="flex items-center gap-2">
     <app-theme-toggle />
     <app-logout-button />
   </div>
 </header>
 
-<main class="mx-auto max-w-2xl space-y-6 px-4 py-8">
+<main class="mx-auto max-w-2xl space-y-5 px-4 py-6">
   @switch (status()) {
     @case ('loading') {
       <p role="status" class="text-sm text-muted">Cargando los datos de tu cafetería…</p>
     }
     @case ('error') {
-      <div role="alert" class="rounded-2xl border border-border bg-surface p-6 text-center">
-        <p class="font-semibold text-text">No pudimos cargar los datos de tu cafetería.</p>
-        <p class="mt-1 text-sm text-muted">Recargá la página para intentar de nuevo.</p>
+      <div role="alert" class="empty-state">
+        <p class="text-sm font-bold text-text">No pudimos cargar los datos de tu cafetería.</p>
+        <p class="text-xs text-muted">Recargá la página para intentar de nuevo.</p>
       </div>
     }
     @default {
-      <div class="space-y-2">
-        <p class="text-xs font-semibold uppercase tracking-wider text-accent">Bienvenido a Coffee System</p>
-        <h1 class="text-2xl font-extrabold text-text">Configurá {{ profile()?.name }}</h1>
-        <p class="text-sm text-muted">
+      <div class="space-y-1 border-b border-border pb-4">
+        <p class="text-[11px] font-bold tracking-wider text-accent uppercase">Bienvenido a Coffee System</p>
+        <h1 class="page-title">Configurá {{ profile()?.name }}</h1>
+        <p class="text-xs text-muted">
           Antes de usar el panel, completá los datos que van a ver tus clientes. Te lleva un par de minutos.
         </p>
       </div>
@@ -29,7 +29,7 @@
       <ol aria-label="Pasos del onboarding" class="grid grid-cols-5 gap-2">
         @for (item of steps; track item.id; let index = $index) {
           <li
-            class="rounded-xl border px-1 py-2 text-center text-xs font-semibold"
+            class="rounded-md border px-1 py-2 text-center text-xs font-semibold"
             [class.border-primary]="index === step()"
             [class.bg-accent-light]="index === step()"
             [class.text-primary]="index <= step()"
@@ -47,101 +47,105 @@
 
       <p aria-live="polite" class="sr-only">Paso {{ step() + 1 }} de {{ steps.length }}: {{ currentStep().label }}</p>
 
-      <section class="overflow-hidden rounded-3xl border border-border bg-surface shadow-xs">
+      <section class="overflow-hidden border-y border-border">
         <div class="onboarding-track flex items-start" [style.transform]="'translateX(-' + step() * 100 + '%)'">
           @for (item of steps; track item.id; let index = $index) {
             <div
-              class="onboarding-slide w-full shrink-0 space-y-5 p-6"
+              class="onboarding-slide w-full shrink-0 space-y-4 px-1 py-5"
               [attr.inert]="index === step() ? null : ''"
               [attr.aria-hidden]="index === step() ? null : 'true'"
             >
-              <h2 #stepHeading tabindex="-1" class="text-lg font-bold text-text focus:outline-hidden">{{ item.label }}</h2>
+              <h2 #stepHeading tabindex="-1" class="text-base font-bold text-text focus:outline-hidden">{{ item.label }}</h2>
               @switch (item.id) {
                 @case ('cafe') {
-                  <div class="space-y-1.5">
-                    <label for="onboarding-name" class="block text-sm font-bold text-text">Nombre</label>
-                    <input
-                      id="onboarding-name"
-                      type="text"
-                      readonly
-                      [value]="profile()?.name"
-                      aria-describedby="onboarding-name-hint"
-                      class="w-full rounded-xl border border-border bg-bg px-4 py-2.5 text-sm text-muted focus:border-primary focus:outline-hidden"
+                  <div class="form-grid">
+                    <div>
+                      <label for="onboarding-name" class="form-label">Nombre</label>
+                      <input
+                        id="onboarding-name"
+                        type="text"
+                        readonly
+                        [value]="profile()?.name"
+                        aria-describedby="onboarding-name-hint"
+                        class="form-control text-muted"
+                      />
+                      <p id="onboarding-name-hint" class="mt-1 text-[11px] text-muted">El nombre de la cafetería no se puede modificar.</p>
+                    </div>
+                    <div>
+                      <label for="onboarding-phone" class="form-label">Teléfono (10 dígitos) *</label>
+                      <input
+                        id="onboarding-phone"
+                        type="tel"
+                        maxlength="10"
+                        [value]="phoneNumber()"
+                        (input)="phoneNumber.set($any($event.target).value)"
+                        placeholder="Ej: 1145238890"
+                        class="form-control"
+                        [attr.aria-invalid]="attempted() && phoneError() ? 'true' : null"
+                      />
+                      @if (attempted() && phoneError(); as err) {
+                        <p role="alert" class="form-error">{{ err }}</p>
+                      }
+                    </div>
+                    <div class="sm:col-span-2">
+                      <label for="onboarding-address" class="form-label">Dirección *</label>
+                      <input
+                        id="onboarding-address"
+                        type="text"
+                        [value]="address()"
+                        (input)="address.set($any($event.target).value)"
+                        placeholder="Ej: Av. Corrientes 1450, CABA"
+                        class="form-control"
+                        [attr.aria-invalid]="attempted() && addressError() ? 'true' : null"
+                      />
+                      @if (attempted() && addressError(); as err) {
+                        <p role="alert" class="form-error">{{ err }}</p>
+                      }
+                    </div>
+                    <div class="sm:col-span-2">
+                      <label for="onboarding-description" class="form-label">Descripción (opcional)</label>
+                      <textarea
+                        id="onboarding-description"
+                        rows="3"
+                        maxlength="500"
+                        [value]="description()"
+                        (input)="description.set($any($event.target).value)"
+                        placeholder="Contale a tus clientes qué ofrece tu cafetería"
+                        class="form-control"
+                      ></textarea>
+                    </div>
+                    <app-image-input
+                      label="Logo (opcional)"
+                      inputId="onboarding-logo"
+                      previewAlt="Vista previa del logo"
+                      previewClass="size-16"
+                      target="CAFE_LOGO"
+                      [(value)]="logo"
+                      [(uploading)]="logoUploading"
                     />
-                    <p id="onboarding-name-hint" class="text-xs text-muted">El nombre de la cafetería no se puede modificar.</p>
-                  </div>
-                  <div class="space-y-1.5">
-                    <label for="onboarding-address" class="block text-sm font-bold text-text">Dirección *</label>
-                    <input
-                      id="onboarding-address"
-                      type="text"
-                      [value]="address()"
-                      (input)="address.set($any($event.target).value)"
-                      placeholder="Ej: Av. Corrientes 1450, CABA"
-                      class="w-full rounded-xl border border-border bg-bg px-4 py-2.5 text-sm text-text placeholder:text-muted/60 focus:border-primary focus:outline-hidden"
+                    <app-image-input
+                      label="Portada (opcional)"
+                      inputId="onboarding-image"
+                      previewAlt="Vista previa de la portada"
+                      previewClass="h-16 w-full"
+                      target="CAFE_COVER"
+                      [(value)]="image"
+                      [(uploading)]="imageUploading"
                     />
-                    @if (attempted() && addressError(); as err) {
-                      <p role="alert" class="text-xs font-semibold text-rose-600">{{ err }}</p>
-                    }
                   </div>
-                  <div class="space-y-1.5">
-                    <label for="onboarding-phone" class="block text-sm font-bold text-text">Teléfono (10 dígitos) *</label>
-                    <input
-                      id="onboarding-phone"
-                      type="tel"
-                      maxlength="10"
-                      [value]="phoneNumber()"
-                      (input)="phoneNumber.set($any($event.target).value)"
-                      placeholder="Ej: 1145238890"
-                      class="w-full rounded-xl border border-border bg-bg px-4 py-2.5 text-sm text-text placeholder:text-muted/60 focus:border-primary focus:outline-hidden"
-                    />
-                    @if (attempted() && phoneError(); as err) {
-                      <p role="alert" class="text-xs font-semibold text-rose-600">{{ err }}</p>
-                    }
-                  </div>
-                  <div class="space-y-1.5">
-                    <label for="onboarding-description" class="block text-sm font-bold text-text">Descripción (opcional)</label>
-                    <textarea
-                      id="onboarding-description"
-                      rows="3"
-                      maxlength="500"
-                      [value]="description()"
-                      (input)="description.set($any($event.target).value)"
-                      placeholder="Contale a tus clientes qué ofrece tu cafetería"
-                      class="w-full rounded-xl border border-border bg-bg px-4 py-2.5 text-sm text-text placeholder:text-muted/60 focus:border-primary focus:outline-hidden"
-                    ></textarea>
-                  </div>
-                  <app-image-input
-                    label="Logo (opcional)"
-                    inputId="onboarding-logo"
-                    previewAlt="Vista previa del logo"
-                    previewClass="size-20"
-                    target="CAFE_LOGO"
-                    [(value)]="logo"
-                    [(uploading)]="logoUploading"
-                  />
-                  <app-image-input
-                    label="Portada (opcional)"
-                    inputId="onboarding-image"
-                    previewAlt="Vista previa de la portada"
-                    previewClass="h-40 w-full"
-                    target="CAFE_COVER"
-                    [(value)]="image"
-                    [(uploading)]="imageUploading"
-                  />
                 }
                 @case ('hours') {
-                  <p class="text-sm text-muted">Con estos horarios los clientes van a ver si tu local está abierto.</p>
+                  <p class="text-xs text-muted">Con estos horarios los clientes van a ver si tu local está abierto.</p>
                   <app-opening-hours-editor [(hours)]="openingHours" [showErrors]="attempted()" />
                 }
                 @case ('products') {
-                  <p class="text-sm text-muted">
+                  <p class="text-xs text-muted">
                     Cargá algunos productos para que tus clientes vean tu menú. Si preferís, salteá este paso y hacelo después desde el panel.
                   </p>
                   @if (products().length > 0) {
-                    <ul aria-label="Productos cargados" class="divide-y divide-border rounded-2xl border border-border">
+                    <ul aria-label="Productos cargados" class="divide-y divide-border rounded-md border border-border">
                       @for (product of products(); track product.externalId) {
-                        <li class="flex items-center justify-between gap-3 px-4 py-2.5 text-sm">
+                        <li class="flex items-center justify-between gap-3 px-3 py-2 text-sm">
                           <span class="font-semibold text-text">{{ product.name }}</span>
                           <span class="text-muted">{{ product.price | currency: 'ARS' : '$ ' : '1.0-0' }}</span>
                         </li>
@@ -149,7 +153,7 @@
                     </ul>
                   }
                   @if (productError(); as err) {
-                    <p role="alert" class="rounded-xl bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-700">{{ err }}</p>
+                    <p role="alert" class="notice notice-error">{{ err }}</p>
                   }
                   @if (showProductForm()) {
                     <app-product-form
@@ -159,26 +163,18 @@
                       (cancel)="showProductForm.set(false)"
                     />
                   } @else {
-                    <button
-                      type="button"
-                      (click)="openProductForm()"
-                      class="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-primary px-4 py-2 text-sm font-bold text-primary transition hover:bg-accent-light"
-                    >
-                      Agregar producto
-                    </button>
+                    <button type="button" (click)="openProductForm()" class="btn-secondary">Agregar producto</button>
                   }
                 }
                 @case ('benefit') {
-                  <p class="text-sm text-muted">
+                  <p class="text-xs text-muted">
                     Creá un beneficio para que tus clientes lo canjeen con sus puntos. También podés crearlo más tarde desde el panel.
                   </p>
                   @if (benefit(); as created) {
-                    <p role="status" class="rounded-xl bg-accent-light px-3 py-2 text-sm font-semibold text-primary">
-                      Creaste el beneficio «{{ created.name }}».
-                    </p>
+                    <p role="status" class="notice notice-success">Creaste el beneficio «{{ created.name }}».</p>
                   }
                   @if (benefitError(); as err) {
-                    <p role="alert" class="rounded-xl bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-700">{{ err }}</p>
+                    <p role="alert" class="notice notice-error">{{ err }}</p>
                   }
                   @if (!benefit()) {
                     @if (showBenefitForm()) {
@@ -193,38 +189,32 @@
                         />
                       </div>
                     } @else {
-                      <button
-                        type="button"
-                        (click)="openBenefitForm()"
-                        class="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-primary px-4 py-2 text-sm font-bold text-primary transition hover:bg-accent-light"
-                      >
-                        Crear beneficio
-                      </button>
+                      <button type="button" (click)="openBenefitForm()" class="btn-secondary">Crear beneficio</button>
                     }
                   }
                 }
                 @default {
-                  <p class="text-sm text-muted">Guardamos los datos de tu cafetería. Ya podés empezar a usar el panel.</p>
-                  <dl class="space-y-3 text-sm">
-                    <div>
-                      <dt class="font-semibold text-muted">Dirección</dt>
+                  <p class="text-xs text-muted">Guardamos los datos de tu cafetería. Ya podés empezar a usar el panel.</p>
+                  <dl class="divide-y divide-border border-y border-border text-sm">
+                    <div class="py-2">
+                      <dt class="text-[11px] font-bold tracking-wider text-muted uppercase">Dirección</dt>
                       <dd class="text-text">{{ address() }}</dd>
                     </div>
-                    <div>
-                      <dt class="font-semibold text-muted">Teléfono</dt>
+                    <div class="py-2">
+                      <dt class="text-[11px] font-bold tracking-wider text-muted uppercase">Teléfono</dt>
                       <dd class="text-text">{{ phoneNumber() }}</dd>
                     </div>
-                    <div>
-                      <dt class="font-semibold text-muted">Horarios</dt>
+                    <div class="py-2">
+                      <dt class="text-[11px] font-bold tracking-wider text-muted uppercase">Horarios</dt>
                       <dd class="text-text">{{ hoursSummary() }}</dd>
                     </div>
                     @if (logo() || image()) {
-                      <div class="flex items-center gap-3">
+                      <div class="flex items-center gap-3 py-2">
                         @if (logo()) {
-                          <img [src]="logo()" alt="Logo" class="size-14 rounded-xl border border-border object-cover" />
+                          <img [src]="logo()" alt="Logo" class="size-14 rounded-full border border-border object-cover" />
                         }
                         @if (image()) {
-                          <img [src]="image()" alt="Portada" class="h-14 flex-1 rounded-xl border border-border object-cover" />
+                          <img [src]="image()" alt="Portada" class="h-14 flex-1 rounded-md border border-border object-cover" />
                         }
                       </div>
                     }
@@ -235,9 +225,9 @@
           }
         </div>
 
-        <div class="space-y-4 border-t border-border px-6 py-4">
+        <div class="space-y-3 border-t border-border px-1 py-4">
           @if (errorMessage(); as err) {
-            <p role="alert" class="rounded-xl bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-700">{{ err }}</p>
+            <p role="alert" class="notice notice-error">{{ err }}</p>
           }
 
           <div class="flex items-center justify-between">
@@ -245,7 +235,7 @@
               type="button"
               (click)="back()"
               [disabled]="step() === 0 || status() === 'saving'"
-              class="cursor-pointer rounded-xl border border-border px-4 py-2 text-sm font-semibold text-muted transition hover:bg-bg hover:text-text disabled:cursor-not-allowed disabled:opacity-40"
+              class="btn-secondary"
             >
               Atrás
             </button>
@@ -253,7 +243,7 @@
               type="button"
               (click)="isLastStep() ? finish() : next()"
               [disabled]="status() === 'saving' || uploading()"
-              class="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-primary px-5 py-2 text-sm font-bold text-white transition hover:bg-primary-dark disabled:opacity-60"
+              class="btn-primary"
             >
               {{ nextLabel() }}
             </button>
