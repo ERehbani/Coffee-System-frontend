@@ -148,6 +148,24 @@ describe('ProfileEditForm', () => {
       expect(emittedData).not.toHaveProperty('email');
     });
 
+    it('keeps both labels of the save button and only swaps which one shows, so its width does not change', () => {
+      const submit = (): HTMLButtonElement => fixture.nativeElement.querySelector('button[type="submit"]');
+      const label = (text: string): HTMLElement =>
+        Array.from(submit().querySelectorAll(':scope > span')).find((span) =>
+          span.textContent?.includes(text),
+        ) as HTMLElement;
+
+      expect(label('Guardar cambios').classList).not.toContain('invisible');
+      expect(label('Guardando…').classList).toContain('invisible');
+
+      fixture.componentRef.setInput('isSaving', true);
+      fixture.detectChanges();
+
+      expect(submit().disabled).toBe(true);
+      expect(label('Guardar cambios').classList).toContain('invisible');
+      expect(label('Guardando…').classList).not.toContain('invisible');
+    });
+
     it('should emit cancel when Cancelar button is clicked', () => {
       let cancelCalled = false;
       component.cancel.subscribe(() => (cancelCalled = true));

@@ -1,6 +1,7 @@
-import { computed, inject, Service, signal } from '@angular/core';
+import { computed, inject, linkedSignal, Service, signal } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { ToastService } from '../../../shared/components/toast/toast.service';
+import { AuthService } from '../../auth/services/auth.service';
 import {
   ActiveRedemption,
   ClientProfile,
@@ -20,10 +21,20 @@ export interface ActiveRedemptionView extends ActiveRedemption {
 export class ProfileStore {
   private readonly repository = inject(ProfileRepository);
   private readonly toast = inject(ToastService);
-  private readonly resource = rxResource({ stream: () => this.repository.getDashboard() });
+  private readonly auth = inject(AuthService);
+
+  // The store outlives a logout, so the dashboard is keyed by the session: another account fetches its own.
+  private readonly resource = rxResource({
+    params: () => this.auth.email() ?? undefined,
+    stream: () => this.repository.getDashboard(),
+  });
 
   readonly isSaving = signal<boolean>(false);
-  private readonly updatedProfile = signal<ClientProfile | null>(null);
+  // A saved profile belongs to the account that saved it: it is dropped when the session changes.
+  private readonly updatedProfile = linkedSignal<string | null, ClientProfile | null>({
+    source: this.auth.email,
+    computation: () => null,
+  });
 
   readonly dashboard = computed<ProfileDashboard | null>(() => {
     const raw = this.resource.hasValue() ? this.resource.value() : null;
