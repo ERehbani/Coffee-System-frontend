@@ -2,6 +2,7 @@ import { registerLocaleData } from '@angular/common';
 import localeEsAr from '@angular/common/locales/es-AR';
 import { LOCALE_ID } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { FeaturedBenefit } from '../../types/profile.model';
 import { FeaturedBenefitCard } from './featured-benefit-card';
 
@@ -22,7 +23,7 @@ describe('FeaturedBenefitCard', () => {
   function render(overrides: Partial<FeaturedBenefit> = {}) {
     TestBed.configureTestingModule({
       imports: [FeaturedBenefitCard],
-      providers: [{ provide: LOCALE_ID, useValue: 'es-AR' }],
+      providers: [provideRouter([]), { provide: LOCALE_ID, useValue: 'es-AR' }],
     });
     fixture = TestBed.createComponent(FeaturedBenefitCard);
     fixture.componentRef.setInput('benefit', { ...benefit, ...overrides });

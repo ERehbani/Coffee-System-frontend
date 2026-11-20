@@ -1,11 +1,8 @@
 import { NgOptimizedImage } from '@angular/common';
 import { Component, computed, input } from '@angular/core';
-import { RouterLink } from '@angular/router';
-import { Icon } from '../../../../shared/components/icon/icon';
-import { ThemeToggle } from '../../../../shared/components/theme-toggle/theme-toggle';
 
 @Component({
-  imports: [NgOptimizedImage, RouterLink, Icon, ThemeToggle],
+  imports: [NgOptimizedImage],
   selector: 'app-dashboard-header',
   templateUrl: './dashboard-header.html',
   host: { class: 'block' },

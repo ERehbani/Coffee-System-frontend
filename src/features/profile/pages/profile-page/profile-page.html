@@ -3,41 +3,24 @@
     <div aria-busy="true" class="space-y-6">
       <p role="status" class="sr-only">Cargando tu panel…</p>
       <div aria-hidden="true" class="space-y-6 motion-safe:animate-pulse">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-3">
-            <div class="size-12 rounded-full bg-border"></div>
-            <div class="space-y-2">
-              <div class="h-5 w-40 rounded bg-border"></div>
-              <div class="h-3 w-24 rounded bg-border"></div>
-            </div>
-          </div>
-          <div class="h-8 w-24 rounded-full bg-border"></div>
+        <div class="flex items-center gap-3">
+          <div class="size-12 rounded-full bg-border"></div>
+          <div class="h-5 w-40 rounded bg-border"></div>
         </div>
-        <div class="h-80 rounded-3xl bg-border"></div>
-        <div class="grid grid-cols-4 gap-3">
-          @for (tile of [1, 2, 3, 4]; track tile) {
-            <div class="h-24 rounded-2xl bg-border"></div>
-          }
-        </div>
+        <div class="h-72 rounded-3xl bg-border"></div>
+        @for (row of [1, 2, 3, 4]; track row) {
+          <div class="h-10 rounded bg-border"></div>
+        }
         <div class="h-6 w-56 rounded bg-border"></div>
-        <div class="h-40 rounded-2xl bg-border"></div>
+        <div class="h-32 rounded bg-border"></div>
       </div>
     </div>
   }
   @case ('error') {
-    <section
-      role="alert"
-      class="flex flex-col items-center gap-3 rounded-2xl border border-border bg-surface p-6 text-center"
-    >
-      <h1 class="text-lg font-bold text-text">No pudimos cargar tu panel</h1>
+    <section role="alert" class="empty-state flat-panel">
+      <h1 class="text-base font-bold text-text">No pudimos cargar tu panel</h1>
       <p class="text-sm text-muted">Revisá tu conexión e intentalo de nuevo.</p>
-      <button
-        type="button"
-        (click)="store.reload()"
-        class="mt-2 inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-      >
-        Reintentar
-      </button>
+      <button type="button" (click)="store.reload()" class="btn-primary mt-2">Reintentar</button>
     </section>
   }
   @case ('ready') {
@@ -60,34 +43,22 @@
             heading="Tus canjes activos y códigos"
             [badge]="activeRedemptionsBadge()"
           />
-          <ul class="space-y-3">
+          <ul class="flat-list">
             @for (redemption of store.activeRedemptions(); track redemption.id) {
               <li>
                 <app-active-redemption-card [redemption]="redemption" (showQr)="onShowQr($event)" />
               </li>
             } @empty {
-              <li
-                class="rounded-2xl border border-dashed border-border bg-surface p-4 text-center text-sm text-muted"
-              >
-                No tenés canjes activos
-              </li>
+              <li class="px-1 py-4 text-sm text-muted">No tenés canjes activos</li>
             }
+            <li>
+              <a routerLink="/profile/redemptions" class="list-row">
+                <app-icon name="history" [size]="18" class="text-primary" />
+                <span class="flex-1">Historial de beneficios canjeados</span>
+                <app-icon name="chevron-right" [size]="16" class="text-muted" />
+              </a>
+            </li>
           </ul>
-          <a
-            routerLink="/profile/coupons"
-            aria-label="Ver todos mis cupones"
-            class="flex items-center justify-between gap-2 rounded-2xl border border-border bg-surface px-4 py-3 text-sm font-bold text-primary transition-colors hover:border-primary hover:bg-accent-light/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-          >
-            <span>Ver todos mis cupones</span>
-            <app-icon name="chevron-right" [size]="18" />
-          </a>
-          <a
-            routerLink="/profile/redemptions"
-            class="flex items-center justify-between gap-2 rounded-2xl border border-border bg-surface px-4 py-3 text-sm font-bold text-primary transition-colors hover:border-primary hover:bg-accent-light/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-          >
-            <span>Historial de beneficios canjeados</span>
-            <app-icon name="chevron-right" [size]="18" />
-          </a>
         </section>
 
         <section aria-labelledby="nearby-cafes-heading" class="space-y-3">
@@ -97,7 +68,7 @@
             actionLabel="Ver todas"
             (action)="onSeeCafes()"
           />
-          <ul class="space-y-3">
+          <ul class="flat-list">
             @for (cafe of dashboard.nearbyCafes; track cafe.id) {
               <li><app-nearby-cafe-card [cafe]="cafe" /></li>
             }
@@ -111,7 +82,7 @@
             actionLabel="Ver todos"
             (action)="onSeeBenefits()"
           />
-          <ul class="grid grid-cols-2 gap-3">
+          <ul class="flat-list">
             @for (benefit of dashboard.featuredBenefits; track benefit.id) {
               <li>
                 <app-featured-benefit-card
@@ -132,12 +103,41 @@
   }
 }
 
-<div class="mt-8 flex flex-wrap items-center justify-center gap-2">
-  <a
-    routerLink="/profile/password"
-    class="inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface px-3 py-1.5 text-xs font-bold text-muted transition-all hover:bg-bg hover:text-text active:scale-95 select-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-  >
-    Cambiar contraseña
-  </a>
-  <app-logout-button />
-</div>
+<section aria-labelledby="settings-heading" class="mt-7 space-y-3">
+  <app-section-header headingId="settings-heading" heading="Configuración" />
+  <ul class="flat-list">
+    <li>
+      <a routerLink="/profile/edit" class="list-row">
+        <app-icon name="edit" [size]="18" class="text-primary" />
+        <span class="flex-1">Editar perfil</span>
+        <app-icon name="chevron-right" [size]="16" class="text-muted" />
+      </a>
+    </li>
+    <li>
+      <a routerLink="/profile/password" class="list-row">
+        <app-icon name="lock" [size]="18" class="text-primary" />
+        <span class="flex-1">Cambiar contraseña</span>
+        <app-icon name="chevron-right" [size]="16" class="text-muted" />
+      </a>
+    </li>
+    <li>
+      <button type="button" role="switch" [attr.aria-checked]="isDark()" (click)="theme.toggle()" class="list-row">
+        <app-icon name="moon" [size]="18" class="text-primary" />
+        <span class="flex-1">Modo oscuro</span>
+        <span class="text-xs font-semibold text-muted">{{ isDark() ? 'Activado' : 'Desactivado' }}</span>
+        <span
+          aria-hidden="true"
+          class="relative h-5 w-9 shrink-0 rounded-full transition-colors"
+          [class.bg-primary]="isDark()"
+          [class.bg-muted]="!isDark()"
+        >
+          <span
+            class="absolute top-0.5 left-0.5 size-4 rounded-full bg-surface transition-transform"
+            [class.translate-x-4]="isDark()"
+          ></span>
+        </span>
+      </button>
+    </li>
+    <li><app-logout-button appearance="row" class="block" /></li>
+  </ul>
+</section>

@@ -66,6 +66,8 @@
  *   summary-strip       One bordered row of stats split by thin dividers; wraps without gaps.
  *   summary-item        One stat inside a summary-strip (label, value and hint are plain text utilities).
  *   flat-list           A ul/ol of rows split by thin dividers, closed by a border above and below. No boxes around the items.
+ *   list-row            Tappable row (a link or a button) inside a flat-list: leading icon, label with flex-1, trailing chevron or control.
+ *   list-row-danger     Add next to list-row for the exit action (log out): destructive text color, readable in both themes.
  * Tables  (markup: div.data-table-wrap > table.data-table > thead + tbody)
  *   data-table-wrap     Scrollable bordered container around a data-table.
  *   data-table          Compact table: tinted header row with small uppercase muted headers, body rows split by bottom borders.
@@ -145,6 +147,14 @@
 
   .flat-list > li + li {
     @apply border-t border-border;
+  }
+
+  .list-row {
+    @apply flex w-full cursor-pointer items-center gap-3 px-1 py-3 text-left text-sm font-medium text-text transition-colors hover:bg-accent-light/40 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary;
+  }
+
+  .list-row-danger {
+    @apply text-rose-700 hover:bg-rose-50 dark:text-rose-300 dark:hover:bg-rose-500/10;
   }
 
   .data-table-wrap {

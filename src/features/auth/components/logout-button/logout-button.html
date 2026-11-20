@@ -1,9 +1,4 @@
-<button
-  type="button"
-  (click)="logout()"
-  [disabled]="isLoggingOut()"
-  class="cursor-pointer inline-flex items-center gap-2 rounded-md px-2.5 py-2 text-sm font-medium text-muted transition-colors hover:bg-bg hover:text-text select-none disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
->
+<button type="button" (click)="logout()" [disabled]="isLoggingOut()" [class]="buttonClass()">
   <app-icon name="log-out" [size]="18" />
   {{ isLoggingOut() ? 'Cerrando sesión...' : 'Cerrar sesión' }}
 </button>
