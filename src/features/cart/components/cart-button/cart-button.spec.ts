@@ -1,6 +1,6 @@
 import { registerLocaleData } from '@angular/common';
 import { provideHttpClient } from '@angular/common/http';
-import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import localeEsAr from '@angular/common/locales/es-AR';
 import { LOCALE_ID } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -94,6 +94,56 @@ describe('CartButton', () => {
     fixture.componentInstance.goToCheckout();
 
     expect(navigateByUrl).not.toHaveBeenCalled();
+  });
+
+  describe('empty the cart', () => {
+    const buttonWithText = (text: string) =>
+      Array.from(element.querySelectorAll('button')).find((button) => button.textContent?.trim().endsWith(text));
+
+    it('is not offered when the cart has no products', () => {
+      openCart();
+
+      expect(buttonWithText('Vaciar carrito')).toBeUndefined();
+    });
+
+    it('asks for confirmation before removing every product', () => {
+      fillCart();
+      openCart();
+
+      buttonWithText('Vaciar carrito')!.click();
+      fixture.detectChanges();
+
+      expect(panel()?.textContent).toContain('¿Vaciar el carrito?');
+      expect(cart.items().length).toBe(1);
+    });
+
+    it('empties the cart in the app and in the backend once confirmed', () => {
+      const http = TestBed.inject(HttpTestingController);
+      fillCart();
+      openCart();
+
+      buttonWithText('Vaciar carrito')!.click();
+      fixture.detectChanges();
+      buttonWithText('Vaciar')!.click();
+      fixture.detectChanges();
+
+      expect(cart.items()).toEqual([]);
+      expect(http.expectOne((request) => request.url.endsWith('/carts/clear')).request.method).toBe('DELETE');
+      expect(payButton().disabled).toBe(true);
+    });
+
+    it('keeps the products when the client changes their mind', () => {
+      fillCart();
+      openCart();
+
+      buttonWithText('Vaciar carrito')!.click();
+      fixture.detectChanges();
+      buttonWithText('Cancelar')!.click();
+      fixture.detectChanges();
+
+      expect(cart.items().length).toBe(1);
+      expect(panel()?.textContent).not.toContain('¿Vaciar el carrito?');
+    });
   });
 
   describe('panel', () => {

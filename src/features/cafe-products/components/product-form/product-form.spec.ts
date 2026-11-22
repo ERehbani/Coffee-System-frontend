@@ -91,4 +91,23 @@ describe('ProductForm points', () => {
     expect(fixture.componentInstance.formModel().awardedPoints).toBe(100);
     expect(fixture.componentInstance.awardedPointsError()).toBeNull();
   });
+
+  describe('description', () => {
+    function describeAs(description: string): string | null {
+      fixture.componentInstance.formModel.update((model) => ({ ...model, description }));
+      return fixture.componentInstance.descriptionError();
+    }
+
+    it('accepts letters, numbers and spaces, like the backend', async () => {
+      await render();
+
+      expect(describeAs('Café con leche 200 ml')).toBeNull();
+    });
+
+    it('rejects dots and commas in Spanish before the backend answers in English', async () => {
+      await render();
+
+      expect(describeAs('Café suave, con leche.')).toBe('La descripción solo puede contener letras y números.');
+    });
+  });
 });

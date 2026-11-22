@@ -1,23 +1,23 @@
 <article
-  class="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-surface shadow-xs transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-lg"
+  class="group relative flex h-full flex-col overflow-hidden rounded-lg border border-border bg-surface transition-colors hover:border-primary/50"
 >
-  <div class="relative h-48 w-full overflow-hidden bg-border/60">
+  <div class="relative h-44 w-full overflow-hidden bg-border/60">
     <img
       [src]="cafe().image || 'https://images.unsplash.com/photo-1525610553991-2bede1a236e2?w=800&h=500&fit=crop&q=80&auto=format'"
       [alt]="cafe().name"
-      class="size-full object-cover transition-transform duration-500 group-hover:scale-105"
+      class="size-full object-cover"
       loading="lazy"
     />
     <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/15 to-transparent"></div>
 
     <div class="absolute top-3 left-3">
       @if (cafe().openNow) {
-        <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-600/90 px-3 py-1 text-xs font-semibold text-white shadow-sm backdrop-blur-md">
-          <span class="size-2 rounded-full bg-emerald-200 animate-pulse"></span>
+        <span class="badge gap-1.5 bg-emerald-600/90 text-white">
+          <span class="size-2 rounded-full bg-emerald-200"></span>
           Abierto ahora
         </span>
       } @else {
-        <span class="inline-flex items-center gap-1.5 rounded-full bg-zinc-800/85 px-3 py-1 text-xs font-semibold text-zinc-200 shadow-sm backdrop-blur-md">
+        <span class="badge gap-1.5 bg-zinc-800/85 text-zinc-200">
           <span class="size-2 rounded-full bg-zinc-400"></span>
           Cerrado
         </span>
@@ -25,10 +25,10 @@
     </div>
 
     @if (cafe().reviewCount; as reviewCount) {
-      <div class="absolute top-3 right-3 flex items-center gap-1 rounded-full bg-black/60 px-3 py-1 text-xs font-bold text-white shadow-sm backdrop-blur-md">
-        <app-icon name="star" [size]="14" class="text-amber-400" />
+      <div class="badge absolute top-3 right-3 gap-1 bg-black/60 text-white">
+        <app-icon name="star" [size]="13" class="text-amber-400" />
         <span><span class="sr-only">Calificación </span>{{ cafe().rating | number: '1.1-1' }}</span>
-        <span class="text-[11px] font-normal text-white/80">({{ reviewCount | number }}<span class="sr-only"> opiniones</span>)</span>
+        <span class="font-normal text-white/80">({{ reviewCount | number }}<span class="sr-only"> opiniones</span>)</span>
       </div>
     }
 
@@ -39,45 +39,35 @@
     </div>
   </div>
 
-  <div class="flex flex-1 flex-col justify-between p-5 space-y-4">
-    <div>
-      @if (cafe().description) {
-        <p class="text-sm text-muted leading-relaxed">
-          {{ cafe().description }}
-        </p>
-      }
-    </div>
+  <div class="flex flex-1 flex-col justify-between gap-4 p-4">
+    @if (cafe().description) {
+      <p class="text-sm text-muted leading-relaxed">
+        {{ cafe().description }}
+      </p>
+    }
 
-    <div class="space-y-2 rounded-xl bg-bg/50 p-3.5 border border-border/60 text-xs">
-      <div class="flex items-start gap-2.5 text-text">
-        <span class="font-medium leading-tight">{{ cafe().address }}</span>
-      </div>
+    <div class="space-y-1.5 border-t border-border pt-3 text-xs">
+      <p class="font-medium leading-tight text-text">{{ cafe().address }}</p>
 
-      <div class="flex items-center gap-2.5 text-muted" [title]="hoursSummary()">
-        <span>{{ todayHours() ? 'Hoy ' + todayHours() : 'Hoy no abre' }}</span>
-      </div>
+      <p class="text-muted" [title]="hoursSummary()">
+        {{ todayHours() ? 'Hoy ' + todayHours() : 'Hoy no abre' }}
+      </p>
 
       @if (cafe().phoneNumber) {
-        <div class="flex items-center gap-2.5 text-muted">
-          <span>{{ cafe().phoneNumber }}</span>
-        </div>
+        <p class="text-muted">{{ cafe().phoneNumber }}</p>
       }
 
       @if (cafe().email) {
-        <div class="flex items-center gap-2.5 text-muted">
-          <span class="truncate">{{ cafe().email }}</span>
-        </div>
+        <p class="truncate text-muted">{{ cafe().email }}</p>
       }
     </div>
 
-    <div class="pt-2">
-      <a
-        [routerLink]="['/catalog']"
-        [queryParams]="{ cafe: cafe().externalId }"
-        class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-xs transition-all duration-200 hover:bg-primary-dark hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-[0.99]"
-      >
-        <span>Ver catálogo y productos</span>
-      </a>
-    </div>
+    <a
+      [routerLink]="['/catalog']"
+      [queryParams]="{ cafe: cafe().externalId }"
+      class="btn-primary w-full"
+    >
+      Ver catálogo y productos
+    </a>
   </div>
 </article>

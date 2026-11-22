@@ -1,7 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { of, throwError } from 'rxjs';
+import { of, Subject, throwError } from 'rxjs';
 import { ProductService } from '../../../catalog/services/product.service';
 import { ESPRESSO_DTO_FIXTURE, PRODUCT_CAFE_ID } from '../../../catalog/utils/product.fixture';
 import { CafeBenefit, CreateCafeBenefitRequest } from '../../model/cafe-benefit.model';
@@ -48,6 +48,9 @@ describe('CafeBenefits', () => {
       getTiers: vi.fn(() => of([])),
       create: vi.fn(() => of({ benefit, publishError: null })),
       update: vi.fn(() => of({ ...benefit, name: 'Espresso 2x1' })),
+      pause: vi.fn(() => of({ ...benefit, status: false, isPublic: false })),
+      resume: vi.fn(() => of({ ...benefit, status: true, isPublic: true })),
+      delete: vi.fn(() => of(undefined)),
     };
     productService = {
       getMyCafeId: vi.fn(() => of(PRODUCT_CAFE_ID)),
@@ -100,15 +103,15 @@ describe('CafeBenefits', () => {
       benefitService['getAll'].mockReturnValue(of([withLimit]));
     });
 
-    it('opens the form pre-filled from the "Editar" button of a card', () => {
+    it('opens the form pre-filled from the pencil button of a row', () => {
       const fixture = render();
       const root = fixture.nativeElement as HTMLElement;
 
-      root.querySelector<HTMLButtonElement>('app-benefit-card button')!.click();
+      root.querySelector<HTMLButtonElement>('tr[app-benefit-row] button')!.click();
       fixture.detectChanges();
 
       expect(fixture.componentInstance.editingBenefit()).toEqual(withLimit);
-      expect(root.querySelector('app-benefit-form h2')?.textContent?.trim()).toBe('Editar Promoción');
+      expect(root.querySelector('[role="dialog"] app-benefit-form h2')?.textContent?.trim()).toBe('Editar Promoción');
       expect(root.querySelector<HTMLInputElement>('#benefit-name')?.value).toBe('2x1 Espresso');
     });
 
@@ -170,6 +173,142 @@ describe('CafeBenefits', () => {
 
       expect(benefitService['create']).toHaveBeenCalledWith(request);
       expect(benefitService['update']).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('pause, resume and delete', () => {
+    beforeEach(() => benefitService['getAll'].mockReturnValue(of([benefit])));
+
+    it('asks for confirmation before pausing a benefit', () => {
+      const fixture = render();
+
+      fixture.componentInstance.onPauseBenefit(benefit);
+      fixture.detectChanges();
+
+      expect(benefitService['pause']).not.toHaveBeenCalled();
+      expect(fixture.nativeElement.textContent).toContain('¿Pausar promoción?');
+    });
+
+    it('asks for confirmation before resuming a benefit', () => {
+      const fixture = render();
+
+      fixture.componentInstance.onResumeBenefit({ ...benefit, status: false });
+      fixture.detectChanges();
+
+      expect(benefitService['resume']).not.toHaveBeenCalled();
+      expect(fixture.nativeElement.textContent).toContain('¿Reanudar promoción?');
+    });
+
+    it('keeps the benefit active when the pause is cancelled', () => {
+      const component = render().componentInstance;
+
+      component.onPauseBenefit(benefit);
+      component.cancelVisibilityChange();
+
+      expect(component.pendingVisibilityChange()).toBeNull();
+      expect(benefitService['pause']).not.toHaveBeenCalled();
+      expect(component.benefits()[0].status).toBe(true);
+    });
+
+    it('shows the benefit as paused once the backend confirms it', () => {
+      const component = render().componentInstance;
+
+      component.onPauseBenefit(benefit);
+      component.confirmVisibilityChange();
+
+      expect(component.pendingVisibilityChange()).toBeNull();
+      expect(benefitService['pause']).toHaveBeenCalledWith('benefit-1');
+      expect(component.benefits()[0].status).toBe(false);
+      expect(component.successMessage()).toContain('Pausaste la promoción');
+      expect(component.busyBenefitId()).toBeNull();
+    });
+
+    it('shows the benefit as active again after resuming it', () => {
+      benefitService['getAll'].mockReturnValue(of([{ ...benefit, status: false }]));
+      const component = render().componentInstance;
+
+      component.onResumeBenefit({ ...benefit, status: false });
+      component.confirmVisibilityChange();
+
+      expect(benefitService['resume']).toHaveBeenCalledWith('benefit-1');
+      expect(component.benefits()[0].status).toBe(true);
+    });
+
+    it('removes the deleted benefit from the list', () => {
+      const component = render().componentInstance;
+
+      component.onRemoveBenefit(benefit);
+
+      expect(benefitService['delete']).toHaveBeenCalledWith('benefit-1');
+      expect(component.benefits()).toEqual([]);
+      expect(component.successMessage()).toBe('Eliminaste la promoción.');
+    });
+
+    it('keeps the benefit and explains why when the backend refuses to delete it', () => {
+      benefitService['delete'].mockReturnValue(
+        throwError(
+          () =>
+            new HttpErrorResponse({
+              status: 422,
+              error: { detail: 'Este beneficio ya tiene canjes y no se puede eliminar. Pausalo para que no se pueda canjear más' },
+            }),
+        ),
+      );
+      const component = render().componentInstance;
+
+      component.onRemoveBenefit(benefit);
+
+      expect(component.benefits()).toEqual([benefit]);
+      expect(component.errorMessage()).toContain('Pausalo');
+      expect(component.busyBenefitId()).toBeNull();
+    });
+
+    it('keeps the previous notice while the next pause is in flight, so the table does not jump', () => {
+      const pending = new Subject<CafeBenefit>();
+      benefitService['pause'].mockReturnValue(pending);
+      const component = render().componentInstance;
+      component.successMessage.set('La promoción volvió a estar disponible para los clientes.');
+
+      component.onPauseBenefit(benefit);
+      component.confirmVisibilityChange();
+
+      expect(component.successMessage()).toBe('La promoción volvió a estar disponible para los clientes.');
+
+      pending.next({ ...benefit, status: false });
+
+      expect(component.successMessage()).toContain('Pausaste la promoción');
+    });
+
+    it('swaps the previous notice for the error when the pause fails', () => {
+      benefitService['pause'].mockReturnValue(throwError(() => new HttpErrorResponse({ status: 500 })));
+      const component = render().componentInstance;
+      component.successMessage.set('La promoción volvió a estar disponible para los clientes.');
+
+      component.onPauseBenefit(benefit);
+      component.confirmVisibilityChange();
+
+      expect(component.successMessage()).toBeNull();
+      expect(component.errorMessage()).not.toBeNull();
+      expect(component.busyBenefitId()).toBeNull();
+    });
+
+    it('explains a failed pause in Spanish instead of repeating the text of the backend', () => {
+      benefitService['pause'].mockReturnValue(
+        throwError(
+          () =>
+            new HttpErrorResponse({
+              status: 403,
+              error: { detail: 'You can only manage resources of your own cafe' },
+            }),
+        ),
+      );
+      const component = render().componentInstance;
+
+      component.onPauseBenefit(benefit);
+      component.confirmVisibilityChange();
+
+      expect(component.errorMessage()).toBe('Esta promoción no es de tu cafetería.');
+      expect(component.benefits()[0].status).toBe(true);
     });
   });
 });

@@ -1,16 +1,17 @@
 import { formatOpeningHours } from '../../../../shared/utils/opening-hours';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import { Icon } from '../../../../shared/components/icon/icon';
-import { Cafe, CreateCafeAccountRequest } from '../../../home/model/cafe.model';
+import { Cafe, CreateCafeAccountRequest, UpdateCafeRequest } from '../../../home/model/cafe.model';
 import { CafeService } from '../../../home/services/cafe.service';
 import { CafeDetailModal } from '../../components/cafe-detail-modal/cafe-detail-modal';
+import { CafeEditModal } from '../../components/cafe-edit-modal/cafe-edit-modal';
 import { CafeRegisterModal } from '../../components/cafe-register-modal/cafe-register-modal';
+import { toCafeAdminErrorMessage } from '../../utils/cafe-admin-error';
 
 @Component({
   selector: 'app-admin-cafes-page',
-  imports: [RouterLink, Icon, CafeDetailModal, CafeRegisterModal],
+  imports: [Icon, CafeDetailModal, CafeEditModal, CafeRegisterModal],
   templateUrl: './admin-cafes-page.html',
   styleUrl: './admin-cafes-page.css',
   host: { class: 'block' },
@@ -28,6 +29,10 @@ export class AdminCafesPage implements OnInit {
   isRegisterOpen = signal(false);
   isSubmitting = signal(false);
   registerError = signal<string | null>(null);
+  editingCafe = signal<Cafe | null>(null);
+  isUpdating = signal(false);
+  editError = signal<string | null>(null);
+  busyCafeId = signal<string | null>(null);
   feedbackMessage = signal<{ type: 'success' | 'error'; text: string } | null>(null);
 
   filteredCafes = computed(() => {
@@ -113,6 +118,88 @@ export class AdminCafesPage implements OnInit {
 
   clearFeedback(): void {
     this.feedbackMessage.set(null);
+  }
+
+  openEdit(cafe: Cafe): void {
+    this.selectedCafe.set(null);
+    this.editError.set(null);
+    this.editingCafe.set(cafe);
+  }
+
+  closeEdit(): void {
+    this.editingCafe.set(null);
+    this.editError.set(null);
+  }
+
+  onUpdateCafe(request: UpdateCafeRequest): void {
+    const cafe = this.editingCafe();
+    if (!cafe) {
+      return;
+    }
+    this.isUpdating.set(true);
+    this.editError.set(null);
+
+    this.cafeService.update(cafe.externalId, request).subscribe({
+      next: (updated) => {
+        this.isUpdating.set(false);
+        this.replaceCafe(updated);
+        this.closeEdit();
+        this.feedbackMessage.set({ type: 'success', text: `Guardaste los cambios de "${updated.name}".` });
+      },
+      error: (error: unknown) => {
+        this.isUpdating.set(false);
+        this.editError.set(toCafeAdminErrorMessage(error, 'No se pudieron guardar los cambios. Probá de nuevo.'));
+      },
+    });
+  }
+
+  onDeactivateCafe(cafe: Cafe): void {
+    this.busyCafeId.set(cafe.externalId);
+    this.cafeService.deactivate(cafe.externalId).subscribe({
+      next: () => {
+        this.busyCafeId.set(null);
+        this.replaceCafe({ ...cafe, state: false, openNow: false });
+        this.feedbackMessage.set({
+          type: 'success',
+          text: `Desactivaste "${cafe.name}": ya no aparece para los clientes y no puede iniciar sesión.`,
+        });
+      },
+      error: (error: unknown) => {
+        this.busyCafeId.set(null);
+        this.feedbackMessage.set({
+          type: 'error',
+          text: toCafeAdminErrorMessage(error, `No se pudo desactivar "${cafe.name}". Probá de nuevo.`),
+        });
+      },
+    });
+  }
+
+  onReactivateCafe(cafe: Cafe): void {
+    this.busyCafeId.set(cafe.externalId);
+    this.cafeService.reactivate(cafe.externalId).subscribe({
+      next: (reactivated) => {
+        this.busyCafeId.set(null);
+        this.replaceCafe(reactivated);
+        this.feedbackMessage.set({
+          type: 'success',
+          text: `Reactivaste "${cafe.name}": vuelve a aparecer para los clientes y puede iniciar sesión.`,
+        });
+      },
+      error: (error: unknown) => {
+        this.busyCafeId.set(null);
+        this.feedbackMessage.set({
+          type: 'error',
+          text: toCafeAdminErrorMessage(error, `No se pudo reactivar "${cafe.name}". Probá de nuevo.`),
+        });
+      },
+    });
+  }
+
+  private replaceCafe(updated: Cafe): void {
+    this.cafes.update((list) => list.map((cafe) => (cafe.externalId === updated.externalId ? updated : cafe)));
+    if (this.selectedCafe()?.externalId === updated.externalId) {
+      this.selectedCafe.set(updated);
+    }
   }
 
   onRegisterCafe(request: CreateCafeAccountRequest): void {

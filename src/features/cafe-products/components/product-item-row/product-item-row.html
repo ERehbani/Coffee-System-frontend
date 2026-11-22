@@ -1,0 +1,101 @@
+<td>
+  <div class="flex items-center gap-3">
+    <div class="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-md border border-border bg-bg text-muted/60">
+      @if (product().image) {
+        <img
+          [src]="product().image"
+          [alt]="product().name"
+          class="size-full object-cover"
+          (error)="$any($event.target).style.display = 'none'"
+        />
+      } @else {
+        <app-icon name="coffee" [size]="18" />
+      }
+    </div>
+
+    <div class="min-w-0">
+      <p class="truncate text-sm font-bold text-text">{{ product().name }}</p>
+      @if (product().description) {
+        <p class="line-clamp-2 max-w-xs text-[11px] leading-snug text-muted">{{ product().description }}</p>
+      }
+      @if (product().tags?.length) {
+        <p class="mt-0.5 flex flex-wrap gap-x-2 text-[11px] font-semibold text-muted">
+          @for (tag of product().tags; track tag) {
+            <span>#{{ tag }}</span>
+          }
+        </p>
+      }
+    </div>
+  </div>
+</td>
+
+<td class="whitespace-nowrap">{{ product().category || 'Sin categoría' }}</td>
+
+<td class="text-sm font-bold whitespace-nowrap text-primary">${{ product().price | number }}</td>
+
+<td class="whitespace-nowrap">
+  <span class="badge bg-accent-light text-primary">+{{ product().awardedPoints ?? 0 }} pts</span>
+</td>
+
+<td>
+  <div class="flex flex-wrap items-center gap-1">
+    @if (product().state) {
+      @if (!product().available) {
+        <span class="badge badge-warning">Agotado hoy</span>
+      }
+      <span class="badge badge-success">
+        <span class="size-1.5 rounded-full bg-current"></span>
+        Activo
+      </span>
+    } @else {
+      <span class="badge badge-neutral">Inactivo</span>
+    }
+  </div>
+</td>
+
+<td class="data-table-actions">
+  <div class="row-actions">
+    <button
+      type="button"
+      (click)="onEdit()"
+      class="icon-btn icon-btn-primary"
+      [attr.aria-label]="'Editar producto ' + product().name"
+      title="Editar"
+    >
+      <app-icon name="edit" [size]="14" />
+    </button>
+
+    @if (product().state) {
+      <button
+        type="button"
+        (click)="onToggleAvailability()"
+        class="icon-btn"
+        [attr.aria-label]="
+          (product().available ? 'Marcar como agotado hoy: ' : 'Marcar como disponible: ') + product().name
+        "
+        [title]="product().available ? 'Agotado hoy' : 'Disponible'"
+      >
+        <app-icon [name]="product().available ? 'arrow-down' : 'check'" [size]="14" />
+      </button>
+      <button
+        type="button"
+        (click)="onDelete()"
+        class="icon-btn icon-btn-danger"
+        [attr.aria-label]="'Dar de baja el producto ' + product().name"
+        title="Dar de baja"
+      >
+        <app-icon name="trash" [size]="14" />
+      </button>
+    } @else {
+      <button
+        type="button"
+        (click)="onActivate()"
+        class="icon-btn icon-btn-primary"
+        [attr.aria-label]="'Activar producto ' + product().name"
+        title="Activar"
+      >
+        <app-icon name="play" [size]="14" />
+      </button>
+    }
+  </div>
+</td>

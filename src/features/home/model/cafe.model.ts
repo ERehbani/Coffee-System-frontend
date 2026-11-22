@@ -25,6 +25,15 @@ export interface CreateCafeAccountRequest {
   phoneNumber?: string | null;
 }
 
+export interface UpdateCafeRequest {
+  name: string;
+  address: string;
+  phoneNumber: string | null;
+  description: string | null;
+  logo: string | null;
+  image: string | null;
+}
+
 export interface UserResponse {
   externalId: string;
   email: string;

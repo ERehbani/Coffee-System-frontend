@@ -1,101 +1,103 @@
-<div class="w-full overflow-hidden rounded-2xl border border-border bg-surface shadow-xs">
+<div class="data-table-wrap">
   @if (status() === 'loading') {
-    <div class="space-y-3 p-6" aria-label="Cargando clientes">
+    <div class="space-y-2 p-4" aria-busy="true" aria-label="Cargando clientes">
       @for (row of skeletonRows; track row) {
-        <div class="h-12 animate-pulse rounded-xl bg-border/50"></div>
+        <div class="h-9 animate-pulse rounded-md bg-border/40"></div>
       }
     </div>
   } @else if (clients().length === 0) {
-    <div class="flex flex-col items-center justify-center px-4 py-16 text-center">
-      <h3 class="text-base font-bold text-text">No se encontraron clientes</h3>
-      <p class="mt-1 max-w-sm text-xs text-muted">
+    <div class="empty-state">
+      <h3 class="text-sm font-bold text-text">No se encontraron clientes</h3>
+      <p class="max-w-sm text-xs text-muted">
         No hay clientes que coincidan con la búsqueda o los filtros seleccionados.
       </p>
     </div>
   } @else {
-    <div class="overflow-x-auto">
-      <table class="w-full border-collapse text-left text-xs">
-        <thead>
-          <tr class="border-b border-border bg-bg/60 text-[11px] font-bold uppercase tracking-wider text-muted">
-            <th scope="col" class="px-4 py-3.5">Cliente</th>
-            <th scope="col" class="px-4 py-3.5">Nivel</th>
-            <th scope="col" class="px-4 py-3.5 text-right">Puntos disponibles</th>
-            <th scope="col" class="hidden px-4 py-3.5 text-right md:table-cell">Puntos históricos</th>
-            <th scope="col" class="px-4 py-3.5">Estado</th>
-            <th scope="col" class="hidden px-4 py-3.5 lg:table-cell">Registro</th>
-            <th scope="col" class="px-4 py-3.5 text-right">Acción</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-border/60">
-          @for (client of clients(); track client.id) {
-            <tr
-              tabindex="0"
-              (click)="selectClient.emit(client)"
-              (keydown)="onRowKeyDown($event, client)"
-              [attr.aria-label]="'Ver detalle de ' + client.displayName"
-              class="group cursor-pointer transition-colors hover:bg-bg/60 focus:bg-bg focus:outline-hidden focus:ring-2 focus:ring-primary/40"
-            >
-              <td class="px-4 py-3.5">
-                <div class="flex items-center gap-3">
-                  <span class="flex size-9 shrink-0 items-center justify-center rounded-xl bg-accent text-xs font-black text-white shadow-2xs">
-                    {{ client.initials }}
-                  </span>
-                  <div class="min-w-0">
-                    <p class="truncate font-bold text-text transition-colors group-hover:text-primary">
-                      {{ client.displayName }}
-                    </p>
-                    @if (client.email && client.email !== client.displayName) {
-                      <p class="truncate text-[11px] text-muted">{{ client.email }}</p>
-                    }
-                  </div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th scope="col">Cliente</th>
+          <th scope="col">Nivel</th>
+          <th scope="col" class="text-right">Puntos disponibles</th>
+          <th scope="col" class="hidden text-right md:table-cell">Puntos históricos</th>
+          <th scope="col">Estado</th>
+          <th scope="col" class="hidden lg:table-cell">Registro</th>
+          <th scope="col" class="data-table-actions">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (client of clients(); track client.id) {
+          <tr
+            tabindex="0"
+            (click)="selectClient.emit(client)"
+            (keydown)="onRowKeyDown($event, client)"
+            [attr.aria-label]="'Ver detalle de ' + client.displayName"
+            class="group cursor-pointer focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary"
+          >
+            <td>
+              <div class="flex items-center gap-2.5">
+                <span class="flex size-8 shrink-0 items-center justify-center rounded-md bg-accent text-[11px] font-bold text-white">
+                  {{ client.initials }}
+                </span>
+                <div class="min-w-0">
+                  <p class="truncate font-bold text-text transition-colors group-hover:text-primary">
+                    {{ client.displayName }}
+                  </p>
+                  @if (client.email && client.email !== client.displayName) {
+                    <p class="truncate text-[11px] text-muted">{{ client.email }}</p>
+                  }
                 </div>
-              </td>
-              <td class="whitespace-nowrap px-4 py-3.5">
-                <span class="rounded-full bg-amber-100 px-2.5 py-1 text-[11px] font-bold text-amber-900">
-                  {{ client.tierName ?? 'Sin nivel' }}
-                </span>
-              </td>
-              <td class="whitespace-nowrap px-4 py-3.5 text-right font-bold text-text">
-                {{ client.currentPoints | number }}
-              </td>
-              <td class="hidden whitespace-nowrap px-4 py-3.5 text-right text-muted md:table-cell">
-                {{ client.historicalPoints | number }}
-              </td>
-              <td class="whitespace-nowrap px-4 py-3.5">
+              </div>
+            </td>
+            <td class="whitespace-nowrap">
+              <span class="badge bg-amber-100 text-amber-900">
+                {{ client.tierName ?? 'Sin nivel' }}
+              </span>
+            </td>
+            <td class="text-right font-bold whitespace-nowrap text-text">
+              {{ client.currentPoints | number }}
+            </td>
+            <td class="hidden text-right whitespace-nowrap text-muted md:table-cell">
+              {{ client.historicalPoints | number }}
+            </td>
+            <td class="whitespace-nowrap">
+              <span
+                class="badge"
+                [class.bg-emerald-100]="client.status === 'active'"
+                [class.text-emerald-800]="client.status === 'active'"
+                [class.bg-slate-100]="client.status === 'inactive'"
+                [class.text-slate-700]="client.status === 'inactive'"
+              >
                 <span
-                  class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold"
-                  [class.bg-emerald-100]="client.status === 'active'"
-                  [class.text-emerald-800]="client.status === 'active'"
-                  [class.bg-slate-100]="client.status === 'inactive'"
-                  [class.text-slate-700]="client.status === 'inactive'"
-                >
-                  <span
-                    class="size-1.5 rounded-full"
-                    [class.bg-emerald-500]="client.status === 'active'"
-                    [class.bg-slate-400]="client.status === 'inactive'"
-                  ></span>
-                  {{ statusLabels[client.status] }}
-                </span>
-              </td>
-              <td class="hidden whitespace-nowrap px-4 py-3.5 text-muted lg:table-cell">
-                {{ (client.createdAt | date: 'dd/MM/yyyy') ?? '—' }}
-              </td>
-              <td class="whitespace-nowrap px-4 py-3.5 text-right">
+                  class="size-1.5 rounded-full"
+                  [class.bg-emerald-500]="client.status === 'active'"
+                  [class.bg-slate-400]="client.status === 'inactive'"
+                ></span>
+                {{ statusLabels[client.status] }}
+              </span>
+            </td>
+            <td class="hidden whitespace-nowrap text-muted lg:table-cell">
+              {{ (client.createdAt | date: 'dd/MM/yyyy') ?? '—' }}
+            </td>
+            <td class="data-table-actions">
+              <div class="row-actions">
                 <button
                   type="button"
                   (click)="selectClient.emit(client); $event.stopPropagation()"
-                  class="inline-flex cursor-pointer items-center gap-1.5 rounded-xl border border-border bg-surface px-3 py-1.5 text-[11px] font-bold text-muted shadow-2xs transition-all hover:border-primary/40 hover:bg-bg hover:text-text active:scale-95"
+                  class="icon-btn"
+                  aria-label="Ver detalle"
+                  title="Ver detalle"
                 >
-                  <span>Ver detalle</span>
+                  <app-icon name="eye" [size]="14" />
                 </button>
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
-    </div>
+              </div>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
 
-    <div class="border-t border-border bg-bg/40 px-4 py-3 text-xs text-muted">
+    <div class="border-t border-border px-4 py-2.5 text-xs text-muted">
       Mostrando <strong>{{ clients().length }}</strong> cliente(s)
     </div>
   }

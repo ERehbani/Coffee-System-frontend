@@ -11,16 +11,17 @@ import {
   output,
   viewChild,
 } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { Icon } from '../../../../shared/components/icon/icon';
 import { FeaturedBenefit } from '../../types/profile.model';
 
 export type FeaturedBenefitPhase = 'idle' | 'confirming' | 'redeeming';
 
 @Component({
-  imports: [DecimalPipe, NgOptimizedImage, Icon],
+  imports: [DecimalPipe, NgOptimizedImage, RouterLink, Icon],
   selector: 'app-featured-benefit-card',
   templateUrl: './featured-benefit-card.html',
-  host: { class: 'block h-full' },
+  host: { class: 'block' },
 })
 export class FeaturedBenefitCard {
   private readonly injector = inject(Injector);

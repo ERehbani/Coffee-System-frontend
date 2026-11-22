@@ -55,6 +55,11 @@ export class CartService {
       return false;
     }
 
+    if (!cafe.openNow) {
+      onRejected?.('La cafetería está cerrada en este momento.');
+      return false;
+    }
+
     const previousItems = this.items();
     const previousCafe = this.cafe();
     const list = [...previousItems];
@@ -144,10 +149,15 @@ export class CartService {
   }
 
   clear(): void {
+    const previousItems = this.items();
+    const previousCafe = this.cafe();
     this.clearLocal();
 
     this.http.delete<void>(`${this.url}/clear`).subscribe({
-      error: (error) => console.error('Error al vaciar el carrito:', error),
+      error: (error) => {
+        console.error('Error al vaciar el carrito:', error);
+        this.restore(previousItems, previousCafe);
+      },
     });
   }
 

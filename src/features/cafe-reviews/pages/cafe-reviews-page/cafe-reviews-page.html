@@ -1,51 +1,39 @@
-<main class="mx-auto max-w-4xl space-y-6 px-4 py-8">
-  <div class="flex items-center gap-2.5 border-b border-border pb-2">
-    <div>
-      <h1 class="text-lg font-extrabold text-text">Reseñas</h1>
+<main class="page-shell">
+  <header class="page-header">
+    <div class="min-w-0">
+      <h1 class="page-title">Reseñas</h1>
       <p class="text-xs text-muted">Lo que opinan tus clientes sobre tu cafetería</p>
     </div>
-  </div>
+  </header>
 
   @switch (status()) {
     @case ('loading') {
       <p role="status" class="text-sm text-muted">Cargando las reseñas…</p>
     }
     @case ('error') {
-      <div role="alert" class="space-y-3 rounded-2xl border border-border bg-surface p-6 text-center">
-        <p class="font-semibold text-text">No pudimos cargar las reseñas.</p>
-        <button
-          type="button"
-          (click)="load()"
-          class="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary-dark"
-        >
-          Reintentar
-        </button>
+      <div role="alert" class="empty-state">
+        <p class="text-sm font-bold text-text">No pudimos cargar las reseñas.</p>
+        <button type="button" (click)="load()" class="btn-primary mt-3">Reintentar</button>
       </div>
     }
     @default {
       @if (reviews().length === 0) {
-        <div
-          role="status"
-          class="flex flex-col items-center justify-center gap-3 rounded-3xl border border-dashed border-border bg-surface p-10 text-center shadow-xs"
-        >
-          <p class="text-base font-bold text-text">Todavía no tenés reseñas</p>
+        <div role="status" class="empty-state">
+          <p class="text-sm font-bold text-text">Todavía no tenés reseñas</p>
           <p class="max-w-sm text-xs text-muted">Cuando tus clientes califiquen sus compras, vas a ver sus opiniones acá.</p>
         </div>
       } @else {
-        <section
-          aria-label="Resumen de las reseñas"
-          class="flex items-center gap-4 rounded-2xl border border-border bg-surface p-5 shadow-xs"
-        >
-          <p>
-            <span class="block text-2xl font-extrabold text-text">
+        <section aria-label="Resumen de las reseñas" class="summary-strip">
+          <p class="summary-item">
+            <span class="block text-xl font-bold text-text">
               {{ averageRating() | number: '1.1-1' }}
-              <span class="text-sm font-semibold text-muted">de 5</span>
+              <span class="text-xs font-semibold text-muted">de 5</span>
             </span>
-            <span class="block text-xs font-semibold text-muted">Promedio de {{ countLabel() }}</span>
+            <span class="block text-[11px] font-bold text-muted">Promedio de {{ countLabel() }}</span>
           </p>
         </section>
 
-        <ul aria-label="Reseñas de tus clientes" class="space-y-4">
+        <ul aria-label="Reseñas de tus clientes" class="divide-y divide-border border-y border-border">
           @for (review of reviews(); track review.id) {
             <li><app-review-card [review]="review" /></li>
           }

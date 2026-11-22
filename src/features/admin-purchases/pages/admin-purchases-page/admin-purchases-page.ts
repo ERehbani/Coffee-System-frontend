@@ -1,15 +1,15 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
 import { Icon } from '../../../../shared/components/icon/icon';
 import { PURCHASE_STATUSES, Purchase, PurchaseStatus } from '../../../purchase-history/model/purchase.model';
 import { PurchaseService } from '../../../purchase-history/services/purchase.service';
+import { RefundPurchase } from '../../../purchase-history/components/refund-purchase/refund-purchase';
 import { isCancellation } from '../../../purchase-history/utils/purchase-status';
 import { toPurchaseStatusView } from '../../utils/purchase-status-view';
 
 @Component({
   selector: 'app-admin-purchases-page',
-  imports: [RouterLink, FormsModule, Icon],
+  imports: [FormsModule, Icon, RefundPurchase],
   templateUrl: './admin-purchases-page.html',
   host: { class: 'block' },
 })
@@ -93,6 +93,11 @@ export class AdminPurchasesPage implements OnInit {
 
   closeDetails(): void {
     this.selectedPurchase.set(null);
+  }
+
+  onRefunded(refunded: Purchase): void {
+    this.purchases.update((list) => list.map((p) => (p.externalId === refunded.externalId ? refunded : p)));
+    this.selectedPurchase.set(refunded);
   }
 
   formatDate(dateStr: string): string {

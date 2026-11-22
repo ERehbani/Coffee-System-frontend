@@ -1,7 +1,6 @@
-import { Component, ElementRef, computed, inject, signal, viewChild } from '@angular/core';
+import { Component, ElementRef, signal, viewChild } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { LogoutButton } from '../../../features/auth/components/logout-button/logout-button';
-import { AuthService } from '../../../features/auth/services/auth.service';
 import { Icon } from '../icon/icon';
 import { ThemeToggle } from '../theme-toggle/theme-toggle';
 import { ADMIN_NAV_ITEMS } from './admin-nav';
@@ -16,11 +15,8 @@ import { ADMIN_NAV_ITEMS } from './admin-nav';
   },
 })
 export class AdminLayout {
-  private readonly auth = inject(AuthService);
-
   protected readonly items = ADMIN_NAV_ITEMS;
   protected readonly menuOpen = signal(false);
-  protected readonly canOpenClientApp = computed(() => this.auth.hasRole('ROLE_CLIENTE'));
 
   private readonly menuButton = viewChild.required<ElementRef<HTMLButtonElement>>('menuButton');
 

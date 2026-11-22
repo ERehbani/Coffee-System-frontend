@@ -11,7 +11,7 @@ const STATUS_LABELS: Record<UsedBenefitStatus, string> = { used: 'Canjeado', exp
     <article
       [attr.aria-labelledby]="'used-benefit-' + benefit().id"
       [attr.data-status]="benefit().status"
-      class="flex items-start gap-3 rounded-2xl border border-dashed border-border bg-bg p-4 opacity-80"
+      class="flex items-start gap-3 px-1 py-3 opacity-80"
     >
       <div class="min-w-0 flex-1 space-y-1">
         <h3 [id]="'used-benefit-' + benefit().id" class="text-base leading-snug font-bold text-muted">
@@ -35,14 +35,8 @@ const STATUS_LABELS: Record<UsedBenefitStatus, string> = { used: 'Canjeado', exp
         }
       </div>
       <div class="flex shrink-0 flex-col items-end gap-1.5">
-        <p
-          class="inline-flex items-center gap-1 rounded-full border border-border bg-surface px-2.5 py-0.5 text-xs font-bold text-muted"
-        >
-          {{ statusLabels[benefit().status] }}
-        </p>
-        <p class="rounded-full bg-surface px-2.5 py-1 text-xs font-bold text-muted">
-          −{{ benefit().usedPoints | number }} pts
-        </p>
+        <p class="badge badge-neutral">{{ statusLabels[benefit().status] }}</p>
+        <p class="text-xs font-bold text-muted">−{{ benefit().usedPoints | number }} pts</p>
       </div>
     </article>
   `,

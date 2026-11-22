@@ -14,4 +14,5 @@ export interface AvailableBenefit {
   readonly endDate: string | null;
   readonly productName: string | null;
   readonly soldOut: boolean;
+  readonly image?: string | null;
 }

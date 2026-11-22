@@ -11,6 +11,8 @@ import { buildProfileDashboardFixture } from '../utils/profile.fixture';
 import { toProfileDashboard } from '../utils/profile.mapper';
 import { ProfileRepository } from './profile.repository';
 import { ProfileStore } from './profile.store';
+import { AuthService } from '../../auth/services/auth.service';
+import { signInForTest } from '../../auth/utils/auth.fixture';
 
 describe('ProfileStore', () => {
   let store: ProfileStore;
@@ -50,6 +52,7 @@ describe('ProfileStore', () => {
     TestBed.configureTestingModule({
       providers: [ProfileStore, { provide: ProfileRepository, useValue: mockRepository }],
     });
+    signInForTest(['ROLE_CLIENTE']);
 
     store = TestBed.inject(ProfileStore);
     TestBed.flushEffects();
@@ -96,12 +99,52 @@ describe('ProfileStore', () => {
     expect(store.dashboard()?.profile.email).toBe('juan.perez@example.com');
   });
 
+  describe('another account signs in without reloading the page', () => {
+    const otherProfile: ClientProfile = {
+      ...mockProfile,
+      id: 'client-002',
+      firstName: 'Lucía',
+      email: 'lucia@example.com',
+    };
+
+    function signInAsAnotherAccount(): void {
+      mockRepository.getDashboard = () => of({ ...mockDashboard, profile: otherProfile });
+      TestBed.inject(AuthService).startSession({ email: otherProfile.email, roles: ['ROLE_CLIENTE'] });
+      TestBed.flushEffects();
+    }
+
+    it('shows the dashboard of the new account, not the one of the previous account', () => {
+      signInAsAnotherAccount();
+
+      expect(store.dashboard()?.profile.firstName).toBe('Lucía');
+      expect(store.profile()?.id).toBe('client-002');
+    });
+
+    it('forgets the profile the previous account just saved', () => {
+      store.saveProfile({ firstName: 'Mateo', lastName: 'Gómez', phoneNumber: '1199887766', avatarUrl: null });
+
+      signInAsAnotherAccount();
+
+      expect(store.profile()?.firstName).toBe('Lucía');
+      expect(store.dashboard()?.profile.firstName).toBe('Lucía');
+    });
+
+    it('drops the dashboard as soon as the session is closed', () => {
+      TestBed.inject(AuthService).clearSession();
+      TestBed.flushEffects();
+
+      expect(store.dashboard()).toBeNull();
+      expect(store.profile()).toBeNull();
+    });
+  });
+
   it('does not save with an invented client id while the profile is not loaded', () => {
     mockRepository.getDashboard = () => throwError(() => new Error('500'));
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
       providers: [ProfileStore, { provide: ProfileRepository, useValue: mockRepository }],
     });
+    signInForTest(['ROLE_CLIENTE']);
     store = TestBed.inject(ProfileStore);
     TestBed.flushEffects();
 
@@ -202,6 +245,7 @@ describe('ProfileStore', () => {
     TestBed.configureTestingModule({
       providers: [ProfileStore, { provide: ProfileRepository, useValue: mockRepository }],
     });
+    signInForTest(['ROLE_CLIENTE']);
     store = TestBed.inject(ProfileStore);
     TestBed.flushEffects();
 
@@ -235,6 +279,7 @@ describe('ProfileStore', () => {
           },
         ],
       });
+      signInForTest(['ROLE_CLIENTE']);
       const loaded = TestBed.inject(ProfileStore);
       TestBed.flushEffects();
       return loaded;

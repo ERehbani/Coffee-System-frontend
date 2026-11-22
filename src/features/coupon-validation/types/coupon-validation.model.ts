@@ -13,12 +13,22 @@ export interface ValidatedCoupon {
   readonly usedAt: string | null;
 }
 
+export type CouponAction = 'deliver' | 'cancel';
+
+export interface CancelledCoupon {
+  readonly coupon: ValidatedCoupon;
+  readonly refundedPoints: number;
+}
+
 export type ValidationFailure =
   | { readonly kind: 'used' }
   | { readonly kind: 'not-found' }
-  | { readonly kind: 'rejected'; readonly message: string };
+  | { readonly kind: 'rejected'; readonly message: string }
+  | { readonly kind: 'not-cancelled'; readonly message: string };
 
 export type ValidationResult =
-  { readonly kind: 'valid'; readonly coupon: ValidatedCoupon } | ValidationFailure;
+  | { readonly kind: 'valid'; readonly coupon: ValidatedCoupon }
+  | ({ readonly kind: 'cancelled' } & CancelledCoupon)
+  | ValidationFailure;
 
 export type ValidationOutcome = ValidationResult & { readonly code: string };

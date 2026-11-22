@@ -1,12 +1,10 @@
-<ul aria-label="Acciones rápidas" class="grid grid-cols-4 gap-3">
+<ul aria-label="Acciones rápidas" class="flat-list">
   @for (action of actions; track action.id) {
     <li>
-      <button
-        type="button"
-        (click)="actionSelected.emit(action.id)"
-        class="flex h-full w-full cursor-pointer items-center justify-center rounded-2xl border border-border bg-surface px-2 py-3 text-center text-xs leading-tight font-semibold text-text shadow-sm transition hover:border-primary hover:bg-accent-light/60 hover:shadow-md active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-      >
-        {{ action.label }}
+      <button type="button" (click)="actionSelected.emit(action.id)" class="list-row">
+        <app-icon [name]="action.icon" [size]="18" class="text-primary" />
+        <span class="flex-1">{{ action.label }}</span>
+        <app-icon name="chevron-right" [size]="16" class="text-muted" />
       </button>
     </li>
   }

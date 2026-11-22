@@ -38,7 +38,11 @@ export class ValidationResult {
   });
   protected readonly rejectionMessage = computed(() => {
     const outcome = this.outcome();
-    return outcome.kind === 'rejected' ? outcome.message : null;
+    return outcome.kind === 'rejected' || outcome.kind === 'not-cancelled' ? outcome.message : null;
+  });
+  protected readonly cancellation = computed(() => {
+    const outcome = this.outcome();
+    return outcome.kind === 'cancelled' ? outcome : null;
   });
 
   constructor() {

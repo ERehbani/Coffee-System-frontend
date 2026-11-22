@@ -1,6 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { of } from 'rxjs';
 import { signInForTest } from '../../../features/auth/utils/auth.fixture';
+import { HttpCafeProfileRepository } from '../../../features/cafe-profile/services/http-cafe-profile.repository';
+import { CAFE_PROFILE_FIXTURE } from '../../../features/cafe-profile/utils/cafe-profile.fixture';
+import { toCafeProfile } from '../../../features/cafe-profile/utils/cafe-profile.mapper';
 import { CafeLayout } from './cafe-layout';
 
 const EXPECTED_ITEMS = [
@@ -22,7 +26,10 @@ describe('CafeLayout', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      providers: [provideRouter([{ path: '**', children: [] }])],
+      providers: [
+        provideRouter([{ path: '**', children: [] }]),
+        { provide: HttpCafeProfileRepository, useValue: { getProfile: () => of(toCafeProfile(CAFE_PROFILE_FIXTURE)) } },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(CafeLayout);
@@ -36,23 +43,20 @@ describe('CafeLayout', () => {
     expect(navLinks().map((link) => link.getAttribute('href'))).toEqual(EXPECTED_ITEMS.map((item) => item.href));
   });
 
-  it('offers the night mode and the logout in the footer', () => {
+  it('shows the cafe name, the password link, the logout and the night mode in the footer', () => {
     const footer = root.querySelector('aside footer');
 
-    expect(footer?.textContent).toContain('Cafetería');
+    expect(footer?.querySelector('[data-testid="cafe-name"]')?.textContent?.trim()).toBe('Café Central');
+    expect(footer?.querySelector('a[href="/cafe/password"]')?.textContent?.trim()).toBe('Cambiar contraseña');
+    expect(footer?.querySelector('app-logout-button')?.textContent).toContain('Cerrar sesión');
     expect(footer?.querySelector('app-theme-toggle')).not.toBeNull();
-    expect(footer?.querySelector('app-logout-button')).not.toBeNull();
   });
 
-  it('links to the client view only when the cafe is also a client', async () => {
-    signInForTest(['ROLE_CAFETERIA']);
-    await fixture.whenStable();
-    expect(root.querySelector('aside footer a[href="/home"]')).toBeNull();
-
+  it('does not link to the client view, even when the cafe is also a client', async () => {
     signInForTest(['ROLE_CAFETERIA', 'ROLE_CLIENTE']);
-    fixture.detectChanges();
     await fixture.whenStable();
-    expect(root.querySelector('aside footer a[href="/home"]')?.textContent?.trim()).toBe('Vista cliente');
+
+    expect(root.querySelector('aside footer a[href="/home"]')).toBeNull();
   });
 
   it('opens and closes the sidebar on small screens', () => {

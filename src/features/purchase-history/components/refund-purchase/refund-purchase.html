@@ -1,0 +1,47 @@
+@if (isRefundable()) {
+  @if (phase() === 'idle') {
+    <button
+      type="button"
+      data-testid="refund-purchase"
+      (click)="askConfirmation()"
+      class="btn-secondary h-8 border-rose-300 text-xs text-rose-700 hover:bg-rose-50 dark:border-rose-500/40 dark:text-rose-300 dark:hover:bg-rose-500/10"
+    >
+      Reembolsar pedido
+    </button>
+  } @else {
+    <div data-testid="refund-confirmation" class="notice notice-error flex-col items-stretch justify-start gap-3 py-3">
+      <p>¿Reembolsar este pedido?</p>
+      <ul class="list-disc space-y-1 pl-5 font-normal">
+        <li>El pedido queda como reembolsado y no se puede deshacer.</li>
+        <li>
+          Al cliente se le descuentan los {{ pointsToRevoke() }} puntos que ganó con esta compra (si
+          ya los gastó, su saldo queda en 0).
+        </li>
+        @if (usedCoupon()) {
+          <li>El cupón que usó vuelve a quedar disponible en su cuenta.</li>
+        }
+      </ul>
+      @if (errorMessage(); as message) {
+        <p role="alert" class="form-error mt-0">{{ message }}</p>
+      }
+      <div class="flex justify-end gap-2">
+        <button
+          type="button"
+          (click)="cancel()"
+          [disabled]="phase() === 'refunding'"
+          class="btn-secondary h-8 text-xs"
+        >
+          Cancelar
+        </button>
+        <button
+          type="button"
+          (click)="confirm()"
+          [disabled]="phase() === 'refunding'"
+          class="btn-danger h-8 px-3 text-xs"
+        >
+          {{ phase() === 'refunding' ? 'Reembolsando...' : 'Sí, reembolsar' }}
+        </button>
+      </div>
+    </div>
+  }
+}

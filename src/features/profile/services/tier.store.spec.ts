@@ -11,6 +11,7 @@ import { REDEEM_ERROR_MESSAGE } from '../utils/redeem-error';
 import { ProfileRepository } from './profile.repository';
 import { ProfileStore } from './profile.store';
 import { TierStore } from './tier.store';
+import { signInForTest } from '../../auth/utils/auth.fixture';
 
 const coffee: TierBenefit = {
   id: 'benefit-coffee',
@@ -64,6 +65,7 @@ describe('TierStore', () => {
         },
       ],
     });
+    signInForTest(['ROLE_CLIENTE']);
     const store = TestBed.inject(TierStore);
     TestBed.flushEffects();
     return store;

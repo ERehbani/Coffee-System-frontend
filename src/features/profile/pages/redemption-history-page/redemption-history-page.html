@@ -1,8 +1,5 @@
 <header class="mb-6 flex items-center gap-3">
-  <a
-    routerLink="/profile"
-    class="flex size-10 shrink-0 items-center justify-center rounded-full border border-border bg-surface text-text transition-colors hover:bg-accent-light focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-  >
+  <a routerLink="/profile" class="icon-btn size-10 rounded-full">
     <app-icon name="arrow-left" [size]="20" label="Volver al perfil" />
   </a>
   <h1 class="text-xl font-extrabold tracking-tight text-text">Historial de beneficios canjeados</h1>
@@ -21,25 +18,16 @@
     </div>
   }
   @case ('error') {
-    <section
-      role="alert"
-      class="flex flex-col items-center gap-3 rounded-2xl border border-border bg-surface p-6 text-center"
-    >
-      <h2 class="text-lg font-bold text-text">No pudimos cargar tu historial</h2>
+    <section role="alert" class="empty-state flat-panel">
+      <h2 class="text-base font-bold text-text">No pudimos cargar tu historial</h2>
       <p class="text-sm text-muted">Revisá tu conexión e intentalo de nuevo.</p>
-      <button
-        type="button"
-        (click)="store.reload()"
-        class="mt-2 inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-      >
-        Reintentar
-      </button>
+      <button type="button" (click)="store.reload()" class="btn-primary mt-2">Reintentar</button>
     </section>
   }
   @case ('ready') {
     <div class="space-y-4">
       @if (store.usedBenefits().length > 0) {
-        <p class="flex items-center gap-2 rounded-2xl bg-accent-light px-4 py-3 text-sm text-primary-dark">
+        <p class="flex items-center gap-2 border-y border-border py-2.5 text-sm text-primary-dark">
           <span>
             <strong>{{ store.usedBenefits().length }}</strong>
             {{ store.usedBenefits().length === 1 ? 'beneficio canjeado' : 'beneficios canjeados' }} ·
@@ -48,15 +36,11 @@
         </p>
       }
 
-      <ul aria-label="Beneficios canjeados" class="space-y-3">
+      <ul aria-label="Beneficios canjeados" class="flat-list">
         @for (benefit of store.usedBenefits(); track benefit.id) {
           <li><app-used-benefit-item [benefit]="benefit" /></li>
         } @empty {
-          <li
-            class="rounded-2xl border border-dashed border-border bg-surface p-6 text-center text-sm text-muted"
-          >
-            Todavía no usaste ningún beneficio
-          </li>
+          <li class="empty-state text-sm text-muted">Todavía no usaste ningún beneficio</li>
         }
       </ul>
     </div>

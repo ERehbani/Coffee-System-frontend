@@ -77,6 +77,17 @@ describe('CartService', () => {
       expect(service.isFromAnotherCafe(NORTE_LATTE_FIXTURE)).toBe(true);
       expect(service.items().length).toBe(1);
     });
+
+    it('rejects a product of a closed cafe without calling the backend', () => {
+      const closedCentral = { ...CAFE_CENTRAL_FIXTURE, openNow: false };
+      const onRejected = vi.fn();
+
+      const added = service.addProduct(FLAT_WHITE_FIXTURE, closedCentral, onRejected);
+
+      expect(added).toBe(false);
+      expect(onRejected).toHaveBeenCalledWith('La cafetería está cerrada en este momento.');
+      expect(service.items()).toEqual([{ product: ESPRESSO_FIXTURE, quantity: 2 }]);
+    });
   });
 
   describe('replaceWithProduct', () => {
@@ -158,6 +169,18 @@ describe('CartService', () => {
       const request = http.expectOne(`${CARTS_URL}/clear`);
       expect(request.request.method).toBe('DELETE');
       request.flush(null);
+    });
+
+    it('gives the products back when the backend cannot empty the cart', () => {
+      service.items.set([{ product: ESPRESSO_FIXTURE, quantity: 2 }]);
+      service.cafe.set({ externalId: 'cafe-central-001', name: 'Cafe Central' });
+      vi.spyOn(console, 'error').mockImplementation(() => undefined);
+
+      service.clear();
+      http.expectOne(`${CARTS_URL}/clear`).flush(null, { status: 500, statusText: 'Server Error' });
+
+      expect(service.items()).toEqual([{ product: ESPRESSO_FIXTURE, quantity: 2 }]);
+      expect(service.cafe()?.name).toBe('Cafe Central');
     });
   });
 });

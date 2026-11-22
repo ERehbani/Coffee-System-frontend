@@ -1,4 +1,4 @@
-import { Routes } from '@angular/router';
+import { Route, Routes } from '@angular/router';
 import { AdminLayout } from '../shared/components/admin-layout/admin-layout';
 import { ADMIN_NAV_ITEMS } from '../shared/components/admin-layout/admin-nav';
 import { AdminPlaceholderPage } from '../shared/components/admin-placeholder-page/admin-placeholder-page';
@@ -45,6 +45,12 @@ const adminSectionRoutes: Routes = [
   },
 ];
 
+const changePasswordRoute: Route = {
+  path: 'password',
+  loadComponent: () =>
+    import('../features/auth/pages/change-password-page/change-password-page').then((m) => m.ChangePasswordPage),
+};
+
 const adminPlaceholderRoutes: Routes = ADMIN_NAV_ITEMS.filter(
   (item) => !adminSectionRoutes.some((route) => route.path === item.path),
 ).map((item) => ({
@@ -79,6 +85,7 @@ export const routes: Routes = [
     children: [
       { path: '', pathMatch: 'full', redirectTo: 'users' },
       ...adminSectionRoutes,
+      changePasswordRoute,
       ...adminPlaceholderRoutes,
     ],
   },
@@ -125,6 +132,7 @@ export const routes: Routes = [
         path: 'purchases',
         loadChildren: () => import('../features/cafe-purchases/cafe-purchases.routes'),
       },
+      changePasswordRoute,
     ],
   },
   {

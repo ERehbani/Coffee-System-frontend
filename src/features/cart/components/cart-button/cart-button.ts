@@ -18,6 +18,7 @@ export class CartButton {
 
   isOpen = signal(false);
   productToRemove = signal<string | null>(null);
+  isConfirmingClear = signal(false);
 
   canCheckout = computed(() => {
     return this.cartService.totalItems() > 0;
@@ -34,6 +35,7 @@ export class CartButton {
   closeCart(): void {
     this.isOpen.set(false);
     this.productToRemove.set(null);
+    this.isConfirmingClear.set(false);
   }
 
   increase(productId: string): void {
@@ -55,6 +57,19 @@ export class CartButton {
   confirmRemove(productId: string): void {
     this.cartService.removeProduct(productId);
     this.productToRemove.set(null);
+  }
+
+  askClear(): void {
+    this.isConfirmingClear.set(true);
+  }
+
+  cancelClear(): void {
+    this.isConfirmingClear.set(false);
+  }
+
+  confirmClear(): void {
+    this.cartService.clear();
+    this.isConfirmingClear.set(false);
   }
 
   goToCheckout(): void {

@@ -1,8 +1,4 @@
-<main
-  #pageMain
-  tabindex="-1"
-  class="focus:outline-hidden mx-auto w-full max-w-6xl space-y-6 px-4 py-8 lg:px-8"
->
+<main #pageMain tabindex="-1" class="page-shell focus:outline-hidden">
   <app-admin-page-header
     title="Tipos de beneficio"
     subtitle="Definí qué formatos de cupón pueden usar los beneficios."
@@ -13,7 +9,7 @@
         [disabled]="!store.canCreate()"
         [attr.aria-describedby]="isCatalogComplete() ? 'benefit-types-create-hint' : null"
         (click)="onCreate($event)"
-        class="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-60"
+        class="btn-primary"
       >
         Nuevo tipo
       </button>
@@ -28,22 +24,18 @@
   @if (store.actionMessage(); as message) {
     <div
       [attr.role]="message.type === 'success' ? 'status' : 'alert'"
-      class="flex items-center justify-between gap-3 rounded-xl border bg-surface px-4 py-3 text-sm"
-      [class.border-success]="message.type === 'success'"
-      [class.text-success]="message.type === 'success'"
-      [class.border-rose-600]="message.type === 'error'"
-      [class.text-rose-700]="message.type === 'error'"
+      class="notice"
+      [class.notice-success]="message.type === 'success'"
+      [class.notice-error]="message.type === 'error'"
     >
-      <span class="flex items-center gap-2 font-medium">
-        {{ message.text }}
-      </span>
+      <span>{{ message.text }}</span>
       <button
         type="button"
         aria-label="Cerrar aviso"
         (click)="store.dismissActionMessage()"
-        class="inline-flex size-8 cursor-pointer items-center justify-center rounded-lg transition-colors hover:bg-bg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+        class="icon-btn"
       >
-        <app-icon name="x" [size]="16" />
+        <app-icon name="x" [size]="14" />
       </button>
     </div>
   }
@@ -54,33 +46,22 @@
         <p role="status" class="sr-only">Cargando tipos de beneficio…</p>
         <div aria-hidden="true" class="space-y-2 motion-safe:animate-pulse">
           @for (item of [1, 2, 3, 4]; track item) {
-            <div class="h-12 rounded-xl bg-border"></div>
+            <div class="h-9 rounded-md bg-border"></div>
           }
         </div>
       </div>
     }
     @case ('error') {
-      <section
-        role="alert"
-        class="flex flex-col items-center gap-3 rounded-2xl border border-border bg-surface p-6 text-center"
-      >
-        <h2 class="text-lg font-semibold text-text">No pudimos cargar los tipos de beneficio</h2>
-        <p class="text-sm text-muted">Revisá tu conexión e intentalo de nuevo.</p>
-        <button
-          type="button"
-          (click)="store.loadFormats()"
-          class="mt-2 inline-flex cursor-pointer items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-        >
-          Reintentar
-        </button>
+      <section role="alert" class="flat-panel empty-state">
+        <h2 class="text-sm font-bold text-text">No pudimos cargar los tipos de beneficio</h2>
+        <p class="text-xs text-muted">Revisá tu conexión e intentalo de nuevo.</p>
+        <button type="button" (click)="store.loadFormats()" class="btn-primary mt-3">Reintentar</button>
       </section>
     }
     @case ('ready') {
       @if (store.isEmpty()) {
-        <section
-          class="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-border bg-surface px-6 py-12 text-center"
-        >
-          <p class="text-sm text-muted">Todavía no hay tipos de beneficio.</p>
+        <section class="flat-panel empty-state">
+          <p class="text-xs text-muted">Todavía no hay tipos de beneficio.</p>
         </section>
       } @else {
         <app-benefit-format-table [formats]="store.formats()" (edit)="onEdit($event)" />

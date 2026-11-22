@@ -25,6 +25,7 @@ const coupon: ValidatedCoupon = {
 describe('CouponValidationPage', () => {
   let element: HTMLElement;
   let validate: ReturnType<typeof vi.fn>;
+  let cancel: ReturnType<typeof vi.fn>;
   let start: ReturnType<typeof vi.fn>;
   let stopSession: ReturnType<typeof vi.fn>;
   let read: ReturnType<typeof vi.fn>;
@@ -32,6 +33,7 @@ describe('CouponValidationPage', () => {
   beforeEach(() => {
     vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval'] });
     validate = vi.fn().mockReturnValue(of(coupon));
+    cancel = vi.fn().mockReturnValue(of({ coupon, refundedPoints: 300 }));
     stopSession = vi.fn();
     start = vi.fn().mockResolvedValue({ stop: stopSession });
     read = vi.fn().mockReturnValue(null);
@@ -39,7 +41,7 @@ describe('CouponValidationPage', () => {
       imports: [CouponValidationPage],
       providers: [
         provideRouter([]),
-        { provide: CouponValidationRepository, useValue: { validate } },
+        { provide: CouponValidationRepository, useValue: { validate, cancel } },
         { provide: CameraAccess, useValue: { start } },
       ],
     });
@@ -175,6 +177,26 @@ describe('CouponValidationPage', () => {
 
     expect(stopSession).toHaveBeenCalledOnce();
     expect(read).not.toHaveBeenCalled();
+  });
+
+  it('cancels a typed code once the cafe chooses to cancel the redemption', async () => {
+    const fixture = await render();
+
+    element.querySelector<HTMLButtonElement>('[data-testid="action-cancel"]')!.click();
+    await settle(fixture);
+    expect(element.querySelector('[data-testid="action-help"]')?.textContent).toContain(
+      'le devuelve los puntos al cliente',
+    );
+
+    codeInput().value = 'code-1';
+    codeInput().dispatchEvent(new Event('input'));
+    await settle(fixture);
+    element.querySelector('#validation-code')!.closest('form')!.dispatchEvent(new Event('submit'));
+    await settle(fixture);
+
+    expect(cancel).toHaveBeenCalledExactlyOnceWith('code-1');
+    expect(validate).not.toHaveBeenCalled();
+    expect(result()?.getAttribute('data-outcome')).toBe('cancelled');
   });
 
   it('opens without the result of a previous visit', async () => {

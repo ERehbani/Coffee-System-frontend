@@ -1,6 +1,6 @@
 <article
   [attr.aria-labelledby]="'coupon-' + coupon().id"
-  class="rounded-2xl border border-border bg-surface p-4 shadow-sm"
+  class="flat-panel p-4"
 >
   <div class="flex items-start justify-between gap-3">
     <div class="min-w-0 space-y-1">
@@ -32,7 +32,7 @@
   <a
     [routerLink]="['/profile/redemptions', coupon().id]"
     [attr.aria-label]="'Ver código de ' + coupon().title"
-    class="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-border bg-accent-light px-3 py-1.5 text-sm font-bold text-primary-dark transition-colors hover:border-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+    class="btn-secondary mt-3"
   >
     Ver código
   </a>

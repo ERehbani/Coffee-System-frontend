@@ -1,0 +1,12 @@
+services:
+  frontend:
+    build: .
+    container_name: coffee-frontend
+    restart: unless-stopped
+    environment:
+      API_URL: ${API_URL:-http://host.docker.internal:8080}
+      NG_ALLOWED_HOSTS: ${NG_ALLOWED_HOSTS:-localhost}
+    ports:
+      - "4000:4000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"

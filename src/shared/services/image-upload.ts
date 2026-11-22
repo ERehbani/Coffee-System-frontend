@@ -12,7 +12,7 @@ interface UploadSignatureDto {
   readonly signature: string;
 }
 
-export type UploadTarget = 'CAFE_LOGO' | 'CAFE_COVER' | 'PRODUCT_IMAGE' | 'CLIENT_AVATAR';
+export type UploadTarget = 'CAFE_LOGO' | 'CAFE_COVER' | 'PRODUCT_IMAGE' | 'CLIENT_AVATAR' | 'BENEFIT_IMAGE';
 
 interface CloudinaryUploadDto {
   readonly secure_url: string;

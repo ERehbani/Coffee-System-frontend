@@ -1,38 +1,26 @@
-<main class="space-y-6">
-  <div class="flex items-center justify-between pb-3 border-b border-border">
-    <div class="flex items-center gap-2">
-      <a
-        routerLink="/profile"
-        class="cursor-pointer inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface px-3 py-1.5 text-xs font-bold text-muted transition-all hover:bg-bg hover:text-text active:scale-95 select-none"
-        aria-label="Volver al perfil"
-      >
-        <span>Volver al perfil</span>
-      </a>
-    </div>
+<main class="space-y-5">
+  <div class="page-header">
+    <a routerLink="/profile" class="btn-secondary h-8 text-xs" aria-label="Volver al perfil">
+      <span>Volver al perfil</span>
+    </a>
 
     <div class="flex items-center gap-1 text-xs font-semibold text-muted">
       <span>Mi cuenta</span>
       <span>/</span>
-      <span class="text-primary font-bold">Edición</span>
+      <span class="font-bold text-primary">Edición</span>
     </div>
   </div>
 
   @if (store.status() === 'loading' && !store.profile()) {
-    <div aria-busy="true" class="space-y-6 motion-safe:animate-pulse">
-      <div class="h-64 rounded-3xl bg-border/60"></div>
-      <div class="h-32 rounded-2xl bg-border/60"></div>
+    <div aria-busy="true" class="space-y-4 motion-safe:animate-pulse">
+      <div class="h-56 rounded-lg bg-border/60"></div>
+      <div class="h-24 rounded-lg bg-border/60"></div>
     </div>
   } @else if (store.status() === 'error' && !store.profile()) {
-    <div class="flex flex-col items-center justify-center gap-3 rounded-3xl border border-border bg-surface p-10 text-center shadow-xs">
-      <h2 class="text-xl font-bold text-text">No se pudieron cargar tus datos de perfil</h2>
+    <div class="empty-state flat-panel">
+      <h2 class="text-base font-bold text-text">No se pudieron cargar tus datos de perfil</h2>
       <p class="text-sm text-muted">Hubo un problema al consultar tu información.</p>
-      <button
-        type="button"
-        (click)="onReload()"
-        class="mt-2 inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-bold text-white transition hover:bg-primary-dark"
-      >
-        Reintentar
-      </button>
+      <button type="button" (click)="onReload()" class="btn-primary mt-2">Reintentar</button>
     </div>
   } @else if (store.profile(); as profile) {
     <app-profile-edit-form

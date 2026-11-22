@@ -56,16 +56,22 @@ describe('AdminLayout', () => {
     const footer = root.querySelector('aside footer');
 
     expect(footer?.textContent).toContain('Superadmin');
-    expect(footer?.querySelector('a')).toBeNull();
+    expect(footer?.querySelector('a[href="/home"]')).toBeNull();
   });
 
-  it('shows a link back to the client app when the user is also a client', async () => {
+  it('always offers changing the password next to the logout', async () => {
+    signInForTest(['ROLE_SUPERADMIN']);
+    await fixture.whenStable();
+    const passwordLink = root.querySelector<HTMLAnchorElement>('aside footer a[href="/admin/password"]');
+
+    expect(passwordLink?.textContent?.trim()).toBe('Cambiar contraseña');
+  });
+
+  it('does not link back to the client app, even when the user is also a client', async () => {
     signInForTest(['ROLE_SUPERADMIN', 'ROLE_CLIENTE']);
     await fixture.whenStable();
-    const backLink = root.querySelector<HTMLAnchorElement>('aside footer a');
 
-    expect(backLink?.textContent?.trim()).toBe('Volver a la app');
-    expect(backLink?.getAttribute('href')).toBe('/home');
+    expect(root.querySelector('aside footer a[href="/home"]')).toBeNull();
   });
 
   it('renders the routed content outside of a nested main landmark', () => {

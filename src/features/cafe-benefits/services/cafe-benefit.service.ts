@@ -43,6 +43,18 @@ export class CafeBenefitService {
     return this.http.put<CafeBenefit>(`${this.baseUrl}/${externalId}`, payload);
   }
 
+  pause(externalId: string): Observable<CafeBenefit> {
+    return this.http.post<CafeBenefit>(`${this.baseUrl}/${externalId}/cancel`, {});
+  }
+
+  resume(externalId: string): Observable<CafeBenefit> {
+    return this.http.post<CafeBenefit>(`${this.baseUrl}/${externalId}/publish`, {});
+  }
+
+  delete(externalId: string): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/${externalId}`);
+  }
+
   getBenefitTypes(): Observable<BenefitTypeOption[]> {
     return this.http.get<{ code: BenefitType; active: boolean }[]>(this.formatsUrl).pipe(
       map((formats) =>
@@ -83,6 +95,8 @@ export class CafeBenefitService {
       discountPercentage: request.discountPercentage ?? null,
       productId: request.productId ?? null,
       tierId: request.tierId,
+      // The PUT replaces the whole benefit: an update without the current image would clear it.
+      image: request.image || null,
     };
   }
 

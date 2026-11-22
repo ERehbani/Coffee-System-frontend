@@ -1,48 +1,81 @@
-<main class="mx-auto max-w-4xl px-4 py-8 space-y-6">
-  <div class="flex flex-wrap items-center justify-between gap-3 pb-2 border-b border-border">
-    <div class="flex items-center gap-2">
-      <div>
-        <h1 class="text-lg font-extrabold text-text">Validar cupones</h1>
-        <p class="text-xs text-muted">Escaneá el QR del cliente o escribí el código</p>
-      </div>
+<main class="page-shell">
+  <header class="page-header">
+    <div class="min-w-0">
+      <h1 class="page-title">Validar cupones</h1>
+      <p class="text-xs text-muted">Escaneá el QR del cliente o escribí el código</p>
     </div>
+  </header>
+
+  <div class="space-y-2">
+    <div
+      role="radiogroup"
+      aria-label="Qué querés hacer con el cupón"
+      class="inline-grid grid-cols-2 gap-1 rounded-md border border-border bg-surface p-1"
+    >
+      <button
+        type="button"
+        role="radio"
+        data-testid="action-deliver"
+        [attr.aria-checked]="!isCancelling()"
+        [disabled]="!store.canValidate()"
+        (click)="store.chooseAction('deliver')"
+        class="h-8 cursor-pointer rounded-sm px-3 text-xs font-bold transition-colors select-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed"
+        [class]="isCancelling() ? 'text-muted hover:text-text' : 'bg-primary text-white dark:text-bg'"
+      >
+        Entregar beneficio
+      </button>
+      <button
+        type="button"
+        role="radio"
+        data-testid="action-cancel"
+        [attr.aria-checked]="isCancelling()"
+        [disabled]="!store.canValidate()"
+        (click)="store.chooseAction('cancel')"
+        class="h-8 cursor-pointer rounded-sm px-3 text-xs font-bold transition-colors select-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed"
+        [class]="isCancelling() ? 'bg-rose-700 text-white' : 'text-muted hover:text-text'"
+      >
+        Cancelar canje
+      </button>
+    </div>
+
+    <p data-testid="action-help" class="text-xs text-muted">
+      @if (isCancelling()) {
+        Cancelar un canje le devuelve los puntos al cliente y libera el cupo de la promoción. Usalo cuando no
+        puedas entregar el beneficio, por ejemplo si el producto está agotado.
+      } @else {
+        Validar un cupón lo marca como usado: hacelo cuando vayas a entregar el beneficio.
+      }
+    </p>
   </div>
 
   <div class="grid grid-cols-1 gap-6 md:grid-cols-2 md:items-start">
-    <section aria-label="Resultado de la validación" class="md:order-last">
-      @if (store.status() === 'validating') {
-        <div
-          role="status"
-          class="flex items-center gap-3 rounded-3xl border border-border bg-surface p-5 shadow-xs"
-        >
-          <span
-            class="size-6 shrink-0 animate-spin rounded-full border-4 border-primary border-t-transparent"
-          ></span>
-          <p class="text-sm font-bold text-text">Validando cupón...</p>
-        </div>
-      } @else if (store.outcome(); as outcome) {
-        <app-validation-result [outcome]="outcome" (next)="onValidateAnother()" />
-      } @else {
-        <div
-          class="hidden flex-col items-center gap-2 rounded-3xl border border-dashed border-border bg-surface p-8 text-center md:flex"
-        >
-          <p class="text-sm font-bold text-text">Todavía no validaste ningún cupón</p>
-          <p class="text-xs text-muted">
-            Acá vas a ver si el cupón es válido, ya se usó o no existe.
-          </p>
-        </div>
-      }
-    </section>
+    <app-qr-scanner [enabled]="store.canValidate()" (scanned)="onCodeReceived($event)" />
 
-    <div class="space-y-6">
-      <app-qr-scanner [enabled]="store.canValidate()" (scanned)="onCodeReceived($event)" />
+    <div class="space-y-5 md:border-l md:border-border md:pl-6">
+      <section aria-label="Resultado de la validación">
+        @if (store.status() === 'validating') {
+          <div role="status" class="flex items-center gap-3 rounded-md border border-border bg-surface p-4">
+            <span class="size-5 shrink-0 animate-spin rounded-full border-4 border-primary border-t-transparent"></span>
+            <p class="text-sm font-bold text-text">
+              {{ isCancelling() ? 'Cancelando canje...' : 'Validando cupón...' }}
+            </p>
+          </div>
+        } @else if (store.outcome(); as outcome) {
+          <app-validation-result [outcome]="outcome" (next)="onValidateAnother()" />
+        } @else {
+          <div class="empty-state hidden py-8 md:flex">
+            <p class="text-sm font-bold text-text">Todavía no validaste ningún cupón</p>
+            <p class="text-xs text-muted">Acá vas a ver si el cupón es válido, ya se usó o no existe.</p>
+          </div>
+        }
+      </section>
+
       <app-manual-code-form
+        class="md:border-t md:border-border md:pt-5"
         [disabled]="!store.canValidate()"
+        [submitLabel]="isCancelling() ? 'Cancelar canje' : 'Validar código'"
         (submitted)="onCodeReceived($event)"
       />
-      <p class="flex items-start gap-2 text-xs text-muted">
-        Validar un cupón lo marca como usado: hacelo cuando vayas a entregar el beneficio.
-      </p>
     </div>
   </div>
 </main>

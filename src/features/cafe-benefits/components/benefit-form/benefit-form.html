@@ -1,250 +1,274 @@
-<form (submit)="onSubmit($event)" novalidate class="space-y-5 rounded-3xl border border-border bg-surface p-6 shadow-xs">
-  <div class="flex items-center justify-between pb-3 border-b border-border">
-    <div class="flex items-center gap-2.5">
-      <div>
-        <h2 class="text-base font-bold text-text">
-          {{ isEdit() ? 'Editar Promoción' : 'Nueva Promoción Propia' }}
-        </h2>
-        <p class="text-xs text-muted">
-          {{
-            isEdit()
-              ? 'Modificá los datos de la promoción y guardá los cambios'
-              : 'Completá los datos para publicar un beneficio para tu local'
-          }}
-        </p>
-      </div>
+<form (submit)="onSubmit($event)" novalidate class="flex min-h-0 flex-1 flex-col">
+  <div class="modal-header">
+    <div class="min-w-0">
+      <h2 id="benefit-form-title" class="modal-title">
+        {{ isEdit() ? 'Editar Promoción' : 'Nueva Promoción Propia' }}
+      </h2>
+      <p class="text-xs text-muted">
+        {{
+          isEdit()
+            ? 'Modificá los datos de la promoción y guardá los cambios'
+            : 'Completá los datos para publicar un beneficio para tu local'
+        }}
+      </p>
     </div>
-    <button
-      type="button"
-      (click)="onCancel()"
-      class="cursor-pointer rounded-lg p-1.5 text-muted hover:bg-bg hover:text-text transition select-none"
-      aria-label="Cerrar formulario"
-    >
-      <app-icon name="x" [size]="16" />
+    <button type="button" (click)="onCancel()" class="icon-btn" aria-label="Cerrar formulario" title="Cerrar">
+      <app-icon name="x" [size]="14" />
     </button>
   </div>
 
-  <div class="space-y-4">
-    <div class="space-y-1.5">
-      <label for="benefit-name" class="block text-xs font-bold text-text">
-        Nombre de la promoción <span class="text-rose-500">*</span>
-      </label>
-      <input
-        id="benefit-name"
-        type="text"
-        [formField]="benefitForm.name"
-        placeholder="Ej: 2x1 en Medialunas de la tarde"
-        class="w-full rounded-xl border border-border bg-bg px-3.5 py-2.5 text-sm text-text placeholder:text-muted/60 transition focus:border-primary focus:bg-surface focus:outline-hidden focus:ring-2 focus:ring-primary/20"
-      />
-      @if (attemptedSubmit() && nameError()) {
-        <p role="alert" class="text-xs font-semibold text-rose-600">{{ nameError() }}</p>
-      }
-    </div>
+  <!-- Slot for a banner of the host (for example the error of a failed save). -->
+  <ng-content />
 
-    <div class="space-y-1.5">
-      <label for="benefit-description" class="block text-xs font-bold text-text">
-        Descripción detallada <span class="text-rose-500">*</span>
-      </label>
-      <textarea
-        id="benefit-description"
-        rows="3"
-        [formField]="benefitForm.description"
-        placeholder="Describí en qué consiste el beneficio para que los clientes lo entiendan con claridad..."
-        class="w-full resize-none rounded-xl border border-border bg-bg px-3.5 py-2.5 text-sm text-text placeholder:text-muted/60 transition focus:border-primary focus:bg-surface focus:outline-hidden focus:ring-2 focus:ring-primary/20"
-      ></textarea>
-      @if (attemptedSubmit() && descriptionError()) {
-        <p role="alert" class="text-xs font-semibold text-rose-600">{{ descriptionError() }}</p>
-      }
-    </div>
+  <div class="modal-body">
+    <div class="grid gap-x-8 gap-y-5 lg:grid-cols-2">
+      <div class="space-y-3">
+        <p class="form-section-title">Promoción</p>
 
-    <div class="space-y-1.5">
-      <label for="benefit-conditions" class="block text-xs font-bold text-text">
-        Reglas y condiciones de uso
-      </label>
-      <textarea
-        id="benefit-conditions"
-        rows="2"
-        [formField]="benefitForm.conditions"
-        placeholder="Ej: Válido únicamente de lunes a viernes en salón. No acumulable con otras promos."
-        class="w-full resize-none rounded-xl border border-border bg-bg px-3.5 py-2.5 text-sm text-text placeholder:text-muted/60 transition focus:border-primary focus:bg-surface focus:outline-hidden focus:ring-2 focus:ring-primary/20"
-      ></textarea>
-      @if (attemptedSubmit() && conditionsError()) {
-        <p role="alert" class="text-xs font-semibold text-rose-600">{{ conditionsError() }}</p>
-      }
-    </div>
-
-    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-      <div class="space-y-1.5">
-        <label for="benefit-type-select" class="block text-xs font-bold text-text">
-          Tipo de formato <span class="text-rose-500">*</span>
-        </label>
-        <select
-          id="benefit-type-select"
-          [value]="formModel().type"
-          (change)="onTypeChange($any($event.target).value)"
-          class="w-full rounded-xl border border-border bg-bg px-3.5 py-2 text-sm text-text transition focus:border-primary focus:bg-surface focus:outline-hidden focus:ring-2 focus:ring-primary/20"
-        >
-          @for (type of benefitTypes(); track type.id) {
-            <option [value]="type.id" [selected]="type.id === formModel().type">{{ type.displayName }}</option>
+        <div>
+          <label for="benefit-name" class="form-label">
+            Nombre de la promoción <span class="text-rose-600">*</span>
+          </label>
+          <input
+            id="benefit-name"
+            type="text"
+            [formField]="benefitForm.name"
+            placeholder="Ej: 2x1 en Medialunas de la tarde"
+            class="form-control"
+            [attr.aria-invalid]="attemptedSubmit() && nameError() ? 'true' : null"
+          />
+          @if (attemptedSubmit() && nameError()) {
+            <p role="alert" class="form-error">{{ nameError() }}</p>
           }
-        </select>
-        @if (attemptedSubmit() && typeError()) {
-          <p role="alert" class="text-xs font-semibold text-rose-600">{{ typeError() }}</p>
-        }
+        </div>
+
+        <div>
+          <label for="benefit-description" class="form-label">
+            Descripción detallada <span class="text-rose-600">*</span>
+          </label>
+          <textarea
+            id="benefit-description"
+            rows="2"
+            [formField]="benefitForm.description"
+            placeholder="Describí en qué consiste el beneficio para que los clientes lo entiendan con claridad..."
+            class="form-control min-h-0 resize-none"
+            [attr.aria-invalid]="attemptedSubmit() && descriptionError() ? 'true' : null"
+          ></textarea>
+          @if (attemptedSubmit() && descriptionError()) {
+            <p role="alert" class="form-error">{{ descriptionError() }}</p>
+          }
+        </div>
+
+        <div>
+          <label for="benefit-conditions" class="form-label">Reglas y condiciones de uso</label>
+          <textarea
+            id="benefit-conditions"
+            rows="2"
+            [formField]="benefitForm.conditions"
+            placeholder="Ej: Válido únicamente de lunes a viernes en salón. No acumulable con otras promos."
+            class="form-control min-h-0 resize-none"
+            [attr.aria-invalid]="attemptedSubmit() && conditionsError() ? 'true' : null"
+          ></textarea>
+          @if (attemptedSubmit() && conditionsError()) {
+            <p role="alert" class="form-error">{{ conditionsError() }}</p>
+          }
+        </div>
+
+        <div>
+          <app-image-input
+            label="Imagen de la promoción (opcional)"
+            inputId="benefit-image"
+            previewAlt="Vista previa de la imagen de la promoción"
+            previewClass="size-14"
+            target="BENEFIT_IMAGE"
+            [formField]="benefitForm.image"
+            [(uploading)]="imageUploading"
+          />
+          @if (attemptedSubmit() && imageError()) {
+            <p role="alert" class="form-error">{{ imageError() }}</p>
+          }
+        </div>
       </div>
 
-      <div class="space-y-1.5">
-        <label for="benefit-tier-select" class="block text-xs font-bold text-text">
-          Nivel mínimo requerido <span class="text-rose-500">*</span>
-        </label>
-        <select
-          id="benefit-tier-select"
-          [value]="formModel().tierId"
-          (change)="onTierChange($any($event.target).value)"
-          class="w-full rounded-xl border border-border bg-bg px-3.5 py-2 text-sm text-text transition focus:border-primary focus:bg-surface focus:outline-hidden focus:ring-2 focus:ring-primary/20"
-        >
-          @for (tier of tiers(); track tier.id) {
-            <option [value]="tier.id" [selected]="tier.id === formModel().tierId">{{ tier.displayName }}</option>
-          }
-        </select>
-        @if (attemptedSubmit() && tierError()) {
-          <p role="alert" class="text-xs font-semibold text-rose-600">{{ tierError() }}</p>
-        }
-      </div>
-    </div>
+      <div class="space-y-5">
+        <section>
+          <p class="form-section-title">Mecánica</p>
+          <div class="form-grid">
+            <div>
+              <label for="benefit-type-select" class="form-label">
+                Tipo de formato <span class="text-rose-600">*</span>
+              </label>
+              <select
+                id="benefit-type-select"
+                [value]="formModel().type"
+                (change)="onTypeChange($any($event.target).value)"
+                class="form-control cursor-pointer"
+                [attr.aria-invalid]="attemptedSubmit() && typeError() ? 'true' : null"
+              >
+                @for (type of benefitTypes(); track type.id) {
+                  <option [value]="type.id" [selected]="type.id === formModel().type">{{ type.displayName }}</option>
+                }
+              </select>
+              @if (attemptedSubmit() && typeError()) {
+                <p role="alert" class="form-error">{{ typeError() }}</p>
+              }
+            </div>
 
-    @if (needsProduct()) {
-      <div class="space-y-1.5">
-        <label for="benefit-product-select" class="block text-xs font-bold text-text">
-          Producto <span class="text-rose-500">*</span>
-        </label>
-        @if (productOptions().length > 0) {
-          <select
-            id="benefit-product-select"
-            [value]="formModel().productId"
-            (change)="onProductChange($any($event.target).value)"
-            class="w-full rounded-xl border border-border bg-bg px-3.5 py-2 text-sm text-text transition focus:border-primary focus:bg-surface focus:outline-hidden focus:ring-2 focus:ring-primary/20"
-          >
-            <option value="" [selected]="!formModel().productId">Elegí un producto</option>
-            @for (product of productOptions(); track product.id) {
-              <option [value]="product.id" [selected]="product.id === formModel().productId">{{ product.name }}</option>
+            <div>
+              <label for="benefit-tier-select" class="form-label">
+                Nivel mínimo requerido <span class="text-rose-600">*</span>
+              </label>
+              <select
+                id="benefit-tier-select"
+                [value]="formModel().tierId"
+                (change)="onTierChange($any($event.target).value)"
+                class="form-control cursor-pointer"
+                [attr.aria-invalid]="attemptedSubmit() && tierError() ? 'true' : null"
+              >
+                @for (tier of tiers(); track tier.id) {
+                  <option [value]="tier.id" [selected]="tier.id === formModel().tierId">{{ tier.displayName }}</option>
+                }
+              </select>
+              @if (attemptedSubmit() && tierError()) {
+                <p role="alert" class="form-error">{{ tierError() }}</p>
+              }
+            </div>
+
+            @if (needsProduct()) {
+              <div class="sm:col-span-2">
+                <label for="benefit-product-select" class="form-label">
+                  Producto <span class="text-rose-600">*</span>
+                </label>
+                @if (productOptions().length > 0) {
+                  <select
+                    id="benefit-product-select"
+                    [value]="formModel().productId"
+                    (change)="onProductChange($any($event.target).value)"
+                    class="form-control cursor-pointer"
+                    [attr.aria-invalid]="attemptedSubmit() && productError() ? 'true' : null"
+                  >
+                    <option value="" [selected]="!formModel().productId">Elegí un producto</option>
+                    @for (product of productOptions(); track product.id) {
+                      <option [value]="product.id" [selected]="product.id === formModel().productId">{{ product.name }}</option>
+                    }
+                  </select>
+                } @else {
+                  <p class="text-xs font-semibold text-amber-800 dark:text-amber-300">Primero publicá un producto para usar este tipo de beneficio.</p>
+                }
+                @if (attemptedSubmit() && productError()) {
+                  <p role="alert" class="form-error">{{ productError() }}</p>
+                }
+              </div>
             }
-          </select>
-        } @else {
-          <p class="text-xs font-semibold text-amber-700">Primero publicá un producto para usar este tipo de beneficio.</p>
-        }
-        @if (attemptedSubmit() && productError()) {
-          <p role="alert" class="text-xs font-semibold text-rose-600">{{ productError() }}</p>
-        }
-      </div>
-    }
 
-    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-      <div class="space-y-1.5">
-        <label for="benefit-start-date" class="block text-xs font-bold text-text">
-          Vigencia desde <span class="text-rose-500">*</span>
-        </label>
-        <input
-          id="benefit-start-date"
-          type="date"
-          [formField]="benefitForm.startDate"
-          class="w-full rounded-xl border border-border bg-bg px-3.5 py-2 text-sm text-text transition focus:border-primary focus:bg-surface focus:outline-hidden focus:ring-2 focus:ring-primary/20"
-        />
-        @if (attemptedSubmit() && startDateError()) {
-          <p role="alert" class="text-xs font-semibold text-rose-600">{{ startDateError() }}</p>
-        }
-      </div>
+            @if (isDiscountCode()) {
+              <div>
+                <label for="benefit-discount-percentage" class="form-label">
+                  Porcentaje de descuento (%) <span class="text-rose-600">*</span>
+                </label>
+                <input
+                  id="benefit-discount-percentage"
+                  type="number"
+                  [formField]="benefitForm.discountPercentage"
+                  placeholder="15"
+                  class="form-control"
+                  [attr.aria-invalid]="attemptedSubmit() && discountPercentageError() ? 'true' : null"
+                />
+                @if (attemptedSubmit() && discountPercentageError()) {
+                  <p role="alert" class="form-error">{{ discountPercentageError() }}</p>
+                }
+              </div>
+            } @else {
+              <div>
+                <label for="benefit-points-cost" class="form-label">
+                  Costo en puntos <span class="text-rose-600">*</span>
+                </label>
+                <input
+                  id="benefit-points-cost"
+                  type="number"
+                  [formField]="benefitForm.pointsCost"
+                  placeholder="100"
+                  class="form-control"
+                  [attr.aria-invalid]="attemptedSubmit() && pointsCostError() ? 'true' : null"
+                />
+                @if (attemptedSubmit() && pointsCostError()) {
+                  <p role="alert" class="form-error">{{ pointsCostError() }}</p>
+                }
+              </div>
+            }
 
-      <div class="space-y-1.5">
-        <label for="benefit-end-date" class="block text-xs font-bold text-text">
-          Vigencia hasta <span class="text-rose-500">*</span>
-        </label>
-        <input
-          id="benefit-end-date"
-          type="date"
-          [formField]="benefitForm.endDate"
-          class="w-full rounded-xl border border-border bg-bg px-3.5 py-2 text-sm text-text transition focus:border-primary focus:bg-surface focus:outline-hidden focus:ring-2 focus:ring-primary/20"
-        />
-        @if (attemptedSubmit() && endDateError()) {
-          <p role="alert" class="text-xs font-semibold text-rose-600">{{ endDateError() }}</p>
-        }
-      </div>
-    </div>
+            <div>
+              <label for="benefit-max-redemptions" class="form-label">
+                Cupo total de canjes
+                @if (!allowsNoLimit()) {
+                  <span class="text-rose-600">*</span>
+                }
+              </label>
+              <input
+                id="benefit-max-redemptions"
+                type="number"
+                [formField]="benefitForm.maxRedemptions"
+                [placeholder]="allowsNoLimit() ? 'Sin límite' : '50'"
+                [attr.aria-describedby]="allowsNoLimit() ? 'benefit-max-redemptions-hint' : null"
+                class="form-control"
+                [attr.aria-invalid]="attemptedSubmit() && maxRedemptionsError() ? 'true' : null"
+              />
+              @if (allowsNoLimit()) {
+                <p id="benefit-max-redemptions-hint" class="mt-1 text-[11px] text-muted">Dejalo vacío para que siga sin límite de canjes.</p>
+              }
+              @if (attemptedSubmit() && maxRedemptionsError()) {
+                <p role="alert" class="form-error">{{ maxRedemptionsError() }}</p>
+              }
+            </div>
+          </div>
+        </section>
 
-    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-      @if (isDiscountCode()) {
-        <div class="space-y-1.5">
-          <label for="benefit-discount-percentage" class="block text-xs font-bold text-text">
-            Porcentaje de descuento (%) <span class="text-rose-500">*</span>
-          </label>
-          <input
-            id="benefit-discount-percentage"
-            type="number"
-            [formField]="benefitForm.discountPercentage"
-            placeholder="15"
-            class="w-full rounded-xl border border-border bg-bg px-3.5 py-2 text-sm text-text transition focus:border-primary focus:bg-surface focus:outline-hidden focus:ring-2 focus:ring-primary/20"
-          />
-          @if (attemptedSubmit() && discountPercentageError()) {
-            <p role="alert" class="text-xs font-semibold text-rose-600">{{ discountPercentageError() }}</p>
-          }
-        </div>
-      } @else {
-        <div class="space-y-1.5">
-          <label for="benefit-points-cost" class="block text-xs font-bold text-text">
-            Costo en puntos <span class="text-rose-500">*</span>
-          </label>
-          <input
-            id="benefit-points-cost"
-            type="number"
-            [formField]="benefitForm.pointsCost"
-            placeholder="100"
-            class="w-full rounded-xl border border-border bg-bg px-3.5 py-2 text-sm text-text transition focus:border-primary focus:bg-surface focus:outline-hidden focus:ring-2 focus:ring-primary/20"
-          />
-          @if (attemptedSubmit() && pointsCostError()) {
-            <p role="alert" class="text-xs font-semibold text-rose-600">{{ pointsCostError() }}</p>
-          }
-        </div>
-      }
+        <section class="border-t border-border pt-4">
+          <p class="form-section-title">Vigencia</p>
+          <div class="form-grid">
+            <div>
+              <label for="benefit-start-date" class="form-label">
+                Vigencia desde <span class="text-rose-600">*</span>
+              </label>
+              <input
+                id="benefit-start-date"
+                type="date"
+                [formField]="benefitForm.startDate"
+                class="form-control"
+                [attr.aria-invalid]="attemptedSubmit() && startDateError() ? 'true' : null"
+              />
+              @if (attemptedSubmit() && startDateError()) {
+                <p role="alert" class="form-error">{{ startDateError() }}</p>
+              }
+            </div>
 
-      <div class="space-y-1.5">
-        <label for="benefit-max-redemptions" class="block text-xs font-bold text-text">
-          Cupo total de canjes
-          @if (!allowsNoLimit()) {
-            <span class="text-rose-500">*</span>
-          }
-        </label>
-        <input
-          id="benefit-max-redemptions"
-          type="number"
-          [formField]="benefitForm.maxRedemptions"
-          [placeholder]="allowsNoLimit() ? 'Sin límite' : '50'"
-          [attr.aria-describedby]="allowsNoLimit() ? 'benefit-max-redemptions-hint' : null"
-          class="w-full rounded-xl border border-border bg-bg px-3.5 py-2 text-sm text-text transition focus:border-primary focus:bg-surface focus:outline-hidden focus:ring-2 focus:ring-primary/20"
-        />
-        @if (allowsNoLimit()) {
-          <p id="benefit-max-redemptions-hint" class="text-xs text-muted">Dejalo vacío para que siga sin límite de canjes.</p>
-        }
-        @if (attemptedSubmit() && maxRedemptionsError()) {
-          <p role="alert" class="text-xs font-semibold text-rose-600">{{ maxRedemptionsError() }}</p>
-        }
+            <div>
+              <label for="benefit-end-date" class="form-label">
+                Vigencia hasta <span class="text-rose-600">*</span>
+              </label>
+              <input
+                id="benefit-end-date"
+                type="date"
+                [formField]="benefitForm.endDate"
+                class="form-control"
+                [attr.aria-invalid]="attemptedSubmit() && endDateError() ? 'true' : null"
+              />
+              @if (attemptedSubmit() && endDateError()) {
+                <p role="alert" class="form-error">{{ endDateError() }}</p>
+              }
+            </div>
+          </div>
+        </section>
       </div>
     </div>
   </div>
 
-  <div class="flex items-center justify-end gap-3 pt-3 border-t border-border">
-    <button
-      type="button"
-      (click)="onCancel()"
-      [disabled]="isSaving()"
-      class="cursor-pointer rounded-xl border border-border bg-surface px-4 py-2 text-xs font-bold text-muted transition hover:bg-bg hover:text-text active:scale-95 disabled:pointer-events-none"
-    >
-      Cancelar
-    </button>
-    <button
-      type="submit"
-      [disabled]="isSaving()"
-      class="cursor-pointer inline-flex items-center gap-1.5 rounded-xl bg-primary px-5 py-2 text-xs font-bold text-white transition hover:bg-primary-dark active:scale-95 disabled:pointer-events-none disabled:opacity-50"
-    >
+  <div class="modal-footer">
+    @if (imageUploading()) {
+      <p role="status" class="mr-auto text-xs text-muted">Esperá a que termine de subir la imagen…</p>
+    }
+    <button type="button" (click)="onCancel()" [disabled]="isSaving()" class="btn-secondary">Cancelar</button>
+    <button type="submit" [disabled]="isSaving() || imageUploading()" class="btn-primary">
       @if (isSaving()) {
         <span class="size-3.5 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
         <span>Guardando...</span>

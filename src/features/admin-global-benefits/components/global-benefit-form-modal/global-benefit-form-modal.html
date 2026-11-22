@@ -1,248 +1,291 @@
 @if (isOpen()) {
   <div
-    class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-3 sm:p-6 backdrop-blur-xs overflow-y-auto"
+    class="modal-backdrop"
     role="dialog"
     aria-modal="true"
+    aria-labelledby="global-benefit-title"
     (click)="close.emit()"
   >
-    <div
-      class="relative flex my-auto max-h-[94vh] w-full max-w-4xl flex-col rounded-3xl border border-border bg-surface shadow-2xl overflow-hidden"
-      (click)="$event.stopPropagation()"
-    >
-      <div class="flex items-center justify-between border-b border-border bg-bg/50 px-6 py-4">
-        <div class="flex items-center gap-3">
-          <div>
-            <div class="flex items-center gap-2">
-              <h2 class="text-lg font-black text-text">
-                {{ mode() === 'create' ? 'Crear Beneficio Global' : 'Editar Beneficio Global' }}
-              </h2>
-              <span class="rounded-full bg-purple-100 px-2 py-0.5 text-[11px] font-bold text-purple-800">Toda la Red</span>
-            </div>
-            <p class="text-xs text-muted">Promoción válida en todas las cafeterías asociadas</p>
-          </div>
+    <div class="modal-panel max-w-3xl" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="min-w-0">
+          <h2 id="global-benefit-title" class="modal-title">
+            @if (mode() === 'edit') {
+              Editar beneficio global
+            } @else if (isDuplicate()) {
+              Duplicar beneficio global
+            } @else {
+              Crear beneficio global
+            }
+          </h2>
+          <p class="text-xs text-muted">
+            @if (isDuplicate()) {
+              Es una copia: se guarda como un beneficio nuevo y el original no cambia.
+            } @else {
+              Promoción válida en todas las cafeterías asociadas
+            }
+          </p>
         </div>
-        <button type="button" (click)="close.emit()" class="cursor-pointer rounded-xl p-1.5 text-muted hover:text-text">
-          <app-icon name="x" [size]="20" />
+        <button type="button" (click)="close.emit()" class="icon-btn" aria-label="Cerrar" title="Cerrar">
+          <app-icon name="x" [size]="14" />
         </button>
       </div>
 
-      <div class="flex-1 overflow-y-auto p-6">
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          <div class="lg:col-span-7 space-y-4">
-            <div class="space-y-3 rounded-2xl border border-border bg-bg/30 p-4">
-              <div>
-                <label class="block text-xs font-bold text-text mb-1">Nombre de la Promoción *</label>
-                <input
-                  type="text"
-                  [ngModel]="form().name"
-                  (ngModelChange)="updateField('name', $event)"
-                  placeholder="Ej: 2x1 en Medialunas Artesanales"
-                  class="w-full rounded-xl border border-border bg-surface px-3 py-2 text-sm text-text focus:border-primary focus:outline-none"
-                  [class.border-red-400]="submitted() && form().name.trim().length < 3"
-                />
-              </div>
+      <div class="modal-body">
+        <div class="grid gap-x-8 gap-y-5 lg:grid-cols-2">
+          <div class="space-y-4">
+            <p class="form-section-title">Promoción</p>
 
-              <div>
-                <label class="block text-xs font-bold text-text mb-1">Descripción para Clientes *</label>
-                <textarea
-                  [ngModel]="form().description"
-                  (ngModelChange)="updateField('description', $event)"
-                  rows="2"
-                  placeholder="Explicación clara del beneficio..."
-                  class="w-full rounded-xl border border-border bg-surface px-3 py-2 text-xs text-text focus:border-primary focus:outline-none resize-none"
-                  [class.border-red-400]="submitted() && form().description.trim().length < 5"
-                ></textarea>
-              </div>
-
-              <div>
-                <label class="block text-xs font-bold text-text mb-1">Condiciones de uso</label>
-                <textarea
-                  [ngModel]="form().termsAndConditions"
-                  (ngModelChange)="updateField('termsAndConditions', $event)"
-                  rows="3"
-                  placeholder="Una condición por renglón. Ej: Un solo uso por cliente."
-                  class="w-full rounded-xl border border-border bg-surface px-3 py-2 text-xs text-text focus:border-primary focus:outline-none resize-none"
-                ></textarea>
-              </div>
+            <div>
+              <label for="gb-name" class="form-label">Nombre de la promoción <span class="text-rose-600">*</span></label>
+              <input
+                id="gb-name"
+                type="text"
+                [ngModel]="form().name"
+                (ngModelChange)="updateField('name', $event)"
+                placeholder="Ej: 2x1 en Medialunas Artesanales"
+                class="form-control"
+                [attr.aria-invalid]="submitted() && form().name.trim().length < 3 ? 'true' : null"
+              />
+              @if (submitted() && form().name.trim().length < 3) {
+                <p class="form-error">El nombre tiene que tener al menos 3 caracteres.</p>
+              }
             </div>
 
-            <div class="space-y-3 rounded-2xl border border-border bg-bg/30 p-4">
-              <label class="block text-xs font-bold text-text">Mecánica del Beneficio</label>
-              <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label for="gb-description" class="form-label">Descripción para clientes <span class="text-rose-600">*</span></label>
+              <textarea
+                id="gb-description"
+                [ngModel]="form().description"
+                (ngModelChange)="updateField('description', $event)"
+                rows="2"
+                placeholder="Explicación clara del beneficio..."
+                class="form-control min-h-0 resize-none"
+                [attr.aria-invalid]="submitted() && form().description.trim().length < 5 ? 'true' : null"
+              ></textarea>
+              @if (submitted() && form().description.trim().length < 5) {
+                <p class="form-error">La descripción tiene que tener al menos 5 caracteres.</p>
+              }
+            </div>
+
+            <div>
+              <label for="gb-terms" class="form-label">Condiciones de uso</label>
+              <textarea
+                id="gb-terms"
+                [ngModel]="form().termsAndConditions"
+                (ngModelChange)="updateField('termsAndConditions', $event)"
+                rows="2"
+                placeholder="Una condición por renglón. Ej: Un solo uso por cliente."
+                class="form-control min-h-0 resize-none"
+              ></textarea>
+            </div>
+
+            <app-image-input
+              label="Imagen del beneficio (opcional)"
+              inputId="global-benefit-image"
+              previewAlt="Vista previa de la imagen del beneficio"
+              previewClass="size-14"
+              target="BENEFIT_IMAGE"
+              [value]="form().image ?? ''"
+              (valueChange)="updateField('image', $event)"
+              [(uploading)]="imageUploading"
+            />
+          </div>
+
+          <div class="space-y-4">
+            <section>
+              <p class="form-section-title">Mecánica</p>
+              <div class="grid grid-cols-2 gap-1.5" role="group" aria-label="Mecánica del beneficio">
                 @for (opt of typeOptions; track opt.value) {
                   <button
                     type="button"
                     (click)="updateField('type', opt.value)"
-                    class="cursor-pointer flex items-center gap-2 rounded-xl border p-2.5 text-left transition select-none text-xs font-bold"
-                    [class.border-primary]="form().type === opt.value"
-                    [class.bg-primary/5]="form().type === opt.value"
-                    [class.border-border]="form().type !== opt.value"
-                    [class.bg-surface]="form().type !== opt.value"
+                    class="toggle-chip justify-center"
+                    [attr.aria-pressed]="form().type === opt.value"
                   >
-                    <span class="truncate">{{ opt.shortLabel }}</span>
+                    {{ opt.shortLabel }}
                   </button>
                 }
               </div>
 
-              @if (form().type === 'CODIGO_DESCUENTO') {
-                <div class="flex items-center justify-between rounded-xl bg-accent/10 p-3 text-xs">
-                  <span class="font-bold text-text">Descuento (%)</span>
-                  <div class="flex items-center gap-2">
-                    <input
-                      type="range" min="5" max="80" step="5"
-                      [ngModel]="form().discountPercent || 15"
-                      (ngModelChange)="updateField('discountPercent', $event)"
-                      class="accent-primary cursor-pointer w-32"
-                    />
-                    <span class="font-black text-accent w-12 text-right">{{ form().discountPercent || 15 }}%</span>
+              <div class="mt-2 space-y-2.5">
+                @if (form().type === 'CODIGO_DESCUENTO') {
+                  <div>
+                    <label for="gb-discount" class="form-label">Descuento</label>
+                    <div class="flex items-center gap-3">
+                      <input
+                        type="range"
+                        [min]="discountMin"
+                        [max]="discountMax"
+                        step="5"
+                        aria-label="Descuento en porcentaje, deslizador"
+                        [ngModel]="form().discountPercent ?? 15"
+                        (ngModelChange)="updateField('discountPercent', $event)"
+                        class="min-w-0 grow cursor-pointer accent-primary"
+                      />
+                      <div class="relative w-24 shrink-0">
+                        <input
+                          id="gb-discount"
+                          type="number"
+                          [min]="discountMin"
+                          [max]="discountMax"
+                          step="1"
+                          inputmode="numeric"
+                          [ngModel]="form().discountPercent ?? null"
+                          (ngModelChange)="setDiscount($event)"
+                          class="form-control pr-7 text-right"
+                          [attr.aria-invalid]="submitted() && !isDiscountValid() ? 'true' : null"
+                        />
+                        <span class="pointer-events-none absolute inset-y-0 right-2.5 flex items-center text-sm text-muted" aria-hidden="true">%</span>
+                      </div>
+                    </div>
+                    @if (submitted() && !isDiscountValid()) {
+                      <p role="alert" class="form-error">El descuento tiene que ser un número entero entre {{ discountMin }}% y {{ discountMax }}%.</p>
+                    }
                   </div>
-                </div>
-              }
+                }
 
-              @if (needsProduct()) {
+                @if (needsProduct()) {
+                  <div>
+                    <label for="gb-product" class="form-label">Producto del catálogo</label>
+                    <select
+                      id="gb-product"
+                      [ngModel]="form().catalogProductId ?? ''"
+                      (ngModelChange)="updateField('catalogProductId', $event || undefined)"
+                      class="form-control cursor-pointer"
+                    >
+                      <option value="">Elegí un producto</option>
+                      @for (p of catalogProducts(); track p.id) {
+                        <option [value]="p.id">{{ p.name }}</option>
+                      }
+                    </select>
+                    @if (submitted() && !form().catalogProductId) {
+                      <p role="alert" class="form-error">Elegí el producto del beneficio.</p>
+                    }
+                  </div>
+                }
+
                 <div>
-                  <label class="block text-xs font-bold text-text mb-1">Producto del catálogo</label>
+                  <label for="gb-tier" class="form-label">Nivel de socio requerido</label>
                   <select
-                    [ngModel]="form().catalogProductId ?? ''"
-                    (ngModelChange)="updateField('catalogProductId', $event || undefined)"
-                    class="cursor-pointer w-full rounded-xl border border-border bg-surface px-3 py-2 text-xs font-semibold text-text focus:border-primary focus:outline-none"
+                    id="gb-tier"
+                    [ngModel]="form().tier"
+                    (ngModelChange)="updateField('tier', $event)"
+                    class="form-control cursor-pointer"
                   >
-                    <option value="">Elegí un producto</option>
-                    @for (p of catalogProducts(); track p.id) {
-                      <option [value]="p.id">{{ p.name }}</option>
+                    @for (t of tierOptions; track t.value) {
+                      <option [value]="t.value">{{ t.label }}</option>
                     }
                   </select>
-                  @if (submitted() && !form().catalogProductId) {
-                    <p role="alert" class="mt-1 text-xs font-semibold text-rose-600">Elegí el producto del beneficio.</p>
-                  }
-                </div>
-              }
-
-              <div>
-                <label class="block text-xs font-bold text-text mb-1">Nivel de Socio Requerido</label>
-                <select
-                  [ngModel]="form().tier"
-                  (ngModelChange)="updateField('tier', $event)"
-                  class="cursor-pointer w-full rounded-xl border border-border bg-surface px-3 py-2 text-xs font-semibold text-text focus:border-primary focus:outline-none"
-                >
-                  @for (t of tierOptions; track t.value) {
-                    <option [value]="t.value">{{ t.label }}</option>
-                  }
-                </select>
-              </div>
-            </div>
-
-            <div class="grid grid-cols-2 gap-3">
-              <div class="rounded-2xl border border-border bg-bg/30 p-3">
-                <label class="block text-xs font-bold text-text mb-1">Costo en Puntos</label>
-                <input
-                  type="number" min="0" step="50"
-                  [ngModel]="form().pointsCost"
-                  (ngModelChange)="updateField('pointsCost', $event)"
-                  class="w-full rounded-xl border border-border bg-surface px-3 py-1.5 text-sm font-bold text-text focus:border-primary focus:outline-none"
-                />
-              </div>
-              <div class="rounded-2xl border border-border bg-bg/30 p-3">
-                <label class="block text-xs font-bold text-text mb-1">Cupo Máximo (Red)</label>
-                <input
-                  type="number" min="1" step="25"
-                  [ngModel]="form().maxRedemptions"
-                  (ngModelChange)="updateField('maxRedemptions', $event)"
-                  class="w-full rounded-xl border border-border bg-surface px-3 py-1.5 text-sm font-bold text-text focus:border-primary focus:outline-none"
-                />
-              </div>
-            </div>
-
-            <div class="rounded-2xl border border-border bg-bg/30 p-3 space-y-2">
-              <div class="flex items-center justify-between text-xs">
-                <span class="font-bold text-text">Vigencia</span>
-                <div class="flex gap-1 text-[10px]">
-                  <button type="button" (click)="setPresetDuration(30)" class="cursor-pointer rounded border border-border bg-surface px-1.5 py-0.5 hover:text-primary">+30d</button>
-                  <button type="button" (click)="setPresetDuration(60)" class="cursor-pointer rounded border border-border bg-surface px-1.5 py-0.5 hover:text-primary">+60d</button>
-                  <button type="button" (click)="setPresetDuration(90)" class="cursor-pointer rounded border border-border bg-surface px-1.5 py-0.5 hover:text-primary">+90d</button>
                 </div>
               </div>
-              <div class="grid grid-cols-2 gap-2 text-xs">
-                <input
-                  type="date"
-                  [ngModel]="form().startDate"
-                  (ngModelChange)="updateField('startDate', $event)"
-                  class="rounded-xl border border-border bg-surface px-2.5 py-1.5 text-text focus:border-primary focus:outline-none"
-                  [class.border-red-400]="submitted() && (!form().startDate || form().startDate > form().endDate)"
-                />
-                <input
-                  type="date"
-                  [ngModel]="form().endDate"
-                  (ngModelChange)="updateField('endDate', $event)"
-                  class="rounded-xl border border-border bg-surface px-2.5 py-1.5 text-text focus:border-primary focus:outline-none"
-                  [class.border-red-400]="submitted() && (!form().endDate || form().startDate > form().endDate)"
-                />
+            </section>
+
+            <section class="border-t border-border pt-3">
+              <p class="form-section-title">Costo y cupo</p>
+              <div class="form-grid">
+                <div>
+                  <label for="gb-points" class="form-label">Costo en puntos</label>
+                  <input
+                    id="gb-points"
+                    type="number"
+                    min="0"
+                    step="50"
+                    [ngModel]="form().pointsCost"
+                    (ngModelChange)="updateField('pointsCost', $event)"
+                    class="form-control"
+                  />
+                </div>
+                <div>
+                  <label for="gb-max" class="form-label">Cupo máximo (red)</label>
+                  <input
+                    id="gb-max"
+                    type="number"
+                    min="1"
+                    step="25"
+                    [ngModel]="form().maxRedemptions"
+                    (ngModelChange)="updateField('maxRedemptions', $event)"
+                    class="form-control"
+                  />
+                </div>
+              </div>
+            </section>
+
+            <section class="border-t border-border pt-3">
+              <div class="mb-3 flex items-center justify-between gap-2">
+                <p class="form-section-title mb-0">Vigencia</p>
+                <div class="flex gap-1">
+                  <button type="button" (click)="setPresetDuration(30)" class="toggle-chip px-2 py-0.5 text-[11px]">+30d</button>
+                  <button type="button" (click)="setPresetDuration(60)" class="toggle-chip px-2 py-0.5 text-[11px]">+60d</button>
+                  <button type="button" (click)="setPresetDuration(90)" class="toggle-chip px-2 py-0.5 text-[11px]">+90d</button>
+                </div>
+              </div>
+              <div class="form-grid">
+                <div>
+                  <label for="gb-start" class="form-label">Desde</label>
+                  <input
+                    id="gb-start"
+                    type="date"
+                    [ngModel]="form().startDate"
+                    (ngModelChange)="updateField('startDate', $event)"
+                    class="form-control"
+                    [attr.aria-invalid]="submitted() && (!form().startDate || form().startDate > form().endDate) ? 'true' : null"
+                  />
+                </div>
+                <div>
+                  <label for="gb-end" class="form-label">Hasta</label>
+                  <input
+                    id="gb-end"
+                    type="date"
+                    [ngModel]="form().endDate"
+                    (ngModelChange)="updateField('endDate', $event)"
+                    class="form-control"
+                    [attr.aria-invalid]="submitted() && (!form().endDate || form().startDate > form().endDate) ? 'true' : null"
+                  />
+                </div>
               </div>
               @if (submitted() && (!form().startDate || !form().endDate)) {
-                <p class="text-[10px] text-red-500 font-bold">Las fechas de inicio y fin son obligatorias.</p>
+                <p role="alert" class="form-error">Las fechas de inicio y fin son obligatorias.</p>
               } @else if (submitted() && form().startDate > form().endDate) {
-                <p class="text-[10px] text-red-500 font-bold">La fecha de fin no puede ser anterior a la de inicio.</p>
+                <p role="alert" class="form-error">La fecha de fin no puede ser anterior a la de inicio.</p>
               }
-            </div>
+            </section>
 
-            <div class="grid grid-cols-2 gap-3 text-xs">
-              <label class="cursor-pointer flex items-center justify-between rounded-xl border border-border bg-bg/30 p-3">
-                <span class="font-bold text-text">Activo para Canjes</span>
-                <input type="checkbox" [checked]="form().status" (change)="updateField('status', !form().status)" class="size-4 accent-primary" />
-              </label>
-              <label class="cursor-pointer flex items-center justify-between rounded-xl border border-border bg-bg/30 p-3">
-                <span class="font-bold text-text">Visible en Catálogo</span>
-                <input type="checkbox" [checked]="form().isPublic" (change)="updateField('isPublic', !form().isPublic)" class="size-4 accent-primary" />
-              </label>
-            </div>
-          </div>
-
-          <div class="lg:col-span-5 space-y-3">
-            <span class="text-xs font-bold uppercase tracking-wider text-muted">Vista Previa Cliente</span>
-            <div class="rounded-3xl border border-border bg-surface p-5 shadow-lg space-y-3">
-              <div class="flex items-center justify-between">
-                <span class="inline-flex items-center gap-1 rounded-full bg-purple-100 px-2 py-0.5 text-[11px] font-extrabold text-purple-900">
-                  Red Global
-                </span>
-                <span class="rounded-full px-2 py-0.5 text-[10px] font-bold" [class.bg-emerald-100]="form().isPublic" [class.text-emerald-800]="form().isPublic" [class.bg-stone-100]="!form().isPublic" [class.text-stone-600]="!form().isPublic">
-                  {{ form().isPublic ? 'Público' : 'Borrador' }}
-                </span>
+            <section class="border-t border-border pt-3">
+              <p class="form-section-title">Visibilidad</p>
+              <div class="form-grid text-xs">
+                <label class="flex cursor-pointer items-center gap-2 font-semibold text-text">
+                  <input type="checkbox" [checked]="form().status" (change)="updateField('status', !form().status)" class="size-4 accent-primary" />
+                  Activo para canjes
+                </label>
+                <label class="flex cursor-pointer items-center gap-2 font-semibold text-text">
+                  <input type="checkbox" [checked]="form().isPublic" (change)="updateField('isPublic', !form().isPublic)" class="size-4 accent-primary" />
+                  Visible en catálogo
+                </label>
               </div>
-
-              <div class="flex items-start gap-3">
-                <div>
-                  <h3 class="font-extrabold text-text text-sm leading-tight">{{ form().name || 'Nombre de la Promoción' }}</h3>
-                  <p class="text-[11px] text-muted line-clamp-2 mt-0.5">{{ form().description || 'Descripción del beneficio...' }}</p>
-                </div>
-              </div>
-
-              <div class="grid grid-cols-2 gap-2 rounded-xl bg-bg/60 p-2.5 text-xs">
-                <div><span class="text-[10px] text-muted block">Tipo</span><span class="font-bold text-text">{{ getTypeMeta(form().type).shortLabel }}</span></div>
-                <div><span class="text-[10px] text-muted block">Costo</span><span class="font-black text-primary">{{ form().pointsCost === 0 ? '¡GRATIS!' : form().pointsCost + ' pts' }}</span></div>
-                <div><span class="text-[10px] text-muted block">Nivel</span><span class="font-bold text-text">{{ form().tier === 'ALL' ? 'Todos' : form().tier }}</span></div>
-                <div><span class="text-[10px] text-muted block">Cupo</span><span class="font-bold text-text">{{ form().maxRedemptions }} canjes</span></div>
-              </div>
-
-              <div class="flex items-center justify-between text-xs text-muted border-t border-border pt-2">
-                <span>{{ form().endDate ? 'Hasta ' + form().endDate : 'Sin fecha de fin' }}</span>
-                <span class="font-bold text-primary">Toda la red</span>
-              </div>
-            </div>
+            </section>
           </div>
         </div>
       </div>
 
-      <div class="flex items-center justify-between border-t border-border bg-bg/50 px-6 py-3.5">
-        <button type="button" (click)="close.emit()" class="cursor-pointer rounded-xl border border-border px-4 py-2 text-xs font-bold text-muted hover:bg-bg select-none">
-          Cancelar
-        </button>
+      <div class="modal-footer">
+        @if (imageUploading()) {
+          <p role="status" class="mr-auto text-xs text-muted">Esperá a que termine de subir la imagen…</p>
+        }
+        <button type="button" (click)="close.emit()" class="btn-secondary">Cancelar</button>
         <button
           type="button"
           (click)="onSubmit()"
-          [disabled]="isProcessing()"
-          class="cursor-pointer inline-flex items-center gap-1.5 rounded-xl bg-primary px-5 py-2 text-xs font-extrabold text-white shadow-md hover:bg-primary-dark active:scale-95 disabled:opacity-50 select-none"
+          [disabled]="isProcessing() || imageUploading()"
+          class="btn-primary"
         >
-          <span>{{ mode() === 'create' ? 'Crear Beneficio' : 'Guardar Cambios' }}</span>
+          @if (mode() === 'edit') {
+            Guardar cambios
+          } @else if (isDuplicate()) {
+            Crear copia
+          } @else {
+            Crear beneficio
+          }
         </button>
       </div>
     </div>
